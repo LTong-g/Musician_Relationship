@@ -187,11 +187,21 @@ input {
   display: block;
   width: 100%;
   min-height: 640px;
+  position: relative;
+  cursor: grab;
   background:
     linear-gradient(#eef2f7 1px, transparent 1px),
     linear-gradient(90deg, #eef2f7 1px, transparent 1px),
     #fbfcfe;
   background-size: 36px 36px;
+}
+
+#graph:active {
+  cursor: grabbing;
+}
+
+#graph canvas {
+  display: block;
 }
 
 .detail-panel {
@@ -261,72 +271,6 @@ th {
   background: #f8fafc;
   color: #475467;
   font-weight: 600;
-}
-
-.node circle {
-  stroke: #ffffff;
-  stroke-width: 2;
-}
-
-.node {
-  cursor: pointer;
-}
-
-.node text {
-  font-size: 12px;
-  fill: #182230;
-  paint-order: stroke;
-  stroke: #ffffff;
-  stroke-width: 4px;
-  stroke-linejoin: round;
-}
-
-.node.selected circle {
-  stroke: #2458c7;
-  stroke-width: 3;
-}
-
-.edge {
-  stroke-width: 1.6;
-  fill: none;
-  opacity: 0.62;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.edge.selected {
-  stroke-width: 3;
-  opacity: 1;
-}
-
-.edge-label {
-  font-size: 11px;
-  fill: #475467;
-  paint-order: stroke;
-  stroke: #ffffff;
-  stroke-width: 4px;
-  dominant-baseline: central;
-  pointer-events: none;
-}
-
-.role-lyric {
-  stroke: #1f78b4;
-}
-
-.role-compose {
-  stroke: #d95f02;
-}
-
-.role-merged {
-  stroke: #475467;
-}
-
-.target-node {
-  fill: #2458c7;
-}
-
-.artist-node {
-  fill: #13956f;
 }
 
 @media (max-width: 1050px) {

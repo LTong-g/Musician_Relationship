@@ -1,0 +1,15 @@
+{
+  "name": "musician_relationship",
+  "version": "1.0.0",
+  "description": "音乐人合作关系图谱的本地元数据采集与清洗工具。当前阶段聚焦 QQ 音乐非官方接口，先建立歌手身份表，再采集单个歌手歌曲，过滤明显非原版条目，并补全作词、作曲等制作人员信息；后续可用专辑详情做归属验证。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "force-graph": "^1.51.4"
+  }
+}

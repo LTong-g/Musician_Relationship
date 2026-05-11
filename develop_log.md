@@ -663,3 +663,77 @@ Read this file as UTF-8.
 - 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
 - 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=soft-edge`，确认返回 HTML 包含 `app.js?v=20260511-soft-edge` 和 `styles.css?v=20260511-soft-edge`。
 - 验证对象为版本化脚本资源，访问 `http://127.0.0.1:8765/app.js?v=20260511-soft-edge`，确认返回内容包含 `soft-edge-20260511`，且有向箭头 marker 逻辑需要选中边才启用。
+
+### 调研成熟网络图可视化框架
+
+- 用户指出当前网络图呈现和交互体验仍然很差，并询问是否有成熟框架可替代当前手写 SVG 网络图。
+- 已确认当前网页图谱问题不应继续靠手写布局微调解决；更合理的方向是用成熟图可视化引擎接管布局、缩放、拖拽、选中、高亮、碰撞和边渲染。
+- 已在 GitHub 和项目官网调研 `Cytoscape.js`、`sigma.js`、`AntV G6`、`force-graph`、`vis-network`、`cosmos.gl`、`Graphin` 等方案。
+- 目标效果为保留当前静态 GitHub Pages 打开方式和现有 JSON 数据来源，将图谱区域替换为成熟网络图组件；用户应能自然缩放、拖拽节点、点击节点或边查看右侧详情，并通过搜索或筛选聚焦局部关系。
+- 实现方案倾向先做一个最小替换原型：不重建整个前端工程，只替换 `web/app.js` 中图谱渲染层，保留顶部筛选、右侧详情和底部明细表。
+- 初步判断 `force-graph` 最适合快速验证：支持静态 script 标签引入、Canvas 渲染、d3-force 布局、缩放平移、节点拖拽、节点与边 hover/click、方向边、曲线边、图片节点和碰撞检测示例，迁移成本最低。
+- `vis-network` 也适合快速替换，API 简单并支持图片节点、自动布局和聚类，但视觉风格较老，后续精细化交互可能不如 `force-graph` 和 `G6`。
+- `AntV G6` 和 `Cytoscape.js` 更适合长期做完整图分析工作台，布局、插件和交互能力更强，但集成复杂度高于 `force-graph`。
+- `sigma.js` 和 `cosmos.gl` 更偏大规模 WebGL 图浏览；当前数据规模尚未达到必须使用它们的程度，且头像节点、边方向和业务交互需要额外定制。
+- 风险边界包括 CDN 依赖或本地 vendor 依赖管理、Canvas/WebGL 可访问性弱于 SVG、头像跨域加载失败、移动端性能和浏览器兼容性。
+- 本轮不做代码替换，仅完成候选框架调研和迁移建议；后续若进入实现，需先做 `force-graph` 原型并进行浏览器实际交互验证。
+
+### 生成 force-graph 中文 API 整理文档
+
+- 用户要求先详细分析 `force-graph` 的能力，并将完整 API 文档整理到项目根目录，翻译成中文、使用 UTF-8 编码并合理分段，便于先理解可控范围再做设计。
+- 已新增根目录文档 `force-graph-api-zh.md`，内容按“是什么、怎么接入、节点控制、边控制、布局、交互、视图控制、示例说明、适合本项目的用法”分段整理。
+- 文档面向设计阶段使用，重点说明节点可用头像、颜色、文字和自定义绘制，边可用颜色、虚线、曲率、箭头和粒子流动，且可通过回调控制点击、悬停、聚焦和过滤。
+- 文档中同时整理了官方示例的用途划分，帮助后续选择最合适的接入方式而不是直接照搬某个 sample。
+- 本轮未修改现有网页实现，仅新增说明文档和本日志记录。
+
+### 正式安装 force-graph 并核对包内文档
+
+- 用户明确要求不再保留临时克隆仓库，改为正式安装库，并确认安装后库内是否自带 API 文档；若没有，再补英文文档供后续参考。
+- 已在项目根目录执行正式安装，`package.json` 生成并记录了 `force-graph` 依赖，版本为 `^1.51.4`，并生成了 `package-lock.json`。
+- 已确认 `node_modules/force-graph` 内包含 `README.md` 和 `dist/force-graph.d.ts`，说明库本身已经自带英文 API 说明与类型声明。
+- 已确认安装结果可通过 `npm ls force-graph --depth=0` 直接看到本项目已依赖 `force-graph@1.51.4`。
+- 由于库内文档已经存在，本轮未额外补写英文 API 文档，仅保留此前的中文整理文档供设计阶段阅读。
+
+### 更新 AGENTS 依赖与文档约定
+
+- 用户要求把依赖库使用情况和 API 文档约定记入 `AGENTS.md`，以便后续开发遵循统一规则。
+- 已在项目补充规则中加入 `force-graph` 正式依赖约定，明确网页图谱优先围绕该库实现，不再依赖临时克隆仓库作为长期来源。
+- 已在项目补充规则中加入 `force-graph` 文档使用约定，明确优先阅读 `node_modules/force-graph/README.md` 和 `dist/force-graph.d.ts` 作为英文 API 依据。
+- 已明确本地中文整理文档只能作为设计阶段参考，不替代库本体文档。
+
+### 重写 force-graph 中文文档为可控项速查表
+
+- 用户要求将此前的 force-graph 中文文档重写为只记录可控制项的速查表，删除介绍、安装和分析内容。
+- 已将根目录文档 `force-graph-api-zh.md` 重写为按“数据输入、容器布局、节点样式、边样式、力导向与布局、交互、视图控制、工具方法”分段的单行速查表。
+- 已按用户要求把说明和函数名放在同一行，避免出现“说明一行、函数名下一行”的排版。
+- 新版文档不再包含库介绍、安装说明、示例分析和使用判断，仅保留后续设计时需要的可控入口名称。
+
+### 将网页图谱渲染替换为 force-graph
+
+- 用户要求把当前绘图换成新安装的库，理解为将网页图谱区域从手写 SVG 布局和绘制替换为项目根目录正式安装的 `force-graph`。
+- 已按项目规则读取 `node_modules/force-graph/README.md` 和 `node_modules/force-graph/dist/force-graph.d.ts`，确认可用能力包括 Canvas 渲染、节点自绘、边曲率、方向箭头、方向粒子、缩放平移、节点拖拽、节点/边点击和 d3 force 参数调整。
+- 已将 `web/index.html` 的图谱容器从 `<svg>` 改为 `<div>`，并引入本地静态脚本 `web/vendor/force-graph.min.js`，避免静态网页依赖 CDN 或直接依赖发布时可能缺失的 `node_modules` 路径。
+- 已在 `web/app.js` 保留原有数据构图、筛选、搜索、右侧详情和底部表格逻辑，仅替换 `renderGraph()` 的渲染层。
+- 已删除上一版手写 SVG 的布局、曲线边、marker 箭头和节点/边 DOM 拼接逻辑，改为 `new ForceGraph(container)` 接收 `{ nodes, links }` 数据。
+- 新图谱支持 Canvas 缩放、平移、节点拖拽、点击节点聚焦、点击节点或边更新右侧详情；有向模式下选中边显示方向箭头和方向粒子。
+- 节点自绘继续优先使用音乐人头像，头像不可用时使用目标歌手蓝色、普通贡献者绿色的圆形节点兜底。
+- 已配置边颜色、边宽、边曲率、连接距离、斥力和冷却参数，作词/作曲在分开显示模式下使用不同曲率和颜色，合并模式使用灰色合作边。
+- 已更新 `web/styles.css`，删除旧 SVG 节点和边样式，保留图谱区域网格背景并增加 Canvas 拖拽光标。
+- 已更新 `README.md`，说明静态网页图谱区域已使用本地 `force-graph` 脚本，支持缩放、平移、拖拽、点击详情和选中边方向表达。
+- 已按用户偏好将修改后的 `README.md`、`web/index.html`、`web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
+
+### 验证 force-graph 图谱替换
+
+- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
+- 验证对象为 `README.md`、`web/index.html`、`web/app.js` 和 `web/styles.css` 的行尾，执行字节扫描确认不存在 LF-only 行尾。
+- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=force-graph-final`、`/styles.css?v=20260511-force-graph`、`/app.js?v=20260511-force-graph`、`/vendor/force-graph.min.js` 和 `/data/catalog.json`，均返回 HTTP 200。
+- 验证对象为网页入口和样例数据协议，执行 Node 脚本确认 `web/index.html` 引入 `vendor/force-graph.min.js`，`web/app.js` 包含 `new ForceGraph(container)`，样例目标歌手周杰伦数据包含 31 个节点、34 条边且边端点有效。
+- 已确认 `web/vendor/force-graph.min.js` 文件存在且大小非零，来源为项目根目录安装的 `node_modules/force-graph/dist/force-graph.min.js`。
+- 未完成浏览器截图级交互验证；原因是当前会话未暴露 Browser 插件所需的 Node 执行入口，本地项目也未安装 Playwright 或 Puppeteer，且系统命令未发现可直接调用的 Chrome/Edge 可执行入口。
+- 替代检查已覆盖静态入口、脚本语法、资源加载和数据适配；剩余风险是实际浏览器中的 Canvas 视觉效果、头像加载和拖拽/点击体验仍需人工打开页面或后续补充浏览器自动化验证。
+
+### 更新 Node 依赖提交边界
+
+- 提交前检查发现 `node_modules/` 作为本地安装目录出现在未跟踪文件中，不应作为仓库源码提交。
+- 已将 `node_modules/` 加入 `.gitignore`，提交边界保留 `package.json`、`package-lock.json` 和 `web/vendor/force-graph.min.js`，用于记录依赖来源并保证静态网页可直接加载本地 vendor 脚本。
+- 本次边界调整不改变网页功能，只影响 Git 提交范围和后续工作区状态。

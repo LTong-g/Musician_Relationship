@@ -192,6 +192,7 @@ AI 给方案时使用以下顺序：
 - 本地数据目录：`data/raw/` 保存接口原始缓存，`data/processed/` 保存本地处理结果和报告，二者默认不提交 Git；实验性输出验证完成后应清理，不长期保留多个 `processed_*` 平铺目录。
 - 推荐 pipeline 输出：歌手身份表写入 `data/processed/singer_registry/qqmusic_hot/`；单歌手初过滤写入 `data/processed/singer_songs/<singer_slug>/`；专辑验证写入 `data/processed/album_validated/<singer_slug>/`；检查报告写入 `data/processed/reports/singer_pipeline/<singer_slug>/`。
 - 数据源优先级：第一阶段以 QQ 音乐非官方接口作为主数据源，优先验证 `qqmusic-api-python`；网易云音乐作为补充和交叉校验；酷我、酷狗等平台仅作为缺失字段兜底来源。
+- 前端图谱库：`force-graph` 已作为正式依赖安装到项目根目录，网页图谱优先围绕该库设计和实现；不得再依赖临时克隆仓库作为长期来源。
 - 数据采集边界：只采集关系图谱研究需要的元数据，例如歌曲名、音乐人名、平台 ID、头像 URL、专辑、发行信息、演唱/作词/作曲/编曲/制作人关系、榜单或热度快照；不采集音频文件，不实现下载播放能力。
 - 数据模型原则：内部标准模型至少包含 `Artist`、`Song`、`CreditEdge`、`PopularitySnapshot`、`SourceRecord`；平台原始字段必须通过 adapter 转换为标准模型，业务层不得直接依赖某个平台响应结构。
 - 来源可追溯：每条关系边必须记录来源平台、来源接口、原始字段或原始文本、抓取时间、解析方式和置信度；解析自歌词文本的作词/作曲关系置信度低于结构化制作人接口。
@@ -205,3 +206,4 @@ AI 给方案时使用以下顺序：
 - Markdown 报告生成：生成 Markdown 表格报告时必须转义单元格内的 `|`，统一换行并避免表格内部空行；生成后必须回读文件，检查 UTF-8 可读、无 U+FFFD 替换字符、表格前有空行、分隔行有效、所有表格行列数一致。未完成这些检查不得向用户声明报告可用。
 - 临时脚本约束：涉及中文常量、Markdown 表格、排序或报告生成的逻辑，优先写入仓库脚本或使用 UTF-8 明确的 Python 执行；避免在 PowerShell here-string 中直接写中文常量后生成正式产物。
 - 报告链接验收：向用户提供生成产物时，必须先确认文件存在和大小非零；最终回复中的本地文件链接必须使用正斜杠绝对路径并手动检查渲染格式，不得使用会被 Markdown 破坏的 Windows 反斜杠链接。
+- `force-graph` 文档使用：使用前优先阅读 `node_modules/force-graph/README.md` 和 `node_modules/force-graph/dist/force-graph.d.ts`，把它们作为该库的英文 API 依据；如需给设计阶段留本地说明，可在项目根目录维护独立的中文整理文档，但不要把它当作库本体文档。

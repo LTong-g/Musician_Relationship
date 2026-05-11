@@ -9,16 +9,16 @@ const state = {
   search: "",
   activeTab: "songs",
   selected: null,
+  hoveredNode: null,
+  hoveredEdge: null,
 };
 
-const layoutVersion = "soft-edge-20260511";
+let graphInstance = null;
+let graphResizeObserver = null;
+let graphDataKey = "";
+const imageCache = new Map();
+const layoutVersion = "force-graph-20260511";
 const maxVisibleContributors = 36;
-
-const roleClass = {
-  作词: "role-lyric",
-  作曲: "role-compose",
-  合作: "role-merged",
-};
 
 const roleLabels = {
   split: "作词/作曲分开",
@@ -378,21 +378,6 @@ function nodeMatches(node) {
   return String(node.name || "").toLowerCase().includes(state.search);
 }
 
-function placeRing(nodes, centerX, centerY, radius, positions, offset) {
-  const count = Math.max(nodes.length, 1);
-  nodes.forEach((node, index) => {
-    const angle = offset + (Math.PI * 2 * index) / count;
-    positions.set(node.id, {
-      x: centerX + Math.cos(angle) * radius,
-      y: centerY + Math.sin(angle) * radius,
-    });
-  });
-}
-
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function seededRandom(seed) {
   let hash = 2166136261;
   for (let index = 0; index < seed.length; index += 1) {
@@ -402,222 +387,36 @@ function seededRandom(seed) {
   return ((hash >>> 0) % 10000) / 10000;
 }
 
-function edgeNodeMap(edges) {
-  const map = new Map();
-  edges.forEach((edge) => {
-    if (!map.has(edge.source)) map.set(edge.source, []);
-    if (!map.has(edge.target)) map.set(edge.target, []);
-    map.get(edge.source).push(edge);
-    map.get(edge.target).push(edge);
-  });
-  return map;
-}
-
-function connectedTargetIds(nodeId, edges, nodeById) {
-  const ids = new Set();
-  edges.forEach((edge) => {
-    if (edge.source !== nodeId && edge.target !== nodeId) return;
-    const otherId = edge.source === nodeId ? edge.target : edge.source;
-    const otherNode = nodeById.get(otherId);
-    if (otherNode?.type === "target") ids.add(otherId);
-  });
-  return [...ids];
-}
-
-function distributeRow(nodes, y, left, right, positions) {
-  if (!nodes.length) return;
-  const gap = nodes.length === 1 ? 0 : (right - left) / (nodes.length - 1);
-  nodes.forEach((node, index) => {
-    positions.set(node.id, {
-      x: nodes.length === 1 ? (left + right) / 2 : left + gap * index,
-      y,
-    });
-  });
-}
-
-function graphHeightFor(nodes, edges, width) {
+function graphHeightFor(nodes) {
   const targetCount = nodes.filter((node) => node.type === "target").length;
   const artistCount = nodes.filter((node) => node.type === "artist").length;
   const nodeCount = targetCount + artistCount;
-  if (state.viewMode === "bridge") return clamp(620 + nodeCount * 10, 680, 1400);
-  return clamp(640 + nodeCount * 5, 700, 1600);
-}
-
-function initialPositions(nodes, edges, width, height) {
-  const positions = new Map();
-  const targetNodes = nodes.filter((node) => node.type === "target");
-  const artistNodes = nodes.filter((node) => node.type === "artist");
-
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const targetRadius = Math.min(width, height) * 0.15;
-  targetNodes.forEach((node, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / Math.max(targetNodes.length, 1);
-    positions.set(node.id, {
-      x: centerX + Math.cos(angle) * (targetNodes.length === 1 ? 0 : targetRadius),
-      y: centerY + Math.sin(angle) * (targetNodes.length === 1 ? 0 : targetRadius),
-    });
-  });
-
-  artistNodes.forEach((node, index) => {
-    const jitter = seededRandom(node.id);
-    const angle = Math.PI * 2 * ((index + jitter) / Math.max(artistNodes.length, 1));
-    const radius = Math.min(width, height) * (state.viewMode === "bridge" ? 0.28 : 0.34);
-    positions.set(node.id, {
-      x: centerX + Math.cos(angle) * radius + (seededRandom(`${node.id}:x`) - 0.5) * 90,
-      y: centerY + Math.sin(angle) * radius + (seededRandom(`${node.id}:y`) - 0.5) * 90,
-    });
-  });
-
-  return positions;
-}
-
-function anchorForNode(node, width, height) {
-  if (state.viewMode === "bridge") {
-    if (node.type === "target") return { x: width * 0.5, y: height * 0.64, strength: 0.01 };
-    return { x: width * 0.5, y: height * 0.36, strength: 0.009 };
-  }
-  if (node.type === "target") return { x: width * 0.52, y: height * 0.52, strength: 0.008 };
-  return { x: width * 0.5, y: height * 0.5, strength: 0.003 };
-}
-
-function forceDirectedLayout(nodes, edges, width, height) {
-  const positions = initialPositions(nodes, edges, width, height);
-  const nodeById = new Map(nodes.map((node) => [node.id, node]));
-  const velocities = new Map(nodes.map((node) => [node.id, { x: 0, y: 0 }]));
-  const iterations = nodes.length > 130 ? 180 : 240;
-  const charge = 2200;
-  const edgeStrength = 0.024;
-
-  for (let iteration = 0; iteration < iterations; iteration += 1) {
-    const alpha = 1 - iteration / iterations;
-    for (let i = 0; i < nodes.length; i += 1) {
-      for (let j = i + 1; j < nodes.length; j += 1) {
-        const a = nodes[i];
-        const b = nodes[j];
-        const pa = positions.get(a.id);
-        const pb = positions.get(b.id);
-        let dx = pa.x - pb.x;
-        let dy = pa.y - pb.y;
-        let distanceSq = dx * dx + dy * dy;
-        if (distanceSq < 0.01) {
-          dx = seededRandom(`${a.id}:${b.id}:dx`) - 0.5;
-          dy = seededRandom(`${a.id}:${b.id}:dy`) - 0.5;
-          distanceSq = dx * dx + dy * dy;
-        }
-        const distance = Math.sqrt(distanceSq);
-        const minDistance = nodeRadius(a) + nodeRadius(b) + (a.type === "target" || b.type === "target" ? 34 : 22);
-        const repel = (charge * alpha) / Math.max(distanceSq, 140);
-        const overlap = Math.max(0, minDistance - distance) * 0.16;
-        const force = repel + overlap;
-        const fx = (dx / distance) * force;
-        const fy = (dy / distance) * force;
-        velocities.get(a.id).x += fx;
-        velocities.get(a.id).y += fy;
-        velocities.get(b.id).x -= fx;
-        velocities.get(b.id).y -= fy;
-      }
-    }
-
-    edges.forEach((edge) => {
-      const sourceNode = nodeById.get(edge.source);
-      const targetNode = nodeById.get(edge.target);
-      const source = positions.get(edge.source);
-      const target = positions.get(edge.target);
-      if (!sourceNode || !targetNode || !source || !target) return;
-      const dx = target.x - source.x;
-      const dy = target.y - source.y;
-      const distance = Math.max(Math.hypot(dx, dy), 1);
-      const desired = 150;
-      const force = (distance - desired) * edgeStrength * alpha;
-      const fx = (dx / distance) * force;
-      const fy = (dy / distance) * force;
-      velocities.get(edge.source).x += fx;
-      velocities.get(edge.source).y += fy;
-      velocities.get(edge.target).x -= fx;
-      velocities.get(edge.target).y -= fy;
-    });
-
-    nodes.forEach((node) => {
-      const anchor = anchorForNode(node, width, height);
-      const pos = positions.get(node.id);
-      velocities.get(node.id).x += (anchor.x - pos.x) * anchor.strength * alpha;
-      velocities.get(node.id).y += (anchor.y - pos.y) * anchor.strength * alpha;
-    });
-
-    nodes.forEach((node) => {
-      const velocity = velocities.get(node.id);
-      const pos = positions.get(node.id);
-      velocity.x *= 0.76;
-      velocity.y *= 0.76;
-      positions.set(node.id, {
-        x: clamp(pos.x + clamp(velocity.x, -9, 9), 42, width - 42),
-        y: clamp(pos.y + clamp(velocity.y, -9, 9), 42, height - 52),
-      });
-    });
-  }
-
-  return positions;
-}
-
-function layoutNodes(nodes, edges, width, height) {
-  const positions = forceDirectedLayout(nodes, edges, width, height);
-  nodes.forEach((node) => {
-    if (!positions.has(node.id)) positions.set(node.id, { x: width / 2, y: height / 2 });
-  });
-  return positions;
+  if (state.viewMode === "bridge") return Math.max(660, Math.min(1180, 610 + nodeCount * 8));
+  return Math.max(660, Math.min(1220, 620 + nodeCount * 4));
 }
 
 function nodeRadius(node) {
-  if (node.type === "target") return 24;
-  return 15;
+  if (node.type === "target") return 17;
+  return Math.min(15, 8 + Math.sqrt(node.degree || 1) * 1.4);
 }
 
-function nodeClass(node) {
-  if (node.type === "target") return "target-node";
-  return "artist-node";
+function nodeColor(node) {
+  if (node.type === "target") return "#2458c7";
+  return "#13956f";
 }
 
-function shortenLine(source, target, sourceRadius, targetRadius) {
-  const dx = target.x - source.x;
-  const dy = target.y - source.y;
-  const length = Math.max(Math.hypot(dx, dy), 1);
-  const sx = source.x + (dx / length) * (sourceRadius + 3);
-  const sy = source.y + (dy / length) * (sourceRadius + 3);
-  const tx = target.x - (dx / length) * (targetRadius + 9);
-  const ty = target.y - (dy / length) * (targetRadius + 9);
-  return { sx, sy, tx, ty, dx, dy, length };
+function edgeColor(edge) {
+  if (edge.role === "作词") return "rgba(31, 120, 180, 0.58)";
+  if (edge.role === "作曲") return "rgba(217, 95, 2, 0.58)";
+  return "rgba(71, 84, 103, 0.52)";
 }
 
-function edgeCurve(edge, sourceNode, targetNode, source, target, index) {
-  const line = shortenLine(source, target, nodeRadius(sourceNode), nodeRadius(targetNode));
-  const samePairOffset = index === 0 ? 0 : (index % 2 === 0 ? -1 : 1) * Math.ceil(index / 2) * 10;
-  const roleOffset = edge.role === "作词" ? -5 : edge.role === "作曲" ? 5 : 0;
-  const curveOffset = samePairOffset + roleOffset;
-  const nx = -line.dy / line.length;
-  const ny = line.dx / line.length;
-  const cx = (line.sx + line.tx) / 2 + nx * curveOffset;
-  const cy = (line.sy + line.ty) / 2 + ny * curveOffset;
-  const labelT = 0.5;
-  const labelX = (1 - labelT) * (1 - labelT) * line.sx + 2 * (1 - labelT) * labelT * cx + labelT * labelT * line.tx;
-  const labelY = (1 - labelT) * (1 - labelT) * line.sy + 2 * (1 - labelT) * labelT * cy + labelT * labelT * line.ty;
-  return {
-    path: `M ${line.sx.toFixed(1)} ${line.sy.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${line.tx.toFixed(1)} ${line.ty.toFixed(1)}`,
-    labelX,
-    labelY,
-  };
+function selectedNodeId() {
+  return state.selected?.type === "node" ? state.selected.id : "";
 }
 
-function edgeParallelIndex(edges) {
-  const pairCounts = new Map();
-  const indexes = new Map();
-  edges.forEach((edge) => {
-    const key = `${edge.source}->${edge.target}`;
-    const index = pairCounts.get(key) || 0;
-    pairCounts.set(key, index + 1);
-    indexes.set(edge.id, index);
-  });
-  return indexes;
+function selectedEdgeId() {
+  return state.selected?.type === "edge" ? state.selected.id : "";
 }
 
 function nodeDegreeMap(edges) {
@@ -637,9 +436,176 @@ function shouldShowNodeLabel(node, degree, selected) {
   return degree >= 8;
 }
 
+function forceGraphData(nodes, edges) {
+  const degrees = nodeDegreeMap(edges);
+  const previousNodes = graphInstance?.graphData()?.nodes || [];
+  const previousPositions = new Map(previousNodes.map((node) => [node.id, node]));
+  const graphNodes = nodes.map((node) => ({
+    ...node,
+    degree: degrees.get(node.id) || 0,
+    val: node.type === "target" ? 18 : Math.max(6, Math.sqrt(degrees.get(node.id) || 1) * 4),
+  })).map((node) => {
+    const previous = previousPositions.get(node.id);
+    if (!previous) {
+      return {
+        ...node,
+        x: (seededRandom(`${node.id}:x`) - 0.5) * 520,
+        y: (seededRandom(`${node.id}:y`) - 0.5) * 380,
+      };
+    }
+    return {
+      ...node,
+      x: previous.x,
+      y: previous.y,
+      vx: previous.vx,
+      vy: previous.vy,
+      fx: previous.fx,
+      fy: previous.fy,
+    };
+  });
+  const graphLinks = edges.map((edge) => ({
+    ...edge,
+    source: edge.source,
+    target: edge.target,
+    curvature: edge.role === "作词" ? -0.12 : edge.role === "作曲" ? 0.12 : 0,
+  }));
+  return { nodes: graphNodes, links: graphLinks };
+}
+
+function getNodeImage(node) {
+  if (!node.icon) return null;
+  if (imageCache.has(node.icon)) return imageCache.get(node.icon);
+  const image = new Image();
+  image.src = node.icon;
+  imageCache.set(node.icon, image);
+  return image;
+}
+
+function drawNode(node, ctx, globalScale) {
+  const radius = nodeRadius(node);
+  const selected = selectedNodeId() === node.id;
+  const hovered = state.hoveredNode?.id === node.id;
+  const degree = node.degree || 0;
+  const image = getNodeImage(node);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = nodeColor(node);
+  ctx.fill();
+
+  if (image?.complete && image.naturalWidth) {
+    ctx.save();
+    ctx.clip();
+    ctx.drawImage(image, node.x - radius, node.y - radius, radius * 2, radius * 2);
+    ctx.restore();
+  }
+
+  ctx.lineWidth = selected || hovered ? 3.4 / globalScale : 2.2 / globalScale;
+  ctx.strokeStyle = selected ? "#2458c7" : hovered ? "#111827" : "#ffffff";
+  ctx.stroke();
+
+  const showLabel = shouldShowNodeLabel(node, degree, selected || hovered);
+  if (showLabel) {
+    const fontSize = node.type === "target" ? 13 : 11;
+    ctx.font = `${fontSize / globalScale}px "Segoe UI", "Microsoft YaHei", Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    const label = node.name || node.id;
+    const labelY = node.y + radius + 5 / globalScale;
+    ctx.lineWidth = 4 / globalScale;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
+    ctx.strokeText(label, node.x, labelY);
+    ctx.fillStyle = "#182230";
+    ctx.fillText(label, node.x, labelY);
+  }
+  ctx.restore();
+}
+
+function paintNodePointerArea(node, color, ctx) {
+  const radius = nodeRadius(node) + 4;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function linkLabel(edge) {
+  return `${getNodeName(edge.source?.id || edge.source)} -> ${getNodeName(edge.target?.id || edge.target)}<br>${edge.role} · ${formatNumber(edge.song_count)} 首`;
+}
+
+function setupGraphInstance(container) {
+  if (graphInstance) return graphInstance;
+  graphInstance = new ForceGraph(container)
+    .nodeId("id")
+    .linkSource("source")
+    .linkTarget("target")
+    .backgroundColor("rgba(0,0,0,0)")
+    .nodeRelSize(1)
+    .nodeVal("val")
+    .nodeLabel((node) => node.name || node.id)
+    .nodeColor(nodeColor)
+    .nodeCanvasObject(drawNode)
+    .nodePointerAreaPaint(paintNodePointerArea)
+    .linkLabel(linkLabel)
+    .linkColor((edge) => (selectedEdgeId() === edge.id ? "#111827" : edgeColor(edge)))
+    .linkWidth((edge) => (selectedEdgeId() === edge.id ? 2.8 : Math.min(2.2, 0.7 + Math.sqrt(edge.song_count || 1) * 0.36)))
+    .linkCurvature("curvature")
+    .linkDirectionalArrowLength((edge) => (state.directionMode === "directed" && selectedEdgeId() === edge.id ? 8 : 0))
+    .linkDirectionalArrowRelPos(0.88)
+    .linkDirectionalArrowColor((edge) => (selectedEdgeId() === edge.id ? "#111827" : edgeColor(edge)))
+    .linkDirectionalParticles((edge) => (state.directionMode === "directed" && selectedEdgeId() === edge.id ? 1 : 0))
+    .linkDirectionalParticleWidth(3)
+    .linkDirectionalParticleColor((edge) => edgeColor(edge))
+    .linkHoverPrecision(8)
+    .autoPauseRedraw(false)
+    .enableNodeDrag(true)
+    .enableZoomInteraction(true)
+    .enablePanInteraction(true)
+    .showPointerCursor((item) => Boolean(item))
+    .warmupTicks(80)
+    .cooldownTicks(220)
+    .d3AlphaDecay(0.035)
+    .d3VelocityDecay(0.32)
+    .onNodeHover((node) => {
+      state.hoveredNode = node;
+    })
+    .onLinkHover((edge) => {
+      state.hoveredEdge = edge;
+    })
+    .onNodeClick((node) => {
+      state.selected = { type: "node", id: node.id };
+      renderGraph();
+      renderDetail();
+      graphInstance.centerAt(node.x, node.y, 450);
+      graphInstance.zoom(Math.max(graphInstance.zoom(), 1.7), 450);
+    })
+    .onLinkClick((edge) => {
+      state.selected = { type: "edge", id: edge.id };
+      renderGraph();
+      renderDetail();
+    })
+    .onBackgroundClick(() => {
+      state.selected = null;
+      renderGraph();
+      renderDetail();
+    });
+
+  return graphInstance;
+}
+
+function configureGraphForces(graphApi) {
+  const linkForce = graphApi.d3Force("link");
+  if (linkForce?.distance) {
+    linkForce.distance((edge) => (state.viewMode === "bridge" ? 120 : 95) + Math.max(0, 6 - (edge.song_count || 1)) * 8);
+    linkForce.strength((edge) => Math.min(0.78, 0.16 + Math.sqrt(edge.song_count || 1) * 0.08));
+  }
+  const chargeForce = graphApi.d3Force("charge");
+  if (chargeForce?.strength) chargeForce.strength((node) => (node.type === "target" ? -650 : -280));
+}
+
 function renderGraph() {
-  const svg = $("graph");
-  const width = svg.clientWidth || 960;
+  const container = $("graph");
   const graph = buildGraph();
   let nodes = graph.nodes;
   let edges = graph.edges;
@@ -651,75 +617,33 @@ function renderGraph() {
     nodes = nodes.filter((node) => matchingIds.has(node.id) || connected.has(node.id));
   }
 
-  const height = graphHeightFor(nodes, edges, width);
-  svg.style.height = `${height}px`;
-  const positions = layoutNodes(nodes, edges, width, height);
-  const nodeById = new Map(nodes.map((node) => [node.id, node]));
-  const edgeIndexes = edgeParallelIndex(edges);
-  const degrees = nodeDegreeMap(edges);
-  const marker =
-    state.directionMode === "directed"
-      ? `<defs>
-          <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,8 L11,4 z" fill="#475467"></path>
-          </marker>
-        </defs>`
-      : "";
-  const edgeMarkup = edges
-    .map((edge) => {
-      const source = positions.get(edge.source);
-      const target = positions.get(edge.target);
-      if (!source || !target) return "";
-      const sourceNode = nodeById.get(edge.source);
-      const targetNode = nodeById.get(edge.target);
-      if (!sourceNode || !targetNode) return "";
-      const curve = edgeCurve(edge, sourceNode, targetNode, source, target, edgeIndexes.get(edge.id) || 0);
-      const className = roleClass[edge.role] || "role-merged";
-      const selected = state.selected?.type === "edge" && state.selected.id === edge.id ? " selected" : "";
-      const markerEnd = state.directionMode === "directed" && selected ? ' marker-end="url(#arrow)"' : "";
-      const label = selected
-        ? `<text class="edge-label" x="${curve.labelX}" y="${curve.labelY - 5}">${escapeHtml(edge.role)} · ${formatNumber(edge.song_count)}</text>`
-        : "";
-      return `
-        <g data-edge-id="${escapeHtml(edge.id)}">
-          <path class="edge ${className}${selected}" d="${curve.path}"${markerEnd}></path>
-          ${label}
-        </g>
-      `;
-    })
-    .join("");
-  const nodeMarkup = nodes
-    .map((node) => {
-      const pos = positions.get(node.id);
-      const selected = state.selected?.type === "node" && state.selected.id === node.id ? " selected" : "";
-      const radius = nodeRadius(node);
-      const labelOffset = 30;
-      const showLabel = shouldShowNodeLabel(node, degrees.get(node.id) || 0, Boolean(selected));
-      return `
-        <g class="node${selected}" data-node-id="${escapeHtml(node.id)}" transform="translate(${pos.x},${pos.y})">
-          <circle class="${nodeClass(node)}" r="${radius}"></circle>
-          ${showLabel ? `<text text-anchor="middle" y="${labelOffset}">${escapeHtml(node.name)}</text>` : ""}
-        </g>
-      `;
-    })
-    .join("");
-
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.innerHTML = `${marker}<g>${edgeMarkup}</g><g>${nodeMarkup}</g>`;
-  svg.querySelectorAll("[data-node-id]").forEach((element) => {
-    element.addEventListener("click", () => {
-      state.selected = { type: "node", id: element.dataset.nodeId };
-      renderGraph();
-      renderDetail();
-    });
+  const height = graphHeightFor(nodes);
+  container.style.height = `${height}px`;
+  const width = container.clientWidth || 960;
+  const nextGraphDataKey = JSON.stringify({
+    nodes: nodes.map((node) => node.id).sort(),
+    edges: edges.map((edge) => edge.id).sort(),
   });
-  svg.querySelectorAll("[data-edge-id]").forEach((element) => {
-    element.addEventListener("click", () => {
-      state.selected = { type: "edge", id: element.dataset.edgeId };
-      renderGraph();
-      renderDetail();
+  const shouldFit = nextGraphDataKey !== graphDataKey;
+  graphDataKey = nextGraphDataKey;
+  const fgData = forceGraphData(nodes, edges);
+  const graphApi = setupGraphInstance(container);
+  configureGraphForces(graphApi);
+  graphApi.width(width).height(height).graphData(fgData);
+  if (shouldFit) {
+    graphApi.d3ReheatSimulation();
+    window.setTimeout(() => {
+      if (graphInstance === graphApi) graphApi.zoomToFit(500, 56);
+    }, 360);
+  }
+  if (!graphResizeObserver) {
+    graphResizeObserver = new ResizeObserver(() => {
+      const currentWidth = container.clientWidth || 960;
+      const currentHeight = container.clientHeight || height;
+      if (graphInstance) graphInstance.width(currentWidth).height(currentHeight);
     });
-  });
+    graphResizeObserver.observe(container);
+  }
 
   const modeLabel = $("view-mode").selectedOptions[0]?.textContent || "图谱";
   $("graph-title").textContent = `${modeLabel} · ${currentScopeLabel()}`;

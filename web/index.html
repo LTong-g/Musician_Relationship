@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>音乐人合作关系图谱</title>
-    <link rel="stylesheet" href="styles.css?v=20260511-soft-edge" />
+    <link rel="stylesheet" href="styles.css?v=20260511-force-graph" />
   </head>
   <body>
     <header class="topbar">
@@ -72,7 +72,7 @@
             </div>
             <input id="search-input" type="search" placeholder="搜索音乐人或歌曲" />
           </div>
-          <svg id="graph" role="img" aria-label="音乐人合作关系图谱"></svg>
+          <div id="graph" role="img" aria-label="音乐人合作关系图谱"></div>
         </div>
 
         <aside class="detail-panel">
@@ -91,6 +91,7 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260511-soft-edge"></script>
+    <script src="vendor/force-graph.min.js"></script>
+    <script src="app.js?v=20260511-force-graph"></script>
   </body>
 </html>

@@ -5,11 +5,14 @@ const state = {
   viewMode: "artist",
   roleDisplay: "split",
   directionMode: "directed",
-  minCount: 1,
+  minCount: 2,
   search: "",
   activeTab: "songs",
   selected: null,
 };
+
+const layoutVersion = "soft-edge-20260511";
+const maxVisibleContributors = 36;
 
 const roleClass = {
   作词: "role-lyric",
@@ -68,10 +71,6 @@ function addNode(nodes, node) {
   Object.entries(node).forEach(([key, value]) => {
     if (value && !existing[key]) existing[key] = value;
   });
-}
-
-function targetFiles() {
-  return catalogTargets().map((item) => item.file);
 }
 
 async function init() {
@@ -188,11 +187,12 @@ function render() {
 function renderSummary(targets) {
   const summary = mergeSummary(targets);
   const bridgeCount = countBridgeContributorsForScope();
+  const graph = buildArtistGraph();
   const metrics = [
     ["目标歌手", state.currentTarget === "all" ? targets.length : 1],
     ["可视化歌曲", summary.songs],
     ["贡献者", countUniqueContributors(targets)],
-    ["关系边", buildArtistGraph().edges.length],
+    ["当前图谱边", graph.edges.length],
     ["共同合作者", bridgeCount],
     ["隔离条目", summary.credit_incomplete],
   ];
@@ -241,6 +241,38 @@ function mergeEdges(edges) {
   return [...merged.values()];
 }
 
+function edgeWeight(edge) {
+  return edge.song_count || 0;
+}
+
+function reduceGraphForOverview(edges) {
+  if (state.search || state.viewMode !== "artist") return edges;
+  const byTarget = new Map();
+  edges.forEach((edge) => {
+    const target = edge.target;
+    const contributor = edge.source;
+    const current = byTarget.get(target) || new Map();
+    const item = current.get(contributor) || {
+      contributor,
+      total: 0,
+      strongest: 0,
+    };
+    item.total += edgeWeight(edge);
+    item.strongest = Math.max(item.strongest, edgeWeight(edge));
+    current.set(contributor, item);
+    byTarget.set(target, current);
+  });
+
+  const allowedPairs = new Set();
+  byTarget.forEach((contributors, target) => {
+    [...contributors.values()]
+      .sort((a, b) => b.total - a.total || b.strongest - a.strongest || a.contributor.localeCompare(b.contributor))
+      .slice(0, maxVisibleContributors)
+      .forEach((item) => allowedPairs.add(`${item.contributor}->${target}`));
+  });
+  return edges.filter((edge) => allowedPairs.has(`${edge.source}->${edge.target}`));
+}
+
 function buildArtistGraph() {
   const nodes = new Map();
   let edges = [];
@@ -252,54 +284,12 @@ function buildArtistGraph() {
         .map((edge) => ({ ...edge, target_slug: dataset.slug, target_name: dataset.name })),
     );
   });
-  edges = mergeEdges(edges).filter((edge) => edge.song_count >= state.minCount);
+  edges = reduceGraphForOverview(mergeEdges(edges).filter((edge) => edge.song_count >= state.minCount));
   const usedNodeIds = new Set(edges.flatMap((edge) => [edge.source, edge.target]));
   nodes.forEach((node) => {
     if (node.type === "target") usedNodeIds.add(node.id);
   });
   return { nodes: [...nodes.values()].filter((node) => usedNodeIds.has(node.id)), edges };
-}
-
-function buildSongGraph() {
-  const nodes = new Map();
-  const edges = [];
-  selectedTargets().forEach((dataset) => {
-    const target = dataset.graph.nodes.find((node) => node.type === "target");
-    const songsById = new Map(dataset.graph.song_nodes.map((song) => [song.id, song]));
-    const artistNodes = new Map(dataset.graph.nodes.filter((node) => node.type === "artist").map((node) => [node.id, node]));
-    if (target) addNode(nodes, target);
-    dataset.graph.edges
-      .filter((edge) => edge.song_count >= state.minCount)
-      .forEach((edge) => {
-        (edge.songs || []).forEach((song) => {
-          const songId = song.mid ? `song:${song.mid}` : song.id != null ? `song:id:${song.id}` : "";
-          const songNode = songsById.get(songId);
-          const artist = artistNodes.get(edge.source);
-          if (!songNode || !artist) return;
-          addNode(nodes, artist);
-          addNode(nodes, { ...songNode, target_name: dataset.name });
-          edges.push({
-            id: `${edge.source}->${songId}:${edge.role}`,
-            source: edge.source,
-            target: songId,
-            role: edge.role,
-            song_count: 1,
-            songs: [{ ...song, role: edge.role, target: dataset.name, target_slug: dataset.slug }],
-          });
-          if (target) {
-            edges.push({
-              id: `${songId}->${target.id}`,
-              source: songId,
-              target: target.id,
-              role: "合作",
-              song_count: 1,
-              songs: [{ ...song, target: dataset.name, target_slug: dataset.slug }],
-            });
-          }
-        });
-      });
-  });
-  return { nodes: [...nodes.values()], edges: state.roleDisplay === "merged" ? mergeEdges(edges) : edges };
 }
 
 function bridgeItemsForScope() {
@@ -379,7 +369,6 @@ function buildBridgeGraph() {
 }
 
 function buildGraph() {
-  if (state.viewMode === "song") return buildSongGraph();
   if (state.viewMode === "bridge") return buildBridgeGraph();
   return buildArtistGraph();
 }
@@ -400,49 +389,257 @@ function placeRing(nodes, centerX, centerY, radius, positions, offset) {
   });
 }
 
-function layoutNodes(nodes, width, height) {
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function seededRandom(seed) {
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return ((hash >>> 0) % 10000) / 10000;
+}
+
+function edgeNodeMap(edges) {
+  const map = new Map();
+  edges.forEach((edge) => {
+    if (!map.has(edge.source)) map.set(edge.source, []);
+    if (!map.has(edge.target)) map.set(edge.target, []);
+    map.get(edge.source).push(edge);
+    map.get(edge.target).push(edge);
+  });
+  return map;
+}
+
+function connectedTargetIds(nodeId, edges, nodeById) {
+  const ids = new Set();
+  edges.forEach((edge) => {
+    if (edge.source !== nodeId && edge.target !== nodeId) return;
+    const otherId = edge.source === nodeId ? edge.target : edge.source;
+    const otherNode = nodeById.get(otherId);
+    if (otherNode?.type === "target") ids.add(otherId);
+  });
+  return [...ids];
+}
+
+function distributeRow(nodes, y, left, right, positions) {
+  if (!nodes.length) return;
+  const gap = nodes.length === 1 ? 0 : (right - left) / (nodes.length - 1);
+  nodes.forEach((node, index) => {
+    positions.set(node.id, {
+      x: nodes.length === 1 ? (left + right) / 2 : left + gap * index,
+      y,
+    });
+  });
+}
+
+function graphHeightFor(nodes, edges, width) {
+  const targetCount = nodes.filter((node) => node.type === "target").length;
+  const artistCount = nodes.filter((node) => node.type === "artist").length;
+  const nodeCount = targetCount + artistCount;
+  if (state.viewMode === "bridge") return clamp(620 + nodeCount * 10, 680, 1400);
+  return clamp(640 + nodeCount * 5, 700, 1600);
+}
+
+function initialPositions(nodes, edges, width, height) {
+  const positions = new Map();
+  const targetNodes = nodes.filter((node) => node.type === "target");
+  const artistNodes = nodes.filter((node) => node.type === "artist");
+
   const centerX = width / 2;
   const centerY = height / 2;
-  const targetNodes = nodes.filter((node) => node.type === "target");
-  const songNodes = nodes.filter((node) => node.type === "song");
-  const artistNodes = nodes.filter((node) => node.type === "artist");
-  const positions = new Map();
+  const targetRadius = Math.min(width, height) * 0.15;
+  targetNodes.forEach((node, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / Math.max(targetNodes.length, 1);
+    positions.set(node.id, {
+      x: centerX + Math.cos(angle) * (targetNodes.length === 1 ? 0 : targetRadius),
+      y: centerY + Math.sin(angle) * (targetNodes.length === 1 ? 0 : targetRadius),
+    });
+  });
 
-  if (targetNodes.length === 1) {
-    positions.set(targetNodes[0].id, { x: centerX, y: centerY });
-  } else {
-    placeRing(targetNodes, centerX, centerY, Math.min(width, height) * 0.22, positions, -Math.PI / 2);
+  artistNodes.forEach((node, index) => {
+    const jitter = seededRandom(node.id);
+    const angle = Math.PI * 2 * ((index + jitter) / Math.max(artistNodes.length, 1));
+    const radius = Math.min(width, height) * (state.viewMode === "bridge" ? 0.28 : 0.34);
+    positions.set(node.id, {
+      x: centerX + Math.cos(angle) * radius + (seededRandom(`${node.id}:x`) - 0.5) * 90,
+      y: centerY + Math.sin(angle) * radius + (seededRandom(`${node.id}:y`) - 0.5) * 90,
+    });
+  });
+
+  return positions;
+}
+
+function anchorForNode(node, width, height) {
+  if (state.viewMode === "bridge") {
+    if (node.type === "target") return { x: width * 0.5, y: height * 0.64, strength: 0.01 };
+    return { x: width * 0.5, y: height * 0.36, strength: 0.009 };
+  }
+  if (node.type === "target") return { x: width * 0.52, y: height * 0.52, strength: 0.008 };
+  return { x: width * 0.5, y: height * 0.5, strength: 0.003 };
+}
+
+function forceDirectedLayout(nodes, edges, width, height) {
+  const positions = initialPositions(nodes, edges, width, height);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const velocities = new Map(nodes.map((node) => [node.id, { x: 0, y: 0 }]));
+  const iterations = nodes.length > 130 ? 180 : 240;
+  const charge = 2200;
+  const edgeStrength = 0.024;
+
+  for (let iteration = 0; iteration < iterations; iteration += 1) {
+    const alpha = 1 - iteration / iterations;
+    for (let i = 0; i < nodes.length; i += 1) {
+      for (let j = i + 1; j < nodes.length; j += 1) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const pa = positions.get(a.id);
+        const pb = positions.get(b.id);
+        let dx = pa.x - pb.x;
+        let dy = pa.y - pb.y;
+        let distanceSq = dx * dx + dy * dy;
+        if (distanceSq < 0.01) {
+          dx = seededRandom(`${a.id}:${b.id}:dx`) - 0.5;
+          dy = seededRandom(`${a.id}:${b.id}:dy`) - 0.5;
+          distanceSq = dx * dx + dy * dy;
+        }
+        const distance = Math.sqrt(distanceSq);
+        const minDistance = nodeRadius(a) + nodeRadius(b) + (a.type === "target" || b.type === "target" ? 34 : 22);
+        const repel = (charge * alpha) / Math.max(distanceSq, 140);
+        const overlap = Math.max(0, minDistance - distance) * 0.16;
+        const force = repel + overlap;
+        const fx = (dx / distance) * force;
+        const fy = (dy / distance) * force;
+        velocities.get(a.id).x += fx;
+        velocities.get(a.id).y += fy;
+        velocities.get(b.id).x -= fx;
+        velocities.get(b.id).y -= fy;
+      }
+    }
+
+    edges.forEach((edge) => {
+      const sourceNode = nodeById.get(edge.source);
+      const targetNode = nodeById.get(edge.target);
+      const source = positions.get(edge.source);
+      const target = positions.get(edge.target);
+      if (!sourceNode || !targetNode || !source || !target) return;
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const distance = Math.max(Math.hypot(dx, dy), 1);
+      const desired = 150;
+      const force = (distance - desired) * edgeStrength * alpha;
+      const fx = (dx / distance) * force;
+      const fy = (dy / distance) * force;
+      velocities.get(edge.source).x += fx;
+      velocities.get(edge.source).y += fy;
+      velocities.get(edge.target).x -= fx;
+      velocities.get(edge.target).y -= fy;
+    });
+
+    nodes.forEach((node) => {
+      const anchor = anchorForNode(node, width, height);
+      const pos = positions.get(node.id);
+      velocities.get(node.id).x += (anchor.x - pos.x) * anchor.strength * alpha;
+      velocities.get(node.id).y += (anchor.y - pos.y) * anchor.strength * alpha;
+    });
+
+    nodes.forEach((node) => {
+      const velocity = velocities.get(node.id);
+      const pos = positions.get(node.id);
+      velocity.x *= 0.76;
+      velocity.y *= 0.76;
+      positions.set(node.id, {
+        x: clamp(pos.x + clamp(velocity.x, -9, 9), 42, width - 42),
+        y: clamp(pos.y + clamp(velocity.y, -9, 9), 42, height - 52),
+      });
+    });
   }
 
-  if (state.viewMode === "song") {
-    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.31, positions, -Math.PI / 2);
-    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.45, positions, -Math.PI / 2);
-  } else {
-    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.42, positions, -Math.PI / 2);
-    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.3, positions, -Math.PI / 2);
-  }
+  return positions;
+}
+
+function layoutNodes(nodes, edges, width, height) {
+  const positions = forceDirectedLayout(nodes, edges, width, height);
   nodes.forEach((node) => {
-    if (!positions.has(node.id)) positions.set(node.id, { x: centerX, y: centerY });
+    if (!positions.has(node.id)) positions.set(node.id, { x: width / 2, y: height / 2 });
   });
   return positions;
 }
 
 function nodeRadius(node) {
   if (node.type === "target") return 24;
-  if (node.type === "song") return 8;
   return 15;
 }
 
 function nodeClass(node) {
   if (node.type === "target") return "target-node";
-  if (node.type === "song") return "song-node";
   return "artist-node";
+}
+
+function shortenLine(source, target, sourceRadius, targetRadius) {
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const length = Math.max(Math.hypot(dx, dy), 1);
+  const sx = source.x + (dx / length) * (sourceRadius + 3);
+  const sy = source.y + (dy / length) * (sourceRadius + 3);
+  const tx = target.x - (dx / length) * (targetRadius + 9);
+  const ty = target.y - (dy / length) * (targetRadius + 9);
+  return { sx, sy, tx, ty, dx, dy, length };
+}
+
+function edgeCurve(edge, sourceNode, targetNode, source, target, index) {
+  const line = shortenLine(source, target, nodeRadius(sourceNode), nodeRadius(targetNode));
+  const samePairOffset = index === 0 ? 0 : (index % 2 === 0 ? -1 : 1) * Math.ceil(index / 2) * 10;
+  const roleOffset = edge.role === "作词" ? -5 : edge.role === "作曲" ? 5 : 0;
+  const curveOffset = samePairOffset + roleOffset;
+  const nx = -line.dy / line.length;
+  const ny = line.dx / line.length;
+  const cx = (line.sx + line.tx) / 2 + nx * curveOffset;
+  const cy = (line.sy + line.ty) / 2 + ny * curveOffset;
+  const labelT = 0.5;
+  const labelX = (1 - labelT) * (1 - labelT) * line.sx + 2 * (1 - labelT) * labelT * cx + labelT * labelT * line.tx;
+  const labelY = (1 - labelT) * (1 - labelT) * line.sy + 2 * (1 - labelT) * labelT * cy + labelT * labelT * line.ty;
+  return {
+    path: `M ${line.sx.toFixed(1)} ${line.sy.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${line.tx.toFixed(1)} ${line.ty.toFixed(1)}`,
+    labelX,
+    labelY,
+  };
+}
+
+function edgeParallelIndex(edges) {
+  const pairCounts = new Map();
+  const indexes = new Map();
+  edges.forEach((edge) => {
+    const key = `${edge.source}->${edge.target}`;
+    const index = pairCounts.get(key) || 0;
+    pairCounts.set(key, index + 1);
+    indexes.set(edge.id, index);
+  });
+  return indexes;
+}
+
+function nodeDegreeMap(edges) {
+  const degrees = new Map();
+  edges.forEach((edge) => {
+    degrees.set(edge.source, (degrees.get(edge.source) || 0) + edge.song_count);
+    degrees.set(edge.target, (degrees.get(edge.target) || 0) + edge.song_count);
+  });
+  return degrees;
+}
+
+function shouldShowNodeLabel(node, degree, selected) {
+  if (selected) return true;
+  if (node.type === "target") return true;
+  if (state.search) return true;
+  if (state.viewMode === "bridge") return true;
+  return degree >= 8;
 }
 
 function renderGraph() {
   const svg = $("graph");
   const width = svg.clientWidth || 960;
-  const height = svg.clientHeight || 560;
   const graph = buildGraph();
   let nodes = graph.nodes;
   let edges = graph.edges;
@@ -454,25 +651,39 @@ function renderGraph() {
     nodes = nodes.filter((node) => matchingIds.has(node.id) || connected.has(node.id));
   }
 
-  const positions = layoutNodes(nodes, width, height);
+  const height = graphHeightFor(nodes, edges, width);
+  svg.style.height = `${height}px`;
+  const positions = layoutNodes(nodes, edges, width, height);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const edgeIndexes = edgeParallelIndex(edges);
+  const degrees = nodeDegreeMap(edges);
   const marker =
     state.directionMode === "directed"
-      ? `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667085"></path></marker></defs>`
+      ? `<defs>
+          <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,8 L11,4 z" fill="#475467"></path>
+          </marker>
+        </defs>`
       : "";
   const edgeMarkup = edges
     .map((edge) => {
       const source = positions.get(edge.source);
       const target = positions.get(edge.target);
       if (!source || !target) return "";
+      const sourceNode = nodeById.get(edge.source);
+      const targetNode = nodeById.get(edge.target);
+      if (!sourceNode || !targetNode) return "";
+      const curve = edgeCurve(edge, sourceNode, targetNode, source, target, edgeIndexes.get(edge.id) || 0);
       const className = roleClass[edge.role] || "role-merged";
       const selected = state.selected?.type === "edge" && state.selected.id === edge.id ? " selected" : "";
-      const markerEnd = state.directionMode === "directed" ? ' marker-end="url(#arrow)"' : "";
-      const labelX = (source.x + target.x) / 2;
-      const labelY = (source.y + target.y) / 2;
+      const markerEnd = state.directionMode === "directed" && selected ? ' marker-end="url(#arrow)"' : "";
+      const label = selected
+        ? `<text class="edge-label" x="${curve.labelX}" y="${curve.labelY - 5}">${escapeHtml(edge.role)} · ${formatNumber(edge.song_count)}</text>`
+        : "";
       return `
         <g data-edge-id="${escapeHtml(edge.id)}">
-          <line class="edge ${className}${selected}" x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}"${markerEnd}></line>
-          <text class="edge-label" x="${labelX}" y="${labelY - 5}">${escapeHtml(edge.role)} · ${formatNumber(edge.song_count)}</text>
+          <path class="edge ${className}${selected}" d="${curve.path}"${markerEnd}></path>
+          ${label}
         </g>
       `;
     })
@@ -482,11 +693,12 @@ function renderGraph() {
       const pos = positions.get(node.id);
       const selected = state.selected?.type === "node" && state.selected.id === node.id ? " selected" : "";
       const radius = nodeRadius(node);
-      const labelOffset = node.type === "song" ? 19 : 30;
+      const labelOffset = 30;
+      const showLabel = shouldShowNodeLabel(node, degrees.get(node.id) || 0, Boolean(selected));
       return `
         <g class="node${selected}" data-node-id="${escapeHtml(node.id)}" transform="translate(${pos.x},${pos.y})">
           <circle class="${nodeClass(node)}" r="${radius}"></circle>
-          <text text-anchor="middle" y="${labelOffset}">${escapeHtml(node.name)}</text>
+          ${showLabel ? `<text text-anchor="middle" y="${labelOffset}">${escapeHtml(node.name)}</text>` : ""}
         </g>
       `;
     })
@@ -512,8 +724,8 @@ function renderGraph() {
   const modeLabel = $("view-mode").selectedOptions[0]?.textContent || "图谱";
   $("graph-title").textContent = `${modeLabel} · ${currentScopeLabel()}`;
   $("graph-note").textContent = edges.length
-    ? `${formatNumber(nodes.length)} 个节点，${formatNumber(edges.length)} 条边 · ${roleLabels[state.roleDisplay]}`
-    : `${formatNumber(nodes.length)} 个节点，当前筛选下暂无连边`;
+    ? `${formatNumber(nodes.length)} 个节点，${formatNumber(edges.length)} 条边 · 选中边查看方向和歌曲 · ${layoutVersion}`
+    : `${formatNumber(nodes.length)} 个节点，当前筛选下暂无连边 · ${layoutVersion}`;
 }
 
 function findSelected() {

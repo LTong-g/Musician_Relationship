@@ -106,21 +106,21 @@ input {
 
 .layout {
   display: grid;
-  gap: 14px;
-  padding: 14px;
+  gap: 10px;
+  padding: 10px 14px 14px;
 }
 
 .source-band {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .source-band > div {
   display: grid;
-  gap: 5px;
-  min-height: 58px;
-  padding: 11px 13px;
+  gap: 3px;
+  min-height: 44px;
+  padding: 8px 13px;
   background: #ffffff;
   border: 1px solid #d7dde6;
   border-radius: 8px;
@@ -128,17 +128,18 @@ input {
 
 .source-band strong {
   font-size: 14px;
+  line-height: 1.25;
 }
 
 .summary-strip {
   display: grid;
   grid-template-columns: repeat(6, minmax(118px, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .metric {
-  min-height: 70px;
-  padding: 12px;
+  min-height: 54px;
+  padding: 8px 12px;
   background: #ffffff;
   border: 1px solid #d7dde6;
   border-radius: 8px;
@@ -146,8 +147,9 @@ input {
 
 .metric strong {
   display: block;
-  margin-top: 6px;
-  font-size: 22px;
+  margin-top: 3px;
+  font-size: 21px;
+  line-height: 1.08;
 }
 
 .workspace {

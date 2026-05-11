@@ -774,3 +774,19 @@ Read this file as UTF-8.
 - 已将 `web/index.html` 中控件文案改为“关系至少支撑歌曲数”，明确该输入筛选的是每条关系边背后的支撑歌曲数量。
 - 已将 `web/index.html` 输入框默认值和 `web/app.js` 中 `state.minCount` 默认值统一改为 1，默认图谱不再隐藏只由 1 首歌曲支撑的关系边。
 - 已更新 `web/index.html` 的前端脚本版本号，降低浏览器缓存旧脚本导致默认值仍为 2 的风险。
+
+### 压缩网页顶部说明和统计卡片高度
+
+- 用户提供截图指出顶部“当前数据源 / 范围切换”和统计卡片两行高度过高，导致图谱位置太靠下。
+- 目标效果为在不改变数据、筛选逻辑和图谱绘制逻辑的前提下，压缩顶部两行信息卡占用的首屏高度，让图谱区域更早出现。
+- 已修改 `web/styles.css`：页面主体间距从 14px 收紧为 10px，数据源说明卡最小高度从 58px 降为 44px，统计卡最小高度从 70px 降为 54px，并同步减小卡片内边距、行距和卡片间距。
+- 已修改 `web/index.html` 的样式资源版本号为 `20260511-compact-top-cards`，降低浏览器继续加载旧 CSS 缓存的风险。
+- 已按用户偏好将 `web/index.html` 和 `web/styles.css` 统一为 CRLF 行尾。
+
+### 验证顶部卡片高度压缩
+
+- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但用该检查确认页面现有脚本仍可解析。
+- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=compact-top-cards` 返回 HTTP 200，且 HTML 包含 `styles.css?v=20260511-compact-top-cards`。
+- 验证对象为版本化样式资源，访问 `http://127.0.0.1:8765/styles.css?v=20260511-compact-top-cards` 返回 HTTP 200，且内容包含新的 `min-height: 44px`、`min-height: 54px` 和 `padding: 10px 14px 14px`。
+- 验证对象为修改文件行尾，执行字节扫描确认 `web/index.html` 和 `web/styles.css` 均不存在 LF-only 行尾。
+- 当前仍未完成浏览器截图级视觉验证；原因是当前会话没有暴露 Browser 插件所需的 Node 执行工具。替代检查已确认静态入口和样式资源加载到新版本，实际视觉位置仍需在浏览器中刷新页面查看。

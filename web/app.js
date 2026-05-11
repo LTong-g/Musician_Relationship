@@ -5,7 +5,7 @@ const state = {
   viewMode: "artist",
   roleDisplay: "split",
   directionMode: "directed",
-  minCount: 2,
+  minCount: 1,
   search: "",
   activeTab: "songs",
   selected: null,

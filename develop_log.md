@@ -41,3 +41,19 @@ Read this file as UTF-8.
 - 明确推荐运行环境为独立 Conda 环境 `music-graph` 和 Python 3.12，不使用 base 环境承载项目依赖。
 - 明确项目边界：不做音乐播放或下载工具，不提交大量抓取数据、歌词、头像、cookie、token 或账号信息到仓库。
 - 补充内部数据模型原则、来源可追溯、身份消歧、请求策略、缓存与仓库、凭据管理、开源表述和 adapter 验证门槛。
+
+### 安装项目指定 Conda 环境依赖
+
+- 按用户要求未向 base 环境或 Python 虚拟环境安装依赖，使用项目指定 Conda 环境执行依赖安装。
+- 安装了第一阶段数据采集、标准化、分析和可视化所需依赖：`qqmusic-api-python`、`pandas`、`pydantic`、`httpx`、`tenacity`、`python-dotenv`、`duckdb`、`networkx`、`pyvis`。
+- 初次直接使用指定解释器安装时，因沙箱网络权限和环境目录写入权限受限失败，未完成依赖安装。
+- 随后通过指定 Conda 环境执行 pip 安装并显式禁用 user site 安装，避免依赖落入 base 或用户级 site-packages。
+- 验证对象为目标 Conda 环境的 pip 路径、`qqmusic-api-python` 安装位置和关键依赖导入能力。
+- 验证结果显示 pip 和 `qqmusic-api-python` 均位于项目指定 Conda 环境的 `Lib/site-packages`，关键包 `qqmusic_api`、`pandas`、`pydantic`、`httpx`、`duckdb`、`networkx`、`pyvis` 可正常导入。
+
+### 纠正依赖安装后漏记开发日志
+
+- 用户指出依赖安装完成后没有记录开发日志，并询问 `AGENTS.md` 是否规定记录时机。
+- 复核 `AGENTS.md` 后确认项目规则要求每次实质性分析、方案、实现、验证、事故或阶段回顾后按 `develop_log.md` 顶部规则追加开发日志。
+- 复核 `develop_log.md` 后确认日志规则要求环境异常、协作规则纠正和验证结果需要记录事实、影响范围和修复方式。
+- 已将依赖安装、验证结果和本次漏记纠正追加到当天开发日志。

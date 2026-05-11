@@ -231,25 +231,79 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
 
 def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
     all_nodes: dict[str, dict[str, Any]] = {}
-    contributor_targets: dict[str, set[str]] = defaultdict(set)
+    contributor_targets: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {
+            "name": "",
+            "targets": defaultdict(
+                lambda: {
+                    "song_count": 0,
+                    "roles": defaultdict(lambda: {"song_count": 0, "songs": []}),
+                }
+            ),
+        }
+    )
+    target_names = {dataset["slug"]: dataset["name"] for dataset in datasets}
+    target_node_ids = {dataset["slug"]: target_key(dataset["slug"]) for dataset in datasets}
     for dataset in datasets:
         for node in dataset["graph"]["nodes"]:
             add_node(all_nodes, dict(node))
-            if node["type"] == "artist":
-                contributor_targets[node["id"]].add(dataset["slug"])
+        for edge in dataset["graph"]["edges"]:
+            node = all_nodes.get(edge["source"])
+            if not node or node.get("type") != "artist":
+                continue
+            contributor = contributor_targets[edge["source"]]
+            contributor["name"] = node.get("name") or edge["source"]
+            target = contributor["targets"][dataset["slug"]]
+            target["song_count"] += edge["song_count"]
+            role = target["roles"][edge["role"]]
+            role["song_count"] += edge["song_count"]
+            role["songs"].extend(
+                {
+                    "id": song.get("id"),
+                    "mid": song.get("mid"),
+                    "name": song.get("name"),
+                    "album": song.get("album"),
+                    "target": dataset["name"],
+                    "target_slug": dataset["slug"],
+                    "role": edge["role"],
+                }
+                for song in edge.get("songs") or []
+            )
     bridge_contributors = [
         {
             "id": node_id,
-            "name": all_nodes[node_id]["name"],
-            "target_slugs": sorted(targets),
-            "target_count": len(targets),
+            "name": payload["name"],
+            "target_slugs": sorted(payload["targets"]),
+            "target_count": len(payload["targets"]),
+            "song_count": sum(target["song_count"] for target in payload["targets"].values()),
+            "targets": [
+                {
+                    "slug": slug,
+                    "name": target_names.get(slug, slug),
+                    "target_id": target_node_ids.get(slug, target_key(slug)),
+                    "song_count": target["song_count"],
+                    "roles": {
+                        role_name: {
+                            "song_count": role_payload["song_count"],
+                            "songs": role_payload["songs"],
+                        }
+                        for role_name, role_payload in sorted(target["roles"].items())
+                    },
+                }
+                for slug, target in sorted(payload["targets"].items())
+            ],
         }
-        for node_id, targets in contributor_targets.items()
-        if len(targets) > 1
+        for node_id, payload in contributor_targets.items()
+        if len(payload["targets"]) > 1
     ]
     return {
         "generated_at": now_iso(),
-        "datasets": [
+        "source_dataset": {
+            "slug": "qqmusic",
+            "name": "QQ 音乐",
+            "description": "由 QQ 音乐元数据离线采集生成的静态关系图谱数据。",
+        },
+        "targets": [
             {
                 "slug": dataset["slug"],
                 "name": dataset["name"],
@@ -260,7 +314,7 @@ def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
             for dataset in datasets
         ],
         "totals": {
-            "datasets": len(datasets),
+            "targets": len(datasets),
             "songs": sum(dataset["summary"]["songs"] for dataset in datasets),
             "credit_incomplete": sum(dataset["summary"]["credit_incomplete"] for dataset in datasets),
             "unique_nodes": len(all_nodes),

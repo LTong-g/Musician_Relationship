@@ -510,3 +510,27 @@ Read this file as UTF-8.
 - 已对新导出脚本和全部 pipeline Python 文件执行 `py_compile`，未报语法错误。
 - 已启动本地静态预览服务，入口为 `http://127.0.0.1:8765/`；验证 `/`、`/styles.css`、`/app.js` 和四个 `/data/*.json` 资源均返回 HTTP 200。
 - 当前未进行浏览器截图级交互验证；原因是本轮可用工具中没有暴露浏览器插件的 Node REPL 执行入口。已用本地 HTTP 资源验证和静态检查替代。
+
+### 纠正网页数据集与目标歌手语义
+
+- 用户指出当前网页把一个歌手显示成一个数据集不合理；正确语义应为 QQ 音乐是数据集，周杰伦、薛之谦、林俊杰等只是当前 QQ 音乐数据集下已覆盖的目标歌手范围。
+- 用户指出“只能合并分开”等选项命名含糊，且切换到跨歌手交互后其他选项看起来失效，页面布局和交互体验较差。
+- 已调整目标效果：网页顶部固定展示“QQ 音乐”作为数据集，目标歌手作为筛选范围；页面应支持全部目标歌手合并查看，也支持单个目标歌手查看。
+- 已将 `export_web_dataset.py` 导出的 `catalog.json` 从旧的 `datasets` 结构调整为 `source_dataset` 与 `targets`，并在共同合作者数据中写入每个目标歌手下的角色、歌曲数和支撑歌曲，避免跨歌手视图只能显示空泛连线。
+- 已重写 `web/app.js` 的前端状态：使用 `currentTarget` 表示目标歌手范围，保留“全部目标歌手”聚合视图；“共同合作者”视图在单个目标歌手范围下显示该歌手与其他目标歌手共享的合作者。
+- 已将“边模式”改名为“职能显示”，选项改为“作词/作曲分开”和“合并为合作次数”；“图谱模式”改为“视图”，选项改为“贡献者网络”“歌曲桥接图”“共同合作者”。
+- 已调整 `web/index.html` 和 `web/styles.css`：顶部只把 QQ 音乐作为数据集标识，目标歌手、视图、职能显示、连线方向、最小歌曲数作为操作控件；页面主体增加数据源说明和范围说明。
+- 已更新 `README.md`，说明网页中的数据集指 QQ 音乐元数据集，歌手是当前数据集下的覆盖范围，不是独立数据集。
+- 已重新导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json`、`linjunjie.json`；导出汇总为 3 位目标歌手、566 首可视化歌曲、67 首制作人员不完整隔离条目、186 个唯一节点、9 个共同合作者。
+- 已按用户偏好将本轮修改和生成的文本文件统一为 CRLF 行尾。
+
+### 验证网页语义与静态资源
+
+- 验证对象为 `music_metadata_graph/pipelines/export_web_dataset.py`，执行项目指定 Conda Python 的 `py_compile`，未报语法错误。
+- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
+- 验证对象为新版 `web/data/catalog.json`，执行 Node JSON 解析与协议检查，确认存在 `source_dataset.name=QQ 音乐`、`targets` 数量为 3、旧的顶层 `datasets` 键不再存在，且共同合作者条目包含目标歌手明细和正数歌曲数。
+- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/`、`/styles.css`、`/app.js` 和 `/data/catalog.json` 均返回 HTTP 200。
+- 验证对象为页面 HTML 控件 ID，检查 `source-name`、`source-description`、`target-select`、`view-mode`、`role-display`、`direction-mode`、`min-count`、`search-input`、`graph`、`detail-content`、`table-content` 均存在。
+- 旧控件和旧状态搜索显示前端不再使用 `dataset-select`、`edge-mode`、`currentSlug`；`app.js` 中保留 `state.catalog?.datasets` 仅作为旧 `catalog.json` 兼容分支。
+- 当前未完成浏览器截图级交互验证；原因是会话未暴露浏览器插件要求的 Node REPL 执行工具，且本地 Node 环境未安装 Playwright 包。已使用 HTTP 资源检查、语法检查和数据协议检查作为替代。
+- `git status --short` 因本机 Git safe.directory 所有权检查失败未能执行，无法在本轮通过 Git 输出复核完整改动清单。

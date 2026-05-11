@@ -13,27 +13,31 @@
         <p id="dataset-scope">加载数据中...</p>
       </div>
       <div class="toolbar">
+        <div class="source-pill">
+          <span>数据集</span>
+          <strong id="source-name">QQ 音乐</strong>
+        </div>
         <label>
-          数据集
-          <select id="dataset-select"></select>
+          目标歌手
+          <select id="target-select"></select>
         </label>
         <label>
-          图谱模式
+          视图
           <select id="view-mode">
-            <option value="artist">歌手中心图</option>
+            <option value="artist">贡献者网络</option>
             <option value="song">歌曲桥接图</option>
-            <option value="bridge">跨歌手交集</option>
+            <option value="bridge">共同合作者</option>
           </select>
         </label>
         <label>
-          边模式
-          <select id="edge-mode">
-            <option value="typed">区分职能</option>
-            <option value="merged">合并职能</option>
+          职能显示
+          <select id="role-display">
+            <option value="split">作词/作曲分开</option>
+            <option value="merged">合并为合作次数</option>
           </select>
         </label>
         <label>
-          方向
+          连线方向
           <select id="direction-mode">
             <option value="directed">有向</option>
             <option value="undirected">无向</option>
@@ -47,6 +51,17 @@
     </header>
 
     <main class="layout">
+      <section class="source-band">
+        <div>
+          <span>当前数据源</span>
+          <strong id="source-description">由 QQ 音乐元数据离线采集生成的静态关系图谱数据。</strong>
+        </div>
+        <div>
+          <span>范围切换</span>
+          <strong>目标歌手只是筛选范围，不是独立数据集。</strong>
+        </div>
+      </section>
+
       <section class="summary-strip" id="summary-strip"></section>
 
       <section class="workspace">

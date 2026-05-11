@@ -1,9 +1,9 @@
 const state = {
   catalog: null,
-  datasets: new Map(),
-  currentSlug: "",
+  targetData: new Map(),
+  currentTarget: "all",
   viewMode: "artist",
-  edgeMode: "typed",
+  roleDisplay: "split",
   directionMode: "directed",
   minCount: 1,
   search: "",
@@ -14,17 +14,31 @@ const state = {
 const roleClass = {
   作词: "role-lyric",
   作曲: "role-compose",
-  合并: "role-merged",
+  合作: "role-merged",
+};
+
+const roleLabels = {
+  split: "作词/作曲分开",
+  merged: "合并为合作次数",
 };
 
 const $ = (id) => document.getElementById(id);
 
 async function loadJson(path) {
   const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`Cannot load ${path}: ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`Cannot load ${path}: ${response.status}`);
   return response.json();
+}
+
+function catalogTargets() {
+  return state.catalog?.targets || state.catalog?.datasets || [];
+}
+
+function sourceDataset() {
+  return state.catalog?.source_dataset || {
+    name: "QQ 音乐",
+    description: "由 QQ 音乐元数据离线采集生成的静态关系图谱数据。",
+  };
 }
 
 function formatNumber(value) {
@@ -44,16 +58,31 @@ function joinNames(values) {
   return (values || []).filter(Boolean).join(" / ");
 }
 
+function addNode(nodes, node) {
+  if (!node?.id) return;
+  const existing = nodes.get(node.id);
+  if (!existing) {
+    nodes.set(node.id, { ...node });
+    return;
+  }
+  Object.entries(node).forEach(([key, value]) => {
+    if (value && !existing[key]) existing[key] = value;
+  });
+}
+
+function targetFiles() {
+  return catalogTargets().map((item) => item.file);
+}
+
 async function init() {
   try {
     state.catalog = await loadJson("data/catalog.json");
     await Promise.all(
-      state.catalog.datasets.map(async (item) => {
+      catalogTargets().map(async (item) => {
         const dataset = await loadJson(`data/${item.file}`);
-        state.datasets.set(item.slug, dataset);
+        state.targetData.set(item.slug, dataset);
       }),
     );
-    state.currentSlug = state.catalog.datasets[0]?.slug || "";
     bindControls();
     render();
   } catch (error) {
@@ -63,13 +92,14 @@ async function init() {
 }
 
 function bindControls() {
-  const datasetSelect = $("dataset-select");
-  datasetSelect.innerHTML = state.catalog.datasets
-    .map((item) => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.name)}</option>`)
-    .join("");
-  datasetSelect.value = state.currentSlug;
-  datasetSelect.addEventListener("change", () => {
-    state.currentSlug = datasetSelect.value;
+  const targetSelect = $("target-select");
+  targetSelect.innerHTML = [
+    `<option value="all">全部目标歌手</option>`,
+    ...catalogTargets().map((item) => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.name)}</option>`),
+  ].join("");
+  targetSelect.value = state.currentTarget;
+  targetSelect.addEventListener("change", () => {
+    state.currentTarget = targetSelect.value;
     state.selected = null;
     render();
   });
@@ -79,8 +109,8 @@ function bindControls() {
     state.selected = null;
     render();
   });
-  $("edge-mode").addEventListener("change", (event) => {
-    state.edgeMode = event.target.value;
+  $("role-display").addEventListener("change", (event) => {
+    state.roleDisplay = event.target.value;
     state.selected = null;
     render();
   });
@@ -107,31 +137,63 @@ function bindControls() {
   });
 }
 
-function currentDataset() {
-  return state.datasets.get(state.currentSlug);
+function selectedTargets() {
+  if (state.currentTarget === "all") return [...state.targetData.values()];
+  return state.targetData.has(state.currentTarget) ? [state.targetData.get(state.currentTarget)] : [];
+}
+
+function mergeSummary(targets) {
+  return targets.reduce(
+    (summary, dataset) => {
+      summary.songs += dataset.summary.songs || 0;
+      summary.initial_candidates += dataset.summary.initial_candidates || 0;
+      summary.credit_incomplete += dataset.summary.credit_incomplete || 0;
+      summary.edges += dataset.summary.edges || 0;
+      summary.contributors += dataset.summary.contributors || 0;
+      summary.self_lyricist_songs += dataset.summary.self_lyricist_songs || 0;
+      summary.self_composer_songs += dataset.summary.self_composer_songs || 0;
+      return summary;
+    },
+    {
+      songs: 0,
+      initial_candidates: 0,
+      credit_incomplete: 0,
+      edges: 0,
+      contributors: 0,
+      self_lyricist_songs: 0,
+      self_composer_songs: 0,
+    },
+  );
+}
+
+function currentScopeLabel() {
+  if (state.currentTarget === "all") return `全部 ${formatNumber(catalogTargets().length)} 位目标歌手`;
+  return catalogTargets().find((item) => item.slug === state.currentTarget)?.name || "当前目标歌手";
 }
 
 function render() {
-  const dataset = currentDataset();
-  if (!dataset) return;
+  const source = sourceDataset();
+  const totals = state.catalog.totals || {};
   $("dataset-scope").textContent =
-    `当前覆盖 ${state.catalog.totals.datasets} 个目标歌手，` +
-    `${formatNumber(state.catalog.totals.songs)} 首可视化歌曲，` +
-    `${formatNumber(state.catalog.totals.credit_incomplete)} 首制作人员不完整条目已隔离。`;
-  renderSummary(dataset);
+    `${source.name}数据集 · 当前范围：${currentScopeLabel()} · ` +
+    `${formatNumber(totals.songs)} 首可视化歌曲，${formatNumber(totals.credit_incomplete)} 首制作人员不完整条目已隔离。`;
+  $("source-name").textContent = source.name;
+  $("source-description").textContent = source.description || "";
+  renderSummary(selectedTargets());
   renderGraph();
   renderDetail();
   renderTable();
 }
 
-function renderSummary(dataset) {
-  const summary = dataset.summary;
+function renderSummary(targets) {
+  const summary = mergeSummary(targets);
+  const bridgeCount = countBridgeContributorsForScope();
   const metrics = [
+    ["目标歌手", state.currentTarget === "all" ? targets.length : 1],
     ["可视化歌曲", summary.songs],
-    ["贡献者节点", summary.contributors],
-    ["关系边", summary.edges],
-    ["自作词歌曲", summary.self_lyricist_songs],
-    ["自作曲歌曲", summary.self_composer_songs],
+    ["贡献者", countUniqueContributors(targets)],
+    ["关系边", buildArtistGraph().edges.length],
+    ["共同合作者", bridgeCount],
     ["隔离条目", summary.credit_incomplete],
   ];
   $("summary-strip").innerHTML = metrics
@@ -139,114 +201,206 @@ function renderSummary(dataset) {
     .join("");
 }
 
-function nodeMatches(node) {
-  if (!state.search) return true;
-  return String(node.name || "").toLowerCase().includes(state.search);
+function countUniqueContributors(targets) {
+  const ids = new Set();
+  targets.forEach((dataset) => {
+    dataset.graph.nodes.forEach((node) => {
+      if (node.type === "artist") ids.add(node.id);
+    });
+  });
+  return ids.size;
 }
 
-function buildArtistGraph(dataset) {
-  const nodes = new Map(dataset.graph.nodes.map((node) => [node.id, { ...node }]));
-  let edges = dataset.graph.edges.filter((edge) => edge.song_count >= state.minCount);
-  if (state.edgeMode === "merged") {
-    const merged = new Map();
-    for (const edge of edges) {
-      const key = `${edge.source}->${edge.target}`;
-      const current = merged.get(key) || {
-        id: key,
-        source: edge.source,
-        target: edge.target,
-        role: "合并",
-        roles: [],
-        song_count: 0,
-        songs: [],
-      };
-      current.roles.push(edge.role);
-      current.song_count += edge.song_count;
-      current.songs.push(...edge.songs.map((song) => ({ ...song, role: edge.role })));
-      merged.set(key, current);
-    }
-    edges = [...merged.values()].filter((edge) => edge.song_count >= state.minCount);
+function countBridgeContributorsForScope() {
+  return bridgeItemsForScope().length;
+}
+
+function roleAllows(edgeRole) {
+  return edgeRole === "作词" || edgeRole === "作曲" || edgeRole === "合作";
+}
+
+function mergeEdges(edges) {
+  if (state.roleDisplay === "split") return edges;
+  const merged = new Map();
+  for (const edge of edges) {
+    const key = `${edge.source}->${edge.target}`;
+    const current = merged.get(key) || {
+      id: key,
+      source: edge.source,
+      target: edge.target,
+      role: "合作",
+      roles: [],
+      song_count: 0,
+      songs: [],
+    };
+    current.roles.push(edge.role);
+    current.song_count += edge.song_count;
+    current.songs.push(...(edge.songs || []).map((song) => ({ ...song, role: edge.role })));
+    merged.set(key, current);
   }
-  return { nodes: [...nodes.values()], edges };
+  return [...merged.values()];
 }
 
-function buildSongGraph(dataset) {
+function buildArtistGraph() {
   const nodes = new Map();
-  const target = dataset.graph.nodes.find((node) => node.type === "target");
-  if (target) nodes.set(target.id, { ...target });
-  const songsById = new Map(dataset.graph.song_nodes.map((song) => [song.id, song]));
-  const artistNodes = new Map(dataset.graph.nodes.filter((node) => node.type === "artist").map((node) => [node.id, node]));
-  const edges = [];
+  let edges = [];
+  selectedTargets().forEach((dataset) => {
+    dataset.graph.nodes.forEach((node) => addNode(nodes, node));
+    edges.push(
+      ...dataset.graph.edges
+        .filter((edge) => roleAllows(edge.role))
+        .map((edge) => ({ ...edge, target_slug: dataset.slug, target_name: dataset.name })),
+    );
+  });
+  edges = mergeEdges(edges).filter((edge) => edge.song_count >= state.minCount);
+  const usedNodeIds = new Set(edges.flatMap((edge) => [edge.source, edge.target]));
+  nodes.forEach((node) => {
+    if (node.type === "target") usedNodeIds.add(node.id);
+  });
+  return { nodes: [...nodes.values()].filter((node) => usedNodeIds.has(node.id)), edges };
+}
 
-  for (const edge of dataset.graph.edges.filter((item) => item.song_count >= state.minCount)) {
-    for (const song of edge.songs) {
-      const songId = song.mid ? `song:${song.mid}` : song.id != null ? `song:id:${song.id}` : "";
-      if (!songId || !songsById.has(songId)) continue;
-      const artist = artistNodes.get(edge.source);
-      if (!artist) continue;
-      nodes.set(artist.id, { ...artist });
-      nodes.set(songId, { ...songsById.get(songId) });
-      edges.push({
-        id: `${edge.source}->${songId}:${edge.role}`,
-        source: edge.source,
-        target: songId,
-        role: edge.role,
-        song_count: 1,
-        songs: [song],
-      });
-      if (target) {
-        edges.push({
-          id: `${songId}->${target.id}`,
-          source: songId,
-          target: target.id,
-          role: "合并",
-          song_count: 1,
-          songs: [song],
+function buildSongGraph() {
+  const nodes = new Map();
+  const edges = [];
+  selectedTargets().forEach((dataset) => {
+    const target = dataset.graph.nodes.find((node) => node.type === "target");
+    const songsById = new Map(dataset.graph.song_nodes.map((song) => [song.id, song]));
+    const artistNodes = new Map(dataset.graph.nodes.filter((node) => node.type === "artist").map((node) => [node.id, node]));
+    if (target) addNode(nodes, target);
+    dataset.graph.edges
+      .filter((edge) => edge.song_count >= state.minCount)
+      .forEach((edge) => {
+        (edge.songs || []).forEach((song) => {
+          const songId = song.mid ? `song:${song.mid}` : song.id != null ? `song:id:${song.id}` : "";
+          const songNode = songsById.get(songId);
+          const artist = artistNodes.get(edge.source);
+          if (!songNode || !artist) return;
+          addNode(nodes, artist);
+          addNode(nodes, { ...songNode, target_name: dataset.name });
+          edges.push({
+            id: `${edge.source}->${songId}:${edge.role}`,
+            source: edge.source,
+            target: songId,
+            role: edge.role,
+            song_count: 1,
+            songs: [{ ...song, role: edge.role, target: dataset.name, target_slug: dataset.slug }],
+          });
+          if (target) {
+            edges.push({
+              id: `${songId}->${target.id}`,
+              source: songId,
+              target: target.id,
+              role: "合作",
+              song_count: 1,
+              songs: [{ ...song, target: dataset.name, target_slug: dataset.slug }],
+            });
+          }
         });
-      }
-    }
-  }
-  return { nodes: [...nodes.values()], edges };
+      });
+  });
+  return { nodes: [...nodes.values()], edges: state.roleDisplay === "merged" ? mergeEdges(edges) : edges };
+}
+
+function bridgeItemsForScope() {
+  const selectedSlug = state.currentTarget === "all" ? "" : state.currentTarget;
+  const allowed = new Set(catalogTargets().map((target) => target.slug));
+  return (state.catalog.bridge_contributors || [])
+    .map((bridge) => {
+      if (selectedSlug && !(bridge.target_slugs || []).includes(selectedSlug)) return null;
+      const targets = (bridge.targets || []).filter((target) => allowed.has(target.slug));
+      if (!targets.length) return null;
+      return {
+        ...bridge,
+        targets,
+        target_slugs: targets.map((target) => target.slug),
+        target_count: targets.length,
+        song_count: targets.reduce((sum, target) => sum + (target.song_count || 0), 0),
+      };
+    })
+    .filter((bridge) => bridge && bridge.target_count > 1);
 }
 
 function buildBridgeGraph() {
   const nodes = new Map();
   const edges = [];
-  for (const dataset of state.datasets.values()) {
-    const target = dataset.graph.nodes.find((node) => node.type === "target");
-    if (target) nodes.set(target.id, { ...target });
+  const targetsBySlug = new Map();
+  const bridgeItems = bridgeItemsForScope();
+  const targetSlugs = new Set(bridgeItems.flatMap((bridge) => bridge.target_slugs || []));
+  if (state.currentTarget !== "all") targetSlugs.add(state.currentTarget);
+  if (!targetSlugs.size) {
+    selectedTargets().forEach((dataset) => targetSlugs.add(dataset.slug));
   }
-  for (const bridge of state.catalog.bridge_contributors) {
-    if (bridge.target_count < state.minCount) continue;
-    nodes.set(bridge.id, {
+  [...targetSlugs].forEach((slug) => {
+    const dataset = state.targetData.get(slug);
+    if (!dataset) return;
+    const target = dataset.graph.nodes.find((node) => node.type === "target");
+    if (target) {
+      addNode(nodes, target);
+      targetsBySlug.set(dataset.slug, target);
+    }
+  });
+  bridgeItems.forEach((bridge) => {
+    addNode(nodes, {
       id: bridge.id,
       type: "artist",
       name: bridge.name,
     });
-    for (const slug of bridge.target_slugs) {
-      const target = [...nodes.values()].find((node) => node.type === "target" && node.slug === slug);
-      if (!target) continue;
-      edges.push({
-        id: `${bridge.id}->${target.id}`,
-        source: bridge.id,
-        target: target.id,
-        role: "合并",
-        song_count: 1,
-        songs: [],
+    bridge.targets.forEach((target) => {
+      const targetNode = targetsBySlug.get(target.slug);
+      if (!targetNode) return;
+      if (state.roleDisplay === "merged") {
+        edges.push({
+          id: `${bridge.id}->${targetNode.id}:合作`,
+          source: bridge.id,
+          target: targetNode.id,
+          role: "合作",
+          song_count: target.song_count,
+          songs: Object.values(target.roles || {}).flatMap((role) => role.songs || []),
+        });
+        return;
+      }
+      Object.entries(target.roles || {}).forEach(([role, payload]) => {
+        edges.push({
+          id: `${bridge.id}->${targetNode.id}:${role}`,
+          source: bridge.id,
+          target: targetNode.id,
+          role,
+          song_count: payload.song_count || 0,
+          songs: payload.songs || [],
+        });
       });
-    }
-  }
-  return { nodes: [...nodes.values()], edges };
+    });
+  });
+  return {
+    nodes: [...nodes.values()],
+    edges: edges.filter((edge) => edge.song_count >= state.minCount),
+  };
 }
 
 function buildGraph() {
-  const dataset = currentDataset();
-  if (state.viewMode === "song") return buildSongGraph(dataset);
+  if (state.viewMode === "song") return buildSongGraph();
   if (state.viewMode === "bridge") return buildBridgeGraph();
-  return buildArtistGraph(dataset);
+  return buildArtistGraph();
 }
 
-function layoutNodes(nodes, edges, width, height) {
+function nodeMatches(node) {
+  if (!state.search) return true;
+  return String(node.name || "").toLowerCase().includes(state.search);
+}
+
+function placeRing(nodes, centerX, centerY, radius, positions, offset) {
+  const count = Math.max(nodes.length, 1);
+  nodes.forEach((node, index) => {
+    const angle = offset + (Math.PI * 2 * index) / count;
+    positions.set(node.id, {
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+    });
+  });
+}
+
+function layoutNodes(nodes, width, height) {
   const centerX = width / 2;
   const centerY = height / 2;
   const targetNodes = nodes.filter((node) => node.type === "target");
@@ -261,36 +415,34 @@ function layoutNodes(nodes, edges, width, height) {
   }
 
   if (state.viewMode === "song") {
-    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.25, positions, -Math.PI / 2);
-    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.42, positions, -Math.PI / 2);
+    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.31, positions, -Math.PI / 2);
+    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.45, positions, -Math.PI / 2);
   } else {
-    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.38, positions, -Math.PI / 2);
-    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.28, positions, -Math.PI / 2);
+    placeRing(artistNodes, centerX, centerY, Math.min(width, height) * 0.42, positions, -Math.PI / 2);
+    placeRing(songNodes, centerX, centerY, Math.min(width, height) * 0.3, positions, -Math.PI / 2);
   }
-
-  for (const node of nodes) {
-    if (!positions.has(node.id)) {
-      positions.set(node.id, { x: centerX, y: centerY });
-    }
-  }
+  nodes.forEach((node) => {
+    if (!positions.has(node.id)) positions.set(node.id, { x: centerX, y: centerY });
+  });
   return positions;
 }
 
-function placeRing(nodes, centerX, centerY, radius, positions, offset) {
-  const count = Math.max(nodes.length, 1);
-  nodes.forEach((node, index) => {
-    const angle = offset + (Math.PI * 2 * index) / count;
-    positions.set(node.id, {
-      x: centerX + Math.cos(angle) * radius,
-      y: centerY + Math.sin(angle) * radius,
-    });
-  });
+function nodeRadius(node) {
+  if (node.type === "target") return 24;
+  if (node.type === "song") return 8;
+  return 15;
+}
+
+function nodeClass(node) {
+  if (node.type === "target") return "target-node";
+  if (node.type === "song") return "song-node";
+  return "artist-node";
 }
 
 function renderGraph() {
   const svg = $("graph");
-  const width = svg.clientWidth || 900;
-  const height = svg.clientHeight || 550;
+  const width = svg.clientWidth || 960;
+  const height = svg.clientHeight || 560;
   const graph = buildGraph();
   let nodes = graph.nodes;
   let edges = graph.edges;
@@ -302,17 +454,17 @@ function renderGraph() {
     nodes = nodes.filter((node) => matchingIds.has(node.id) || connected.has(node.id));
   }
 
-  const positions = layoutNodes(nodes, edges, width, height);
-  const marker = state.directionMode === "directed"
-    ? `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667085"></path></marker></defs>`
-    : "";
+  const positions = layoutNodes(nodes, width, height);
+  const marker =
+    state.directionMode === "directed"
+      ? `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667085"></path></marker></defs>`
+      : "";
   const edgeMarkup = edges
     .map((edge) => {
       const source = positions.get(edge.source);
       const target = positions.get(edge.target);
       if (!source || !target) return "";
-      const role = state.edgeMode === "merged" ? "合并" : edge.role;
-      const className = roleClass[role] || "role-merged";
+      const className = roleClass[edge.role] || "role-merged";
       const selected = state.selected?.type === "edge" && state.selected.id === edge.id ? " selected" : "";
       const markerEnd = state.directionMode === "directed" ? ' marker-end="url(#arrow)"' : "";
       const labelX = (source.x + target.x) / 2;
@@ -320,7 +472,7 @@ function renderGraph() {
       return `
         <g data-edge-id="${escapeHtml(edge.id)}">
           <line class="edge ${className}${selected}" x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}"${markerEnd}></line>
-          <text class="edge-label" x="${labelX}" y="${labelY - 5}">${escapeHtml(role)} · ${edge.song_count}</text>
+          <text class="edge-label" x="${labelX}" y="${labelY - 5}">${escapeHtml(edge.role)} · ${formatNumber(edge.song_count)}</text>
         </g>
       `;
     })
@@ -329,12 +481,11 @@ function renderGraph() {
     .map((node) => {
       const pos = positions.get(node.id);
       const selected = state.selected?.type === "node" && state.selected.id === node.id ? " selected" : "";
-      const radius = node.type === "target" ? 22 : node.type === "song" ? 9 : 14;
-      const className = node.type === "target" ? "target-node" : node.type === "song" ? "song-node" : "artist-node";
-      const labelOffset = node.type === "song" ? 20 : 28;
+      const radius = nodeRadius(node);
+      const labelOffset = node.type === "song" ? 19 : 30;
       return `
         <g class="node${selected}" data-node-id="${escapeHtml(node.id)}" transform="translate(${pos.x},${pos.y})">
-          <circle class="${className}" r="${radius}"></circle>
+          <circle class="${nodeClass(node)}" r="${radius}"></circle>
           <text text-anchor="middle" y="${labelOffset}">${escapeHtml(node.name)}</text>
         </g>
       `;
@@ -359,29 +510,36 @@ function renderGraph() {
   });
 
   const modeLabel = $("view-mode").selectedOptions[0]?.textContent || "图谱";
-  $("graph-title").textContent = modeLabel;
+  $("graph-title").textContent = `${modeLabel} · ${currentScopeLabel()}`;
   $("graph-note").textContent = edges.length
-    ? `${nodes.length} 个节点，${edges.length} 条边`
-    : `${nodes.length} 个孤立节点，当前筛选下暂无连边`;
+    ? `${formatNumber(nodes.length)} 个节点，${formatNumber(edges.length)} 条边 · ${roleLabels[state.roleDisplay]}`
+    : `${formatNumber(nodes.length)} 个节点，当前筛选下暂无连边`;
 }
 
 function findSelected() {
   if (!state.selected) return null;
   const graph = buildGraph();
-  if (state.selected.type === "node") {
-    return graph.nodes.find((node) => node.id === state.selected.id);
-  }
+  if (state.selected.type === "node") return graph.nodes.find((node) => node.id === state.selected.id);
   return graph.edges.find((edge) => edge.id === state.selected.id);
 }
 
+function allSongs() {
+  const targets =
+    state.viewMode === "bridge"
+      ? [...new Set(bridgeItemsForScope().flatMap((bridge) => bridge.target_slugs || []))]
+          .map((slug) => state.targetData.get(slug))
+          .filter(Boolean)
+      : selectedTargets();
+  return targets.flatMap((dataset) => dataset.songs.map((song) => ({ ...song, target: dataset.name })));
+}
+
 function renderDetail() {
-  const dataset = currentDataset();
   const item = findSelected();
   if (!item) {
     $("detail-content").innerHTML = `
       <div class="detail-card">
-        <strong>${escapeHtml(dataset.name)}</strong>
-        <p class="muted">选择节点或边查看支撑歌曲。当前图谱即使没有边，也会保留孤立节点。</p>
+        <strong>${escapeHtml(sourceDataset().name)}数据集</strong>
+        <p class="muted">当前查看 ${escapeHtml(currentScopeLabel())}。点击节点或边查看支撑歌曲。</p>
       </div>
     `;
     return;
@@ -390,13 +548,13 @@ function renderDetail() {
     $("detail-content").innerHTML = `
       <div class="detail-card">
         <strong>${escapeHtml(item.role)} · ${formatNumber(item.song_count)} 首</strong>
-        <p class="muted">${escapeHtml(item.source)} -> ${escapeHtml(item.target)}</p>
+        <p class="muted">${escapeHtml(getNodeName(item.source))} -> ${escapeHtml(getNodeName(item.target))}</p>
       </div>
       ${renderSongList(item.songs || [])}
     `;
     return;
   }
-  const relatedSongs = dataset.songs.filter((song) => {
+  const relatedSongs = allSongs().filter((song) => {
     const names = [...(song.lyricists || []), ...(song.composers || [])];
     return names.includes(item.name) || song.target === item.name || song.name === item.name;
   });
@@ -405,46 +563,54 @@ function renderDetail() {
       <strong>${escapeHtml(item.name)}</strong>
       <p class="muted">${escapeHtml(item.type)}${item.mid ? ` · ${escapeHtml(item.mid)}` : ""}</p>
     </div>
-    ${renderSongList(relatedSongs.slice(0, 30))}
+    ${renderSongList(relatedSongs.slice(0, 40))}
   `;
 }
 
-function renderSongList(songs) {
-  if (!songs.length) {
-    return `<div class="detail-card muted">暂无支撑歌曲。</div>`;
+function getNodeName(id) {
+  for (const dataset of state.targetData.values()) {
+    const node = dataset.graph.nodes.find((item) => item.id === id);
+    if (node) return node.name;
   }
+  return id;
+}
+
+function renderSongList(songs) {
+  if (!songs.length) return `<div class="detail-card muted">暂无支撑歌曲。</div>`;
   return songs
-    .map((song) => `<div class="detail-card"><strong>${escapeHtml(song.name)}</strong><p class="muted">${escapeHtml(song.album || "")}</p></div>`)
+    .map(
+      (song) =>
+        `<div class="detail-card"><strong>${escapeHtml(song.name)}</strong><p class="muted">${escapeHtml(
+          [song.target, song.role, song.album].filter(Boolean).join(" · "),
+        )}</p></div>`,
+    )
     .join("");
 }
 
 function renderTable() {
-  const dataset = currentDataset();
   if (state.activeTab === "edges") {
-    const rows = dataset.graph.edges.map((edge) => ({
+    const rows = buildArtistGraph().edges.map((edge) => ({
       role: edge.role,
-      source: getNodeName(dataset, edge.source),
-      target: getNodeName(dataset, edge.target),
+      source: getNodeName(edge.source),
+      target: getNodeName(edge.target),
       count: edge.song_count,
-      songs: edge.songs.map((song) => song.name).join(" / "),
+      songs: (edge.songs || []).map((song) => song.name).join(" / "),
     }));
-    renderRows(["职能", "贡献者", "目标", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
+    renderRows(["职能", "贡献者", "目标歌手", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
     return;
   }
   if (state.activeTab === "quality") {
-    const rows = Object.entries(dataset.quality.credit_filter_reason_counts || {}).map(([reason, count]) => ({ reason, count }));
-    renderRows(["状态", "数量"], rows, ["reason", "count"]);
+    const rows = selectedTargets().flatMap((dataset) =>
+      Object.entries(dataset.quality.credit_filter_reason_counts || {}).map(([reason, count]) => ({
+        target: dataset.name,
+        reason,
+        count,
+      })),
+    );
+    renderRows(["目标歌手", "隔离原因", "数量"], rows, ["target", "reason", "count"]);
     return;
   }
-  renderRows(
-    ["歌曲", "专辑", "作词", "作曲", "目标歌手"],
-    dataset.songs,
-    ["name", "album", "lyricists", "composers", "target"],
-  );
-}
-
-function getNodeName(dataset, id) {
-  return dataset.graph.nodes.find((node) => node.id === id)?.name || id;
+  renderRows(["歌曲", "专辑", "作词", "作曲", "目标歌手"], allSongs(), ["name", "album", "lyricists", "composers", "target"]);
 }
 
 function renderRows(headers, rows, keys) {

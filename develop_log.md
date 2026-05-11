@@ -398,3 +398,84 @@ Read this file as UTF-8.
 - 已更新 `AGENTS.md` 项目补充规则，记录正式源码目录、数据目录边界和推荐 pipeline 输出路径。
 - 已执行正式目录结构 smoke test：使用薛之谦第一页歌曲输出到 `data/processed/smoke/singer_songs/xuezhiqian`，采集 30 行、初过滤保留 28 行、过滤 2 行；验证后已删除 smoke 产物和 raw 缓存。
 - 已对全部 Python 文件执行 `py_compile`，通过。
+
+### 补全歌曲制作人员采集流程
+
+- 用户要求继续使用周杰伦全量做后续开发验证；当前歌曲列表已经可用，下一步需要在流程中补上对歌曲信息或制作人员信息的请求，以取得作词和作曲。
+- 目标效果为运行单歌手歌曲采集 pipeline 后，`songs_kept.json` 和 `songs_kept.csv` 中每首保留歌曲都能看到作词、作曲等制作人员字段；上游缺失或接口异常时记录状态，不中断整批。
+- 已修改 `musician_relationship/pipelines/collect_singer_songs.py`，在初过滤和去重后默认调用 `SongApi.get_producer`，并将结果写入每首歌曲的 `credits` 字段。
+- `credits` 中保留按 QQ 音乐返回分组整理的 `groups`，并展开 `lyricists`、`composers`、`arrangers`、`producers` 等常用字段；CSV 也同步新增这些列和 `credit_status`。
+- 新增 `--skip-producers` 用于只生成歌曲列表，新增 `--max-producer-songs` 用于小样本调试制作人员请求数量。
+- 初次真实全量验证发现 `qqmusic-api-python` 在上游 `Lst=null` 时会抛出模型校验异常；已将制作人员请求改为缓存原始响应并由 pipeline 宽松解析，`Lst=null` 统一记录为 `missing_producer_list`。
+- 已更新 `README.md`，说明单歌手歌曲采集会默认补全制作人员信息、输出字段含义和调试参数。
+
+### 验证周杰伦全量制作人员采集
+
+- 验证对象为周杰伦 singer mid `0025NhlN2yWrP4` 的全量歌曲采集和制作人员补全，输出目录为 `data/processed/singer_songs/zhoujielun/`。
+- 先执行 smoke test：限制歌曲页为 1 页、制作人员请求为 3 首，确认《晴天》《搁浅》《那天下雨了》均返回 `status=ok`，且作词、作曲字段非空。
+- 全量验证共读取周杰伦歌曲接口 1012 条，按当前初过滤规则保留并去重 240 条，过滤 772 条。
+- 对 240 条保留歌曲均发起或复用制作人员请求，结果为 `ok` 230 条、`missing_producer_list` 10 条。
+- 抽查 `songs_kept.json` 中《晴天》显示 `credits.groups` 包含“演唱、作词、作曲、编曲、制作人”等分组，展开字段中 `lyricists=["周杰伦"]`、`composers=["周杰伦"]`。
+- 10 条 `missing_producer_list` 代表上游响应没有制作人员列表，不再作为批处理失败处理；这些歌曲仍保留在输出中，供后续专辑验证或人工复核。
+- 已执行全部 Python 文件 `py_compile`，未报语法错误。
+- 已回读周杰伦 `singer_song_snapshot.json`、`songs_kept.json` 和 `songs_kept.csv`，确认 `songs_kept` 数量与 snapshot 一致，CSV 含 `lyricists`、`composers`、`arrangers`、`producers`、`credit_status` 列，且存在作词作曲非空样例。
+- 已对修改后的 `README.md` 和 `collect_singer_songs.py` 执行 UTF-8 读取、无 U+FFFD 检查，并按用户偏好统一写回 CRLF 行尾。
+
+### 验证薛之谦和林俊杰全量制作人员采集
+
+- 用户要求继续全量验证薛之谦和林俊杰，用于确认歌曲制作人员补全流程在更多歌手上的稳定性。
+- 验证对象为薛之谦 singer mid `002J4UUk29y8BY` 和林俊杰 singer mid `001BLpXF2DyJe2` 的单歌手全量歌曲采集、初过滤、去重和制作人员补全。
+- 薛之谦输出目录为 `data/processed/singer_songs/xuezhiqian/`；原始歌曲行 528 条，初过滤后去重保留 127 条，过滤 401 条，制作人员请求 127 条。
+- 薛之谦制作人员状态为 `ok` 124 条、`missing_producer_list` 3 条；非 `ok` 歌曲为《未完成的歌》《我们爱过就好》《我的show》。
+- 林俊杰输出目录为 `data/processed/singer_songs/linjunjie/`；原始歌曲行 1013 条，初过滤后去重保留 266 条，过滤 747 条，制作人员请求 266 条。
+- 林俊杰制作人员状态为 `ok` 248 条、`missing_producer_list` 18 条；非 `ok` 歌曲包括《达尔文》《恨幸福来过》《那女孩对我说》《想见你想见你想见你》《At Least I Had You》《Checkmate》《抢玫瑰》《Lose Control》《御龙三国志》《钢琴曲 可惜没有如果（林俊杰）》等。
+- 林俊杰 `ok` 歌曲中存在序曲、纯音乐或器乐类条目只有作曲没有作词，因此作词和作曲同时非空的数量为 232 条；这属于字段覆盖差异，不等同于请求失败。
+- 已回读两个歌手的 `singer_song_snapshot.json`、`songs_kept.json` 和 `songs_kept.csv`，确认 `songs_kept` 数量与 snapshot、CSV 行数一致，CSV 含 `lyricists`、`composers`、`arrangers`、`producers`、`credit_status` 列。
+- 已对 `collect_singer_songs.py` 执行 `py_compile`，未报语法错误。
+
+### 增加可视化前制作人员完整性过滤
+
+- 用户指出可视化利用之前还需要删除缺作词或缺作曲的条目。
+- 已将制作人员完整性过滤加到 `collect_singer_songs.py` 的制作人员补全之后：默认 `songs_kept` 只保留 `credits.status=ok` 且 `lyricists`、`composers` 都非空的歌曲。
+- 被剔除的歌曲不会丢失，单独输出到 `songs_credit_incomplete.json/csv`，并写入 `credit_filter_reason` 和 `visualization_ready` 字段，便于回看是 `missing_lyricists`、`missing_composers` 还是 `credit_status:missing_producer_list`。
+- 新增 `--keep-incomplete-credits` 参数，用于调试时保留缺作词或缺作曲条目在 `songs_kept` 中。
+- 已更新 `README.md`，说明 `songs_kept` 默认作为图谱和可视化可直接消费的数据，缺作词或缺作曲条目进入 `songs_credit_incomplete`。
+- 使用缓存重跑周杰伦，初过滤后 240 条，因制作人员不完整剔除 30 条，最终 `songs_kept` 210 条；剔除原因包括 `missing_lyricists` 20 条和 `credit_status:missing_producer_list` 10 条。
+- 使用缓存重跑薛之谦，初过滤后 127 条，因制作人员不完整剔除 3 条，最终 `songs_kept` 124 条；剔除原因均为 `credit_status:missing_producer_list`。
+- 重跑林俊杰原输出目录时，写入 `songs_kept.csv` 遇到 Windows 文件占用导致 `PermissionError`，推测该 CSV 被本机程序打开；为完成验证，改用 `data/processed/singer_songs/linjunjie_credit_filtered/` 作为备用输出目录。
+- 林俊杰备用输出验证结果为初过滤后 266 条，因制作人员不完整剔除 34 条，最终 `songs_kept` 232 条；剔除原因包括 `credit_status:missing_producer_list` 18 条、`missing_lyricists` 15 条和 `missing_composers` 1 条。
+- 已回读周杰伦、薛之谦和林俊杰备用输出的 `singer_song_snapshot.json`、`songs_kept.json/csv`、`songs_credit_incomplete.json/csv`，确认 `songs_kept` 全部满足作词和作曲非空，`songs_credit_incomplete` 全部带有剔除原因。
+- 已对 `collect_singer_songs.py` 执行 `py_compile`，未报语法错误。
+
+### 合并林俊杰正式输出和备用输出
+
+- 用户要求把此前因 CSV 文件占用导致未完整更新的林俊杰正式输出和备用输出合并，只保留一个有效的新目录。
+- 已将备用目录 `data/processed/singer_songs/linjunjie_credit_filtered/` 合并回正式目录 `data/processed/singer_songs/linjunjie/`，并删除备用目录。
+- 初次合并后发现 PowerShell 通配复制没有把备用目录中的 `songs_credit_incomplete.csv` 带回正式目录，且正式目录部分 CSV 仍是旧状态。
+- 为避免重新请求接口，已基于正式目录中的新 JSON 重新生成 `songs_all.csv`、`songs_filtered.csv`、`songs_kept.csv` 和 `songs_credit_incomplete.csv`。
+- 回读验证显示正式林俊杰目录中 `songs_kept.json/csv` 均为 232 条，`songs_credit_incomplete.json/csv` 均为 34 条；`songs_kept` 全部满足作词和作曲非空，`songs_credit_incomplete` 全部带有剔除原因。
+- 已确认备用目录 `data/processed/singer_songs/linjunjie_credit_filtered/` 不再存在。
+
+### 重命名源码包并移除旧薄包装入口
+
+- 用户指出源码包目录 `musician_relationship/` 与仓库根目录 `Musician_Relationship/` 语义接近，且包根部有四个薄包装脚本、`pipelines/` 下又有四个正式实现，容易造成目录和入口混淆。
+- 已将正式 Python 包目录从 `musician_relationship/` 重命名为 `music_metadata_graph/`，使源码包名更贴近“音乐元数据图谱”职责。
+- 已删除包根部四个旧薄包装脚本，只保留 `music_metadata_graph/pipelines/` 下的正式 pipeline 实现。
+- 已更新 `pyproject.toml` 中四个脚本入口，使其指向 `music_metadata_graph.pipelines.*`。
+- 已更新 `README.md` 中的目录结构和 `python -m` 示例命令，统一使用 `python -m music_metadata_graph.pipelines.<module>`。
+- 已更新 `AGENTS.md` 的项目补充规则，明确主动开发落在 `music_metadata_graph/pipelines/`，不再保留包根同名薄包装入口。
+- 已清理移动目录后残留的 `__pycache__`，避免旧薄包装 `.pyc` 继续混淆目录结构。
+- 验证对象为新包目录下全部 Python 文件，执行 `py_compile` 未报语法错误。
+- 验证新入口 `python -m music_metadata_graph.pipelines.collect_singer_songs --help` 和 `python -m music_metadata_graph.pipelines.collect_hot_singer_registry --help`，均能正常输出帮助信息。
+
+### 构思静态网页可视化设计
+
+- 用户要求开始构思网页如何设计，当前阶段尚未进入前端代码实现。
+- 目标效果初步收敛为一个 GitHub Pages 可打开的静态数据分析网页，读取本地 pipeline 生成并提交的静态 JSON 数据，不在浏览器中实时请求 QQ 音乐接口。
+- 网页首页不做营销落地页，而是直接进入图谱分析工作台，首屏展示数据集选择、核心计数、关系图和可追溯歌曲明细入口。
+- 关系图设计方向为音乐人节点优先使用头像或头像 URL，边表示“作词/作曲/编曲/制作人等贡献者 -> 演唱者/目标音乐人”的合作关系；可切换有向/无向、区分职能/合并职能。
+- 页面需要同时提供图谱视图和表格视图：图谱用于看合作网络，表格用于核查每条边来自哪些歌曲、哪些字段和哪次 pipeline 输出。
+- 初步交互包括歌手/数据集选择、角色筛选、只看外部合作/包含自作自唱、最小合作次数过滤、搜索音乐人、点击节点查看参与歌曲和职能分布、点击边查看支撑歌曲列表。
+- 数据输入应使用经过制作人员完整性过滤后的 `songs_kept.json`，不直接消费缺作词或缺作曲的 `songs_credit_incomplete`；后者可作为质量报告入口展示，但不参与图谱。
+- 风险边界包括头像 URL 可能失效、节点过多导致静态浏览器图谱性能下降、同名音乐人消歧仍依赖 singer mid、部分歌曲只含作词作曲但缺头像或 singer mid。
+- 本轮不做实时采集、账号态能力、歌词全文展示、音频播放下载、复杂社区发现算法和多平台融合。

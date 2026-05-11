@@ -1,16 +1,16 @@
 # Musician Relationship
 
-音乐人合作关系图谱的本地元数据采集与清洗工具。当前阶段聚焦 QQ 音乐非官方接口，先建立歌手身份表，再采集单个歌手歌曲，过滤明显非原版条目，并用专辑详情做归属验证。
+音乐人合作关系图谱的本地元数据采集与清洗工具。当前阶段聚焦 QQ 音乐非官方接口，先建立歌手身份表，再采集单个歌手歌曲，过滤明显非原版条目，并补全作词、作曲等制作人员信息；后续可用专辑详情做归属验证。
 
 本项目用于个人技术研究和元数据关系分析，不提供音乐播放、下载或绕过平台限制的能力；不保证第三方接口稳定、完整或准确。
 
 ## 目录结构
 
 ```text
-musician_relationship/
+music_metadata_graph/
   pipelines/
     collect_hot_singer_registry.py   # 采集热门歌手身份 registry
-    collect_singer_songs.py          # 采集单个歌手全量歌曲并初过滤
+    collect_singer_songs.py          # 采集单个歌手全量歌曲、初过滤并补全制作人员
     validate_album_ownership.py      # 用专辑详情验证歌曲归属
     write_singer_pipeline_report.py  # 生成 pipeline 检查报告
 data/
@@ -23,7 +23,7 @@ data/
 ### 1. 采集热门歌手身份表
 
 ```powershell
-python -m musician_relationship.pipelines.collect_hot_singer_registry
+python -m music_metadata_graph.pipelines.collect_hot_singer_registry
 ```
 
 默认输出：
@@ -37,7 +37,7 @@ data/processed/singer_registry/qqmusic_hot/
 ### 2. 采集单个歌手歌曲
 
 ```powershell
-python -m musician_relationship.pipelines.collect_singer_songs `
+python -m music_metadata_graph.pipelines.collect_singer_songs `
   --target-singer-mid 001BLpXF2DyJe2 `
   --target-singer-name "\u6797\u4fca\u6770" `
   --processed-dir data/processed/singer_songs/linjunjie
@@ -49,12 +49,22 @@ python -m musician_relationship.pipelines.collect_singer_songs `
 2. `empty_album`：专辑为空。
 3. `title_version_keyword:*`：标题命中 live、demo、remix、伴奏等版本词。
 
-输出包括 `songs_all.json`、`songs_filtered.json`、`songs_kept.json` 及 CSV。
+默认会对初过滤并去重后的 `songs_kept` 请求 QQ 音乐歌曲制作人员接口，并在每首歌的 `credits` 中写入：
+
+- `groups`：按 QQ 音乐返回的“演唱、作词、作曲、编曲、制作人”等分组保存完整人员列表。
+- `lyricists`、`composers`、`arrangers`、`producers`：常用职能的姓名展开字段，CSV 中也会同步写出。
+- `status`：`ok` 表示成功取得制作人员列表；`missing_producer_list` 表示上游响应没有制作人员列表；`failed` 表示请求或解析异常。
+
+制作人员补全开启时，`songs_kept` 默认只保留作词和作曲都非空的歌曲，作为后续图谱和可视化可直接消费的数据。缺作词或缺作曲的条目会写入 `songs_credit_incomplete.json/csv`，并带 `credit_filter_reason`；如果调试时需要保留这些条目，可加 `--keep-incomplete-credits`。
+
+调试时可用 `--max-producer-songs` 限制制作人员请求数量；如果只想生成歌曲列表，可加 `--skip-producers`。
+
+输出包括 `songs_all.json`、`songs_filtered.json`、`songs_kept.json`、`songs_credit_incomplete.json`、`singer_song_snapshot.json` 及对应 CSV。
 
 ### 3. 专辑归属验证
 
 ```powershell
-python -m musician_relationship.pipelines.validate_album_ownership `
+python -m music_metadata_graph.pipelines.validate_album_ownership `
   --input data/processed/singer_songs/linjunjie/songs_kept.json `
   --output-dir data/processed/album_validated/linjunjie `
   --target-mid 001BLpXF2DyJe2 `
@@ -75,7 +85,7 @@ album_validation_snapshot.json
 ### 4. 生成检查报告
 
 ```powershell
-python -m musician_relationship.pipelines.write_singer_pipeline_report `
+python -m music_metadata_graph.pipelines.write_singer_pipeline_report `
   --singer-name "\u6797\u4fca\u6770" `
   --initial-dir data/processed/singer_songs/linjunjie `
   --validated-dir data/processed/album_validated/linjunjie `

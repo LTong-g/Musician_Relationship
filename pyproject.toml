@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mr-collect-hot-singers = "musician_relationship.pipelines.collect_hot_singer_registry:main"
-mr-collect-singer-songs = "musician_relationship.pipelines.collect_singer_songs:main"
-mr-validate-albums = "musician_relationship.pipelines.validate_album_ownership:main"
-mr-write-pipeline-report = "musician_relationship.pipelines.write_singer_pipeline_report:main"
+mr-collect-hot-singers = "music_metadata_graph.pipelines.collect_hot_singer_registry:main"
+mr-collect-singer-songs = "music_metadata_graph.pipelines.collect_singer_songs:main"
+mr-validate-albums = "music_metadata_graph.pipelines.validate_album_ownership:main"
+mr-write-pipeline-report = "music_metadata_graph.pipelines.write_singer_pipeline_report:main"

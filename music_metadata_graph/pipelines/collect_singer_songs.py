@@ -8,7 +8,9 @@ import re
 import sys
 import codecs
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass
+from dataclasses import replace as dataclass_replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -56,6 +58,9 @@ class CollectConfig:
     processed_dir: Path
     target_singer_mid: str | None
     target_singer_name: str | None
+    enrich_producers: bool
+    max_producer_songs: int | None
+    drop_incomplete_credits: bool
 
 
 def ensure_utf8_stdout() -> None:
@@ -161,6 +166,182 @@ def compact_song(song: dict[str, Any], source_singer: dict[str, Any], filter_rea
         "is_filtered": filter_reason is not None,
         "filter_reason": filter_reason,
     }
+
+
+def producer_song_value(song: dict[str, Any]) -> int | str | None:
+    song_mid = song.get("mid")
+    if song_mid:
+        return str(song_mid)
+    song_id = song.get("id")
+    if song_id is not None:
+        return song_id
+    return None
+
+
+def producer_cache_key(song: dict[str, Any]) -> str:
+    song_mid = song.get("mid")
+    if song_mid:
+        return str(song_mid)
+    song_id = song.get("id")
+    if song_id is not None:
+        return str(song_id)
+    return song_key(song).replace(":", "_").replace("|", "_")
+
+
+def payload_get(payload: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        if name in payload:
+            return payload.get(name)
+    return None
+
+
+def compact_producer_item(raw: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "name": payload_get(raw, "name", "Name"),
+        "singer_mid": payload_get(raw, "singer_mid", "SingerMid"),
+        "icon": payload_get(raw, "icon", "Icon"),
+        "scheme": payload_get(raw, "scheme", "Scheme"),
+        "type": payload_get(raw, "type", "Type"),
+    }
+
+
+def compact_producer_group(raw: dict[str, Any]) -> dict[str, Any]:
+    producers = payload_get(raw, "producers", "Producers") or []
+    return {
+        "role": payload_get(raw, "title", "Title"),
+        "type": payload_get(raw, "type", "Type"),
+        "artists": [compact_producer_item(producer) for producer in producers],
+    }
+
+
+def producer_names(groups: list[dict[str, Any]], role: str) -> list[str]:
+    for group in groups:
+        if group.get("role") == role:
+            return [
+                str(artist.get("name"))
+                for artist in group.get("artists") or []
+                if artist.get("name")
+            ]
+    return []
+
+
+def compact_producer_payload(payload: dict[str, Any] | None) -> dict[str, Any]:
+    status = "ok"
+    if not payload:
+        groups: list[dict[str, Any]] = []
+        reinforce_msg = ""
+    else:
+        raw_groups = payload_get(payload, "data", "Lst")
+        if raw_groups is None:
+            raw_groups = []
+            status = "missing_producer_list"
+        groups = [compact_producer_group(group) for group in raw_groups]
+        reinforce_msg = str(payload_get(payload, "reinforce_msg", "ReinforceMsg") or "")
+    return {
+        "status": status,
+        "source": "qqmusic.song.get_producer",
+        "fetched_at": now_iso(),
+        "reinforce_msg": reinforce_msg,
+        "groups": groups,
+        "performers": producer_names(groups, "演唱"),
+        "lyricists": producer_names(groups, "作词"),
+        "composers": producer_names(groups, "作曲"),
+        "arrangers": producer_names(groups, "编曲"),
+        "producers": producer_names(groups, "制作人"),
+        "role_count": len(groups),
+        "artist_count": sum(len(group.get("artists") or []) for group in groups),
+    }
+
+
+async def enrich_song_producers(client: Client, songs: list[dict[str, Any]], config: CollectConfig) -> None:
+    target_songs = songs
+    if config.max_producer_songs is not None:
+        target_songs = songs[: config.max_producer_songs]
+    for index, song in enumerate(target_songs, 1):
+        value = producer_song_value(song)
+        if value is None:
+            song["credits"] = {
+                "status": "skipped",
+                "source": "qqmusic.song.get_producer",
+                "fetched_at": now_iso(),
+                "error": "missing_song_id_or_mid",
+                "groups": [],
+                "performers": [],
+                "lyricists": [],
+                "composers": [],
+                "arrangers": [],
+                "producers": [],
+                "role_count": 0,
+                "artist_count": 0,
+            }
+            continue
+        cache_path = config.raw_dir / "song_producers" / f"{producer_cache_key(song)}.json"
+        try:
+            request = dataclass_replace(client.song.get_producer(value), response_model=None)
+            payload = await execute_or_load(client, cache_path, request)
+            song["credits"] = compact_producer_payload(payload)
+        except Exception as exc:
+            song["credits"] = {
+                "status": "failed",
+                "source": "qqmusic.song.get_producer",
+                "fetched_at": now_iso(),
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+                "groups": [],
+                "performers": [],
+                "lyricists": [],
+                "composers": [],
+                "arrangers": [],
+                "producers": [],
+                "role_count": 0,
+                "artist_count": 0,
+            }
+        print(
+            f"[{index}/{len(target_songs)}] producer "
+            f"{song.get('name') or song.get('title')} status={song['credits']['status']} "
+            f"lyricists={len(song['credits']['lyricists'])} composers={len(song['credits']['composers'])}"
+        )
+    if config.max_producer_songs is not None and len(songs) > len(target_songs):
+        for song in songs[len(target_songs) :]:
+            song["credits"] = {
+                "status": "not_requested",
+                "source": "qqmusic.song.get_producer",
+                "fetched_at": None,
+                "groups": [],
+                "performers": [],
+                "lyricists": [],
+                "composers": [],
+                "arrangers": [],
+                "producers": [],
+                "role_count": 0,
+                "artist_count": 0,
+            }
+
+
+def credit_filter_reason(song: dict[str, Any]) -> str | None:
+    credits = song.get("credits") or {}
+    status = credits.get("status")
+    if status != "ok":
+        return f"credit_status:{status or 'missing'}"
+    if not credits.get("lyricists"):
+        return "missing_lyricists"
+    if not credits.get("composers"):
+        return "missing_composers"
+    return None
+
+
+def split_credit_results(songs: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    complete: list[dict[str, Any]] = []
+    incomplete: list[dict[str, Any]] = []
+    for song in songs:
+        reason = credit_filter_reason(song)
+        song["credit_filter_reason"] = reason
+        song["visualization_ready"] = reason is None
+        if reason is None:
+            complete.append(song)
+        else:
+            incomplete.append(song)
+    return complete, incomplete
 
 
 def album_filter_reason(song: dict[str, Any]) -> str | None:
@@ -299,6 +480,13 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "is_filtered",
         "filter_reason",
         "source_singer_names",
+        "lyricists",
+        "composers",
+        "arrangers",
+        "producers",
+        "credit_status",
+        "credit_filter_reason",
+        "visualization_ready",
     ]
     with path.open("w", encoding="utf-8-sig", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -316,6 +504,13 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
                     "is_filtered": row.get("is_filtered"),
                     "filter_reason": row.get("filter_reason"),
                     "source_singer_names": " / ".join(s.get("name") or "" for s in row.get("source_singers") or []),
+                    "lyricists": " / ".join((row.get("credits") or {}).get("lyricists") or []),
+                    "composers": " / ".join((row.get("credits") or {}).get("composers") or []),
+                    "arrangers": " / ".join((row.get("credits") or {}).get("arrangers") or []),
+                    "producers": " / ".join((row.get("credits") or {}).get("producers") or []),
+                    "credit_status": (row.get("credits") or {}).get("status"),
+                    "credit_filter_reason": row.get("credit_filter_reason"),
+                    "visualization_ready": row.get("visualization_ready"),
                 }
             )
 
@@ -329,24 +524,55 @@ async def run(config: CollectConfig) -> None:
             print(f"[{index}/{len(singers)}] collecting {singer['name']} ({singer['mid']})")
             all_songs.extend(await collect_singer_songs(client, singer, config))
 
-        kept, filtered = split_filter_results(all_songs)
+        initial_kept, filtered = split_filter_results(all_songs)
+        kept = initial_kept
+        credit_incomplete: list[dict[str, Any]] = []
+        if config.enrich_producers:
+            await enrich_song_producers(client, initial_kept, config)
+            if config.drop_incomplete_credits:
+                kept, credit_incomplete = split_credit_results(initial_kept)
+            else:
+                for song in initial_kept:
+                    song["credit_filter_reason"] = credit_filter_reason(song)
+                    song["visualization_ready"] = song["credit_filter_reason"] is None
+        credit_status_counts = Counter(
+            (song.get("credits") or {}).get("status", "not_requested") for song in initial_kept
+        )
+        credit_filter_reason_counts = Counter(
+            song.get("credit_filter_reason") or "ready" for song in initial_kept
+        )
         snapshot = {
             "generated_at": now_iso(),
             "config": {
                 "singer_limit": config.singer_limit,
                 "page_size": config.page_size,
                 "max_pages_per_singer": config.max_pages_per_singer,
+                "enrich_producers": config.enrich_producers,
+                "max_producer_songs": config.max_producer_songs,
+                "drop_incomplete_credits": config.drop_incomplete_credits,
             },
             "counts": {
                 "singers": len(singers),
                 "song_rows_before_dedupe": len(all_songs),
                 "songs_after_filter_before_dedupe": len([song for song in all_songs if not song["is_filtered"]]),
-                "songs_after_dedupe": len(kept),
+                "songs_after_initial_dedupe": len(initial_kept),
+                "songs_after_dedupe": len(initial_kept),
+                "songs_removed_missing_credits": len(credit_incomplete),
                 "songs_kept": len(kept),
                 "songs_filtered": len(filtered),
+                "producer_requested": (
+                    min(len(initial_kept), config.max_producer_songs)
+                    if config.enrich_producers and config.max_producer_songs is not None
+                    else len(initial_kept)
+                    if config.enrich_producers
+                    else 0
+                ),
             },
+            "credit_status_counts": dict(credit_status_counts.most_common()),
+            "credit_filter_reason_counts": dict(credit_filter_reason_counts.most_common()),
             "singers": singers,
             "songs": kept,
+            "credit_incomplete_songs": credit_incomplete,
         }
         config.processed_dir.mkdir(parents=True, exist_ok=True)
         dump_json(config.processed_dir / "singer_song_snapshot.json", snapshot)
@@ -354,9 +580,11 @@ async def run(config: CollectConfig) -> None:
         dump_json(config.processed_dir / "songs_all.json", all_songs)
         dump_json(config.processed_dir / "songs_kept.json", kept)
         dump_json(config.processed_dir / "songs_filtered.json", filtered)
+        dump_json(config.processed_dir / "songs_credit_incomplete.json", credit_incomplete)
         write_csv(config.processed_dir / "songs_all.csv", all_songs)
         write_csv(config.processed_dir / "songs_kept.csv", kept)
         write_csv(config.processed_dir / "songs_filtered.csv", filtered)
+        write_csv(config.processed_dir / "songs_credit_incomplete.csv", credit_incomplete)
         print(json.dumps(snapshot["counts"], ensure_ascii=False, indent=2))
         print(f"saved: {config.processed_dir / 'singer_song_snapshot.json'}")
     finally:
@@ -377,6 +605,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--processed-dir", type=Path, default=DEFAULT_PROCESSED_DIR)
     parser.add_argument("--target-singer-mid", type=str, default=None, help="Collect a single singer by singer mid.")
     parser.add_argument("--target-singer-name", type=str, default=None, help="Display name for --target-singer-mid.")
+    parser.add_argument(
+        "--skip-producers",
+        action="store_true",
+        help="Skip QQ Music song producer requests and only write filtered song lists.",
+    )
+    parser.add_argument(
+        "--max-producer-songs",
+        type=int,
+        default=None,
+        help="Limit producer requests for smoke tests. Omit to request all kept songs.",
+    )
+    parser.add_argument(
+        "--keep-incomplete-credits",
+        action="store_true",
+        help="Keep songs with missing lyricists or composers in songs_kept after producer enrichment.",
+    )
     return parser.parse_args()
 
 
@@ -391,6 +635,9 @@ def main() -> None:
         processed_dir=args.processed_dir,
         target_singer_mid=args.target_singer_mid,
         target_singer_name=decode_cli_text(args.target_singer_name),
+        enrich_producers=not args.skip_producers,
+        max_producer_songs=args.max_producer_songs,
+        drop_incomplete_credits=not args.keep_incomplete_credits,
     )
     asyncio.run(run(config))
 

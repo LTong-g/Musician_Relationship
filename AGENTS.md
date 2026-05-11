@@ -188,7 +188,7 @@ AI 给方案时使用以下顺序：
 
 当前项目规则：
 
-- 正式源码目录：主动开发应落在 `musician_relationship/pipelines/` 及后续正式包目录中；`musician_relationship/*.py` 中的同名脚本只作为兼容旧 `python -m` 入口的薄包装。
+- 正式源码目录：主动开发应落在 `music_metadata_graph/pipelines/` 及后续正式包目录中；不再保留包根同名薄包装脚本，命令入口统一使用 `python -m music_metadata_graph.pipelines.<module>` 或 `pyproject.toml` 中的脚本入口。
 - 本地数据目录：`data/raw/` 保存接口原始缓存，`data/processed/` 保存本地处理结果和报告，二者默认不提交 Git；实验性输出验证完成后应清理，不长期保留多个 `processed_*` 平铺目录。
 - 推荐 pipeline 输出：歌手身份表写入 `data/processed/singer_registry/qqmusic_hot/`；单歌手初过滤写入 `data/processed/singer_songs/<singer_slug>/`；专辑验证写入 `data/processed/album_validated/<singer_slug>/`；检查报告写入 `data/processed/reports/singer_pipeline/<singer_slug>/`。
 - 数据源优先级：第一阶段以 QQ 音乐非官方接口作为主数据源，优先验证 `qqmusic-api-python`；网易云音乐作为补充和交叉校验；酷我、酷狗等平台仅作为缺失字段兜底来源。

@@ -55,8 +55,8 @@ def artist_key(name: str, mid: str | None = None) -> str:
     return f"artist:name:{name.strip().casefold()}"
 
 
-def target_key(slug: str) -> str:
-    return f"target:{slug}"
+def target_key(name: str, mid: str | None = None) -> str:
+    return artist_key(name, mid)
 
 
 def song_key(slug: str, song: dict[str, Any]) -> str:
@@ -115,15 +115,16 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
     contributor_counts: Counter[str] = Counter()
     self_role_counts: Counter[str] = Counter()
 
-    target_id = target_key(slug)
+    target_id = target_key(name, mid)
     add_node(
         nodes,
         {
             "id": target_id,
-            "type": "target",
+            "type": "artist",
             "name": name,
             "mid": mid,
             "slug": slug,
+            "is_target": True,
             "song_count": len(songs),
         },
     )
@@ -147,16 +148,24 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
             roles[role] = artists
             for artist in artists:
                 artist_id = artist_key(str(artist["name"]), artist.get("mid"))
+                if artist.get("mid") == mid or artist.get("name") == name:
+                    artist_id = target_id
                 add_node(
                     nodes,
                     {
                         "id": artist_id,
                         "type": "artist",
                         "name": artist["name"],
-                        "mid": artist.get("mid"),
+                        "mid": artist.get("mid") or (mid if artist_id == target_id else None),
                         "icon": artist.get("icon"),
+                        "slug": slug if artist_id == target_id else None,
+                        "is_target": artist_id == target_id,
+                        "song_count": len(songs) if artist_id == target_id else None,
                     },
                 )
+                if artist_id == target_id:
+                    self_role_counts[role] += 1
+                    continue
                 edge_key = (artist_id, target_id, role)
                 edge = edges.setdefault(
                     edge_key,
@@ -180,8 +189,6 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
                 )
                 role_counts[role] += 1
                 contributor_counts[str(artist["name"])] += 1
-                if artist.get("mid") == mid or artist.get("name") == name:
-                    self_role_counts[role] += 1
 
         song_records.append(
             {
@@ -243,7 +250,7 @@ def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
         }
     )
     target_names = {dataset["slug"]: dataset["name"] for dataset in datasets}
-    target_node_ids = {dataset["slug"]: target_key(dataset["slug"]) for dataset in datasets}
+    target_node_ids = {dataset["slug"]: target_key(dataset["name"], dataset.get("mid")) for dataset in datasets}
     for dataset in datasets:
         for node in dataset["graph"]["nodes"]:
             add_node(all_nodes, dict(node))
@@ -280,7 +287,7 @@ def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
                 {
                     "slug": slug,
                     "name": target_names.get(slug, slug),
-                    "target_id": target_node_ids.get(slug, target_key(slug)),
+                    "target_id": target_node_ids.get(slug, target_key(target_names.get(slug, slug))),
                     "song_count": target["song_count"],
                     "roles": {
                         role_name: {

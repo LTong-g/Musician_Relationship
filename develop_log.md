@@ -732,6 +732,30 @@ Read this file as UTF-8.
 - 未完成浏览器截图级交互验证；原因是当前会话未暴露 Browser 插件所需的 Node 执行入口，本地项目也未安装 Playwright 或 Puppeteer，且系统命令未发现可直接调用的 Chrome/Edge 可执行入口。
 - 替代检查已覆盖静态入口、脚本语法、资源加载和数据适配；剩余风险是实际浏览器中的 Canvas 视觉效果、头像加载和拖拽/点击体验仍需人工打开页面或后续补充浏览器自动化验证。
 
+### 修正目标歌手重复节点和特殊中心节点
+
+- 用户提供截图指出周杰伦不应和另一个周杰伦相连，并明确图谱中不应存在中间节点和其他节点的区别，所有节点都应该一样。
+- 已定位原因：旧数据导出脚本为每个目标歌手生成独立 `target:<slug>` 节点，同时制作人员列表中又会生成同名 `artist:*` 节点；自作词或自作曲关系因此被画成“周杰伦 -> 周杰伦”的两节点连线。
+- 已修改 `music_metadata_graph/pipelines/export_web_dataset.py`，目标歌手节点改用普通 artist 身份键，优先使用平台 mid 生成 `artist:<mid>`，不再生成 `target:*` 节点。
+- 已修改导出逻辑：当制作人员姓名或 mid 与目标歌手一致时，计入 `self_lyricist_songs` 或 `self_composer_songs` 统计，但不再生成自环可视化边。
+- 已修改 `web/app.js`，增加旧数据兼容映射：若静态 JSON 仍含旧 `target:*` 节点，前端会把它折叠到同名或同 mid 的 artist 节点，并过滤 source 与 target 相同的边。
+- 已取消目标歌手的视觉特殊待遇，所有音乐人节点统一使用相同半径、相同颜色、相同标签规则和相同力导向参数；`is_target` 仅保留为范围和统计字段，不参与节点视觉表达。
+- 已重新导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json`，三位目标歌手均不再产生独立 target 节点。
+- 已更新 `web/index.html` 资源版本号为 `20260511-equal-artist-nodes`，避免浏览器继续使用旧缓存。
+- 已更新 `README.md`，说明图谱中所有音乐人节点按同一视觉规则绘制，目标歌手不会作为特殊中心节点或独立重复节点出现。
+- 已按用户偏好将修改后的 `README.md`、`music_metadata_graph/pipelines/export_web_dataset.py`、`web/index.html`、`web/app.js` 和重新导出的静态 JSON 统一为 CRLF 行尾。
+
+### 验证目标歌手节点统一修复
+
+- 验证对象为 `music_metadata_graph/pipelines/export_web_dataset.py`，执行项目指定 Conda Python 的 `py_compile`，未报语法错误。
+- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
+- 验证对象为重新导出的三个目标歌手静态数据，执行 Node 断言确认 `zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json` 均不存在 `type=target` 或 `target:*` 节点，均不存在自环边，且目标歌手姓名节点数量均为 1。
+- 验证对象为周杰伦图谱数据，确认周杰伦唯一节点为 `artist:0025NhlN2yWrP4`，节点类型为 `artist`，有 32 条其他贡献者指向该节点的边，且自环边数量为 0。
+- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=equal-artist-nodes`、`/styles.css?v=20260511-equal-artist-nodes`、`/app.js?v=20260511-equal-artist-nodes` 和 `/data/zhoujielun.json`，均返回 HTTP 200。
+- 验证对象为修改文件行尾，执行字节扫描确认 `README.md`、导出脚本、网页入口、网页脚本、样式和三个静态 JSON 均不存在 LF-only 行尾。
+- 静态搜索确认 `web/app.js` 中仍保留 `is_target` 兼容和范围保留逻辑，但不再用于节点颜色、半径、标签显示或力参数；`#2458c7` 仅用于选中描边和页签按钮，不再用于目标节点填充色。
+- 当前仍未完成浏览器截图级视觉验证；原因同前，当前会话缺少可用浏览器自动化执行入口。替代检查已确认数据层和前端逻辑层不会再生成两个周杰伦节点或目标歌手特殊视觉分支。
+
 ### 更新 Node 依赖提交边界
 
 - 提交前检查发现 `node_modules/` 作为本地安装目录出现在未跟踪文件中，不应作为仓库源码提交。

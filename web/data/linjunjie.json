@@ -3,26 +3,22 @@
   "name": "林俊杰",
   "mid": "001BLpXF2DyJe2",
   "source_dir": "data/processed/singer_songs/linjunjie",
-  "generated_at": "2026-05-11T19:05:30.553712+00:00",
+  "generated_at": "2026-05-11T22:16:07.671965+00:00",
   "summary": {
     "songs": 232,
     "initial_candidates": 266,
     "credit_incomplete": 34,
-    "nodes": 106,
-    "edges": 135,
+    "nodes": 105,
+    "edges": 133,
     "contributors": 105,
     "self_lyricist_songs": 27,
     "self_composer_songs": 216
   },
   "role_counts": {
-    "作词": 304,
-    "作曲": 274
+    "作词": 277,
+    "作曲": 58
   },
   "top_contributors": [
-    [
-      "林俊杰",
-      243
-    ],
     [
       "林秋离",
       36
@@ -98,759 +94,1070 @@
     [
       "RÜDE CÅT",
       4
+    ],
+    [
+      "Nasri",
+      4
     ]
   ],
   "graph": {
     "nodes": [
       {
-        "id": "target:linjunjie",
-        "type": "target",
+        "id": "artist:001BLpXF2DyJe2",
+        "type": "artist",
         "name": "林俊杰",
         "mid": "001BLpXF2DyJe2",
         "slug": "linjunjie",
-        "song_count": 232
+        "is_target": true,
+        "song_count": 232,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001BLpXF2DyJe2_13.jpg?max_age=2592000"
       },
       {
         "id": "artist:name:林怡凤",
         "type": "artist",
         "name": "林怡凤",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000001MSeK0tLpIT_4.jpg?max_age=2592000"
-      },
-      {
-        "id": "artist:name:林俊杰",
-        "type": "artist",
-        "name": "林俊杰",
-        "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001BLpXF2DyJe2_13.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000001MSeK0tLpIT_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林秋离",
         "type": "artist",
         "name": "林秋离",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DrP5g3ucVmQ_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DrP5g3ucVmQ_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:简胜",
         "type": "artist",
         "name": "简胜",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林夕",
         "type": "artist",
         "name": "林夕",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003jtoCs1VgYNa_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003jtoCs1VgYNa_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:小寒",
         "type": "artist",
         "name": "小寒",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004Tulp3H2R1k_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004Tulp3H2R1k_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:易家扬",
         "type": "artist",
         "name": "易家扬",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000ev4HN4W985Z_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000ev4HN4W985Z_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:王雅君",
         "type": "artist",
         "name": "王雅君",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000kc4uj00bHVv_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000kc4uj00bHVv_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:邢增华",
         "type": "artist",
         "name": "邢增华",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000022m0xQ1vWrfh_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000022m0xQ1vWrfh_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张思尔",
         "type": "artist",
         "name": "张思尔",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Gfos63BiRHi_1.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Gfos63BiRHi_1.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:姚若龙",
         "type": "artist",
         "name": "姚若龙",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002dLNWB2XFxtO_9.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002dLNWB2XFxtO_9.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:孙燕姿",
         "type": "artist",
         "name": "孙燕姿",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001pWERg3vFgg8_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001pWERg3vFgg8_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:方文山",
         "type": "artist",
         "name": "方文山",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003EMVxj1F1Rqg_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003EMVxj1F1Rqg_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:瑞业",
         "type": "artist",
         "name": "瑞业",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000brdjw1XkF3I_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000brdjw1XkF3I_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:吴青峰",
         "type": "artist",
         "name": "吴青峰",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004COQ9L4X13uj_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004COQ9L4X13uj_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:mc hotdog 热狗",
         "type": "artist",
         "name": "MC HotDog 热狗",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000023JlKC41RuGV_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000023JlKC41RuGV_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:吴剑泓",
         "type": "artist",
         "name": "吴剑泓",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000eLqyE2YB38w_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000eLqyE2YB38w_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:许环良",
         "type": "artist",
         "name": "许环良",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000032WyrK1BqSBK_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000032WyrK1BqSBK_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:王嘉尔",
         "type": "artist",
         "name": "王嘉尔",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000216fJA496xQG_10.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000216fJA496xQG_10.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:冯欣慧",
         "type": "artist",
         "name": "冯欣慧",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000019z7m72jR5JL_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000019z7m72jR5JL_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:蔡宥绮",
         "type": "artist",
         "name": "蔡宥绮",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003Q6hF640Wd7G_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003Q6hF640Wd7G_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:五月天 阿信",
         "type": "artist",
         "name": "五月天 阿信",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000040EhGd2lkffO_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000040EhGd2lkffO_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:陈嘉文",
         "type": "artist",
         "name": "陈嘉文",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:朱芸编",
         "type": "artist",
         "name": "朱芸编",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000011ktIW1XdEAS_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000011ktIW1XdEAS_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张家玮",
         "type": "artist",
         "name": "张家玮",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000NvY4635Qw4l_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000NvY4635Qw4l_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:向月娥",
         "type": "artist",
         "name": "向月娥",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002aljBk2tyxdH_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002aljBk2tyxdH_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:魏如萱",
         "type": "artist",
         "name": "魏如萱",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001WOIOE0K9Uf3_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001WOIOE0K9Uf3_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:廖莹如",
         "type": "artist",
         "name": "廖莹如",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002arwfw1XIEUs_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002arwfw1XIEUs_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:何启弘",
         "type": "artist",
         "name": "何启弘",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000SKtAR2OMEut_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000SKtAR2OMEut_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李念和",
         "type": "artist",
         "name": "李念和",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000K9xuA3XJggf_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000K9xuA3XJggf_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林天爱",
         "type": "artist",
         "name": "林天爱",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002gRhEH16iidR_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002gRhEH16iidR_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:dr. moon",
         "type": "artist",
         "name": "Dr. Moon",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:mr. mars",
         "type": "artist",
         "name": "Mr. Mars",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:景尧",
         "type": "artist",
         "name": "景尧",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:贰叁伍",
         "type": "artist",
         "name": "贰叁伍",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003XCZJQ4UqTnM_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003XCZJQ4UqTnM_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:侯江浩",
         "type": "artist",
         "name": "侯江浩",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000tb4TM128xMC_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000tb4TM128xMC_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:静默者乐队",
         "type": "artist",
         "name": "静默者乐队",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Iqvon392KKM_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Iqvon392KKM_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:梦然",
         "type": "artist",
         "name": "梦然",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004dr7ZS36C2B1_10.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004dr7ZS36C2B1_10.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:怀秋",
         "type": "artist",
         "name": "怀秋",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004CMjMp4UOTpS_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004CMjMp4UOTpS_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:宋健彰",
         "type": "artist",
         "name": "宋健彰",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002QVgs70Bua94_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002QVgs70Bua94_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:周信廷",
         "type": "artist",
         "name": "周信廷",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000IyUa01gI60N_1.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000IyUa01gI60N_1.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:杨彤",
         "type": "artist",
         "name": "杨彤",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:hush",
         "type": "artist",
         "name": "HUSH",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000TCwIk1QG0gT_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000TCwIk1QG0gT_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李荣浩",
         "type": "artist",
         "name": "李荣浩",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000aHmbL2aPXWH_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000aHmbL2aPXWH_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:罗文裕",
         "type": "artist",
         "name": "罗文裕",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Gt6E51RU1uO_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Gt6E51RU1uO_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林蔚利",
         "type": "artist",
         "name": "林蔚利",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003PH99s3lKfOx_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003PH99s3lKfOx_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:葛大为",
         "type": "artist",
         "name": "葛大为",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004IRBzR12SxkX_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004IRBzR12SxkX_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:venus",
         "type": "artist",
         "name": "Venus",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000VOPIE06gQBC_1.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000VOPIE06gQBC_1.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:吴易纬",
         "type": "artist",
         "name": "吴易纬",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003QilbA1JuGsf_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003QilbA1JuGsf_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张怀颢",
         "type": "artist",
         "name": "张怀颢",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002GSt0g12rOPm_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002GSt0g12rOPm_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:steve aoki",
         "type": "artist",
         "name": "Steve Aoki",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003ihUzC1icy0O_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003ihUzC1icy0O_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:carl ryden",
         "type": "artist",
         "name": "Carl Ryden",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:james daniel lewis",
         "type": "artist",
         "name": "James Daniel Lewis",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:rüde cåt",
         "type": "artist",
         "name": "RÜDE CÅT",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000P9kRB12Qi3Z_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000P9kRB12Qi3Z_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张美香",
         "type": "artist",
         "name": "张美香",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DCGUP1mccGK_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DCGUP1mccGK_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李若君",
         "type": "artist",
         "name": "李若君",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004ZY6OP1l16xR_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004ZY6OP1l16xR_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:农夫",
         "type": "artist",
         "name": "农夫",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000349R2i1BzSyW_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000349R2i1BzSyW_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:黄韵玲",
         "type": "artist",
         "name": "黄韵玲",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000UwprQ48ncF4_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000UwprQ48ncF4_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:黄立成",
         "type": "artist",
         "name": "黄立成",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001ZFgfy0lRXpG_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001ZFgfy0lRXpG_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:崔惟楷",
         "type": "artist",
         "name": "崔惟楷",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000fuika00xsIx_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000fuika00xsIx_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:洪健钧",
         "type": "artist",
         "name": "洪健钧",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:费聿锋",
         "type": "artist",
         "name": "费聿锋",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:陈镇川",
         "type": "artist",
         "name": "陈镇川",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000p9w963bCYdx_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000p9w963bCYdx_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:dick lee",
         "type": "artist",
         "name": "Dick Lee",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002icfxT0owIeg_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002icfxT0owIeg_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:天天（梁鸿斌）",
         "type": "artist",
         "name": "天天（梁鸿斌）",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001pfS9d2U04O7_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001pfS9d2U04O7_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林宇中",
         "type": "artist",
         "name": "林宇中",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002YOSeh4B6Bne_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002YOSeh4B6Bne_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林雨果",
         "type": "artist",
         "name": "林雨果",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:nasri",
         "type": "artist",
         "name": "Nasri",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001jv4mE4LXy3f_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001jv4mE4LXy3f_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:fernando garibay",
         "type": "artist",
         "name": "Fernando Garibay",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:ramiro padilla",
         "type": "artist",
         "name": "Ramiro Padilla",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000xNrS343F75C_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000xNrS343F75C_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:daniel padilla",
         "type": "artist",
         "name": "Daniel Padilla",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003FJnXF4PK9Fi_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003FJnXF4PK9Fi_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:藤原浩",
         "type": "artist",
         "name": "藤原浩",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001ym3Po0QbRgf_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001ym3Po0QbRgf_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:陈淑秋",
         "type": "artist",
         "name": "陈淑秋",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:范维仁",
         "type": "artist",
         "name": "范维仁",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:楚晴jasmine sokko",
         "type": "artist",
         "name": "楚晴Jasmine Sokko",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002E94Lu2oMsni_15.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002E94Lu2oMsni_15.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:amy",
         "type": "artist",
         "name": "AMY",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:tom barnes",
         "type": "artist",
         "name": "Tom Barnes",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000049gJ2o2G1CV2_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000049gJ2o2G1CV2_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:pete kelleher",
         "type": "artist",
         "name": "Pete Kelleher",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:ben kohn",
         "type": "artist",
         "name": "Ben Kohn",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001p9iuS3hBdIe_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001p9iuS3hBdIe_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:anne-marie",
         "type": "artist",
         "name": "Anne-Marie",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000025x8PO4Q5Hkm_12.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000025x8PO4Q5Hkm_12.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:camille purcell",
         "type": "artist",
         "name": "Camille Purcell",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000006PCjb3Okpaj_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000006PCjb3Okpaj_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:lichang.rar",
         "type": "artist",
         "name": "LICHANG.rar",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004ZAmtv43eqpq_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004ZAmtv43eqpq_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:老王乐队",
         "type": "artist",
         "name": "老王乐队",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004cmrKQ33bHV0_8.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004cmrKQ33bHV0_8.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:maguire jonathan michael",
         "type": "artist",
         "name": "MAGUIRE JONATHAN MICHAEL",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:kyler england",
         "type": "artist",
         "name": "Kyler England",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001MUDTW2ZaM2o_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001MUDTW2ZaM2o_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张怀秋",
         "type": "artist",
         "name": "张怀秋",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:joshua kissiah cumbee",
         "type": "artist",
         "name": "Joshua Kissiah Cumbee",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林子钦",
         "type": "artist",
         "name": "林子钦",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001o1DOI08SdIR_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001o1DOI08SdIR_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:陈少琪",
         "type": "artist",
         "name": "陈少琪",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002x3eMC07PLXT_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002x3eMC07PLXT_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:金培达",
         "type": "artist",
         "name": "金培达",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000012lOEG3BGsKf_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000012lOEG3BGsKf_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:dr.moon",
         "type": "artist",
         "name": "Dr.Moon",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:josh cumbee",
         "type": "artist",
         "name": "Josh Cumbee",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001XlcRc1c8Hx5_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001XlcRc1c8Hx5_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:奶六yorick chen",
         "type": "artist",
         "name": "奶六Yorick Chen",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:萧敬腾",
         "type": "artist",
         "name": "萧敬腾",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004bsIDK0awMOv_13.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004bsIDK0awMOv_13.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:ryan lawrie",
         "type": "artist",
         "name": "Ryan Lawrie",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003WT5RF2zumJi_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003WT5RF2zumJi_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:anderson .paak",
         "type": "artist",
         "name": "Anderson .Paak",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001Ua5Xq3E8SKX_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001Ua5Xq3E8SKX_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:shungudzo",
         "type": "artist",
         "name": "Shungudzo",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004dsYvo0m25vO_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004dsYvo0m25vO_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:tushar apte",
         "type": "artist",
         "name": "Tushar Apte",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004Aahej3dIt7I_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004Aahej3dIt7I_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李志清",
         "type": "artist",
         "name": "李志清",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002i83HM0Rp56k_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002i83HM0Rp56k_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:ronaldo cordeo",
         "type": "artist",
         "name": "Ronaldo Cordeo",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:gilda cordeo",
         "type": "artist",
         "name": "Gilda Cordeo",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:原竹",
         "type": "artist",
         "name": "原竹",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000014tqyy0pC3UC_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:丁于",
         "type": "artist",
         "name": "丁于",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003arKf61eQl5q_9.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003arKf61eQl5q_9.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:海蝶群星",
         "type": "artist",
         "name": "海蝶群星",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:胡珍珍/子薇",
         "type": "artist",
         "name": "胡珍珍/子薇",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       }
     ],
     "edges": [
       {
-        "id": "artist:name:林怡凤->target:linjunjie:作词",
+        "id": "artist:name:林怡凤->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林怡凤",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 32,
         "songs": [
@@ -1049,1314 +1356,9 @@
         ]
       },
       {
-        "id": "artist:name:林俊杰->target:linjunjie:作曲",
-        "source": "artist:name:林俊杰",
-        "target": "target:linjunjie",
-        "role": "作曲",
-        "song_count": 216,
-        "songs": [
-          {
-            "id": 447257,
-            "mid": "001N8e5Q4Gjxda",
-            "name": "Always Online",
-            "album": "JJ陆"
-          },
-          {
-            "id": 9063002,
-            "mid": "004TXEXY2G2c7C",
-            "name": "江南",
-            "album": "第二天堂"
-          },
-          {
-            "id": 95292,
-            "mid": "002ASCKm3ROw7t",
-            "name": "美人鱼",
-            "album": "第二天堂"
-          },
-          {
-            "id": 330621486,
-            "mid": "004AxZur0wQjFR",
-            "name": "可惜没如果",
-            "album": "新地球"
-          },
-          {
-            "id": 405007729,
-            "mid": "003N7EbT2mUdPG",
-            "name": "愿与愁",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 5063375,
-            "mid": "002CxSLT41D5tD",
-            "name": "修炼爱情",
-            "album": "因你 而在"
-          },
-          {
-            "id": 648231,
-            "mid": "002E8ebM3TFWmA",
-            "name": "背对背拥抱",
-            "album": "100天"
-          },
-          {
-            "id": 105393420,
-            "mid": "001OeHvA0NASwT",
-            "name": "关键词",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 447252,
-            "mid": "0026G2Lq3Cl7ig",
-            "name": "不潮不用花钱",
-            "album": "JJ陆"
-          },
-          {
-            "id": 330621483,
-            "mid": "000lD3pv0heA53",
-            "name": "新地球",
-            "album": "新地球"
-          },
-          {
-            "id": 102388808,
-            "mid": "002kADrZ01iC2L",
-            "name": "那些你很冒险的梦",
-            "album": "学不会"
-          },
-          {
-            "id": 447260,
-            "mid": "003gUMnj3mMwLZ",
-            "name": "我还想她",
-            "album": "JJ陆"
-          },
-          {
-            "id": 764255,
-            "mid": "001nUzRq0GgCVb",
-            "name": "当你",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 330621480,
-            "mid": "0038BQfx4MB0MR",
-            "name": "手心的蔷薇",
-            "album": "新地球"
-          },
-          {
-            "id": 101014,
-            "mid": "0003y8uR1ZZwOI",
-            "name": "曹操",
-            "album": "曹操"
-          },
-          {
-            "id": 764259,
-            "mid": "0005WAB54TCYSn",
-            "name": "心墙",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 102415346,
-            "mid": "001IpbDW34m1Gy",
-            "name": "她说",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 237773551,
-            "mid": "001LMj8V1Leoxy",
-            "name": "将故事写成我们",
-            "album": "将故事写成我们"
-          },
-          {
-            "id": 330621484,
-            "mid": "001PkKFS3NbZVS",
-            "name": "浪漫血液",
-            "album": "新地球"
-          },
-          {
-            "id": 105163752,
-            "mid": "004JI7mA1UQeZq",
-            "name": "爱笑的眼睛",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 330621481,
-            "mid": "003x5xTj20cLPX",
-            "name": "茉莉雨",
-            "album": "新地球"
-          },
-          {
-            "id": 447253,
-            "mid": "003h3CYS3UxDB4",
-            "name": "小酒窝",
-            "album": "JJ陆"
-          },
-          {
-            "id": 102388806,
-            "mid": "001we6dR1XLuZi",
-            "name": "学不会",
-            "album": "学不会"
-          },
-          {
-            "id": 95272,
-            "mid": "002gcuPM3LQpCi",
-            "name": "一千年以后",
-            "album": "编号89757"
-          },
-          {
-            "id": 5063367,
-            "mid": "0007d5i80vUk3T",
-            "name": "裂缝中的阳光",
-            "album": "因你 而在"
-          },
-          {
-            "id": 608839549,
-            "mid": "004BJRhU4g74fg",
-            "name": "明日坐标",
-            "album": "明日坐标"
-          },
-          {
-            "id": 105388642,
-            "mid": "003UTRfZ12wGOs",
-            "name": "醉赤壁",
-            "album": "JJ陆"
-          },
-          {
-            "id": 313271033,
-            "mid": "003R10oC1w6vur",
-            "name": "裹着心的光",
-            "album": "裹着心的光"
-          },
-          {
-            "id": 101018,
-            "mid": "001p1Z5Z3lrPlu",
-            "name": "不死之身",
-            "album": "曹操"
-          },
-          {
-            "id": 648228,
-            "mid": "0049t0gc2joqxK",
-            "name": "加油",
-            "album": "100天"
-          },
-          {
-            "id": 648242,
-            "mid": "003Ymecp1whcTB",
-            "name": "爱不会绝迹",
-            "album": "100天"
-          },
-          {
-            "id": 213773480,
-            "mid": "000fVqPH1RjwS3",
-            "name": "飞云之下",
-            "album": "飞云之下"
-          },
-          {
-            "id": 277438634,
-            "mid": "000CdfvT1LMVP3",
-            "name": "交换余生",
-            "album": "交换余生"
-          },
-          {
-            "id": 764261,
-            "mid": "0026W1tX3RjVqe",
-            "name": "一生的爱",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 212656958,
-            "mid": "0023XCz53g0Cdw",
-            "name": "黑夜问白天",
-            "album": "黑夜问白天"
-          },
-          {
-            "id": 103108922,
-            "mid": "001a69Fl3h6bpK",
-            "name": "期待爱",
-            "album": "JJ陆"
-          },
-          {
-            "id": 105095766,
-            "mid": "002K4xqW4A7m7q",
-            "name": "不为谁而作的歌",
-            "album": "不为谁而作的歌"
-          },
-          {
-            "id": 625437208,
-            "mid": "003vjg9A0VCFfh",
-            "name": "过",
-            "album": "过"
-          },
-          {
-            "id": 410773,
-            "mid": "0020CMqs1PFDi6",
-            "name": "杀手",
-            "album": "西界"
-          },
-          {
-            "id": 644422335,
-            "mid": "001xu6nK47SZjH",
-            "name": "我对缘分小心翼翼",
-            "album": "我对缘分小心翼翼（影视剧《逐玉》主题曲）"
-          },
-          {
-            "id": 101659148,
-            "mid": "000qXLmI47rb6L",
-            "name": "冻结",
-            "album": "乐行者"
-          },
-          {
-            "id": 102027,
-            "mid": "0018qunY0L4Bkx",
-            "name": "被风吹过的夏天",
-            "album": "空气"
-          },
-          {
-            "id": 447254,
-            "mid": "003kO9Lk4BmU2h",
-            "name": "黑武士",
-            "album": "JJ陆"
-          },
-          {
-            "id": 764256,
-            "mid": "000yg6pd41Ysc5",
-            "name": "一眼万年",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 105388644,
-            "mid": "003AG12Y1oFqpv",
-            "name": "第几个100天",
-            "album": "100天"
-          },
-          {
-            "id": 764262,
-            "mid": "003U7jQQ02YVAv",
-            "name": "记得",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 410783,
-            "mid": "003Dl7vL0GuK97",
-            "name": "不流泪的机场",
-            "album": "西界"
-          },
-          {
-            "id": 333777105,
-            "mid": "001Aoi0e1H5Cce",
-            "name": "一定会",
-            "album": "一定会 / After The Rain"
-          },
-          {
-            "id": 330621487,
-            "mid": "001pQ60X0r3DXf",
-            "name": "生生",
-            "album": "新地球"
-          },
-          {
-            "id": 95286,
-            "mid": "000Ri6op1gqtad",
-            "name": "豆浆油条",
-            "album": "第二天堂"
-          },
-          {
-            "id": 551474279,
-            "mid": "001NwtwK1sBDWh",
-            "name": "光阴副本",
-            "album": "光阴副本 / Turn Of A Page"
-          },
-          {
-            "id": 95263,
-            "mid": "001Z0T1q2LM8gk",
-            "name": "编号89757",
-            "album": "编号89757"
-          },
-          {
-            "id": 101017,
-            "mid": "002fBuTJ1aYdLG",
-            "name": "原来",
-            "album": "曹操"
-          },
-          {
-            "id": 603557444,
-            "mid": "0010MvTu1MtvKd",
-            "name": "瞬间的瞬间",
-            "album": "瞬间的瞬间（电影《他年她日》主题曲）"
-          },
-          {
-            "id": 5063374,
-            "mid": "001tzPHJ436zJl",
-            "name": "黑暗骑士 (feat. 五月天)",
-            "album": "因你 而在"
-          },
-          {
-            "id": 103602,
-            "mid": "002Qmuly4WD0XL",
-            "name": "就是我",
-            "album": "乐行者"
-          },
-          {
-            "id": 764254,
-            "mid": "001v5cGT2hCYhU",
-            "name": "只对你有感觉",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 3584622,
-            "mid": "004DqnTq3xUhHR",
-            "name": "小酒窝",
-            "album": "他是... JJ林俊杰"
-          },
-          {
-            "id": 405007728,
-            "mid": "00108JWL059WlE",
-            "name": "谢幕",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 5063372,
-            "mid": "003SGnx01dEnNe",
-            "name": "因你而在",
-            "album": "因你 而在"
-          },
-          {
-            "id": 764258,
-            "mid": "004JHZXa0fXVnz",
-            "name": "握不住的他",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 95268,
-            "mid": "002zLEsG0crVRx",
-            "name": "简简单单",
-            "album": "编号89757"
-          },
-          {
-            "id": 102388807,
-            "mid": "000i43bi30YXVC",
-            "name": "故事细腻",
-            "album": "学不会"
-          },
-          {
-            "id": 405007727,
-            "mid": "001PjJUI0QYrnf",
-            "name": "逆光白",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 607932145,
-            "mid": "003XrK5P2xuSWF",
-            "name": "为你揭晓",
-            "album": "为你揭晓"
-          },
-          {
-            "id": 101013,
-            "mid": "002ssmTH2yY3iA",
-            "name": "사랑해요只对你说",
-            "album": "曹操"
-          },
-          {
-            "id": 405007726,
-            "mid": "004J555g2Wzk9V",
-            "name": "孤独娱乐",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 410775,
-            "mid": "001gGv163AXDBs",
-            "name": "西界",
-            "album": "西界"
-          },
-          {
-            "id": 485110,
-            "mid": "000bpSn2333E7V",
-            "name": "Cries In A Distance",
-            "album": "JJ陆"
-          },
-          {
-            "id": 587478455,
-            "mid": "001tjAR54gd5tz",
-            "name": "在月蚀里抱紧我",
-            "album": "在月蚀里抱紧我"
-          },
-          {
-            "id": 101659149,
-            "mid": "004FM95l1lCIOL",
-            "name": "翅膀",
-            "album": "乐行者"
-          },
-          {
-            "id": 330621489,
-            "mid": "003fzkfK0mZWnX",
-            "name": "黑键",
-            "album": "新地球"
-          },
-          {
-            "id": 5063373,
-            "mid": "004XB8sv1niIca",
-            "name": "零度的亲吻",
-            "album": "因你 而在"
-          },
-          {
-            "id": 236314334,
-            "mid": "003gYady2KMr0i",
-            "name": "对的时间点",
-            "album": "对的时间点/As I Believe"
-          },
-          {
-            "id": 225903007,
-            "mid": "004eTWc92uVm7f",
-            "name": "进阶",
-            "album": "进阶"
-          },
-          {
-            "id": 95262,
-            "mid": "003AUNYI3sbgoM",
-            "name": "木乃伊",
-            "album": "编号89757"
-          },
-          {
-            "id": 101015,
-            "mid": "002jv3Zm4Wn0eY",
-            "name": "熟能生巧",
-            "album": "曹操"
-          },
-          {
-            "id": 103612,
-            "mid": "0028XJdR1SunqM",
-            "name": "不懂",
-            "album": "乐行者"
-          },
-          {
-            "id": 648243,
-            "mid": "004Cvuk43vequm",
-            "name": "转动",
-            "album": "100天"
-          },
-          {
-            "id": 764260,
-            "mid": "0040RaUO0ikL7O",
-            "name": "我很想爱他",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 103611,
-            "mid": "003vO9A54YxjYo",
-            "name": "会有那么一天",
-            "album": "乐行者"
-          },
-          {
-            "id": 101795110,
-            "mid": "001PYT5C3UtNn7",
-            "name": "水仙",
-            "album": "新地球 - 人 (Special Edition)"
-          },
-          {
-            "id": 102212094,
-            "mid": "0022CCNk11l9wi",
-            "name": "你要的不是我",
-            "album": "曹操"
-          },
-          {
-            "id": 5063368,
-            "mid": "004EAITN3Sg2l7",
-            "name": "友人说 (feat. 怀秋)",
-            "album": "因你 而在"
-          },
-          {
-            "id": 5063370,
-            "mid": "003j0KMr1klX98",
-            "name": "以后要做的事",
-            "album": "因你 而在"
-          },
-          {
-            "id": 480878,
-            "mid": "0041oHMT41A5GV",
-            "name": "第二天堂",
-            "album": "第二天堂"
-          },
-          {
-            "id": 102388816,
-            "mid": "001EZ44F0uQpa9",
-            "name": "Love U U",
-            "album": "学不会"
-          },
-          {
-            "id": 330621488,
-            "mid": "004NwZq63TbG4A",
-            "name": "爱的鼓励",
-            "album": "新地球"
-          },
-          {
-            "id": 447258,
-            "mid": "003cUayQ0eKiHR",
-            "name": "街道",
-            "album": "JJ陆"
-          },
-          {
-            "id": 101232,
-            "mid": "001kWPox4RlL8k",
-            "name": "突然累了",
-            "album": "编号89757"
-          },
-          {
-            "id": 410781,
-            "mid": "000tZXOL1ElC7y",
-            "name": "发现爱",
-            "album": "西界"
-          },
-          {
-            "id": 102388815,
-            "mid": "004dqOA637OqwW",
-            "name": "不存在的情人",
-            "album": "学不会"
-          },
-          {
-            "id": 371679750,
-            "mid": "000Aaeow0ZNRnj",
-            "name": "无拘",
-            "album": "无拘"
-          },
-          {
-            "id": 95269,
-            "mid": "001xt1rc2ugNb1",
-            "name": "无尽的思念",
-            "album": "编号89757"
-          },
-          {
-            "id": 95293,
-            "mid": "004ZtPOC2peCdL",
-            "name": "距离",
-            "album": "第二天堂"
-          },
-          {
-            "id": 105393425,
-            "mid": "004czErX2hy62A",
-            "name": "Too Bad",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 405007732,
-            "mid": "004KAUzx3pLSqb",
-            "name": "黑色泡沫",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 484941923,
-            "mid": "003L6e0t2rfEqA",
-            "name": "俯冲的灵魂",
-            "album": "俯冲的灵魂"
-          },
-          {
-            "id": 211884290,
-            "mid": "003ojkx92JQyP0",
-            "name": "伟大的渺小",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 648230,
-            "mid": "004PvkN52qFIyp",
-            "name": "无法克制",
-            "album": "100天"
-          },
-          {
-            "id": 447346,
-            "mid": "0017mjTW03a3IN",
-            "name": "点一把火炬",
-            "album": "JJ陆"
-          },
-          {
-            "id": 95290,
-            "mid": "0036nqnp4JZ89V",
-            "name": "精灵",
-            "album": "第二天堂"
-          },
-          {
-            "id": 648227,
-            "mid": "0016f9v32OkjzJ",
-            "name": "X",
-            "album": "100天"
-          },
-          {
-            "id": 410776,
-            "mid": "003yzhP236CCJK",
-            "name": "无聊",
-            "album": "西界"
-          },
-          {
-            "id": 434983,
-            "mid": "001IVd6L1okOXo",
-            "name": "一千年以前",
-            "album": "编号89757"
-          },
-          {
-            "id": 102388813,
-            "mid": "004BokpB1SXIP4",
-            "name": "白兰花",
-            "album": "学不会"
-          },
-          {
-            "id": 405007733,
-            "mid": "001eFVHK1XrNsv",
-            "name": "如果我还剩一件事情可以做",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 405007725,
-            "mid": "001O8sRJ1pTTJt",
-            "name": "自画像",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 393959376,
-            "mid": "004YeyCx1vG34o",
-            "name": "身后",
-            "album": "JJ的咖啡调调, Vol. 1"
-          },
-          {
-            "id": 501051640,
-            "mid": "0039PnSs3QC2Dh",
-            "name": "绝不绝",
-            "album": "绝不绝"
-          },
-          {
-            "id": 102943286,
-            "mid": "002ckYV42TiW22",
-            "name": "我为你祈祷",
-            "album": "我为你祈祷"
-          },
-          {
-            "id": 551474278,
-            "mid": "000OihJt2k9ujs",
-            "name": "Turn Of A Page",
-            "album": "光阴副本 / Turn Of A Page"
-          },
-          {
-            "id": 648246,
-            "mid": "000ZbP6k1hNf51",
-            "name": "表达爱",
-            "album": "100天"
-          },
-          {
-            "id": 279701423,
-            "mid": "0001r55f1SLVWd",
-            "name": "幸存者",
-            "album": "幸存者 Drifter"
-          },
-          {
-            "id": 103610,
-            "mid": "003IGPiv30U8xy",
-            "name": "让我心动的人",
-            "album": "乐行者"
-          },
-          {
-            "id": 405007736,
-            "mid": "0001erij3QMDtR",
-            "name": "Castle in the air ",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 434985,
-            "mid": "003QuIE72iEOui",
-            "name": "明天",
-            "album": "编号89757"
-          },
-          {
-            "id": 95287,
-            "mid": "000P7hVp44A9MS",
-            "name": "害怕",
-            "album": "第二天堂"
-          },
-          {
-            "id": 5063371,
-            "mid": "0009boDk3nMErW",
-            "name": "一千年后，记得我",
-            "album": "因你 而在"
-          },
-          {
-            "id": 279701422,
-            "mid": "001xSylb3EHaZW",
-            "name": "暂时的记号",
-            "album": "幸存者 Drifter"
-          },
-          {
-            "id": 103605,
-            "mid": "000Z20kl3tT6Wg",
-            "name": "星球",
-            "album": "乐行者"
-          },
-          {
-            "id": 447268,
-            "mid": "001SMOZr0ra0l5",
-            "name": "爱与希望",
-            "album": "JJ陆"
-          },
-          {
-            "id": 212664068,
-            "mid": "002TGLL108wKSf",
-            "name": "圣所",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 233086480,
-            "mid": "0005lLc501ZqsM",
-            "name": "我们很好",
-            "album": "我们很好"
-          },
-          {
-            "id": 410785,
-            "mid": "000PsaJM2pQymG",
-            "name": "自由不变",
-            "album": "西界"
-          },
-          {
-            "id": 405007724,
-            "mid": "003N2Uet0iz9XS",
-            "name": "梦不凌乱",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 764263,
-            "mid": "004ZvNC44DR6QT",
-            "name": "完美新世界",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 102388810,
-            "mid": "004Hf6b31vbG0I",
-            "name": "灵魂的共鸣",
-            "album": "学不会"
-          },
-          {
-            "id": 5063369,
-            "mid": "001xuEpD48FIHs",
-            "name": "十秒的冲动",
-            "album": "因你 而在"
-          },
-          {
-            "id": 105393422,
-            "mid": "002aJqAb29LGFd",
-            "name": "弹唱",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 105393417,
-            "mid": "0048Z7jc4bKcl9",
-            "name": "只要有你的地方",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 5123824,
-            "mid": "002szrju1Gy2BJ",
-            "name": "黑暗骑士",
-            "album": "2013 华语最精选"
-          },
-          {
-            "id": 5063366,
-            "mid": "000Sqgyz4FwhdD",
-            "name": "One Shot (feat. 王力宏)",
-            "album": "因你 而在"
-          },
-          {
-            "id": 279701421,
-            "mid": "0027C75W1tpKgK",
-            "name": "最好是",
-            "album": "幸存者 Drifter"
-          },
-          {
-            "id": 95265,
-            "mid": "001JTuRv098GkS",
-            "name": "莎士比亚的天份",
-            "album": "编号89757"
-          },
-          {
-            "id": 410779,
-            "mid": "003O46qx0Dmqmt",
-            "name": "大男人·小女孩",
-            "album": "西界"
-          },
-          {
-            "id": 101019,
-            "mid": "0032Wh504NCa4w",
-            "name": "爱情Yogurt",
-            "album": "曹操"
-          },
-          {
-            "id": 212664077,
-            "mid": "001pwzsR0xw6H4",
-            "name": "小瓶子",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 101659147,
-            "mid": "0039bwXV07LbSN",
-            "name": "会读书",
-            "album": "乐行者"
-          },
-          {
-            "id": 2479366,
-            "mid": "000KWsAJ1PMFMP",
-            "name": "感动每一刻",
-            "album": "感动每一刻"
-          },
-          {
-            "id": 240180882,
-            "mid": "004fUbCb0gRIO5",
-            "name": "Wonderland",
-            "album": "Wonderland"
-          },
-          {
-            "id": 102388809,
-            "mid": "00055LII3MDTzW",
-            "name": "白羊梦",
-            "album": "学不会"
-          },
-          {
-            "id": 279701420,
-            "mid": "002DF6nA1uFZds",
-            "name": "最向往的地方",
-            "album": "幸存者 Drifter"
-          },
-          {
-            "id": 212664072,
-            "mid": "0005jrRs05ELQv",
-            "name": "我继续",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 107360759,
-            "mid": "001Tt4ZI11AV9i",
-            "name": "超越无限",
-            "album": "超越无限"
-          },
-          {
-            "id": 212664073,
-            "mid": "003DS9ET1CuriC",
-            "name": "剪云者",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 405007731,
-            "mid": "001yWKMD3sVckg",
-            "name": "你都在",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 648244,
-            "mid": "0030fbBb0VCm9I",
-            "name": "妈妈的娜鲁娃",
-            "album": "100天"
-          },
-          {
-            "id": 279701424,
-            "mid": "000KEEum0zXaVl",
-            "name": "离开的那一些",
-            "album": "幸存者 Drifter"
-          },
-          {
-            "id": 101795118,
-            "mid": "004806kZ03TFn0",
-            "name": "Lamando",
-            "album": "新地球 - 人 (Special Edition)"
-          },
-          {
-            "id": 447256,
-            "mid": "000Iz1nr3QugUV",
-            "name": "由你选择",
-            "album": "JJ陆"
-          },
-          {
-            "id": 103518,
-            "mid": "000iEJ0J0KSAJt",
-            "name": "小说",
-            "album": "哈啰"
-          },
-          {
-            "id": 102388814,
-            "mid": "002ydvaj2bUZIG",
-            "name": "陌生老朋友",
-            "album": "学不会"
-          },
-          {
-            "id": 2650630,
-            "mid": "002h2AGC1c5DeI",
-            "name": "御龙三国志",
-            "album": "御龙在天 游戏原声带"
-          },
-          {
-            "id": 410774,
-            "mid": "0010BPfN0cle5q",
-            "name": "杀手@续",
-            "album": "西界"
-          },
-          {
-            "id": 95284,
-            "mid": "004RI5gg0mNEa9",
-            "name": "子弹列车",
-            "album": "第二天堂"
-          },
-          {
-            "id": 103204780,
-            "mid": "001RQUHV1zrJTC",
-            "name": "期待你的爱",
-            "album": "最佳前男友 电视剧原声带"
-          },
-          {
-            "id": 212664075,
-            "mid": "002MI9Xm2K7iM2",
-            "name": "丹宁执着",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 101016,
-            "mid": "003s6id64XzWxa",
-            "name": "波间带",
-            "album": "曹操"
-          },
-          {
-            "id": 102388812,
-            "mid": "001S6Kq20NtQqu",
-            "name": "Cinderella",
-            "album": "学不会"
-          },
-          {
-            "id": 393959373,
-            "mid": "002FNuQ50bL2AH",
-            "name": "咖啡+交换余生",
-            "album": "JJ的咖啡调调, Vol. 1"
-          },
-          {
-            "id": 447259,
-            "mid": "000VcsFz1mnj8b",
-            "name": "主角",
-            "album": "JJ陆"
-          },
-          {
-            "id": 105393423,
-            "mid": "0021SxAF0yA1LZ",
-            "name": "有梦不难",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 105393416,
-            "mid": "001UYybR2S85Wj",
-            "name": "你，有没有过",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 101020,
-            "mid": "003R6XHv0j05fM",
-            "name": "进化论",
-            "album": "曹操"
-          },
-          {
-            "id": 410780,
-            "mid": "004Xmd3d0OUKdF",
-            "name": "L-O-V-E",
-            "album": "西界"
-          },
-          {
-            "id": 236314335,
-            "mid": "00490thN3anBWg",
-            "name": "As I Believe",
-            "album": "对的时间点/As I Believe"
-          },
-          {
-            "id": 102388811,
-            "mid": "002veKEH2DEJ4z",
-            "name": "We Together",
-            "album": "学不会"
-          },
-          {
-            "id": 648233,
-            "mid": "003qie9p4cjYRy",
-            "name": "一个又一个",
-            "album": "100天"
-          },
-          {
-            "id": 105393414,
-            "mid": "000SsndB4AWkQx",
-            "name": "独舞",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 212664076,
-            "mid": "000bDLDa0zODQF",
-            "name": "身为风帆",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 598463634,
-            "mid": "001NkSaB3Yffss",
-            "name": "Skibidi",
-            "album": "Skibidi"
-          },
-          {
-            "id": 212664070,
-            "mid": "002AVUYf1R5i36",
-            "name": "穿越",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 333777106,
-            "mid": "0020NMvE1feN0h",
-            "name": "After The Rain",
-            "album": "一定会 / After The Rain"
-          },
-          {
-            "id": 105704752,
-            "mid": "000Yw5YN35vTbV",
-            "name": "星空下的吻",
-            "album": "乐行者"
-          },
-          {
-            "id": 212664078,
-            "mid": "0021YyC14MqRYa",
-            "name": "Until The Day",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 212664071,
-            "mid": "001yYaWL1fuWlH",
-            "name": "四点四十四",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 279701730,
-            "mid": "002T2f2F0E47uz",
-            "name": "Like You Do",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 410784,
-            "mid": "000zuldR2XqYoX",
-            "name": "Baby Baby",
-            "album": "西界"
-          },
-          {
-            "id": 5063376,
-            "mid": "003febjj2h67bW",
-            "name": "飞机 (feat. 林俊峰)",
-            "album": "因你 而在"
-          },
-          {
-            "id": 103607,
-            "mid": "00264NlK3eEsT7",
-            "name": "压力",
-            "album": "乐行者"
-          },
-          {
-            "id": 273270232,
-            "mid": "002qyKPB2P9Pv3",
-            "name": "无滤镜 (feat. 藤原浩)",
-            "album": "无滤镜 (feat. 藤原浩)"
-          },
-          {
-            "id": 764257,
-            "mid": "002jLqT20w76Zg",
-            "name": "保护色",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 165429,
-            "mid": "001bgqjC3fiw83",
-            "name": "流行主教",
-            "album": "曹操"
-          },
-          {
-            "id": 105393411,
-            "mid": "0031Bj393dAUOp",
-            "name": "现在的我和她",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 371679751,
-            "mid": "004Ufbdh1aUr3I",
-            "name": "From The Ashes",
-            "album": "无拘"
-          },
-          {
-            "id": 95271,
-            "mid": "0012Obur1uXYEx",
-            "name": "听不懂 没关系",
-            "album": "编号89757"
-          },
-          {
-            "id": 105393413,
-            "mid": "001ttzIN2hDr2T",
-            "name": "Lier and Accuser",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 3584628,
-            "mid": "001JjTSr1AdudX",
-            "name": "他...是JJ林俊杰...Dance 组曲",
-            "album": "他是... JJ林俊杰"
-          },
-          {
-            "id": 103608,
-            "mid": "004D3cmg45dw0O",
-            "name": "女儿家",
-            "album": "乐行者"
-          },
-          {
-            "id": 95288,
-            "mid": "0019daVq1H9afQ",
-            "name": "天使心",
-            "album": "第二天堂"
-          },
-          {
-            "id": 108549240,
-            "mid": "002ozWQh1Klg0K",
-            "name": "2infinity And Beyond",
-            "album": "2infinity And Beyond"
-          },
-          {
-            "id": 279701726,
-            "mid": "002zxsSB1Wn0f3",
-            "name": "While I Can",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 410778,
-            "mid": "000hKFT10NVMYQ",
-            "name": "K-O",
-            "album": "西界"
-          },
-          {
-            "id": 417100,
-            "mid": "002CtruE0OmsXO",
-            "name": "期待你的爱",
-            "album": "原来我不帅"
-          },
-          {
-            "id": 101021,
-            "mid": "000Oyg5m16XUcG",
-            "name": "Now That She's Gone",
-            "album": "曹操"
-          },
-          {
-            "id": 648245,
-            "mid": "0011Wex93wPqXU",
-            "name": "Still Moving Under Gunfire",
-            "album": "100天"
-          },
-          {
-            "id": 95291,
-            "mid": "000BxrP1384JD5",
-            "name": "相信无限",
-            "album": "第二天堂"
-          },
-          {
-            "id": 233346345,
-            "mid": "002LlGyT1UzY8b",
-            "name": "SHOW THE WORLD",
-            "album": "SHOW THE WORLD"
-          },
-          {
-            "id": 95270,
-            "mid": "003EppMl2AdtKn",
-            "name": "盗",
-            "album": "编号89757"
-          },
-          {
-            "id": 648232,
-            "mid": "0046KETE3FBfeB",
-            "name": "跟屁虫",
-            "album": "100天"
-          },
-          {
-            "id": 279701731,
-            "mid": "004OZDZM2faiTy",
-            "name": "Not Tonight",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 266641724,
-            "mid": "003BtUeT4PTqns",
-            "name": "Hello",
-            "album": "Hello (录音室版)"
-          },
-          {
-            "id": 403957035,
-            "mid": "000MgboI0fdeI9",
-            "name": "In The Joy",
-            "album": "In The Joy"
-          },
-          {
-            "id": 279701729,
-            "mid": "000ldfAs1QwXBT",
-            "name": "Steady My Love",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 764265,
-            "mid": "0032tQsE28f7on",
-            "name": "真材实料的我",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 279701725,
-            "mid": "000Oaxv704MDZV",
-            "name": "All In Your Mind",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 95295,
-            "mid": "000BKn7y4RC5Fk",
-            "name": "Endless Road",
-            "album": "第二天堂"
-          },
-          {
-            "id": 279701727,
-            "mid": "003Ih4xv1gu1cu",
-            "name": "Head On",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 418003,
-            "mid": "002mrXJ63kGoLo",
-            "name": "L-O-V-E",
-            "album": "原来我不帅 电视原声带"
-          },
-          {
-            "id": 3584623,
-            "mid": "0017mIKE2nVnqN",
-            "name": "爱与希望",
-            "album": "他是... JJ林俊杰"
-          },
-          {
-            "id": 410919,
-            "mid": "002e06pC0QqcGd",
-            "name": "Hurray一起摇",
-            "album": "Hurray一起摇"
-          },
-          {
-            "id": 104309549,
-            "mid": "002Ta0Bg3eAVr4",
-            "name": "全面开战",
-            "album": "全面开战"
-          },
-          {
-            "id": 2479365,
-            "mid": "002OWRX73ZCmwd",
-            "name": "Cheer Singapore",
-            "album": "Cheer Singapore"
-          },
-          {
-            "id": 3584608,
-            "mid": "001KRJZ52P12Kk",
-            "name": "他... 是JJ林俊杰... Love组曲",
-            "album": "他是... JJ林俊杰"
-          },
-          {
-            "id": 616680,
-            "mid": "004ey0fm26OB7h",
-            "name": "信心旅行",
-            "album": "信心地图"
-          }
-        ]
-      },
-      {
-        "id": "artist:name:林秋离->target:linjunjie:作词",
+        "id": "artist:name:林秋离->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林秋离",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 36,
         "songs": [
@@ -2579,9 +1581,9 @@
         ]
       },
       {
-        "id": "artist:name:简胜->target:linjunjie:作词",
+        "id": "artist:name:简胜->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:简胜",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2600,9 +1602,9 @@
         ]
       },
       {
-        "id": "artist:name:林夕->target:linjunjie:作词",
+        "id": "artist:name:林夕->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林夕",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 3,
         "songs": [
@@ -2627,9 +1629,9 @@
         ]
       },
       {
-        "id": "artist:name:小寒->target:linjunjie:作词",
+        "id": "artist:name:小寒->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:小寒",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 6,
         "songs": [
@@ -2672,9 +1674,9 @@
         ]
       },
       {
-        "id": "artist:name:易家扬->target:linjunjie:作词",
+        "id": "artist:name:易家扬->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:易家扬",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 12,
         "songs": [
@@ -2753,180 +1755,9 @@
         ]
       },
       {
-        "id": "artist:name:林俊杰->target:linjunjie:作词",
-        "source": "artist:name:林俊杰",
-        "target": "target:linjunjie",
-        "role": "作词",
-        "song_count": 27,
-        "songs": [
-          {
-            "id": 447252,
-            "mid": "0026G2Lq3Cl7ig",
-            "name": "不潮不用花钱",
-            "album": "JJ陆"
-          },
-          {
-            "id": 648228,
-            "mid": "0049t0gc2joqxK",
-            "name": "加油",
-            "album": "100天"
-          },
-          {
-            "id": 101013,
-            "mid": "002ssmTH2yY3iA",
-            "name": "사랑해요只对你说",
-            "album": "曹操"
-          },
-          {
-            "id": 485110,
-            "mid": "000bpSn2333E7V",
-            "name": "Cries In A Distance",
-            "album": "JJ陆"
-          },
-          {
-            "id": 105393425,
-            "mid": "004czErX2hy62A",
-            "name": "Too Bad",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 551474278,
-            "mid": "000OihJt2k9ujs",
-            "name": "Turn Of A Page",
-            "album": "光阴副本 / Turn Of A Page"
-          },
-          {
-            "id": 405007736,
-            "mid": "0001erij3QMDtR",
-            "name": "Castle in the air ",
-            "album": "重拾_快乐"
-          },
-          {
-            "id": 5063366,
-            "mid": "000Sqgyz4FwhdD",
-            "name": "One Shot (feat. 王力宏)",
-            "album": "因你 而在"
-          },
-          {
-            "id": 95265,
-            "mid": "001JTuRv098GkS",
-            "name": "莎士比亚的天份",
-            "album": "编号89757"
-          },
-          {
-            "id": 410779,
-            "mid": "003O46qx0Dmqmt",
-            "name": "大男人·小女孩",
-            "album": "西界"
-          },
-          {
-            "id": 212664077,
-            "mid": "001pwzsR0xw6H4",
-            "name": "小瓶子",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 102388812,
-            "mid": "001S6Kq20NtQqu",
-            "name": "Cinderella",
-            "album": "学不会"
-          },
-          {
-            "id": 333777106,
-            "mid": "0020NMvE1feN0h",
-            "name": "After The Rain",
-            "album": "一定会 / After The Rain"
-          },
-          {
-            "id": 212664078,
-            "mid": "0021YyC14MqRYa",
-            "name": "Until The Day",
-            "album": "伟大的渺小"
-          },
-          {
-            "id": 279701730,
-            "mid": "002T2f2F0E47uz",
-            "name": "Like You Do",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 764257,
-            "mid": "002jLqT20w76Zg",
-            "name": "保护色",
-            "album": "她说 概念自选辑"
-          },
-          {
-            "id": 105393413,
-            "mid": "001ttzIN2hDr2T",
-            "name": "Lier and Accuser",
-            "album": "和自己对话 From M.E. To Myself"
-          },
-          {
-            "id": 279701726,
-            "mid": "002zxsSB1Wn0f3",
-            "name": "While I Can",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 101021,
-            "mid": "000Oyg5m16XUcG",
-            "name": "Now That She's Gone",
-            "album": "曹操"
-          },
-          {
-            "id": 648245,
-            "mid": "0011Wex93wPqXU",
-            "name": "Still Moving Under Gunfire",
-            "album": "100天"
-          },
-          {
-            "id": 279701731,
-            "mid": "004OZDZM2faiTy",
-            "name": "Not Tonight",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 403957035,
-            "mid": "000MgboI0fdeI9",
-            "name": "In The Joy",
-            "album": "In The Joy"
-          },
-          {
-            "id": 279701729,
-            "mid": "000ldfAs1QwXBT",
-            "name": "Steady My Love",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 279701725,
-            "mid": "000Oaxv704MDZV",
-            "name": "All In Your Mind",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 95295,
-            "mid": "000BKn7y4RC5Fk",
-            "name": "Endless Road",
-            "album": "第二天堂"
-          },
-          {
-            "id": 279701727,
-            "mid": "003Ih4xv1gu1cu",
-            "name": "Head On",
-            "album": "Like You Do 如你"
-          },
-          {
-            "id": 2479365,
-            "mid": "002OWRX73ZCmwd",
-            "name": "Cheer Singapore",
-            "album": "Cheer Singapore"
-          }
-        ]
-      },
-      {
-        "id": "artist:name:王雅君->target:linjunjie:作词",
+        "id": "artist:name:王雅君->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:王雅君",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 11,
         "songs": [
@@ -2999,9 +1830,9 @@
         ]
       },
       {
-        "id": "artist:name:邢增华->target:linjunjie:作词",
+        "id": "artist:name:邢增华->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:邢增华",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -3020,9 +1851,9 @@
         ]
       },
       {
-        "id": "artist:name:张思尔->target:linjunjie:作词",
+        "id": "artist:name:张思尔->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:张思尔",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 25,
         "songs": [
@@ -3179,9 +2010,9 @@
         ]
       },
       {
-        "id": "artist:name:姚若龙->target:linjunjie:作词",
+        "id": "artist:name:姚若龙->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:姚若龙",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 12,
         "songs": [
@@ -3260,9 +2091,9 @@
         ]
       },
       {
-        "id": "artist:name:孙燕姿->target:linjunjie:作词",
+        "id": "artist:name:孙燕姿->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:孙燕姿",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -3281,9 +2112,9 @@
         ]
       },
       {
-        "id": "artist:name:方文山->target:linjunjie:作词",
+        "id": "artist:name:方文山->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:方文山",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 10,
         "songs": [
@@ -3350,9 +2181,9 @@
         ]
       },
       {
-        "id": "artist:name:瑞业->target:linjunjie:作词",
+        "id": "artist:name:瑞业->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:瑞业",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3365,9 +2196,9 @@
         ]
       },
       {
-        "id": "artist:name:吴青峰->target:linjunjie:作词",
+        "id": "artist:name:吴青峰->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:吴青峰",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 4,
         "songs": [
@@ -3398,9 +2229,9 @@
         ]
       },
       {
-        "id": "artist:name:mc hotdog 热狗->target:linjunjie:作词",
+        "id": "artist:name:mc hotdog 热狗->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:mc hotdog 热狗",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3413,9 +2244,9 @@
         ]
       },
       {
-        "id": "artist:name:吴剑泓->target:linjunjie:作词",
+        "id": "artist:name:吴剑泓->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:吴剑泓",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3428,9 +2259,9 @@
         ]
       },
       {
-        "id": "artist:name:许环良->target:linjunjie:作词",
+        "id": "artist:name:许环良->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:许环良",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 10,
         "songs": [
@@ -3497,9 +2328,9 @@
         ]
       },
       {
-        "id": "artist:name:王嘉尔->target:linjunjie:作曲",
+        "id": "artist:name:王嘉尔->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:王嘉尔",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3512,9 +2343,9 @@
         ]
       },
       {
-        "id": "artist:name:冯欣慧->target:linjunjie:作词",
+        "id": "artist:name:冯欣慧->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:冯欣慧",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3527,9 +2358,9 @@
         ]
       },
       {
-        "id": "artist:name:蔡宥绮->target:linjunjie:作词",
+        "id": "artist:name:蔡宥绮->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:蔡宥绮",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3542,9 +2373,9 @@
         ]
       },
       {
-        "id": "artist:name:蔡宥绮->target:linjunjie:作曲",
+        "id": "artist:name:蔡宥绮->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:蔡宥绮",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3557,9 +2388,9 @@
         ]
       },
       {
-        "id": "artist:name:五月天 阿信->target:linjunjie:作词",
+        "id": "artist:name:五月天 阿信->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:五月天 阿信",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 4,
         "songs": [
@@ -3590,9 +2421,9 @@
         ]
       },
       {
-        "id": "artist:name:陈嘉文->target:linjunjie:作词",
+        "id": "artist:name:陈嘉文->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:陈嘉文",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3605,9 +2436,9 @@
         ]
       },
       {
-        "id": "artist:name:朱芸编->target:linjunjie:作曲",
+        "id": "artist:name:朱芸编->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:朱芸编",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3620,9 +2451,9 @@
         ]
       },
       {
-        "id": "artist:name:张家玮->target:linjunjie:作词",
+        "id": "artist:name:张家玮->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:张家玮",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3635,9 +2466,9 @@
         ]
       },
       {
-        "id": "artist:name:向月娥->target:linjunjie:作词",
+        "id": "artist:name:向月娥->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:向月娥",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3650,9 +2481,9 @@
         ]
       },
       {
-        "id": "artist:name:魏如萱->target:linjunjie:作词",
+        "id": "artist:name:魏如萱->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:魏如萱",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3665,9 +2496,9 @@
         ]
       },
       {
-        "id": "artist:name:魏如萱->target:linjunjie:作曲",
+        "id": "artist:name:魏如萱->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:魏如萱",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3680,9 +2511,9 @@
         ]
       },
       {
-        "id": "artist:name:廖莹如->target:linjunjie:作词",
+        "id": "artist:name:廖莹如->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:廖莹如",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3695,9 +2526,9 @@
         ]
       },
       {
-        "id": "artist:name:何启弘->target:linjunjie:作词",
+        "id": "artist:name:何启弘->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:何启弘",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -3716,9 +2547,9 @@
         ]
       },
       {
-        "id": "artist:name:李念和->target:linjunjie:作词",
+        "id": "artist:name:李念和->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:李念和",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3731,9 +2562,9 @@
         ]
       },
       {
-        "id": "artist:name:林天爱->target:linjunjie:作词",
+        "id": "artist:name:林天爱->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林天爱",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3746,9 +2577,9 @@
         ]
       },
       {
-        "id": "artist:name:dr. moon->target:linjunjie:作词",
+        "id": "artist:name:dr. moon->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:dr. moon",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3761,9 +2592,9 @@
         ]
       },
       {
-        "id": "artist:name:mr. mars->target:linjunjie:作词",
+        "id": "artist:name:mr. mars->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:mr. mars",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3776,9 +2607,9 @@
         ]
       },
       {
-        "id": "artist:name:景尧->target:linjunjie:作词",
+        "id": "artist:name:景尧->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:景尧",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3791,9 +2622,9 @@
         ]
       },
       {
-        "id": "artist:name:贰叁伍->target:linjunjie:作曲",
+        "id": "artist:name:贰叁伍->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:贰叁伍",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3806,9 +2637,9 @@
         ]
       },
       {
-        "id": "artist:name:侯江浩->target:linjunjie:作曲",
+        "id": "artist:name:侯江浩->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:侯江浩",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3821,9 +2652,9 @@
         ]
       },
       {
-        "id": "artist:name:静默者乐队->target:linjunjie:作曲",
+        "id": "artist:name:静默者乐队->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:静默者乐队",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3836,9 +2667,9 @@
         ]
       },
       {
-        "id": "artist:name:梦然->target:linjunjie:作词",
+        "id": "artist:name:梦然->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:梦然",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3851,9 +2682,9 @@
         ]
       },
       {
-        "id": "artist:name:梦然->target:linjunjie:作曲",
+        "id": "artist:name:梦然->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:梦然",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -3866,9 +2697,9 @@
         ]
       },
       {
-        "id": "artist:name:怀秋->target:linjunjie:作词",
+        "id": "artist:name:怀秋->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:怀秋",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 7,
         "songs": [
@@ -3917,9 +2748,9 @@
         ]
       },
       {
-        "id": "artist:name:宋健彰->target:linjunjie:作词",
+        "id": "artist:name:宋健彰->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:宋健彰",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3932,9 +2763,9 @@
         ]
       },
       {
-        "id": "artist:name:周信廷->target:linjunjie:作词",
+        "id": "artist:name:周信廷->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:周信廷",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -3953,9 +2784,9 @@
         ]
       },
       {
-        "id": "artist:name:杨彤->target:linjunjie:作词",
+        "id": "artist:name:杨彤->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:杨彤",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -3974,9 +2805,9 @@
         ]
       },
       {
-        "id": "artist:name:hush->target:linjunjie:作词",
+        "id": "artist:name:hush->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:hush",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -3989,9 +2820,9 @@
         ]
       },
       {
-        "id": "artist:name:李荣浩->target:linjunjie:作词",
+        "id": "artist:name:李荣浩->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:李荣浩",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4004,9 +2835,9 @@
         ]
       },
       {
-        "id": "artist:name:李荣浩->target:linjunjie:作曲",
+        "id": "artist:name:李荣浩->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:李荣浩",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4019,9 +2850,9 @@
         ]
       },
       {
-        "id": "artist:name:罗文裕->target:linjunjie:作词",
+        "id": "artist:name:罗文裕->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:罗文裕",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4034,9 +2865,9 @@
         ]
       },
       {
-        "id": "artist:name:林蔚利->target:linjunjie:作词",
+        "id": "artist:name:林蔚利->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林蔚利",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4049,9 +2880,9 @@
         ]
       },
       {
-        "id": "artist:name:葛大为->target:linjunjie:作词",
+        "id": "artist:name:葛大为->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:葛大为",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 3,
         "songs": [
@@ -4076,9 +2907,9 @@
         ]
       },
       {
-        "id": "artist:name:venus->target:linjunjie:作词",
+        "id": "artist:name:venus->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:venus",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4097,9 +2928,9 @@
         ]
       },
       {
-        "id": "artist:name:吴易纬->target:linjunjie:作词",
+        "id": "artist:name:吴易纬->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:吴易纬",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4112,9 +2943,9 @@
         ]
       },
       {
-        "id": "artist:name:张怀颢->target:linjunjie:作词",
+        "id": "artist:name:张怀颢->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:张怀颢",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4127,9 +2958,9 @@
         ]
       },
       {
-        "id": "artist:name:steve aoki->target:linjunjie:作词",
+        "id": "artist:name:steve aoki->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:steve aoki",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4148,9 +2979,9 @@
         ]
       },
       {
-        "id": "artist:name:carl ryden->target:linjunjie:作词",
+        "id": "artist:name:carl ryden->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:carl ryden",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4169,9 +3000,9 @@
         ]
       },
       {
-        "id": "artist:name:james daniel lewis->target:linjunjie:作词",
+        "id": "artist:name:james daniel lewis->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:james daniel lewis",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4190,9 +3021,9 @@
         ]
       },
       {
-        "id": "artist:name:steve aoki->target:linjunjie:作曲",
+        "id": "artist:name:steve aoki->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:steve aoki",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -4211,9 +3042,9 @@
         ]
       },
       {
-        "id": "artist:name:carl ryden->target:linjunjie:作曲",
+        "id": "artist:name:carl ryden->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:carl ryden",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -4232,9 +3063,9 @@
         ]
       },
       {
-        "id": "artist:name:rüde cåt->target:linjunjie:作词",
+        "id": "artist:name:rüde cåt->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:rüde cåt",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4253,9 +3084,9 @@
         ]
       },
       {
-        "id": "artist:name:rüde cåt->target:linjunjie:作曲",
+        "id": "artist:name:rüde cåt->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:rüde cåt",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -4274,9 +3105,9 @@
         ]
       },
       {
-        "id": "artist:name:张美香->target:linjunjie:作词",
+        "id": "artist:name:张美香->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:张美香",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4289,9 +3120,9 @@
         ]
       },
       {
-        "id": "artist:name:李若君->target:linjunjie:作词",
+        "id": "artist:name:李若君->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:李若君",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4310,9 +3141,9 @@
         ]
       },
       {
-        "id": "artist:name:农夫->target:linjunjie:作词",
+        "id": "artist:name:农夫->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:农夫",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4325,9 +3156,9 @@
         ]
       },
       {
-        "id": "artist:name:黄韵玲->target:linjunjie:作曲",
+        "id": "artist:name:黄韵玲->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:黄韵玲",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4340,9 +3171,9 @@
         ]
       },
       {
-        "id": "artist:name:黄立成->target:linjunjie:作词",
+        "id": "artist:name:黄立成->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:黄立成",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4355,9 +3186,9 @@
         ]
       },
       {
-        "id": "artist:name:崔惟楷->target:linjunjie:作词",
+        "id": "artist:name:崔惟楷->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:崔惟楷",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4370,9 +3201,9 @@
         ]
       },
       {
-        "id": "artist:name:洪健钧->target:linjunjie:作词",
+        "id": "artist:name:洪健钧->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:洪健钧",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4385,9 +3216,9 @@
         ]
       },
       {
-        "id": "artist:name:费聿锋->target:linjunjie:作词",
+        "id": "artist:name:费聿锋->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:费聿锋",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4400,9 +3231,9 @@
         ]
       },
       {
-        "id": "artist:name:陈镇川->target:linjunjie:作词",
+        "id": "artist:name:陈镇川->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:陈镇川",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4415,9 +3246,9 @@
         ]
       },
       {
-        "id": "artist:name:dick lee->target:linjunjie:作词",
+        "id": "artist:name:dick lee->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:dick lee",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4430,9 +3261,9 @@
         ]
       },
       {
-        "id": "artist:name:天天（梁鸿斌）->target:linjunjie:作词",
+        "id": "artist:name:天天（梁鸿斌）->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:天天（梁鸿斌）",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4445,9 +3276,9 @@
         ]
       },
       {
-        "id": "artist:name:林宇中->target:linjunjie:作词",
+        "id": "artist:name:林宇中->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林宇中",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 5,
         "songs": [
@@ -4484,9 +3315,9 @@
         ]
       },
       {
-        "id": "artist:name:林雨果->target:linjunjie:作词",
+        "id": "artist:name:林雨果->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林雨果",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4499,9 +3330,9 @@
         ]
       },
       {
-        "id": "artist:name:nasri->target:linjunjie:作词",
+        "id": "artist:name:nasri->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:nasri",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -4520,9 +3351,9 @@
         ]
       },
       {
-        "id": "artist:name:fernando garibay->target:linjunjie:作词",
+        "id": "artist:name:fernando garibay->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:fernando garibay",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 5,
         "songs": [
@@ -4559,9 +3390,9 @@
         ]
       },
       {
-        "id": "artist:name:nasri->target:linjunjie:作曲",
+        "id": "artist:name:nasri->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:nasri",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -4580,9 +3411,9 @@
         ]
       },
       {
-        "id": "artist:name:fernando garibay->target:linjunjie:作曲",
+        "id": "artist:name:fernando garibay->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:fernando garibay",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 5,
         "songs": [
@@ -4619,9 +3450,9 @@
         ]
       },
       {
-        "id": "artist:name:ramiro padilla->target:linjunjie:作曲",
+        "id": "artist:name:ramiro padilla->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:ramiro padilla",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 5,
         "songs": [
@@ -4658,9 +3489,9 @@
         ]
       },
       {
-        "id": "artist:name:daniel padilla->target:linjunjie:作曲",
+        "id": "artist:name:daniel padilla->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:daniel padilla",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 5,
         "songs": [
@@ -4697,9 +3528,9 @@
         ]
       },
       {
-        "id": "artist:name:藤原浩->target:linjunjie:作曲",
+        "id": "artist:name:藤原浩->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:藤原浩",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4712,9 +3543,9 @@
         ]
       },
       {
-        "id": "artist:name:陈淑秋->target:linjunjie:作词",
+        "id": "artist:name:陈淑秋->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:陈淑秋",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4727,9 +3558,9 @@
         ]
       },
       {
-        "id": "artist:name:范维仁->target:linjunjie:作词",
+        "id": "artist:name:范维仁->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:范维仁",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4742,9 +3573,9 @@
         ]
       },
       {
-        "id": "artist:name:楚晴jasmine sokko->target:linjunjie:作词",
+        "id": "artist:name:楚晴jasmine sokko->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:楚晴jasmine sokko",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4757,9 +3588,9 @@
         ]
       },
       {
-        "id": "artist:name:amy->target:linjunjie:作词",
+        "id": "artist:name:amy->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:amy",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4772,9 +3603,9 @@
         ]
       },
       {
-        "id": "artist:name:tom barnes->target:linjunjie:作词",
+        "id": "artist:name:tom barnes->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:tom barnes",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4787,9 +3618,9 @@
         ]
       },
       {
-        "id": "artist:name:pete kelleher->target:linjunjie:作词",
+        "id": "artist:name:pete kelleher->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:pete kelleher",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4802,9 +3633,9 @@
         ]
       },
       {
-        "id": "artist:name:ben kohn->target:linjunjie:作词",
+        "id": "artist:name:ben kohn->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:ben kohn",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4817,9 +3648,9 @@
         ]
       },
       {
-        "id": "artist:name:anne-marie->target:linjunjie:作词",
+        "id": "artist:name:anne-marie->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:anne-marie",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4832,9 +3663,9 @@
         ]
       },
       {
-        "id": "artist:name:camille purcell->target:linjunjie:作词",
+        "id": "artist:name:camille purcell->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:camille purcell",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4847,9 +3678,9 @@
         ]
       },
       {
-        "id": "artist:name:tom barnes->target:linjunjie:作曲",
+        "id": "artist:name:tom barnes->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:tom barnes",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4862,9 +3693,9 @@
         ]
       },
       {
-        "id": "artist:name:pete kelleher->target:linjunjie:作曲",
+        "id": "artist:name:pete kelleher->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:pete kelleher",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4877,9 +3708,9 @@
         ]
       },
       {
-        "id": "artist:name:ben kohn->target:linjunjie:作曲",
+        "id": "artist:name:ben kohn->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:ben kohn",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4892,9 +3723,9 @@
         ]
       },
       {
-        "id": "artist:name:anne-marie->target:linjunjie:作曲",
+        "id": "artist:name:anne-marie->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:anne-marie",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4907,9 +3738,9 @@
         ]
       },
       {
-        "id": "artist:name:camille purcell->target:linjunjie:作曲",
+        "id": "artist:name:camille purcell->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:camille purcell",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4922,9 +3753,9 @@
         ]
       },
       {
-        "id": "artist:name:lichang.rar->target:linjunjie:作词",
+        "id": "artist:name:lichang.rar->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:lichang.rar",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4937,9 +3768,9 @@
         ]
       },
       {
-        "id": "artist:name:老王乐队->target:linjunjie:作曲",
+        "id": "artist:name:老王乐队->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:老王乐队",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4952,9 +3783,9 @@
         ]
       },
       {
-        "id": "artist:name:maguire jonathan michael->target:linjunjie:作词",
+        "id": "artist:name:maguire jonathan michael->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:maguire jonathan michael",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4967,9 +3798,9 @@
         ]
       },
       {
-        "id": "artist:name:maguire jonathan michael->target:linjunjie:作曲",
+        "id": "artist:name:maguire jonathan michael->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:maguire jonathan michael",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -4982,9 +3813,9 @@
         ]
       },
       {
-        "id": "artist:name:kyler england->target:linjunjie:作词",
+        "id": "artist:name:kyler england->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:kyler england",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -4997,9 +3828,9 @@
         ]
       },
       {
-        "id": "artist:name:daniel padilla->target:linjunjie:作词",
+        "id": "artist:name:daniel padilla->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:daniel padilla",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5012,9 +3843,9 @@
         ]
       },
       {
-        "id": "artist:name:张怀秋->target:linjunjie:作词",
+        "id": "artist:name:张怀秋->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:张怀秋",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5027,9 +3858,9 @@
         ]
       },
       {
-        "id": "artist:name:joshua kissiah cumbee->target:linjunjie:作词",
+        "id": "artist:name:joshua kissiah cumbee->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:joshua kissiah cumbee",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5042,9 +3873,9 @@
         ]
       },
       {
-        "id": "artist:name:ramiro padilla->target:linjunjie:作词",
+        "id": "artist:name:ramiro padilla->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:ramiro padilla",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5057,9 +3888,9 @@
         ]
       },
       {
-        "id": "artist:name:张怀秋->target:linjunjie:作曲",
+        "id": "artist:name:张怀秋->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:张怀秋",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5072,9 +3903,9 @@
         ]
       },
       {
-        "id": "artist:name:joshua kissiah cumbee->target:linjunjie:作曲",
+        "id": "artist:name:joshua kissiah cumbee->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:joshua kissiah cumbee",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5087,9 +3918,9 @@
         ]
       },
       {
-        "id": "artist:name:林子钦->target:linjunjie:作词",
+        "id": "artist:name:林子钦->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:林子钦",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5102,9 +3933,9 @@
         ]
       },
       {
-        "id": "artist:name:陈少琪->target:linjunjie:作词",
+        "id": "artist:name:陈少琪->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:陈少琪",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5117,9 +3948,9 @@
         ]
       },
       {
-        "id": "artist:name:金培达->target:linjunjie:作曲",
+        "id": "artist:name:金培达->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:金培达",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5132,9 +3963,9 @@
         ]
       },
       {
-        "id": "artist:name:dr.moon->target:linjunjie:作词",
+        "id": "artist:name:dr.moon->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:dr.moon",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -5153,9 +3984,9 @@
         ]
       },
       {
-        "id": "artist:name:josh cumbee->target:linjunjie:作词",
+        "id": "artist:name:josh cumbee->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:josh cumbee",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -5174,9 +4005,9 @@
         ]
       },
       {
-        "id": "artist:name:josh cumbee->target:linjunjie:作曲",
+        "id": "artist:name:josh cumbee->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:josh cumbee",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -5195,9 +4026,9 @@
         ]
       },
       {
-        "id": "artist:name:奶六yorick chen->target:linjunjie:作词",
+        "id": "artist:name:奶六yorick chen->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:奶六yorick chen",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5210,9 +4041,9 @@
         ]
       },
       {
-        "id": "artist:name:萧敬腾->target:linjunjie:作曲",
+        "id": "artist:name:萧敬腾->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:萧敬腾",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5225,9 +4056,9 @@
         ]
       },
       {
-        "id": "artist:name:ryan lawrie->target:linjunjie:作词",
+        "id": "artist:name:ryan lawrie->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:ryan lawrie",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5240,9 +4071,9 @@
         ]
       },
       {
-        "id": "artist:name:james daniel lewis->target:linjunjie:作曲",
+        "id": "artist:name:james daniel lewis->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:james daniel lewis",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5255,9 +4086,9 @@
         ]
       },
       {
-        "id": "artist:name:ryan lawrie->target:linjunjie:作曲",
+        "id": "artist:name:ryan lawrie->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:ryan lawrie",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5270,9 +4101,9 @@
         ]
       },
       {
-        "id": "artist:name:anderson .paak->target:linjunjie:作词",
+        "id": "artist:name:anderson .paak->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:anderson .paak",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5285,9 +4116,9 @@
         ]
       },
       {
-        "id": "artist:name:anderson .paak->target:linjunjie:作曲",
+        "id": "artist:name:anderson .paak->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:anderson .paak",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5300,9 +4131,9 @@
         ]
       },
       {
-        "id": "artist:name:shungudzo->target:linjunjie:作词",
+        "id": "artist:name:shungudzo->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:shungudzo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5315,9 +4146,9 @@
         ]
       },
       {
-        "id": "artist:name:tushar apte->target:linjunjie:作词",
+        "id": "artist:name:tushar apte->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:tushar apte",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5330,9 +4161,9 @@
         ]
       },
       {
-        "id": "artist:name:shungudzo->target:linjunjie:作曲",
+        "id": "artist:name:shungudzo->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:shungudzo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5345,9 +4176,9 @@
         ]
       },
       {
-        "id": "artist:name:tushar apte->target:linjunjie:作曲",
+        "id": "artist:name:tushar apte->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:tushar apte",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5360,9 +4191,9 @@
         ]
       },
       {
-        "id": "artist:name:李志清->target:linjunjie:作词",
+        "id": "artist:name:李志清->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:李志清",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5375,9 +4206,9 @@
         ]
       },
       {
-        "id": "artist:name:李志清->target:linjunjie:作曲",
+        "id": "artist:name:李志清->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:李志清",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -5396,9 +4227,9 @@
         ]
       },
       {
-        "id": "artist:name:ronaldo cordeo->target:linjunjie:作词",
+        "id": "artist:name:ronaldo cordeo->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:ronaldo cordeo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5411,9 +4242,9 @@
         ]
       },
       {
-        "id": "artist:name:gilda cordeo->target:linjunjie:作词",
+        "id": "artist:name:gilda cordeo->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:gilda cordeo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5426,9 +4257,9 @@
         ]
       },
       {
-        "id": "artist:name:ronaldo cordeo->target:linjunjie:作曲",
+        "id": "artist:name:ronaldo cordeo->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:ronaldo cordeo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5441,9 +4272,9 @@
         ]
       },
       {
-        "id": "artist:name:gilda cordeo->target:linjunjie:作曲",
+        "id": "artist:name:gilda cordeo->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:gilda cordeo",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5456,9 +4287,9 @@
         ]
       },
       {
-        "id": "artist:name:林宇中->target:linjunjie:作曲",
+        "id": "artist:name:林宇中->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:林宇中",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5471,9 +4302,9 @@
         ]
       },
       {
-        "id": "artist:name:原竹->target:linjunjie:作词",
+        "id": "artist:name:原竹->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:原竹",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5486,9 +4317,9 @@
         ]
       },
       {
-        "id": "artist:name:丁于->target:linjunjie:作曲",
+        "id": "artist:name:丁于->artist:001BLpXF2DyJe2:作曲",
         "source": "artist:name:丁于",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -5501,9 +4332,9 @@
         ]
       },
       {
-        "id": "artist:name:海蝶群星->target:linjunjie:作词",
+        "id": "artist:name:海蝶群星->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:海蝶群星",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -5516,9 +4347,9 @@
         ]
       },
       {
-        "id": "artist:name:胡珍珍/子薇->target:linjunjie:作词",
+        "id": "artist:name:胡珍珍/子薇->artist:001BLpXF2DyJe2:作词",
         "source": "artist:name:胡珍珍/子薇",
-        "target": "target:linjunjie",
+        "target": "artist:001BLpXF2DyJe2",
         "role": "作词",
         "song_count": 1,
         "songs": [

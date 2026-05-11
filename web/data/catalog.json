@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T19:05:30.584583+00:00",
+  "generated_at": "2026-05-11T22:16:07.697115+00:00",
   "source_dataset": {
     "slug": "qqmusic",
     "name": "QQ 音乐",
@@ -15,8 +15,8 @@
         "songs": 210,
         "initial_candidates": 240,
         "credit_incomplete": 30,
-        "nodes": 31,
-        "edges": 34,
+        "nodes": 30,
+        "edges": 32,
         "contributors": 30,
         "self_lyricist_songs": 53,
         "self_composer_songs": 206
@@ -31,8 +31,8 @@
         "songs": 124,
         "initial_candidates": 127,
         "credit_incomplete": 3,
-        "nodes": 58,
-        "edges": 79,
+        "nodes": 57,
+        "edges": 77,
         "contributors": 57,
         "self_lyricist_songs": 84,
         "self_composer_songs": 75
@@ -47,8 +47,8 @@
         "songs": 232,
         "initial_candidates": 266,
         "credit_incomplete": 34,
-        "nodes": 106,
-        "edges": 135,
+        "nodes": 105,
+        "edges": 133,
         "contributors": 105,
         "self_lyricist_songs": 27,
         "self_composer_songs": 216
@@ -59,7 +59,7 @@
     "targets": 3,
     "songs": 566,
     "credit_incomplete": 67,
-    "unique_nodes": 186,
+    "unique_nodes": 183,
     "bridge_contributors": 9
   },
   "bridge_contributors": [
@@ -76,7 +76,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -98,7 +98,7 @@
         {
           "slug": "zhoujielun",
           "name": "周杰伦",
-          "target_id": "target:zhoujielun",
+          "target_id": "artist:0025NhlN2yWrP4",
           "song_count": 5,
           "roles": {
             "作词": {
@@ -168,7 +168,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 10,
           "roles": {
             "作词": {
@@ -271,7 +271,7 @@
         {
           "slug": "zhoujielun",
           "name": "周杰伦",
-          "target_id": "target:zhoujielun",
+          "target_id": "artist:0025NhlN2yWrP4",
           "song_count": 112,
           "roles": {
             "作词": {
@@ -1304,7 +1304,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 4,
           "roles": {
             "作词": {
@@ -1353,7 +1353,7 @@
         {
           "slug": "zhoujielun",
           "name": "周杰伦",
-          "target_id": "target:zhoujielun",
+          "target_id": "artist:0025NhlN2yWrP4",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1387,7 +1387,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1409,7 +1409,7 @@
         {
           "slug": "zhoujielun",
           "name": "周杰伦",
-          "target_id": "target:zhoujielun",
+          "target_id": "artist:0025NhlN2yWrP4",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1443,7 +1443,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 2,
           "roles": {
             "作曲": {
@@ -1479,7 +1479,7 @@
         {
           "slug": "xuezhiqian",
           "name": "薛之谦",
-          "target_id": "target:xuezhiqian",
+          "target_id": "artist:002J4UUk29y8BY",
           "song_count": 2,
           "roles": {
             "作曲": {
@@ -1522,7 +1522,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 6,
           "roles": {
             "作词": {
@@ -1589,7 +1589,7 @@
         {
           "slug": "xuezhiqian",
           "name": "薛之谦",
-          "target_id": "target:xuezhiqian",
+          "target_id": "artist:002J4UUk29y8BY",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1623,7 +1623,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 1,
           "roles": {
             "作曲": {
@@ -1645,7 +1645,7 @@
         {
           "slug": "xuezhiqian",
           "name": "薛之谦",
-          "target_id": "target:xuezhiqian",
+          "target_id": "artist:002J4UUk29y8BY",
           "song_count": 2,
           "roles": {
             "作曲": {
@@ -1693,7 +1693,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1715,7 +1715,7 @@
         {
           "slug": "xuezhiqian",
           "name": "薛之谦",
-          "target_id": "target:xuezhiqian",
+          "target_id": "artist:002J4UUk29y8BY",
           "song_count": 1,
           "roles": {
             "作词": {
@@ -1749,7 +1749,7 @@
         {
           "slug": "linjunjie",
           "name": "林俊杰",
-          "target_id": "target:linjunjie",
+          "target_id": "artist:001BLpXF2DyJe2",
           "song_count": 12,
           "roles": {
             "作词": {
@@ -1870,7 +1870,7 @@
         {
           "slug": "xuezhiqian",
           "name": "薛之谦",
-          "target_id": "target:xuezhiqian",
+          "target_id": "artist:002J4UUk29y8BY",
           "song_count": 1,
           "roles": {
             "作词": {

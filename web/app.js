@@ -17,7 +17,7 @@ let graphInstance = null;
 let graphResizeObserver = null;
 let graphDataKey = "";
 const imageCache = new Map();
-const layoutVersion = "force-graph-20260511";
+const layoutVersion = "equal-artist-nodes-20260511";
 const maxVisibleContributors = 36;
 
 const roleLabels = {
@@ -71,6 +71,60 @@ function addNode(nodes, node) {
   Object.entries(node).forEach(([key, value]) => {
     if (value && !existing[key]) existing[key] = value;
   });
+}
+
+function targetNodeForDataset(dataset) {
+  return (dataset.graph.nodes || []).find((node) => node.is_target || node.type === "target" || node.slug === dataset.slug);
+}
+
+function canonicalTargetNode(dataset) {
+  const targetNode = targetNodeForDataset(dataset);
+  const sameArtist =
+    (dataset.graph.nodes || []).find(
+      (node) =>
+        node.type === "artist" &&
+        (node.name === dataset.name || (dataset.mid && node.mid === dataset.mid)),
+    ) || targetNode;
+  if (!sameArtist) return null;
+  return {
+    ...targetNode,
+    ...sameArtist,
+    id: sameArtist.id,
+    type: "artist",
+    name: sameArtist.name || dataset.name,
+    mid: sameArtist.mid || dataset.mid,
+    slug: sameArtist.slug || dataset.slug,
+    is_target: true,
+    song_count: sameArtist.song_count || targetNode?.song_count || dataset.summary?.songs,
+  };
+}
+
+function canonicalNodeForDataset(node, dataset) {
+  const targetNode = targetNodeForDataset(dataset);
+  if (targetNode && node.id === targetNode.id) return null;
+  const target = canonicalTargetNode(dataset);
+  if (target && node.type === "artist" && node.name === target.name) {
+    return {
+      ...node,
+      id: target.id,
+      mid: node.mid || target.mid,
+      slug: node.slug || target.slug,
+      is_target: true,
+      song_count: node.song_count || target.song_count,
+    };
+  }
+  return {
+    ...node,
+    type: "artist",
+    is_target: Boolean(node.is_target),
+  };
+}
+
+function canonicalNodeId(id, dataset) {
+  const targetNode = targetNodeForDataset(dataset);
+  const target = canonicalTargetNode(dataset);
+  if (targetNode && target && id === targetNode.id) return target.id;
+  return id;
 }
 
 async function init() {
@@ -205,7 +259,8 @@ function countUniqueContributors(targets) {
   const ids = new Set();
   targets.forEach((dataset) => {
     dataset.graph.nodes.forEach((node) => {
-      if (node.type === "artist") ids.add(node.id);
+      const canonical = canonicalNodeForDataset(node, dataset);
+      if (canonical?.type === "artist") ids.add(canonical.id);
     });
   });
   return ids.size;
@@ -223,6 +278,7 @@ function mergeEdges(edges) {
   if (state.roleDisplay === "split") return edges;
   const merged = new Map();
   for (const edge of edges) {
+    if (edge.source === edge.target) continue;
     const key = `${edge.source}->${edge.target}`;
     const current = merged.get(key) || {
       id: key,
@@ -277,17 +333,30 @@ function buildArtistGraph() {
   const nodes = new Map();
   let edges = [];
   selectedTargets().forEach((dataset) => {
-    dataset.graph.nodes.forEach((node) => addNode(nodes, node));
+    const target = canonicalTargetNode(dataset);
+    if (target) addNode(nodes, target);
+    dataset.graph.nodes.forEach((node) => {
+      const canonical = canonicalNodeForDataset(node, dataset);
+      if (canonical) addNode(nodes, canonical);
+    });
     edges.push(
       ...dataset.graph.edges
         .filter((edge) => roleAllows(edge.role))
-        .map((edge) => ({ ...edge, target_slug: dataset.slug, target_name: dataset.name })),
+        .map((edge) => ({
+          ...edge,
+          id: `${canonicalNodeId(edge.source, dataset)}->${canonicalNodeId(edge.target, dataset)}:${edge.role}`,
+          source: canonicalNodeId(edge.source, dataset),
+          target: canonicalNodeId(edge.target, dataset),
+          target_slug: dataset.slug,
+          target_name: dataset.name,
+        }))
+        .filter((edge) => edge.source !== edge.target),
     );
   });
   edges = reduceGraphForOverview(mergeEdges(edges).filter((edge) => edge.song_count >= state.minCount));
   const usedNodeIds = new Set(edges.flatMap((edge) => [edge.source, edge.target]));
   nodes.forEach((node) => {
-    if (node.type === "target") usedNodeIds.add(node.id);
+    if (node.is_target) usedNodeIds.add(node.id);
   });
   return { nodes: [...nodes.values()].filter((node) => usedNodeIds.has(node.id)), edges };
 }
@@ -324,7 +393,7 @@ function buildBridgeGraph() {
   [...targetSlugs].forEach((slug) => {
     const dataset = state.targetData.get(slug);
     if (!dataset) return;
-    const target = dataset.graph.nodes.find((node) => node.type === "target");
+    const target = canonicalTargetNode(dataset);
     if (target) {
       addNode(nodes, target);
       targetsBySlug.set(dataset.slug, target);
@@ -335,6 +404,7 @@ function buildBridgeGraph() {
       id: bridge.id,
       type: "artist",
       name: bridge.name,
+      is_target: false,
     });
     bridge.targets.forEach((target) => {
       const targetNode = targetsBySlug.get(target.slug);
@@ -351,6 +421,7 @@ function buildBridgeGraph() {
         return;
       }
       Object.entries(target.roles || {}).forEach(([role, payload]) => {
+        if (bridge.id === targetNode.id) return;
         edges.push({
           id: `${bridge.id}->${targetNode.id}:${role}`,
           source: bridge.id,
@@ -364,7 +435,7 @@ function buildBridgeGraph() {
   });
   return {
     nodes: [...nodes.values()],
-    edges: edges.filter((edge) => edge.song_count >= state.minCount),
+    edges: edges.filter((edge) => edge.song_count >= state.minCount && edge.source !== edge.target),
   };
 }
 
@@ -388,20 +459,16 @@ function seededRandom(seed) {
 }
 
 function graphHeightFor(nodes) {
-  const targetCount = nodes.filter((node) => node.type === "target").length;
-  const artistCount = nodes.filter((node) => node.type === "artist").length;
-  const nodeCount = targetCount + artistCount;
+  const nodeCount = nodes.length;
   if (state.viewMode === "bridge") return Math.max(660, Math.min(1180, 610 + nodeCount * 8));
   return Math.max(660, Math.min(1220, 620 + nodeCount * 4));
 }
 
 function nodeRadius(node) {
-  if (node.type === "target") return 17;
-  return Math.min(15, 8 + Math.sqrt(node.degree || 1) * 1.4);
+  return 12;
 }
 
 function nodeColor(node) {
-  if (node.type === "target") return "#2458c7";
   return "#13956f";
 }
 
@@ -429,11 +496,7 @@ function nodeDegreeMap(edges) {
 }
 
 function shouldShowNodeLabel(node, degree, selected) {
-  if (selected) return true;
-  if (node.type === "target") return true;
-  if (state.search) return true;
-  if (state.viewMode === "bridge") return true;
-  return degree >= 8;
+  return Boolean(node.name);
 }
 
 function forceGraphData(nodes, edges) {
@@ -443,7 +506,7 @@ function forceGraphData(nodes, edges) {
   const graphNodes = nodes.map((node) => ({
     ...node,
     degree: degrees.get(node.id) || 0,
-    val: node.type === "target" ? 18 : Math.max(6, Math.sqrt(degrees.get(node.id) || 1) * 4),
+    val: 10,
   })).map((node) => {
     const previous = previousPositions.get(node.id);
     if (!previous) {
@@ -507,7 +570,7 @@ function drawNode(node, ctx, globalScale) {
 
   const showLabel = shouldShowNodeLabel(node, degree, selected || hovered);
   if (showLabel) {
-    const fontSize = node.type === "target" ? 13 : 11;
+    const fontSize = 11;
     ctx.font = `${fontSize / globalScale}px "Segoe UI", "Microsoft YaHei", Arial, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
@@ -601,7 +664,7 @@ function configureGraphForces(graphApi) {
     linkForce.strength((edge) => Math.min(0.78, 0.16 + Math.sqrt(edge.song_count || 1) * 0.08));
   }
   const chargeForce = graphApi.d3Force("charge");
-  if (chargeForce?.strength) chargeForce.strength((node) => (node.type === "target" ? -650 : -280));
+  if (chargeForce?.strength) chargeForce.strength(-280);
 }
 
 function renderGraph() {

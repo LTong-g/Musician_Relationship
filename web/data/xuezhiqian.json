@@ -3,26 +3,22 @@
   "name": "薛之谦",
   "mid": "002J4UUk29y8BY",
   "source_dir": "data/processed/singer_songs/xuezhiqian",
-  "generated_at": "2026-05-11T19:05:30.521290+00:00",
+  "generated_at": "2026-05-11T22:16:07.644702+00:00",
   "summary": {
     "songs": 124,
     "initial_candidates": 127,
     "credit_incomplete": 3,
-    "nodes": 58,
-    "edges": 79,
+    "nodes": 57,
+    "edges": 77,
     "contributors": 57,
     "self_lyricist_songs": 84,
     "self_composer_songs": 75
   },
   "role_counts": {
-    "作词": 142,
-    "作曲": 145
+    "作曲": 70,
+    "作词": 58
   },
   "top_contributors": [
-    [
-      "薛之谦",
-      159
-    ],
     [
       "郭顶",
       12
@@ -98,23 +94,22 @@
     [
       "宋涛",
       2
+    ],
+    [
+      "常石磊",
+      2
     ]
   ],
   "graph": {
     "nodes": [
       {
-        "id": "target:xuezhiqian",
-        "type": "target",
+        "id": "artist:002J4UUk29y8BY",
+        "type": "artist",
         "name": "薛之谦",
         "mid": "002J4UUk29y8BY",
         "slug": "xuezhiqian",
-        "song_count": 124
-      },
-      {
-        "id": "artist:name:薛之谦",
-        "type": "artist",
-        "name": "薛之谦",
-        "mid": null,
+        "is_target": true,
+        "song_count": 124,
         "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002J4UUk29y8BY_7.jpg?max_age=2592000"
       },
       {
@@ -122,1371 +117,567 @@
         "type": "artist",
         "name": "罗小黑",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002smJsT2mz3oy_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002smJsT2mz3oy_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:杨子朴",
         "type": "artist",
         "name": "杨子朴",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Ynlhd0xiBhQ_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Ynlhd0xiBhQ_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:茶茶",
         "type": "artist",
         "name": "茶茶",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004bSIvo3zlb8k_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004bSIvo3zlb8k_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:朱莉叶",
         "type": "artist",
         "name": "朱莉叶",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Ckk9u48jt1q_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Ckk9u48jt1q_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:郭顶",
         "type": "artist",
         "name": "郭顶",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000002ankM4d5yZI_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000002ankM4d5yZI_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:子望",
         "type": "artist",
         "name": "子望",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:周以力",
         "type": "artist",
         "name": "周以力",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002S1M3v4aTDUC_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002S1M3v4aTDUC_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:甘世佳",
         "type": "artist",
         "name": "甘世佳",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000vZibq1fehiJ_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000vZibq1fehiJ_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李荣浩",
         "type": "artist",
         "name": "李荣浩",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000aHmbL2aPXWH_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000aHmbL2aPXWH_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:方毅",
         "type": "artist",
         "name": "方毅",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004T8XHE05MPsi_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004T8XHE05MPsi_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:郭聪明",
         "type": "artist",
         "name": "郭聪明",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Jhik52k49N3_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Jhik52k49N3_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张鹏鹏",
         "type": "artist",
         "name": "张鹏鹏",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001IWMgw0oMH5T_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001IWMgw0oMH5T_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:董嘉鸿",
         "type": "artist",
         "name": "董嘉鸿",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002ymoTQ249hSb_10.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002ymoTQ249hSb_10.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:郭冠廷",
         "type": "artist",
         "name": "郭冠廷",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002zlHmw0oIA6l_8.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002zlHmw0oIA6l_8.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:赵英俊",
         "type": "artist",
         "name": "赵英俊",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002sfdNU1f3nHD_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002sfdNU1f3nHD_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张洢豪",
         "type": "artist",
         "name": "张洢豪",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003EbjqF2YMcGh_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003EbjqF2YMcGh_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:小寒",
         "type": "artist",
         "name": "小寒",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004Tulp3H2R1k_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004Tulp3H2R1k_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:廖慧明",
         "type": "artist",
         "name": "廖慧明",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:林倛玉",
         "type": "artist",
         "name": "林倛玉",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002U79fJ0AD8nD_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002U79fJ0AD8nD_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:汪苏泷",
         "type": "artist",
         "name": "汪苏泷",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001z2JmX09LLgL_8.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001z2JmX09LLgL_8.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:裴志森",
         "type": "artist",
         "name": "裴志森",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001sxznC2XOYDn_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001sxznC2XOYDn_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:门尼",
         "type": "artist",
         "name": "门尼",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003uZllO1pCUPk_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003uZllO1pCUPk_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:许嵩",
         "type": "artist",
         "name": "许嵩",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000CK5xN3yZDJt_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000CK5xN3yZDJt_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:王圆坤",
         "type": "artist",
         "name": "王圆坤",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000TCjfG183Hp9_8.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000TCjfG183Hp9_8.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:宋涛",
         "type": "artist",
         "name": "宋涛",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GEL8B2f0OS6_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GEL8B2f0OS6_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:常石磊",
         "type": "artist",
         "name": "常石磊",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002kJDgu1KMVQP_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002kJDgu1KMVQP_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:袁娅维tia ray",
         "type": "artist",
         "name": "袁娅维TIA RAY",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000472DR10Ytv83_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000472DR10Ytv83_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:torbjørn brundtland",
         "type": "artist",
         "name": "Torbjørn Brundtland",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003rT4tO2EZnWZ_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003rT4tO2EZnWZ_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:svein berge",
         "type": "artist",
         "name": "Svein Berge",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000008gOLp2ORWMG_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000008gOLp2ORWMG_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张荣昊",
         "type": "artist",
         "name": "张荣昊",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Vx6Cw2QIA2S_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002Vx6Cw2QIA2S_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:胡斯汉",
         "type": "artist",
         "name": "胡斯汉",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002knSQ01Ts1vS_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:唐汉霄",
         "type": "artist",
         "name": "唐汉霄",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001cmj1c1SxuvI_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001cmj1c1SxuvI_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:韩星洲",
         "type": "artist",
         "name": "韩星洲",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004dwkd0XcLe7_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000004dwkd0XcLe7_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:文雅",
         "type": "artist",
         "name": "文雅",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000009leGQ31AxkE_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000009leGQ31AxkE_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:高阳",
         "type": "artist",
         "name": "高阳",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000021imbZ3NV2CT_8.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000021imbZ3NV2CT_8.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:丁于",
         "type": "artist",
         "name": "丁于",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003arKf61eQl5q_9.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003arKf61eQl5q_9.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:王啸坤",
         "type": "artist",
         "name": "王啸坤",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000017OS3p1MbUa2_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000017OS3p1MbUa2_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:廖莹如",
         "type": "artist",
         "name": "廖莹如",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002arwfw1XIEUs_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002arwfw1XIEUs_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:陈耀川",
         "type": "artist",
         "name": "陈耀川",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003v198X3NZxQS_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003v198X3NZxQS_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:benjamin koistinen",
         "type": "artist",
         "name": "Benjamin Koistinen",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:peter krafft",
         "type": "artist",
         "name": "Peter Krafft",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:江孝华",
         "type": "artist",
         "name": "江孝华",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:余生",
         "type": "artist",
         "name": "余生",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:乱世",
         "type": "artist",
         "name": "乱世",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:孟楠",
         "type": "artist",
         "name": "孟楠",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002T6Ymu1tqqDf_7.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002T6Ymu1tqqDf_7.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:李文壅",
         "type": "artist",
         "name": "李文壅",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003gzb0d1mpJki_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:罗开元",
         "type": "artist",
         "name": "罗开元",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000136lsx1pOVid_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M00000136lsx1pOVid_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:苟伟",
         "type": "artist",
         "name": "苟伟",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DqdyB0kVIZi_3.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002DqdyB0kVIZi_3.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:garden",
         "type": "artist",
         "name": "Garden",
         "mid": null,
-        "icon": ""
+        "icon": "",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:易家扬",
         "type": "artist",
         "name": "易家扬",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000ev4HN4W985Z_5.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000ev4HN4W985Z_5.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:刘伟",
         "type": "artist",
         "name": "刘伟",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003dvk3x3px2ZK_1.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003dvk3x3px2ZK_1.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:梁思成",
         "type": "artist",
         "name": "梁思成",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003mNIcp3Fi0iD_6.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003mNIcp3Fi0iD_6.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:tomo",
         "type": "artist",
         "name": "Tomo",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000028WNMa1N68n6_2.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000028WNMa1N68n6_2.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:e-tribe",
         "type": "artist",
         "name": "E-TRIBE",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:张鹏",
         "type": "artist",
         "name": "张鹏",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002PVWDN3kBtTe_0.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       },
       {
         "id": "artist:name:郑伟",
         "type": "artist",
         "name": "郑伟",
         "mid": null,
-        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004Je6j90zpk5x_4.jpg?max_age=2592000"
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004Je6j90zpk5x_4.jpg?max_age=2592000",
+        "slug": null,
+        "is_target": false,
+        "song_count": null
       }
     ],
     "edges": [
       {
-        "id": "artist:name:薛之谦->target:xuezhiqian:作词",
-        "source": "artist:name:薛之谦",
-        "target": "target:xuezhiqian",
-        "role": "作词",
-        "song_count": 84,
-        "songs": [
-          {
-            "id": 102636799,
-            "mid": "001Qu4I30eVFYb",
-            "name": "演员",
-            "album": "绅士"
-          },
-          {
-            "id": 104775877,
-            "mid": "003ouHMP12glVD",
-            "name": "其实",
-            "album": "意外"
-          },
-          {
-            "id": 272125057,
-            "mid": "0013WPvt4fQH2b",
-            "name": "天外来物",
-            "album": "天外来物"
-          },
-          {
-            "id": 1333803,
-            "mid": "001hUNRP0P8g7x",
-            "name": "认真的雪",
-            "album": "薛之谦"
-          },
-          {
-            "id": 107439472,
-            "mid": "004VBMk71TdUuR",
-            "name": "我好像在哪见过你",
-            "album": "初学者"
-          },
-          {
-            "id": 233704415,
-            "mid": "000J5T6B1GySI5",
-            "name": "聊表心意",
-            "album": "尘"
-          },
-          {
-            "id": 201697348,
-            "mid": "003v4UL61IYlTY",
-            "name": "暧昧",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 107192538,
-            "mid": "001TXSYu1Gwuwv",
-            "name": "刚刚好",
-            "album": "初学者"
-          },
-          {
-            "id": 207323048,
-            "mid": "001uxKNp3a7Qkv",
-            "name": "像风一样",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 5106430,
-            "mid": "002BWGZQ2UKjKn",
-            "name": "你还要我怎样",
-            "album": "意外"
-          },
-          {
-            "id": 214182478,
-            "mid": "003FFWnA3AIczD",
-            "name": "怪咖",
-            "album": "怪咖"
-          },
-          {
-            "id": 102425546,
-            "mid": "001CG3wA3QkuJS",
-            "name": "绅士",
-            "album": "绅士"
-          },
-          {
-            "id": 655167781,
-            "mid": "000wnC614MLM2X",
-            "name": "顽疾",
-            "album": "顽疾"
-          },
-          {
-            "id": 233704383,
-            "mid": "002zfxmN2e1vLQ",
-            "name": "陪你去流浪",
-            "album": "尘"
-          },
-          {
-            "id": 275492762,
-            "mid": "003efqvx1yYjNX",
-            "name": "小尖尖",
-            "album": "天外来物"
-          },
-          {
-            "id": 201452010,
-            "mid": "003RCA7t0y6du5",
-            "name": "动物世界",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 288584812,
-            "mid": "003COGf722WjdV",
-            "name": "野心",
-            "album": "天外来物"
-          },
-          {
-            "id": 3585639,
-            "mid": "001RlxZp1xwoNK",
-            "name": "方圆几里",
-            "album": "意外"
-          },
-          {
-            "id": 102636800,
-            "mid": "000ssz152QNOHo",
-            "name": "下雨了",
-            "album": "绅士"
-          },
-          {
-            "id": 104792679,
-            "mid": "003EKHdv2KvTc6",
-            "name": "一半",
-            "album": "一半"
-          },
-          {
-            "id": 226389887,
-            "mid": "003R39Ac0RtaqK",
-            "name": "那是你离开了北京的生活",
-            "album": "那是你离开了北京的生活"
-          },
-          {
-            "id": 604982738,
-            "mid": "000Onqdf4a3Azh",
-            "name": "霸王别姬",
-            "album": "霸王别姬"
-          },
-          {
-            "id": 225584334,
-            "mid": "000Qepff3UyUWO",
-            "name": "天份",
-            "album": "怪咖"
-          },
-          {
-            "id": 286223746,
-            "mid": "000BZ9Fg16MAU2",
-            "name": "耗尽",
-            "album": "天外来物"
-          },
-          {
-            "id": 660488372,
-            "mid": "002057Bl2C0tdn",
-            "name": "人字拖",
-            "album": "人字拖"
-          },
-          {
-            "id": 216514336,
-            "mid": "0032ZOkm0LBgHW",
-            "name": "违背的青春",
-            "album": "怪咖"
-          },
-          {
-            "id": 5106433,
-            "mid": "001sBy9d0RzXkR",
-            "name": "等我回家",
-            "album": "意外"
-          },
-          {
-            "id": 416180927,
-            "mid": "00071h8e2AY4Tm",
-            "name": "崇拜",
-            "album": "守村人"
-          },
-          {
-            "id": 422072002,
-            "mid": "00386BSW1sxBSX",
-            "name": "念",
-            "album": "守村人"
-          },
-          {
-            "id": 375970422,
-            "mid": "00309X5E05fzSB",
-            "name": "无数",
-            "album": "无数"
-          },
-          {
-            "id": 212623641,
-            "mid": "0047VwdV487b7t",
-            "name": "狐狸",
-            "album": "怪咖"
-          },
-          {
-            "id": 647956,
-            "mid": "002JWeJK03Zzow",
-            "name": "我的雅典娜",
-            "album": "未完成的歌"
-          },
-          {
-            "id": 213942399,
-            "mid": "000QCwge3B6Ad1",
-            "name": "肆无忌惮",
-            "album": "怪咖"
-          },
-          {
-            "id": 589892133,
-            "mid": "00216QL046ryb5",
-            "name": "跃",
-            "album": "跃"
-          },
-          {
-            "id": 213902413,
-            "mid": "003TfyNp47dm7E",
-            "name": "哑巴",
-            "album": "怪咖"
-          },
-          {
-            "id": 317342237,
-            "mid": "003RRv1s0GsHxM",
-            "name": "变废为宝",
-            "album": "无数"
-          },
-          {
-            "id": 233704389,
-            "mid": "003clL2S0lVVSF",
-            "name": "这么久没见",
-            "album": "尘"
-          },
-          {
-            "id": 233704362,
-            "mid": "003NGKTc2tabpb",
-            "name": "笑场",
-            "album": "尘"
-          },
-          {
-            "id": 233704216,
-            "mid": "003iHc0e2UIgMC",
-            "name": "木偶人",
-            "album": "尘"
-          },
-          {
-            "id": 211968915,
-            "mid": "000ljlsv1PdzCn",
-            "name": "背过手",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 359289781,
-            "mid": "000QTSxY0HoJ7B",
-            "name": "可",
-            "album": "无数"
-          },
-          {
-            "id": 201974489,
-            "mid": "0028TjDC1vC6xv",
-            "name": "我害怕",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 1257198,
-            "mid": "003mM8cI1lFH8y",
-            "name": "深深爱过你 (前世)",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 233704309,
-            "mid": "002qpjAV2lYx81",
-            "name": "慢半拍",
-            "album": "尘"
-          },
-          {
-            "id": 272124970,
-            "mid": "0013KFa32c9lVn",
-            "name": "不爱我",
-            "album": "天外来物"
-          },
-          {
-            "id": 233704414,
-            "mid": "001HKVU52wokMA",
-            "name": "病态",
-            "album": "尘"
-          },
-          {
-            "id": 1518193,
-            "mid": "003uG1en00qJ9Z",
-            "name": "几个你",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 259631067,
-            "mid": "004amlYZ0zVdNl",
-            "name": "纸船",
-            "album": "天外来物"
-          },
-          {
-            "id": 315028596,
-            "mid": "000gRPyg2zBcZr",
-            "name": "被人",
-            "album": "电视剧《你微笑时很美》影视原声带"
-          },
-          {
-            "id": 340480649,
-            "mid": "001mJqDg3Ft0VA",
-            "name": "男二号",
-            "album": "无数"
-          },
-          {
-            "id": 209213590,
-            "mid": "003BkX6r1Ay0uC",
-            "name": "渡",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 201213781,
-            "mid": "000yvCNX1ABNS2",
-            "name": "高尚",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 106381715,
-            "mid": "0025bbhu4ZKGnF",
-            "name": "初学者",
-            "album": "初学者"
-          },
-          {
-            "id": 1333808,
-            "mid": "002MijoR3XjD4s",
-            "name": "黄色枫叶",
-            "album": "薛之谦"
-          },
-          {
-            "id": 371720840,
-            "mid": "001NKJFY1tnh6u",
-            "name": "你不是一个人",
-            "album": "你不是一个人"
-          },
-          {
-            "id": 206379449,
-            "mid": "003uIckZ4ZP87A",
-            "name": "别",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 213758212,
-            "mid": "0026DBoG28Y4Hz",
-            "name": "摩天大楼",
-            "album": "怪咖"
-          },
-          {
-            "id": 469440301,
-            "mid": "003ALng70cAxfy",
-            "name": "AI",
-            "album": "守村人"
-          },
-          {
-            "id": 501211407,
-            "mid": "002KUdqS1K7Ymp",
-            "name": "守村人",
-            "album": "守村人"
-          },
-          {
-            "id": 594256478,
-            "mid": "001EwPXB4UVbwP",
-            "name": "金斧子银斧子",
-            "album": "金斧子银斧子"
-          },
-          {
-            "id": 109397900,
-            "mid": "002tsQtg4CQZyK",
-            "name": "火星人来过",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 391198456,
-            "mid": "002M6WZl1QjJOL",
-            "name": "银河少年",
-            "album": "守村人"
-          },
-          {
-            "id": 435151,
-            "mid": "003PvpTb41fgpA",
-            "name": "传说",
-            "album": "传说"
-          },
-          {
-            "id": 506182503,
-            "mid": "001igBzf3sgXWl",
-            "name": "解解闷",
-            "album": "守村人"
-          },
-          {
-            "id": 5106434,
-            "mid": "002R8ZSu4Uvo27",
-            "name": "我想起你了",
-            "album": "意外"
-          },
-          {
-            "id": 233704369,
-            "mid": "003KOjcF1BQusU",
-            "name": "尘",
-            "album": "尘"
-          },
-          {
-            "id": 1257204,
-            "mid": "002xzXRI3dtzwA",
-            "name": "深深爱过你（今生）",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 233704409,
-            "mid": "004bL6iq48DjuG",
-            "name": "配合",
-            "album": "尘"
-          },
-          {
-            "id": 1308679,
-            "mid": "000ve1N61NKjfH",
-            "name": "苏黎世的从前",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 104792680,
-            "mid": "002HurNP2d7GyH",
-            "name": "Stay Here",
-            "album": "一半"
-          },
-          {
-            "id": 1771033,
-            "mid": "000SY2Yo1CujnE",
-            "name": "我们爱过就好",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 367772859,
-            "mid": "0020cZgg2qlAZE",
-            "name": "关于你",
-            "album": "无数"
-          },
-          {
-            "id": 1771031,
-            "mid": "002LbqoO2bf15S",
-            "name": "我终于成了别人的女人",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1333802,
-            "mid": "004EbxQJ3RSjrG",
-            "name": "王子归来",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1308680,
-            "mid": "00032rBg1JJA61",
-            "name": "你过得好吗",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1771032,
-            "mid": "004HwNXO3yjtSO",
-            "name": "敷衍",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1257201,
-            "mid": "001vkH6f1XhW1X",
-            "name": "我们的世界",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1257200,
-            "mid": "003khWub46zVRU",
-            "name": "给我的爱人",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1308681,
-            "mid": "003Drqy31LPuT1",
-            "name": "爱情宣判",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1333810,
-            "mid": "002yWllS3yY6yd",
-            "name": "Memory",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1771034,
-            "mid": "001KJd1Z2hc7u8",
-            "name": "楚河汉界",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1333804,
-            "mid": "000Tn6zj2lK4ax",
-            "name": "红尘女子",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1771030,
-            "mid": "003ny8493uibDE",
-            "name": "为什么",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1257202,
-            "mid": "000zE0y232yj0X",
-            "name": "流星的眼泪",
-            "album": "深深爱过你"
-          }
-        ]
-      },
-      {
-        "id": "artist:name:薛之谦->target:xuezhiqian:作曲",
-        "source": "artist:name:薛之谦",
-        "target": "target:xuezhiqian",
-        "role": "作曲",
-        "song_count": 75,
-        "songs": [
-          {
-            "id": 102636799,
-            "mid": "001Qu4I30eVFYb",
-            "name": "演员",
-            "album": "绅士"
-          },
-          {
-            "id": 104775877,
-            "mid": "003ouHMP12glVD",
-            "name": "其实",
-            "album": "意外"
-          },
-          {
-            "id": 1333803,
-            "mid": "001hUNRP0P8g7x",
-            "name": "认真的雪",
-            "album": "薛之谦"
-          },
-          {
-            "id": 107439472,
-            "mid": "004VBMk71TdUuR",
-            "name": "我好像在哪见过你",
-            "album": "初学者"
-          },
-          {
-            "id": 233704415,
-            "mid": "000J5T6B1GySI5",
-            "name": "聊表心意",
-            "album": "尘"
-          },
-          {
-            "id": 201697348,
-            "mid": "003v4UL61IYlTY",
-            "name": "暧昧",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 107192538,
-            "mid": "001TXSYu1Gwuwv",
-            "name": "刚刚好",
-            "album": "初学者"
-          },
-          {
-            "id": 207323048,
-            "mid": "001uxKNp3a7Qkv",
-            "name": "像风一样",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 5106430,
-            "mid": "002BWGZQ2UKjKn",
-            "name": "你还要我怎样",
-            "album": "意外"
-          },
-          {
-            "id": 214182478,
-            "mid": "003FFWnA3AIczD",
-            "name": "怪咖",
-            "album": "怪咖"
-          },
-          {
-            "id": 102425546,
-            "mid": "001CG3wA3QkuJS",
-            "name": "绅士",
-            "album": "绅士"
-          },
-          {
-            "id": 233704383,
-            "mid": "002zfxmN2e1vLQ",
-            "name": "陪你去流浪",
-            "album": "尘"
-          },
-          {
-            "id": 275492762,
-            "mid": "003efqvx1yYjNX",
-            "name": "小尖尖",
-            "album": "天外来物"
-          },
-          {
-            "id": 291902614,
-            "mid": "004G5iJn0usoBL",
-            "name": "迟迟",
-            "album": "天外来物"
-          },
-          {
-            "id": 288584812,
-            "mid": "003COGf722WjdV",
-            "name": "野心",
-            "album": "天外来物"
-          },
-          {
-            "id": 3585639,
-            "mid": "001RlxZp1xwoNK",
-            "name": "方圆几里",
-            "album": "意外"
-          },
-          {
-            "id": 102636800,
-            "mid": "000ssz152QNOHo",
-            "name": "下雨了",
-            "album": "绅士"
-          },
-          {
-            "id": 604982738,
-            "mid": "000Onqdf4a3Azh",
-            "name": "霸王别姬",
-            "album": "霸王别姬"
-          },
-          {
-            "id": 225584334,
-            "mid": "000Qepff3UyUWO",
-            "name": "天份",
-            "album": "怪咖"
-          },
-          {
-            "id": 216514336,
-            "mid": "0032ZOkm0LBgHW",
-            "name": "违背的青春",
-            "album": "怪咖"
-          },
-          {
-            "id": 5106433,
-            "mid": "001sBy9d0RzXkR",
-            "name": "等我回家",
-            "album": "意外"
-          },
-          {
-            "id": 416180927,
-            "mid": "00071h8e2AY4Tm",
-            "name": "崇拜",
-            "album": "守村人"
-          },
-          {
-            "id": 422072002,
-            "mid": "00386BSW1sxBSX",
-            "name": "念",
-            "album": "守村人"
-          },
-          {
-            "id": 375970422,
-            "mid": "00309X5E05fzSB",
-            "name": "无数",
-            "album": "无数"
-          },
-          {
-            "id": 647956,
-            "mid": "002JWeJK03Zzow",
-            "name": "我的雅典娜",
-            "album": "未完成的歌"
-          },
-          {
-            "id": 589892133,
-            "mid": "00216QL046ryb5",
-            "name": "跃",
-            "album": "跃"
-          },
-          {
-            "id": 213902413,
-            "mid": "003TfyNp47dm7E",
-            "name": "哑巴",
-            "album": "怪咖"
-          },
-          {
-            "id": 233704389,
-            "mid": "003clL2S0lVVSF",
-            "name": "这么久没见",
-            "album": "尘"
-          },
-          {
-            "id": 233704216,
-            "mid": "003iHc0e2UIgMC",
-            "name": "木偶人",
-            "album": "尘"
-          },
-          {
-            "id": 211968915,
-            "mid": "000ljlsv1PdzCn",
-            "name": "背过手",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 359289781,
-            "mid": "000QTSxY0HoJ7B",
-            "name": "可",
-            "album": "无数"
-          },
-          {
-            "id": 201974489,
-            "mid": "0028TjDC1vC6xv",
-            "name": "我害怕",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 1257198,
-            "mid": "003mM8cI1lFH8y",
-            "name": "深深爱过你 (前世)",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 272124970,
-            "mid": "0013KFa32c9lVn",
-            "name": "不爱我",
-            "album": "天外来物"
-          },
-          {
-            "id": 105029937,
-            "mid": "002iXagj0UzwdL",
-            "name": "我知道你都知道",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1518193,
-            "mid": "003uG1en00qJ9Z",
-            "name": "几个你",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 259631067,
-            "mid": "004amlYZ0zVdNl",
-            "name": "纸船",
-            "album": "天外来物"
-          },
-          {
-            "id": 315028596,
-            "mid": "000gRPyg2zBcZr",
-            "name": "被人",
-            "album": "电视剧《你微笑时很美》影视原声带"
-          },
-          {
-            "id": 340480649,
-            "mid": "001mJqDg3Ft0VA",
-            "name": "男二号",
-            "album": "无数"
-          },
-          {
-            "id": 106381715,
-            "mid": "0025bbhu4ZKGnF",
-            "name": "初学者",
-            "album": "初学者"
-          },
-          {
-            "id": 1333808,
-            "mid": "002MijoR3XjD4s",
-            "name": "黄色枫叶",
-            "album": "薛之谦"
-          },
-          {
-            "id": 206379449,
-            "mid": "003uIckZ4ZP87A",
-            "name": "别",
-            "album": "渡 The Crossing"
-          },
-          {
-            "id": 469440301,
-            "mid": "003ALng70cAxfy",
-            "name": "AI",
-            "album": "守村人"
-          },
-          {
-            "id": 594256478,
-            "mid": "001EwPXB4UVbwP",
-            "name": "金斧子银斧子",
-            "album": "金斧子银斧子"
-          },
-          {
-            "id": 107693524,
-            "mid": "003XJkBB2eGU29",
-            "name": "花儿和少年",
-            "album": "初学者"
-          },
-          {
-            "id": 391198456,
-            "mid": "002M6WZl1QjJOL",
-            "name": "银河少年",
-            "album": "守村人"
-          },
-          {
-            "id": 338091132,
-            "mid": "003vTCUe0jwamm",
-            "name": "洛城",
-            "album": "无数"
-          },
-          {
-            "id": 435151,
-            "mid": "003PvpTb41fgpA",
-            "name": "传说",
-            "album": "传说"
-          },
-          {
-            "id": 506182503,
-            "mid": "001igBzf3sgXWl",
-            "name": "解解闷",
-            "album": "守村人"
-          },
-          {
-            "id": 5106434,
-            "mid": "002R8ZSu4Uvo27",
-            "name": "我想起你了",
-            "album": "意外"
-          },
-          {
-            "id": 406405348,
-            "mid": "001eusf24IEjSC",
-            "name": "Nothing",
-            "album": "守村人"
-          },
-          {
-            "id": 233704369,
-            "mid": "003KOjcF1BQusU",
-            "name": "尘",
-            "album": "尘"
-          },
-          {
-            "id": 1257204,
-            "mid": "002xzXRI3dtzwA",
-            "name": "深深爱过你（今生）",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 233704409,
-            "mid": "004bL6iq48DjuG",
-            "name": "配合",
-            "album": "尘"
-          },
-          {
-            "id": 1308679,
-            "mid": "000ve1N61NKjfH",
-            "name": "苏黎世的从前",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1771033,
-            "mid": "000SY2Yo1CujnE",
-            "name": "我们爱过就好",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1308687,
-            "mid": "003P5fbH4QkOMT",
-            "name": "续雪",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1333809,
-            "mid": "003iPfjU3Mg2FN",
-            "name": "钗头凤",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1333802,
-            "mid": "004EbxQJ3RSjrG",
-            "name": "王子归来",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1308680,
-            "mid": "00032rBg1JJA61",
-            "name": "你过得好吗",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1308683,
-            "mid": "003ZXKHn05gwoY",
-            "name": "爱的期限",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1771032,
-            "mid": "004HwNXO3yjtSO",
-            "name": "敷衍",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1257201,
-            "mid": "001vkH6f1XhW1X",
-            "name": "我们的世界",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1257200,
-            "mid": "003khWub46zVRU",
-            "name": "给我的爱人",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1308681,
-            "mid": "003Drqy31LPuT1",
-            "name": "爱情宣判",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1333810,
-            "mid": "002yWllS3yY6yd",
-            "name": "Memory",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1771034,
-            "mid": "001KJd1Z2hc7u8",
-            "name": "楚河汉界",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1333804,
-            "mid": "000Tn6zj2lK4ax",
-            "name": "红尘女子",
-            "album": "薛之谦"
-          },
-          {
-            "id": 1771030,
-            "mid": "003ny8493uibDE",
-            "name": "为什么",
-            "album": "几个薛之谦"
-          },
-          {
-            "id": 1308685,
-            "mid": "000EqDNp4TNSPL",
-            "name": "倾城",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 1257202,
-            "mid": "000zE0y232yj0X",
-            "name": "流星的眼泪",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1257205,
-            "mid": "001rvmJB0LzrHZ",
-            "name": "梦开始的原点",
-            "album": "深深爱过你"
-          },
-          {
-            "id": 1308684,
-            "mid": "002gHn3317lSDb",
-            "name": "马戏小丑",
-            "album": "你过得好吗"
-          },
-          {
-            "id": 647958,
-            "mid": "002teWyP3uBNgN",
-            "name": "马戏小丑",
-            "album": "未完成的歌"
-          },
-          {
-            "id": 1308682,
-            "mid": "004dhIDL0POXHJ",
-            "name": "朋友你们还好吗",
-            "album": "你过得好吗"
-          }
-        ]
-      },
-      {
-        "id": "artist:name:罗小黑->target:xuezhiqian:作曲",
+        "id": "artist:name:罗小黑->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:罗小黑",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -1499,9 +690,9 @@
         ]
       },
       {
-        "id": "artist:name:杨子朴->target:xuezhiqian:作词",
+        "id": "artist:name:杨子朴->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:杨子朴",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -1514,9 +705,9 @@
         ]
       },
       {
-        "id": "artist:name:杨子朴->target:xuezhiqian:作曲",
+        "id": "artist:name:杨子朴->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:杨子朴",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -1529,9 +720,9 @@
         ]
       },
       {
-        "id": "artist:name:茶茶->target:xuezhiqian:作词",
+        "id": "artist:name:茶茶->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:茶茶",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -1550,9 +741,9 @@
         ]
       },
       {
-        "id": "artist:name:茶茶->target:xuezhiqian:作曲",
+        "id": "artist:name:茶茶->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:茶茶",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -1571,9 +762,9 @@
         ]
       },
       {
-        "id": "artist:name:朱莉叶->target:xuezhiqian:作曲",
+        "id": "artist:name:朱莉叶->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:朱莉叶",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -1586,9 +777,9 @@
         ]
       },
       {
-        "id": "artist:name:郭顶->target:xuezhiqian:作曲",
+        "id": "artist:name:郭顶->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:郭顶",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 7,
         "songs": [
@@ -1637,9 +828,9 @@
         ]
       },
       {
-        "id": "artist:name:子望->target:xuezhiqian:作词",
+        "id": "artist:name:子望->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:子望",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -1658,9 +849,9 @@
         ]
       },
       {
-        "id": "artist:name:周以力->target:xuezhiqian:作曲",
+        "id": "artist:name:周以力->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:周以力",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 7,
         "songs": [
@@ -1709,9 +900,9 @@
         ]
       },
       {
-        "id": "artist:name:甘世佳->target:xuezhiqian:作词",
+        "id": "artist:name:甘世佳->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:甘世佳",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 8,
         "songs": [
@@ -1766,9 +957,9 @@
         ]
       },
       {
-        "id": "artist:name:李荣浩->target:xuezhiqian:作曲",
+        "id": "artist:name:李荣浩->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:李荣浩",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -1787,9 +978,9 @@
         ]
       },
       {
-        "id": "artist:name:方毅->target:xuezhiqian:作曲",
+        "id": "artist:name:方毅->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:方毅",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 3,
         "songs": [
@@ -1814,9 +1005,9 @@
         ]
       },
       {
-        "id": "artist:name:郭聪明->target:xuezhiqian:作曲",
+        "id": "artist:name:郭聪明->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:郭聪明",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -1829,9 +1020,9 @@
         ]
       },
       {
-        "id": "artist:name:张鹏鹏->target:xuezhiqian:作词",
+        "id": "artist:name:张鹏鹏->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:张鹏鹏",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -1844,9 +1035,9 @@
         ]
       },
       {
-        "id": "artist:name:董嘉鸿->target:xuezhiqian:作词",
+        "id": "artist:name:董嘉鸿->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:董嘉鸿",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -1859,9 +1050,9 @@
         ]
       },
       {
-        "id": "artist:name:董嘉鸿->target:xuezhiqian:作曲",
+        "id": "artist:name:董嘉鸿->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:董嘉鸿",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -1874,9 +1065,9 @@
         ]
       },
       {
-        "id": "artist:name:方毅->target:xuezhiqian:作词",
+        "id": "artist:name:方毅->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:方毅",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -1895,9 +1086,9 @@
         ]
       },
       {
-        "id": "artist:name:郭冠廷->target:xuezhiqian:作曲",
+        "id": "artist:name:郭冠廷->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:郭冠廷",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 5,
         "songs": [
@@ -1934,9 +1125,9 @@
         ]
       },
       {
-        "id": "artist:name:赵英俊->target:xuezhiqian:作曲",
+        "id": "artist:name:赵英俊->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:赵英俊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 3,
         "songs": [
@@ -1961,9 +1152,9 @@
         ]
       },
       {
-        "id": "artist:name:张洢豪->target:xuezhiqian:作曲",
+        "id": "artist:name:张洢豪->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:张洢豪",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -1982,9 +1173,9 @@
         ]
       },
       {
-        "id": "artist:name:小寒->target:xuezhiqian:作词",
+        "id": "artist:name:小寒->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:小寒",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -1997,9 +1188,9 @@
         ]
       },
       {
-        "id": "artist:name:廖慧明->target:xuezhiqian:作词",
+        "id": "artist:name:廖慧明->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:廖慧明",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2012,9 +1203,9 @@
         ]
       },
       {
-        "id": "artist:name:郭顶->target:xuezhiqian:作词",
+        "id": "artist:name:郭顶->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:郭顶",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 5,
         "songs": [
@@ -2051,9 +1242,9 @@
         ]
       },
       {
-        "id": "artist:name:林倛玉->target:xuezhiqian:作曲",
+        "id": "artist:name:林倛玉->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:林倛玉",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2066,9 +1257,9 @@
         ]
       },
       {
-        "id": "artist:name:郭冠廷->target:xuezhiqian:作词",
+        "id": "artist:name:郭冠廷->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:郭冠廷",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 4,
         "songs": [
@@ -2099,9 +1290,9 @@
         ]
       },
       {
-        "id": "artist:name:汪苏泷->target:xuezhiqian:作词",
+        "id": "artist:name:汪苏泷->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:汪苏泷",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2114,9 +1305,9 @@
         ]
       },
       {
-        "id": "artist:name:汪苏泷->target:xuezhiqian:作曲",
+        "id": "artist:name:汪苏泷->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:汪苏泷",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2129,9 +1320,9 @@
         ]
       },
       {
-        "id": "artist:name:裴志森->target:xuezhiqian:作词",
+        "id": "artist:name:裴志森->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:裴志森",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2144,9 +1335,9 @@
         ]
       },
       {
-        "id": "artist:name:门尼->target:xuezhiqian:作词",
+        "id": "artist:name:门尼->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:门尼",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2159,9 +1350,9 @@
         ]
       },
       {
-        "id": "artist:name:门尼->target:xuezhiqian:作曲",
+        "id": "artist:name:门尼->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:门尼",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2174,9 +1365,9 @@
         ]
       },
       {
-        "id": "artist:name:许嵩->target:xuezhiqian:作曲",
+        "id": "artist:name:许嵩->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:许嵩",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2189,9 +1380,9 @@
         ]
       },
       {
-        "id": "artist:name:王圆坤->target:xuezhiqian:作曲",
+        "id": "artist:name:王圆坤->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:王圆坤",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2204,9 +1395,9 @@
         ]
       },
       {
-        "id": "artist:name:宋涛->target:xuezhiqian:作曲",
+        "id": "artist:name:宋涛->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:宋涛",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -2225,9 +1416,9 @@
         ]
       },
       {
-        "id": "artist:name:常石磊->target:xuezhiqian:作词",
+        "id": "artist:name:常石磊->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:常石磊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2240,9 +1431,9 @@
         ]
       },
       {
-        "id": "artist:name:常石磊->target:xuezhiqian:作曲",
+        "id": "artist:name:常石磊->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:常石磊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2255,9 +1446,9 @@
         ]
       },
       {
-        "id": "artist:name:袁娅维tia ray->target:xuezhiqian:作曲",
+        "id": "artist:name:袁娅维tia ray->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:袁娅维tia ray",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2270,9 +1461,9 @@
         ]
       },
       {
-        "id": "artist:name:torbjørn brundtland->target:xuezhiqian:作词",
+        "id": "artist:name:torbjørn brundtland->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:torbjørn brundtland",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2285,9 +1476,9 @@
         ]
       },
       {
-        "id": "artist:name:svein berge->target:xuezhiqian:作词",
+        "id": "artist:name:svein berge->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:svein berge",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2300,9 +1491,9 @@
         ]
       },
       {
-        "id": "artist:name:torbjørn brundtland->target:xuezhiqian:作曲",
+        "id": "artist:name:torbjørn brundtland->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:torbjørn brundtland",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2315,9 +1506,9 @@
         ]
       },
       {
-        "id": "artist:name:svein berge->target:xuezhiqian:作曲",
+        "id": "artist:name:svein berge->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:svein berge",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2330,9 +1521,9 @@
         ]
       },
       {
-        "id": "artist:name:张荣昊->target:xuezhiqian:作词",
+        "id": "artist:name:张荣昊->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:张荣昊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2351,9 +1542,9 @@
         ]
       },
       {
-        "id": "artist:name:张荣昊->target:xuezhiqian:作曲",
+        "id": "artist:name:张荣昊->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:张荣昊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 2,
         "songs": [
@@ -2372,9 +1563,9 @@
         ]
       },
       {
-        "id": "artist:name:胡斯汉->target:xuezhiqian:作词",
+        "id": "artist:name:胡斯汉->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:胡斯汉",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2387,9 +1578,9 @@
         ]
       },
       {
-        "id": "artist:name:胡斯汉->target:xuezhiqian:作曲",
+        "id": "artist:name:胡斯汉->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:胡斯汉",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2402,9 +1593,9 @@
         ]
       },
       {
-        "id": "artist:name:唐汉霄->target:xuezhiqian:作曲",
+        "id": "artist:name:唐汉霄->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:唐汉霄",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2417,9 +1608,9 @@
         ]
       },
       {
-        "id": "artist:name:韩星洲->target:xuezhiqian:作曲",
+        "id": "artist:name:韩星洲->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:韩星洲",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2432,9 +1623,9 @@
         ]
       },
       {
-        "id": "artist:name:文雅->target:xuezhiqian:作词",
+        "id": "artist:name:文雅->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:文雅",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2453,9 +1644,9 @@
         ]
       },
       {
-        "id": "artist:name:高阳->target:xuezhiqian:作曲",
+        "id": "artist:name:高阳->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:高阳",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 5,
         "songs": [
@@ -2492,9 +1683,9 @@
         ]
       },
       {
-        "id": "artist:name:丁于->target:xuezhiqian:作词",
+        "id": "artist:name:丁于->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:丁于",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2507,9 +1698,9 @@
         ]
       },
       {
-        "id": "artist:name:王啸坤->target:xuezhiqian:作曲",
+        "id": "artist:name:王啸坤->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:王啸坤",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2522,9 +1713,9 @@
         ]
       },
       {
-        "id": "artist:name:丁于->target:xuezhiqian:作曲",
+        "id": "artist:name:丁于->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:丁于",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2537,9 +1728,9 @@
         ]
       },
       {
-        "id": "artist:name:廖莹如->target:xuezhiqian:作词",
+        "id": "artist:name:廖莹如->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:廖莹如",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2552,9 +1743,9 @@
         ]
       },
       {
-        "id": "artist:name:陈耀川->target:xuezhiqian:作曲",
+        "id": "artist:name:陈耀川->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:陈耀川",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2567,9 +1758,9 @@
         ]
       },
       {
-        "id": "artist:name:赵英俊->target:xuezhiqian:作词",
+        "id": "artist:name:赵英俊->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:赵英俊",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2588,9 +1779,9 @@
         ]
       },
       {
-        "id": "artist:name:benjamin koistinen->target:xuezhiqian:作词",
+        "id": "artist:name:benjamin koistinen->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:benjamin koistinen",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2603,9 +1794,9 @@
         ]
       },
       {
-        "id": "artist:name:peter krafft->target:xuezhiqian:作曲",
+        "id": "artist:name:peter krafft->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:peter krafft",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2618,9 +1809,9 @@
         ]
       },
       {
-        "id": "artist:name:江孝华->target:xuezhiqian:作词",
+        "id": "artist:name:江孝华->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:江孝华",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2633,9 +1824,9 @@
         ]
       },
       {
-        "id": "artist:name:余生->target:xuezhiqian:作词",
+        "id": "artist:name:余生->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:余生",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2648,9 +1839,9 @@
         ]
       },
       {
-        "id": "artist:name:余生->target:xuezhiqian:作曲",
+        "id": "artist:name:余生->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:余生",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2663,9 +1854,9 @@
         ]
       },
       {
-        "id": "artist:name:乱世->target:xuezhiqian:作词",
+        "id": "artist:name:乱世->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:乱世",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2678,9 +1869,9 @@
         ]
       },
       {
-        "id": "artist:name:孟楠->target:xuezhiqian:作词",
+        "id": "artist:name:孟楠->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:孟楠",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2693,9 +1884,9 @@
         ]
       },
       {
-        "id": "artist:name:孟楠->target:xuezhiqian:作曲",
+        "id": "artist:name:孟楠->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:孟楠",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2708,9 +1899,9 @@
         ]
       },
       {
-        "id": "artist:name:李文壅->target:xuezhiqian:作词",
+        "id": "artist:name:李文壅->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:李文壅",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2723,9 +1914,9 @@
         ]
       },
       {
-        "id": "artist:name:罗开元->target:xuezhiqian:作曲",
+        "id": "artist:name:罗开元->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:罗开元",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2738,9 +1929,9 @@
         ]
       },
       {
-        "id": "artist:name:苟伟->target:xuezhiqian:作词",
+        "id": "artist:name:苟伟->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:苟伟",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2753,9 +1944,9 @@
         ]
       },
       {
-        "id": "artist:name:苟伟->target:xuezhiqian:作曲",
+        "id": "artist:name:苟伟->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:苟伟",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2768,9 +1959,9 @@
         ]
       },
       {
-        "id": "artist:name:陈耀川->target:xuezhiqian:作词",
+        "id": "artist:name:陈耀川->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:陈耀川",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2789,9 +1980,9 @@
         ]
       },
       {
-        "id": "artist:name:garden->target:xuezhiqian:作曲",
+        "id": "artist:name:garden->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:garden",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2804,9 +1995,9 @@
         ]
       },
       {
-        "id": "artist:name:罗开元->target:xuezhiqian:作词",
+        "id": "artist:name:罗开元->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:罗开元",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 2,
         "songs": [
@@ -2825,9 +2016,9 @@
         ]
       },
       {
-        "id": "artist:name:易家扬->target:xuezhiqian:作词",
+        "id": "artist:name:易家扬->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:易家扬",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2840,9 +2031,9 @@
         ]
       },
       {
-        "id": "artist:name:刘伟->target:xuezhiqian:作曲",
+        "id": "artist:name:刘伟->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:刘伟",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2855,9 +2046,9 @@
         ]
       },
       {
-        "id": "artist:name:梁思成->target:xuezhiqian:作词",
+        "id": "artist:name:梁思成->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:梁思成",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2870,9 +2061,9 @@
         ]
       },
       {
-        "id": "artist:name:梁思成->target:xuezhiqian:作曲",
+        "id": "artist:name:梁思成->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:梁思成",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2885,9 +2076,9 @@
         ]
       },
       {
-        "id": "artist:name:tomo->target:xuezhiqian:作词",
+        "id": "artist:name:tomo->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:tomo",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2900,9 +2091,9 @@
         ]
       },
       {
-        "id": "artist:name:e-tribe->target:xuezhiqian:作曲",
+        "id": "artist:name:e-tribe->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:e-tribe",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [
@@ -2915,9 +2106,9 @@
         ]
       },
       {
-        "id": "artist:name:张鹏->target:xuezhiqian:作词",
+        "id": "artist:name:张鹏->artist:002J4UUk29y8BY:作词",
         "source": "artist:name:张鹏",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作词",
         "song_count": 1,
         "songs": [
@@ -2930,9 +2121,9 @@
         ]
       },
       {
-        "id": "artist:name:郑伟->target:xuezhiqian:作曲",
+        "id": "artist:name:郑伟->artist:002J4UUk29y8BY:作曲",
         "source": "artist:name:郑伟",
-        "target": "target:xuezhiqian",
+        "target": "artist:002J4UUk29y8BY",
         "role": "作曲",
         "song_count": 1,
         "songs": [

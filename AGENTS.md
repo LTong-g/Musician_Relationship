@@ -168,6 +168,7 @@ AI 给方案时使用以下顺序：
 - 用户主要通过项目实际效果、整体方案和关键代码验收开发结果。
 - AI 说明方案时应优先使用用户可见效果和验收路径表达。
 - 修改文件后进行机械式替换，把行尾符统一为CRLF。
+- 用户需要本地文件以可点击 Markdown 链接形式给出，不接受只给纯文本路径；Windows 本地链接必须使用正斜杠绝对路径，例如 `[文件名](D:/B0Projects/my_tools/Musician_Relationship/path/file.md)`，不得在链接目标中使用反斜杠。
 
 ## 项目补充规则
 
@@ -187,6 +188,9 @@ AI 给方案时使用以下顺序：
 
 当前项目规则：
 
+- 正式源码目录：主动开发应落在 `musician_relationship/pipelines/` 及后续正式包目录中；`musician_relationship/*.py` 中的同名脚本只作为兼容旧 `python -m` 入口的薄包装。
+- 本地数据目录：`data/raw/` 保存接口原始缓存，`data/processed/` 保存本地处理结果和报告，二者默认不提交 Git；实验性输出验证完成后应清理，不长期保留多个 `processed_*` 平铺目录。
+- 推荐 pipeline 输出：歌手身份表写入 `data/processed/singer_registry/qqmusic_hot/`；单歌手初过滤写入 `data/processed/singer_songs/<singer_slug>/`；专辑验证写入 `data/processed/album_validated/<singer_slug>/`；检查报告写入 `data/processed/reports/singer_pipeline/<singer_slug>/`。
 - 数据源优先级：第一阶段以 QQ 音乐非官方接口作为主数据源，优先验证 `qqmusic-api-python`；网易云音乐作为补充和交叉校验；酷我、酷狗等平台仅作为缺失字段兜底来源。
 - 数据采集边界：只采集关系图谱研究需要的元数据，例如歌曲名、音乐人名、平台 ID、头像 URL、专辑、发行信息、演唱/作词/作曲/编曲/制作人关系、榜单或热度快照；不采集音频文件，不实现下载播放能力。
 - 数据模型原则：内部标准模型至少包含 `Artist`、`Song`、`CreditEdge`、`PopularitySnapshot`、`SourceRecord`；平台原始字段必须通过 adapter 转换为标准模型，业务层不得直接依赖某个平台响应结构。
@@ -197,3 +201,7 @@ AI 给方案时使用以下顺序：
 - 凭据管理：cookie、账号态、代理、API key 等只能通过本地 `.env` 或用户本机配置读取，示例文件必须使用占位值。
 - 开源表述：README 和文档应明确项目用于个人技术研究和元数据关系分析，不保证第三方接口稳定性，不承诺数据完整准确，不鼓励大规模抓取。
 - 验证门槛：数据 adapter 至少使用少量固定歌曲或歌手样例做解析验证；涉及数据模型变更时同步更新样例输出或测试。
+- 中文与编码：读取或写入中文文档、日志、报告时必须显式使用 UTF-8；在 PowerShell 中读取中文文件必须加 `-Encoding UTF8`，Python 命令输出中文时必须配置 `sys.stdout.reconfigure(encoding="utf-8")` 或等效方式；不得根据乱码终端输出判断文件内容。
+- Markdown 报告生成：生成 Markdown 表格报告时必须转义单元格内的 `|`，统一换行并避免表格内部空行；生成后必须回读文件，检查 UTF-8 可读、无 U+FFFD 替换字符、表格前有空行、分隔行有效、所有表格行列数一致。未完成这些检查不得向用户声明报告可用。
+- 临时脚本约束：涉及中文常量、Markdown 表格、排序或报告生成的逻辑，优先写入仓库脚本或使用 UTF-8 明确的 Python 执行；避免在 PowerShell here-string 中直接写中文常量后生成正式产物。
+- 报告链接验收：向用户提供生成产物时，必须先确认文件存在和大小非零；最终回复中的本地文件链接必须使用正斜杠绝对路径并手动检查渲染格式，不得使用会被 Markdown 破坏的 Windows 反斜杠链接。

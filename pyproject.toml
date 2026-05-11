@@ -1,0 +1,16 @@
+[project]
+name = "musician-relationship"
+version = "0.1.0"
+description = "QQ Music metadata collection and musician relationship graph experiments."
+requires-python = ">=3.12"
+dependencies = [
+    "qqmusic-api-python",
+    "pydantic",
+    "pypinyin",
+]
+
+[project.scripts]
+mr-collect-hot-singers = "musician_relationship.pipelines.collect_hot_singer_registry:main"
+mr-collect-singer-songs = "musician_relationship.pipelines.collect_singer_songs:main"
+mr-validate-albums = "musician_relationship.pipelines.validate_album_ownership:main"
+mr-write-pipeline-report = "musician_relationship.pipelines.write_singer_pipeline_report:main"

@@ -13,6 +13,10 @@ music_metadata_graph/
     collect_singer_songs.py          # 采集单个歌手全量歌曲、初过滤并补全制作人员
     validate_album_ownership.py      # 用专辑详情验证歌曲归属
     write_singer_pipeline_report.py  # 生成 pipeline 检查报告
+    export_web_dataset.py            # 导出静态网页数据
+web/
+  index.html                         # 静态图谱工作台
+  data/                              # 可提交的静态可视化数据
 data/
   raw/                               # 本地原始缓存，不提交
   processed/                         # 本地处理结果，不提交
@@ -102,6 +106,31 @@ python -m music_metadata_graph.pipelines.write_singer_pipeline_report `
 04_album_rejected.md
 05_final_kept.md
 ```
+
+### 5. 导出静态网页数据
+
+```powershell
+python -m music_metadata_graph.pipelines.export_web_dataset
+```
+
+默认读取：
+
+```text
+data/processed/singer_songs/zhoujielun/
+data/processed/singer_songs/xuezhiqian/
+data/processed/singer_songs/linjunjie/
+```
+
+并输出到：
+
+```text
+web/data/catalog.json
+web/data/zhoujielun.json
+web/data/xuezhiqian.json
+web/data/linjunjie.json
+```
+
+打开 `web/index.html` 可查看静态图谱工作台。网页支持不完整数据集；即使当前视图没有边，也会保留孤立节点显示。
 
 ## 数据边界
 

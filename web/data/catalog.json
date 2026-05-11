@@ -1,0 +1,143 @@
+{
+  "generated_at": "2026-05-11T18:30:17.577111+00:00",
+  "datasets": [
+    {
+      "slug": "zhoujielun",
+      "name": "周杰伦",
+      "mid": "0025NhlN2yWrP4",
+      "file": "zhoujielun.json",
+      "summary": {
+        "songs": 210,
+        "initial_candidates": 240,
+        "credit_incomplete": 30,
+        "nodes": 31,
+        "edges": 34,
+        "contributors": 30,
+        "self_lyricist_songs": 53,
+        "self_composer_songs": 206
+      }
+    },
+    {
+      "slug": "xuezhiqian",
+      "name": "薛之谦",
+      "mid": "002J4UUk29y8BY",
+      "file": "xuezhiqian.json",
+      "summary": {
+        "songs": 124,
+        "initial_candidates": 127,
+        "credit_incomplete": 3,
+        "nodes": 58,
+        "edges": 79,
+        "contributors": 57,
+        "self_lyricist_songs": 84,
+        "self_composer_songs": 75
+      }
+    },
+    {
+      "slug": "linjunjie",
+      "name": "林俊杰",
+      "mid": "001BLpXF2DyJe2",
+      "file": "linjunjie.json",
+      "summary": {
+        "songs": 232,
+        "initial_candidates": 266,
+        "credit_incomplete": 34,
+        "nodes": 106,
+        "edges": 135,
+        "contributors": 105,
+        "self_lyricist_songs": 27,
+        "self_composer_songs": 216
+      }
+    }
+  ],
+  "totals": {
+    "datasets": 3,
+    "songs": 566,
+    "credit_incomplete": 67,
+    "unique_nodes": 186,
+    "bridge_contributors": 9
+  },
+  "bridge_contributors": [
+    {
+      "id": "artist:name:宋健彰",
+      "name": "宋健彰",
+      "target_slugs": [
+        "linjunjie",
+        "zhoujielun"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:方文山",
+      "name": "方文山",
+      "target_slugs": [
+        "linjunjie",
+        "zhoujielun"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:五月天 阿信",
+      "name": "五月天 阿信",
+      "target_slugs": [
+        "linjunjie",
+        "zhoujielun"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:陈镇川",
+      "name": "陈镇川",
+      "target_slugs": [
+        "linjunjie",
+        "zhoujielun"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:李荣浩",
+      "name": "李荣浩",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:小寒",
+      "name": "小寒",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:丁于",
+      "name": "丁于",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:廖莹如",
+      "name": "廖莹如",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2
+    },
+    {
+      "id": "artist:name:易家扬",
+      "name": "易家扬",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2
+    }
+  ]
+}

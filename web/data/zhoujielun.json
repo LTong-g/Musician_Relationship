@@ -1,0 +1,8331 @@
+{
+  "slug": "zhoujielun",
+  "name": "周杰伦",
+  "mid": "0025NhlN2yWrP4",
+  "source_dir": "data/processed/singer_songs/zhoujielun",
+  "generated_at": "2026-05-11T18:30:17.519686+00:00",
+  "summary": {
+    "songs": 210,
+    "initial_candidates": 240,
+    "credit_incomplete": 30,
+    "nodes": 31,
+    "edges": 34,
+    "contributors": 30,
+    "self_lyricist_songs": 53,
+    "self_composer_songs": 206
+  },
+  "role_counts": {
+    "作词": 225,
+    "作曲": 213
+  },
+  "top_contributors": [
+    [
+      "周杰伦",
+      259
+    ],
+    [
+      "方文山",
+      112
+    ],
+    [
+      "黄俊郎",
+      21
+    ],
+    [
+      "徐若瑄",
+      6
+    ],
+    [
+      "宋健彰",
+      5
+    ],
+    [
+      "黄淩嘉",
+      3
+    ],
+    [
+      "刘畊宏",
+      3
+    ],
+    [
+      "派伟俊",
+      3
+    ],
+    [
+      "古小力",
+      2
+    ],
+    [
+      "罗宇轩",
+      2
+    ],
+    [
+      "FUNKY MONKEY BABYS",
+      2
+    ],
+    [
+      "川村結花",
+      2
+    ],
+    [
+      "许世昌",
+      1
+    ],
+    [
+      "曾郁婷",
+      1
+    ],
+    [
+      "谢迪",
+      1
+    ],
+    [
+      "袁咏琳",
+      1
+    ],
+    [
+      "黄婕熙",
+      1
+    ],
+    [
+      "李汪哲",
+      1
+    ],
+    [
+      "Father Orson",
+      1
+    ],
+    [
+      "蔡依林",
+      1
+    ]
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "target:zhoujielun",
+        "type": "target",
+        "name": "周杰伦",
+        "mid": "0025NhlN2yWrP4",
+        "slug": "zhoujielun",
+        "song_count": 210
+      },
+      {
+        "id": "artist:name:周杰伦",
+        "type": "artist",
+        "name": "周杰伦",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000025NhlN2yWrP4_11.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:宋健彰",
+        "type": "artist",
+        "name": "宋健彰",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002QVgs70Bua94_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:方文山",
+        "type": "artist",
+        "name": "方文山",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003EMVxj1F1Rqg_5.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:古小力",
+        "type": "artist",
+        "name": "古小力",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004G83QI42NEws_2.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:黄淩嘉",
+        "type": "artist",
+        "name": "黄淩嘉",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003PH99s3lKfOx_0.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:刘畊宏",
+        "type": "artist",
+        "name": "刘畊宏",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001d7O0i0YVO5W_8.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:徐若瑄",
+        "type": "artist",
+        "name": "徐若瑄",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000032tuB23Ynf29_7.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:许世昌",
+        "type": "artist",
+        "name": "许世昌",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002HLeZJ4Gxb1o_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:曾郁婷",
+        "type": "artist",
+        "name": "曾郁婷",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003kfNgb0XXvgV_0.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:黄俊郎",
+        "type": "artist",
+        "name": "黄俊郎",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000019sXZn3R9ClB_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:谢迪",
+        "type": "artist",
+        "name": "谢迪",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000Jh7z10sjWff_5.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:袁咏琳",
+        "type": "artist",
+        "name": "袁咏琳",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001lH4Rz0rnWGE_11.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:罗宇轩",
+        "type": "artist",
+        "name": "罗宇轩",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002xak9t0PsNjt_4.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:黄婕熙",
+        "type": "artist",
+        "name": "黄婕熙",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004SiUen0zytjL_4.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:李汪哲",
+        "type": "artist",
+        "name": "李汪哲",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003cBqyh24QYd4_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:派伟俊",
+        "type": "artist",
+        "name": "派伟俊",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000kZUyu0aPr9t_8.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:father orson",
+        "type": "artist",
+        "name": "Father Orson",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003GPzZz2b7OZj_0.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:蔡依林",
+        "type": "artist",
+        "name": "蔡依林",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000027pdHE4STooO_8.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:hathaway",
+        "type": "artist",
+        "name": "Hathaway",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003LlONw2BNg4R_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:funky monkey babys",
+        "type": "artist",
+        "name": "FUNKY MONKEY BABYS",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004ce9Fe3Bx0ci_2.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:川村結花",
+        "type": "artist",
+        "name": "川村結花",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000038y7xD1PeiAM_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:邱凯伟",
+        "type": "artist",
+        "name": "邱凯伟",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000001zYTZ0RA3lN_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:杨常青",
+        "type": "artist",
+        "name": "杨常青",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000003D85G41BVvic_0.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:五月天 阿信",
+        "type": "artist",
+        "name": "五月天 阿信",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M0000040EhGd2lkffO_2.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:黄婷",
+        "type": "artist",
+        "name": "黄婷",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004PNHse0A1mYg_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:陈镇川",
+        "type": "artist",
+        "name": "陈镇川",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000000p9w963bCYdx_5.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:林义杰",
+        "type": "artist",
+        "name": "林义杰",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000002r9P7l1rrWP6_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:冼佩瑾",
+        "type": "artist",
+        "name": "冼佩瑾",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000001NXBve0hX2W3_6.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:唐从圣",
+        "type": "artist",
+        "name": "唐从圣",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004N1Z7z16C7n6_3.jpg?max_age=2592000"
+      },
+      {
+        "id": "artist:name:terdsak janpan",
+        "type": "artist",
+        "name": "Terdsak Janpan",
+        "mid": null,
+        "icon": "https://y.qq.com/music/photo_new/T001R150x150M000004HcuTG1p2bmj_5.jpg?max_age=2592000"
+      }
+    ],
+    "edges": [
+      {
+        "id": "artist:name:周杰伦->target:zhoujielun:作词",
+        "source": "artist:name:周杰伦",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 53,
+        "songs": [
+          {
+            "id": 97773,
+            "mid": "0039MnYb0qxYhV",
+            "name": "晴天",
+            "album": "叶惠美"
+          },
+          {
+            "id": 649556362,
+            "mid": "0044SaFh0apuR2",
+            "name": "那天下雨了",
+            "album": "太阳之子"
+          },
+          {
+            "id": 449205,
+            "mid": "003aAYrm3GE0Ac",
+            "name": "稻香",
+            "album": "魔杰座"
+          },
+          {
+            "id": 212877900,
+            "mid": "001J5QJL1pRQYB",
+            "name": "等你下课 (with 杨瑞代)",
+            "album": "等你下课"
+          },
+          {
+            "id": 5177785,
+            "mid": "003ZrdgZ0UnjDl",
+            "name": "最长的电影",
+            "album": "我很忙"
+          },
+          {
+            "id": 101091484,
+            "mid": "004BhQke4adHcf",
+            "name": "给我一首歌的时间",
+            "album": "魔杰座"
+          },
+          {
+            "id": 97761,
+            "mid": "002OKIox28ad9a",
+            "name": "半岛铁盒",
+            "album": "八度空间"
+          },
+          {
+            "id": 102065757,
+            "mid": "002XWgfo0IKPOH",
+            "name": "借口",
+            "album": "七里香"
+          },
+          {
+            "id": 102066257,
+            "mid": "002hXDfk0LX9KO",
+            "name": "听妈妈的话",
+            "album": "依然范特西"
+          },
+          {
+            "id": 649556372,
+            "mid": "000fpbFh2Uu80G",
+            "name": "圣诞星 (feat. 杨瑞代)",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97743,
+            "mid": "000amRvH3wxv56",
+            "name": "安静",
+            "album": "范特西"
+          },
+          {
+            "id": 107192080,
+            "mid": "000eskGX0ijIFi",
+            "name": "爱情废柴",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 102340966,
+            "mid": "004bRWFg3fej9y",
+            "name": "彩虹",
+            "album": "我很忙"
+          },
+          {
+            "id": 649556364,
+            "mid": "000bcKcM3AaJCU",
+            "name": "谁稀罕",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556369,
+            "mid": "003kFxD41vOh6l",
+            "name": "女儿殿下",
+            "album": "太阳之子"
+          },
+          {
+            "id": 718480,
+            "mid": "003iY6cU4YG0xi",
+            "name": "黑色毛衣",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 3585890,
+            "mid": "002jkBM53MLB9Q",
+            "name": "大笨钟",
+            "album": "十二新作"
+          },
+          {
+            "id": 102320103,
+            "mid": "000DdOAF0ED7i4",
+            "name": "白色风车",
+            "album": "依然范特西"
+          },
+          {
+            "id": 101369814,
+            "mid": "001Js78a40BZU6",
+            "name": "算什么男人",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97752,
+            "mid": "001Zi7Ly4ZtVQk",
+            "name": "星晴",
+            "album": "Jay"
+          },
+          {
+            "id": 97755,
+            "mid": "0006rBfE3htPqG",
+            "name": "黑色幽默",
+            "album": "Jay"
+          },
+          {
+            "id": 97765,
+            "mid": "002U3qIp3n7yke",
+            "name": "分裂",
+            "album": "八度空间"
+          },
+          {
+            "id": 680281,
+            "mid": "002RqWle4FvqRy",
+            "name": "好久不见",
+            "album": "跨时代"
+          },
+          {
+            "id": 95742,
+            "mid": "003oF0Pc0ahSx4",
+            "name": "屋顶",
+            "album": "爱回温"
+          },
+          {
+            "id": 680287,
+            "mid": "004JQ70v4Fddyj",
+            "name": "超人不会飞",
+            "album": "跨时代"
+          },
+          {
+            "id": 102065748,
+            "mid": "0027gHes1HjRNe",
+            "name": "外婆",
+            "album": "七里香"
+          },
+          {
+            "id": 1018543,
+            "mid": "002CUU2B3WuGLc",
+            "name": "Mine Mine",
+            "album": "惊叹号"
+          },
+          {
+            "id": 3586266,
+            "mid": "002sfzQB12abuc",
+            "name": "哪里都是你",
+            "album": "十二新作"
+          },
+          {
+            "id": 213922043,
+            "mid": "0031TAKo0095np",
+            "name": "不爱我就拉倒",
+            "album": "不爱我就拉倒"
+          },
+          {
+            "id": 718476,
+            "mid": "0043qT5x2DnxaL",
+            "name": "四面楚歌",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 101787871,
+            "mid": "003BiKB44LknC0",
+            "name": "听爸爸的话",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 3585882,
+            "mid": "003APYKg4GrqPB",
+            "name": "手语",
+            "album": "十二新作"
+          },
+          {
+            "id": 101101739,
+            "mid": "000Ookkj0sEkfD",
+            "name": "红模仿",
+            "album": "依然范特西"
+          },
+          {
+            "id": 555154644,
+            "mid": "001FFffS0hAS0A",
+            "name": "Six Degrees",
+            "album": "Six Degrees"
+          },
+          {
+            "id": 3586265,
+            "mid": "001beoYX0K09xu",
+            "name": "乌克丽丽",
+            "album": "十二新作"
+          },
+          {
+            "id": 97780,
+            "mid": "000P0AxP15jei5",
+            "name": "梯田",
+            "album": "叶惠美"
+          },
+          {
+            "id": 680286,
+            "mid": "003KrQ401gzm8x",
+            "name": "自导自演",
+            "album": "跨时代"
+          },
+          {
+            "id": 1026967,
+            "mid": "003hWWWP4Rdj4A",
+            "name": "公主病",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97741,
+            "mid": "001mhQbn2eKHiR",
+            "name": "爸，我回来了",
+            "album": "范特西"
+          },
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          },
+          {
+            "id": 101787869,
+            "mid": "0007w9Eb0lilhZ",
+            "name": "我要夏天",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 1026968,
+            "mid": "001CiqFG20FOXg",
+            "name": "疗伤烧肉粽",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97772,
+            "mid": "000ZauFj0E8qi0",
+            "name": "懦夫",
+            "album": "叶惠美"
+          },
+          {
+            "id": 107192075,
+            "mid": "0040jaL23QceqJ",
+            "name": "英雄",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 107192077,
+            "mid": "003uYI3j4EDf5q",
+            "name": "土耳其冰淇淋",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 418617,
+            "mid": "000C7mLv3209PA",
+            "name": "秘密花园",
+            "album": "大灌篮 电影原声带"
+          },
+          {
+            "id": 852572,
+            "mid": "0046cKwK2Rhmtw",
+            "name": "麦烝玮",
+            "album": "乐酷‧概念合辑"
+          },
+          {
+            "id": 101812768,
+            "mid": "002ejPGF43AvcY",
+            "name": "夜店咖",
+            "album": "嘻游记 首张同名EP"
+          },
+          {
+            "id": 4962637,
+            "mid": "001gbqL91krccm",
+            "name": "大明星",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4962642,
+            "mid": "003n9ZUX0WjtUj",
+            "name": "狗仔舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4962641,
+            "mid": "004Y37UI2gxazu",
+            "name": "竹竿舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 361947425,
+            "mid": "00176bPZ2wu39R",
+            "name": "等你下课 (with 杨瑞代)",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947420,
+            "mid": "001QeDJq1n9cCk",
+            "name": "不爱我就拉倒",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:周杰伦->target:zhoujielun:作曲",
+        "source": "artist:name:周杰伦",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 206,
+        "songs": [
+          {
+            "id": 97773,
+            "mid": "0039MnYb0qxYhV",
+            "name": "晴天",
+            "album": "叶惠美"
+          },
+          {
+            "id": 102065750,
+            "mid": "001Bbywq2gicae",
+            "name": "搁浅",
+            "album": "七里香"
+          },
+          {
+            "id": 649556362,
+            "mid": "0044SaFh0apuR2",
+            "name": "那天下雨了",
+            "album": "太阳之子"
+          },
+          {
+            "id": 102065756,
+            "mid": "004Z8Ihr0JIu5s",
+            "name": "七里香",
+            "album": "七里香"
+          },
+          {
+            "id": 718477,
+            "mid": "001zMQr71F1Qo8",
+            "name": "夜曲",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 410316,
+            "mid": "002qU5aY3Qu24y",
+            "name": "青花瓷",
+            "album": "我很忙"
+          },
+          {
+            "id": 449198,
+            "mid": "003cI52o4daJJL",
+            "name": "花海",
+            "album": "魔杰座"
+          },
+          {
+            "id": 449205,
+            "mid": "003aAYrm3GE0Ac",
+            "name": "稻香",
+            "album": "魔杰座"
+          },
+          {
+            "id": 5177680,
+            "mid": "003xv4w313tZHV",
+            "name": "红尘客栈",
+            "album": "十二新作"
+          },
+          {
+            "id": 449201,
+            "mid": "00128N3r2SYKMF",
+            "name": "兰亭序",
+            "album": "魔杰座"
+          },
+          {
+            "id": 5105986,
+            "mid": "001xd0HI0X9GNq",
+            "name": "一路向北",
+            "album": "J III MP3 Player"
+          },
+          {
+            "id": 718479,
+            "mid": "003KtYhg4frNXC",
+            "name": "枫",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 101787870,
+            "mid": "002u8ZOM4C7QF4",
+            "name": "手写的从前",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 102066449,
+            "mid": "001L1lqm4UAdyo",
+            "name": "退后",
+            "album": "依然范特西"
+          },
+          {
+            "id": 449200,
+            "mid": "0042QMDR1VzSsx",
+            "name": "说好的幸福呢",
+            "album": "魔杰座"
+          },
+          {
+            "id": 680279,
+            "mid": "004emQMs09Z1lz",
+            "name": "烟花易冷",
+            "album": "跨时代"
+          },
+          {
+            "id": 3585884,
+            "mid": "000oW8J53xPhZA",
+            "name": "明明就",
+            "album": "十二新作"
+          },
+          {
+            "id": 102340965,
+            "mid": "004Yi5BD3ksoAN",
+            "name": "蒲公英的约定",
+            "album": "我很忙"
+          },
+          {
+            "id": 97759,
+            "mid": "0017K7gL4WYnw2",
+            "name": "反方向的钟",
+            "album": "Jay"
+          },
+          {
+            "id": 680278,
+            "mid": "00265Jxe3JzXOJ",
+            "name": "说了再见",
+            "album": "跨时代"
+          },
+          {
+            "id": 680284,
+            "mid": "0022b7OX2STU86",
+            "name": "我落泪情绪零碎",
+            "album": "跨时代"
+          },
+          {
+            "id": 107192078,
+            "mid": "003OUlho2HcRHC",
+            "name": "告白气球",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 237773700,
+            "mid": "001qvvgF38HVc4",
+            "name": "说好不哭 (with 五月天阿信)",
+            "album": "说好不哭（with 五月天阿信）"
+          },
+          {
+            "id": 3586263,
+            "mid": "002tNzue0g8xQA",
+            "name": "爱你没差",
+            "album": "十二新作"
+          },
+          {
+            "id": 718486,
+            "mid": "001K0AjL2huSxx",
+            "name": "珊瑚海",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 718475,
+            "mid": "0027oMO61wWi55",
+            "name": "发如雪",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97740,
+            "mid": "002usg9o4GTAKf",
+            "name": "爱在西元前",
+            "album": "范特西"
+          },
+          {
+            "id": 649556366,
+            "mid": "003WPrjL4dimFE",
+            "name": "爱琴海",
+            "album": "太阳之子"
+          },
+          {
+            "id": 212877900,
+            "mid": "001J5QJL1pRQYB",
+            "name": "等你下课 (with 杨瑞代)",
+            "album": "等你下课"
+          },
+          {
+            "id": 5177785,
+            "mid": "003ZrdgZ0UnjDl",
+            "name": "最长的电影",
+            "album": "我很忙"
+          },
+          {
+            "id": 101091484,
+            "mid": "004BhQke4adHcf",
+            "name": "给我一首歌的时间",
+            "album": "魔杰座"
+          },
+          {
+            "id": 97744,
+            "mid": "0009BCJK1nRaad",
+            "name": "简单爱",
+            "album": "范特西"
+          },
+          {
+            "id": 97761,
+            "mid": "002OKIox28ad9a",
+            "name": "半岛铁盒",
+            "album": "八度空间"
+          },
+          {
+            "id": 403778,
+            "mid": "002MXZNu1GToOk",
+            "name": "不能说的秘密",
+            "album": "不能说的秘密 电影原声带"
+          },
+          {
+            "id": 107192076,
+            "mid": "000sxzol11raSd",
+            "name": "不该 (with aMEI)",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 97762,
+            "mid": "000NQDjk4BA0W3",
+            "name": "暗号",
+            "album": "八度空间"
+          },
+          {
+            "id": 649556373,
+            "mid": "003FdJZH1wljMU",
+            "name": "西西里",
+            "album": "太阳之子"
+          },
+          {
+            "id": 247261229,
+            "mid": "001PLl3C4gPSCI",
+            "name": "我是如此相信",
+            "album": "我是如此相信"
+          },
+          {
+            "id": 680282,
+            "mid": "002zouNc0L8Llg",
+            "name": "雨下一整晚",
+            "album": "跨时代"
+          },
+          {
+            "id": 102065757,
+            "mid": "002XWgfo0IKPOH",
+            "name": "借口",
+            "album": "七里香"
+          },
+          {
+            "id": 102066257,
+            "mid": "002hXDfk0LX9KO",
+            "name": "听妈妈的话",
+            "album": "依然范特西"
+          },
+          {
+            "id": 5244390,
+            "mid": "002elTc93yuXu2",
+            "name": "你听得到",
+            "album": "叶惠美"
+          },
+          {
+            "id": 102700397,
+            "mid": "001T3JAT15palI",
+            "name": "我不配",
+            "album": "我很忙"
+          },
+          {
+            "id": 97784,
+            "mid": "0036g6g628i2gI",
+            "name": "轨迹",
+            "album": "寻找周杰伦"
+          },
+          {
+            "id": 649556372,
+            "mid": "000fpbFh2Uu80G",
+            "name": "圣诞星 (feat. 杨瑞代)",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556361,
+            "mid": "0001bLnu2ULqYf",
+            "name": "太阳之子",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556363,
+            "mid": "0007XPND1Mf9dN",
+            "name": "湘女多情",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97743,
+            "mid": "000amRvH3wxv56",
+            "name": "安静",
+            "album": "范特西"
+          },
+          {
+            "id": 97758,
+            "mid": "002l8JN71d2Dxy",
+            "name": "龙卷风",
+            "album": "Jay"
+          },
+          {
+            "id": 649556370,
+            "mid": "004fFOIE1n0fhE",
+            "name": "淘金小镇",
+            "album": "太阳之子"
+          },
+          {
+            "id": 102065753,
+            "mid": "003nEQHr3Ceet5",
+            "name": "园游会",
+            "album": "七里香"
+          },
+          {
+            "id": 107192080,
+            "mid": "000eskGX0ijIFi",
+            "name": "爱情废柴",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 649556367,
+            "mid": "000UVWY709sJLh",
+            "name": "I Do",
+            "album": "太阳之子"
+          },
+          {
+            "id": 466722,
+            "mid": "0010ibBn4bYFTk",
+            "name": "夜的第七章",
+            "album": "依然范特西"
+          },
+          {
+            "id": 649556365,
+            "mid": "003wwuRJ3OmrGc",
+            "name": "七月的极光",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97767,
+            "mid": "003rxgIM2eOFSF",
+            "name": "回到过去",
+            "album": "八度空间"
+          },
+          {
+            "id": 97745,
+            "mid": "0020qX4u2JJRxK",
+            "name": "开不了口",
+            "album": "范特西"
+          },
+          {
+            "id": 102340966,
+            "mid": "004bRWFg3fej9y",
+            "name": "彩虹",
+            "album": "我很忙"
+          },
+          {
+            "id": 649556364,
+            "mid": "000bcKcM3AaJCU",
+            "name": "谁稀罕",
+            "album": "太阳之子"
+          },
+          {
+            "id": 361947424,
+            "mid": "001KhHrT4Mv4pd",
+            "name": "红颜如霜",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 97750,
+            "mid": "004VR0Hn3bkqqE",
+            "name": "可爱女人",
+            "album": "Jay"
+          },
+          {
+            "id": 268352018,
+            "mid": "001glaI72k8BQX",
+            "name": "Mojito",
+            "album": "Mojito"
+          },
+          {
+            "id": 649556369,
+            "mid": "003kFxD41vOh6l",
+            "name": "女儿殿下",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97782,
+            "mid": "003ZdxP61ClQZ5",
+            "name": "断了的弦",
+            "album": "寻找周杰伦"
+          },
+          {
+            "id": 97775,
+            "mid": "003uEbEr0jcW7c",
+            "name": "东风破",
+            "album": "叶惠美"
+          },
+          {
+            "id": 718480,
+            "mid": "003iY6cU4YG0xi",
+            "name": "黑色毛衣",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 649556371,
+            "mid": "002Rf1gB25DDL4",
+            "name": "乡间的路",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97771,
+            "mid": "001n4C3p1yv0FU",
+            "name": "以父之名",
+            "album": "叶惠美"
+          },
+          {
+            "id": 649556368,
+            "mid": "001AuhUk0VdWjC",
+            "name": "圣徒",
+            "album": "太阳之子"
+          },
+          {
+            "id": 3585890,
+            "mid": "002jkBM53MLB9Q",
+            "name": "大笨钟",
+            "album": "十二新作"
+          },
+          {
+            "id": 361947427,
+            "mid": "003QrnHn2kR4FD",
+            "name": "倒影",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 102320103,
+            "mid": "000DdOAF0ED7i4",
+            "name": "白色风车",
+            "album": "依然范特西"
+          },
+          {
+            "id": 101369814,
+            "mid": "001Js78a40BZU6",
+            "name": "算什么男人",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97752,
+            "mid": "001Zi7Ly4ZtVQk",
+            "name": "星晴",
+            "album": "Jay"
+          },
+          {
+            "id": 718482,
+            "mid": "002fi7iG0VvUj2",
+            "name": "浪漫手机",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97766,
+            "mid": "002IyJxz0FBFEJ",
+            "name": "爷爷泡的茶",
+            "album": "八度空间"
+          },
+          {
+            "id": 102340969,
+            "mid": "000xdZuV2LcQ19",
+            "name": "甜甜的",
+            "album": "我很忙"
+          },
+          {
+            "id": 680285,
+            "mid": "003CxS6w14OQyM",
+            "name": "爱的飞行日记",
+            "album": "跨时代"
+          },
+          {
+            "id": 102066448,
+            "mid": "001bo9Wy1NfHpb",
+            "name": "本草纲目",
+            "album": "依然范特西"
+          },
+          {
+            "id": 165121,
+            "mid": "002HeqcH2GMiOL",
+            "name": "霍元甲",
+            "album": "霍元甲"
+          },
+          {
+            "id": 97778,
+            "mid": "001FSVRg08JLpi",
+            "name": "她的睫毛",
+            "album": "叶惠美"
+          },
+          {
+            "id": 102698215,
+            "mid": "003FRy0r0wyGHl",
+            "name": "千里之外",
+            "album": "依然范特西"
+          },
+          {
+            "id": 361947418,
+            "mid": "003w2xz20QlUZt",
+            "name": "最伟大的作品",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 13410,
+            "mid": "002QoT9n3hcEIr",
+            "name": "布拉格广场",
+            "album": "看我72变"
+          },
+          {
+            "id": 97755,
+            "mid": "0006rBfE3htPqG",
+            "name": "黑色幽默",
+            "album": "Jay"
+          },
+          {
+            "id": 7179645,
+            "mid": "000Fylg7450RG2",
+            "name": "心雨",
+            "album": "依然范特西"
+          },
+          {
+            "id": 102065754,
+            "mid": "0042fRqf4fC8ZB",
+            "name": "止战之殇",
+            "album": "七里香"
+          },
+          {
+            "id": 107192073,
+            "mid": "002lW4Yl3ylM02",
+            "name": "一点点",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 102066450,
+            "mid": "004RUiXu49ufy1",
+            "name": "菊花台",
+            "album": "依然范特西"
+          },
+          {
+            "id": 97765,
+            "mid": "002U3qIp3n7yke",
+            "name": "分裂",
+            "album": "八度空间"
+          },
+          {
+            "id": 102204538,
+            "mid": "001bnNGN127Kbq",
+            "name": "阳光宅男",
+            "album": "我很忙"
+          },
+          {
+            "id": 680281,
+            "mid": "002RqWle4FvqRy",
+            "name": "好久不见",
+            "album": "跨时代"
+          },
+          {
+            "id": 101787873,
+            "mid": "0026N9sT4aBGcV",
+            "name": "听见下雨的声音",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 95742,
+            "mid": "003oF0Pc0ahSx4",
+            "name": "屋顶",
+            "album": "爱回温"
+          },
+          {
+            "id": 680287,
+            "mid": "004JQ70v4Fddyj",
+            "name": "超人不会飞",
+            "album": "跨时代"
+          },
+          {
+            "id": 102065748,
+            "mid": "0027gHes1HjRNe",
+            "name": "外婆",
+            "album": "七里香"
+          },
+          {
+            "id": 1018543,
+            "mid": "002CUU2B3WuGLc",
+            "name": "Mine Mine",
+            "album": "惊叹号"
+          },
+          {
+            "id": 361947419,
+            "mid": "000Zu3Ah1jb4gl",
+            "name": "还在流浪",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 3586266,
+            "mid": "002sfzQB12abuc",
+            "name": "哪里都是你",
+            "album": "十二新作"
+          },
+          {
+            "id": 410314,
+            "mid": "003O5GaP1SYe94",
+            "name": "牛仔很忙",
+            "album": "我很忙"
+          },
+          {
+            "id": 97760,
+            "mid": "001FUQiy2ZCiVt",
+            "name": "半兽人",
+            "album": "八度空间"
+          },
+          {
+            "id": 97768,
+            "mid": "001HdNmX0urp4Q",
+            "name": "米兰的小铁匠",
+            "album": "八度空间"
+          },
+          {
+            "id": 97749,
+            "mid": "000F0lmz1cBq4c",
+            "name": "对不起",
+            "album": "范特西"
+          },
+          {
+            "id": 101787872,
+            "mid": "001XPgTm3faHRb",
+            "name": "美人鱼",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 361947426,
+            "mid": "000EqWxe275Yd2",
+            "name": "粉色海洋",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 108174049,
+            "mid": "002AFY9402ZoW4",
+            "name": "不该 (with aMEI)",
+            "album": "幻城 电视剧原声带"
+          },
+          {
+            "id": 3586269,
+            "mid": "003t0fFq4JbjaR",
+            "name": "傻笑",
+            "album": "十二新作"
+          },
+          {
+            "id": 97769,
+            "mid": "000HafPI0dzzwp",
+            "name": "最后的战役",
+            "album": "八度空间"
+          },
+          {
+            "id": 97746,
+            "mid": "001MNqZU3YDLrE",
+            "name": "忍者",
+            "album": "范特西"
+          },
+          {
+            "id": 97747,
+            "mid": "00218ObD0yrANX",
+            "name": "双截棍",
+            "album": "范特西"
+          },
+          {
+            "id": 97742,
+            "mid": "002YzCdA2Hybr0",
+            "name": "上海一九四三",
+            "album": "范特西"
+          },
+          {
+            "id": 213922043,
+            "mid": "0031TAKo0095np",
+            "name": "不爱我就拉倒",
+            "album": "不爱我就拉倒"
+          },
+          {
+            "id": 97763,
+            "mid": "004R20x748kyO1",
+            "name": "龙拳",
+            "album": "八度空间"
+          },
+          {
+            "id": 718485,
+            "mid": "004DI5Vw0DnEOW",
+            "name": "飘移",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 361947422,
+            "mid": "001RtHic1PivYc",
+            "name": "错过的烟火",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 4963132,
+            "mid": "003nLOYI4gJ6U0",
+            "name": "周大侠",
+            "album": "2007世界巡回演唱会"
+          },
+          {
+            "id": 97779,
+            "mid": "0037FWzg2csDmh",
+            "name": "爱情悬崖",
+            "album": "叶惠美"
+          },
+          {
+            "id": 97748,
+            "mid": "0046grpK0A1l9G",
+            "name": "威廉古堡",
+            "album": "范特西"
+          },
+          {
+            "id": 13802,
+            "mid": "004ZH3Qv2qjMhT",
+            "name": "刀马旦",
+            "album": "Promise"
+          },
+          {
+            "id": 102320104,
+            "mid": "0016oRIN0hu5zE",
+            "name": "迷迭香",
+            "album": "依然范特西"
+          },
+          {
+            "id": 101787867,
+            "mid": "001zqHER0WFQvO",
+            "name": "怎么了",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 101787866,
+            "mid": "00162TQ12285h4",
+            "name": "天涯过客",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 102065749,
+            "mid": "000yJtoB39k2NF",
+            "name": "将军",
+            "album": "七里香"
+          },
+          {
+            "id": 718476,
+            "mid": "0043qT5x2DnxaL",
+            "name": "四面楚歌",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 101787871,
+            "mid": "003BiKB44LknC0",
+            "name": "听爸爸的话",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97774,
+            "mid": "004csbVP1E2dv1",
+            "name": "三年二班",
+            "album": "叶惠美"
+          },
+          {
+            "id": 1023644,
+            "mid": "0040Dgn94YNWxA",
+            "name": "你好吗",
+            "album": "惊叹号"
+          },
+          {
+            "id": 3585882,
+            "mid": "003APYKg4GrqPB",
+            "name": "手语",
+            "album": "十二新作"
+          },
+          {
+            "id": 449203,
+            "mid": "000sRQrz0aEDFp",
+            "name": "时光机",
+            "album": "魔杰座"
+          },
+          {
+            "id": 718483,
+            "mid": "003WtI8C0FMf3r",
+            "name": "麦芽糖",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97753,
+            "mid": "002pImGM1R2Afa",
+            "name": "娘子",
+            "album": "Jay"
+          },
+          {
+            "id": 1026963,
+            "mid": "000rVzOf3JnUQg",
+            "name": "超跑女神",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97756,
+            "mid": "0033ZO6x09eHB0",
+            "name": "伊斯坦堡",
+            "album": "Jay"
+          },
+          {
+            "id": 102065751,
+            "mid": "0031tzbX3Lps0M",
+            "name": "乱舞春秋",
+            "album": "七里香"
+          },
+          {
+            "id": 101101739,
+            "mid": "000Ookkj0sEkfD",
+            "name": "红模仿",
+            "album": "依然范特西"
+          },
+          {
+            "id": 97757,
+            "mid": "002GQJAQ3w9yuh",
+            "name": "印第安老斑鸠",
+            "album": "Jay"
+          },
+          {
+            "id": 13415,
+            "mid": "003qvgqV4LiXHY",
+            "name": "骑士精神",
+            "album": "看我72变"
+          },
+          {
+            "id": 3586265,
+            "mid": "001beoYX0K09xu",
+            "name": "乌克丽丽",
+            "album": "十二新作"
+          },
+          {
+            "id": 97751,
+            "mid": "001NQNgU2HfxJg",
+            "name": "完美主义",
+            "album": "Jay"
+          },
+          {
+            "id": 101133228,
+            "mid": "004KpNVr0EdY0v",
+            "name": "鞋子特大号",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97764,
+            "mid": "002h3LO64ElQP2",
+            "name": "火车叨位去",
+            "album": "八度空间"
+          },
+          {
+            "id": 97780,
+            "mid": "000P0AxP15jei5",
+            "name": "梯田",
+            "album": "叶惠美"
+          },
+          {
+            "id": 107192071,
+            "mid": "002MVjb31ZNK5m",
+            "name": "床边故事",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 680286,
+            "mid": "003KrQ401gzm8x",
+            "name": "自导自演",
+            "album": "跨时代"
+          },
+          {
+            "id": 102065755,
+            "mid": "004WrpV81DMGHv",
+            "name": "我的地盘",
+            "album": "七里香"
+          },
+          {
+            "id": 449195,
+            "mid": "000B3Ekk1I79hc",
+            "name": "龙战骑士",
+            "album": "魔杰座"
+          },
+          {
+            "id": 107192072,
+            "mid": "003J6p942xp6ho",
+            "name": "说走就走",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 718274,
+            "mid": "000N1SIT2I0uPN",
+            "name": "黄金甲",
+            "album": "黄金甲"
+          },
+          {
+            "id": 718484,
+            "mid": "003Q71hB2wOpFU",
+            "name": "逆鳞",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97781,
+            "mid": "003BkwkH0iS8Ko",
+            "name": "双刀",
+            "album": "叶惠美"
+          },
+          {
+            "id": 107192074,
+            "mid": "000cFsFl1o17jp",
+            "name": "前世情人",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 876439,
+            "mid": "003To9qp0jQdhW",
+            "name": "千山万水",
+            "album": "北京2008年奥运会歌曲专辑"
+          },
+          {
+            "id": 1026967,
+            "mid": "003hWWWP4Rdj4A",
+            "name": "公主病",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97741,
+            "mid": "001mhQbn2eKHiR",
+            "name": "爸，我回来了",
+            "album": "范特西"
+          },
+          {
+            "id": 101787869,
+            "mid": "0007w9Eb0lilhZ",
+            "name": "我要夏天",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97777,
+            "mid": "000U62Ay0ndxCh",
+            "name": "同一种调调",
+            "album": "叶惠美"
+          },
+          {
+            "id": 680277,
+            "mid": "004gKsOK06opcc",
+            "name": "跨时代",
+            "album": "跨时代"
+          },
+          {
+            "id": 1026964,
+            "mid": "002I7ms805kX4p",
+            "name": "世界未末日",
+            "album": "惊叹号"
+          },
+          {
+            "id": 449204,
+            "mid": "002kuUy64JJlDi",
+            "name": "乔克叔叔",
+            "album": "魔杰座"
+          },
+          {
+            "id": 1026968,
+            "mid": "001CiqFG20FOXg",
+            "name": "疗伤烧肉粽",
+            "album": "惊叹号"
+          },
+          {
+            "id": 718481,
+            "mid": "004MQUa83RyfVJ",
+            "name": "蓝色风暴",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 1026966,
+            "mid": "000BZGDQ24uwTT",
+            "name": "琴伤",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97754,
+            "mid": "003J20t02i1vV5",
+            "name": "斗牛",
+            "album": "Jay"
+          },
+          {
+            "id": 102065752,
+            "mid": "0048Gwq23HPs1o",
+            "name": "困兽之斗",
+            "album": "七里香"
+          },
+          {
+            "id": 621944135,
+            "mid": "002yIFEJ0ssJjj",
+            "name": "恒星不忘 Forever Forever",
+            "album": "恒星不忘 Forever Forever"
+          },
+          {
+            "id": 102340967,
+            "mid": "002Jp6If3ltWv9",
+            "name": "无双",
+            "album": "我很忙"
+          },
+          {
+            "id": 1026965,
+            "mid": "0019fxNe1bLVch",
+            "name": "水手怕水",
+            "album": "惊叹号"
+          },
+          {
+            "id": 3586268,
+            "mid": "001KTt4d1BTJOz",
+            "name": "公公偏头痛",
+            "album": "十二新作"
+          },
+          {
+            "id": 13390,
+            "mid": "00070H9Q4ENl2Y",
+            "name": "海盗",
+            "album": "城堡"
+          },
+          {
+            "id": 102340968,
+            "mid": "0008S2Z53H5C07",
+            "name": "扯",
+            "album": "我很忙"
+          },
+          {
+            "id": 449197,
+            "mid": "001LNPit4TsTn8",
+            "name": "蛇舞",
+            "album": "魔杰座"
+          },
+          {
+            "id": 97772,
+            "mid": "000ZauFj0E8qi0",
+            "name": "懦夫",
+            "album": "叶惠美"
+          },
+          {
+            "id": 449199,
+            "mid": "000HcRmh2IYxm8",
+            "name": "魔术先生",
+            "album": "魔杰座"
+          },
+          {
+            "id": 107192075,
+            "mid": "0040jaL23QceqJ",
+            "name": "英雄",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 104792513,
+            "mid": "001TtMaW2j3k2h",
+            "name": "惊叹号",
+            "album": "惊叹号"
+          },
+          {
+            "id": 107192079,
+            "mid": "00376COL0nP51S",
+            "name": "Now You See Me",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 3586264,
+            "mid": "001QnhDT0UJJIT",
+            "name": "梦想启动",
+            "album": "十二新作"
+          },
+          {
+            "id": 101787865,
+            "mid": "003zL01l3vYMKT",
+            "name": "窃爱",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 101787868,
+            "mid": "003md41m1MBhMc",
+            "name": "一口气全念对",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 680280,
+            "mid": "004Kvozl3zYFGx",
+            "name": "免费教学录影带",
+            "album": "跨时代"
+          },
+          {
+            "id": 4962640,
+            "mid": "004MdCMq2pU6lx",
+            "name": "天台的月光",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 1003266,
+            "mid": "003HuF913gIZQ3",
+            "name": "皮影戏",
+            "album": "惊叹号"
+          },
+          {
+            "id": 1023645,
+            "mid": "0016Wf0A0FhLBt",
+            "name": "迷魂曲",
+            "album": "惊叹号"
+          },
+          {
+            "id": 449202,
+            "mid": "003suDvd4KLUmF",
+            "name": "流浪诗人",
+            "album": "魔杰座"
+          },
+          {
+            "id": 101787864,
+            "mid": "003b6hhl3jOPyV",
+            "name": "阳明山",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 107192077,
+            "mid": "003uYI3j4EDf5q",
+            "name": "土耳其冰淇淋",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 3586267,
+            "mid": "0010jyte3izshw",
+            "name": "四季列车",
+            "album": "十二新作"
+          },
+          {
+            "id": 3585886,
+            "mid": "004O4Kun0wasxn",
+            "name": "比较大的大提琴",
+            "album": "十二新作"
+          },
+          {
+            "id": 680283,
+            "mid": "000ES19W2iTudx",
+            "name": "嘻哈空姐",
+            "album": "跨时代"
+          },
+          {
+            "id": 418617,
+            "mid": "000C7mLv3209PA",
+            "name": "秘密花园",
+            "album": "大灌篮 电影原声带"
+          },
+          {
+            "id": 852572,
+            "mid": "0046cKwK2Rhmtw",
+            "name": "麦烝玮",
+            "album": "乐酷‧概念合辑"
+          },
+          {
+            "id": 852567,
+            "mid": "004Q7tlZ04YMAi",
+            "name": "天地一斗",
+            "album": "乐酷‧概念合辑"
+          },
+          {
+            "id": 101812768,
+            "mid": "002ejPGF43AvcY",
+            "name": "夜店咖",
+            "album": "嘻游记 首张同名EP"
+          },
+          {
+            "id": 4826244,
+            "mid": "000MqFFW4UlzTr",
+            "name": "波爷",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4962637,
+            "mid": "001gbqL91krccm",
+            "name": "大明星",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4962642,
+            "mid": "003n9ZUX0WjtUj",
+            "name": "狗仔舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4962655,
+            "mid": "001SfztX0qCH4e",
+            "name": "天台",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 732012,
+            "mid": "003ynQ462ua9bV",
+            "name": "阿爸",
+            "album": "恋花"
+          },
+          {
+            "id": 4826243,
+            "mid": "000bJqZD4Loq2e",
+            "name": "打架舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 403762,
+            "mid": "003mQTrM2aqiRe",
+            "name": "阿郎与阿宝",
+            "album": "不能说的秘密 电影原声带"
+          },
+          {
+            "id": 4962641,
+            "mid": "004Y37UI2gxazu",
+            "name": "竹竿舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 362435564,
+            "mid": "002PmJmr3qy031",
+            "name": "我是如此相信",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947425,
+            "mid": "00176bPZ2wu39R",
+            "name": "等你下课 (with 杨瑞代)",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947423,
+            "mid": "001QIYQm4BPlCe",
+            "name": "说好不哭 (with 五月天阿信)",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947421,
+            "mid": "003aEU1q1eO6kD",
+            "name": "Mojito",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947420,
+            "mid": "001QeDJq1n9cCk",
+            "name": "不爱我就拉倒",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:宋健彰->target:zhoujielun:作词",
+        "source": "artist:name:宋健彰",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 5,
+        "songs": [
+          {
+            "id": 102065750,
+            "mid": "001Bbywq2gicae",
+            "name": "搁浅",
+            "album": "七里香"
+          },
+          {
+            "id": 718479,
+            "mid": "003KtYhg4frNXC",
+            "name": "枫",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 102066449,
+            "mid": "001L1lqm4UAdyo",
+            "name": "退后",
+            "album": "依然范特西"
+          },
+          {
+            "id": 213922043,
+            "mid": "0031TAKo0095np",
+            "name": "不爱我就拉倒",
+            "album": "不爱我就拉倒"
+          },
+          {
+            "id": 361947420,
+            "mid": "001QeDJq1n9cCk",
+            "name": "不爱我就拉倒",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:方文山->target:zhoujielun:作词",
+        "source": "artist:name:方文山",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 112,
+        "songs": [
+          {
+            "id": 102065756,
+            "mid": "004Z8Ihr0JIu5s",
+            "name": "七里香",
+            "album": "七里香"
+          },
+          {
+            "id": 718477,
+            "mid": "001zMQr71F1Qo8",
+            "name": "夜曲",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 410316,
+            "mid": "002qU5aY3Qu24y",
+            "name": "青花瓷",
+            "album": "我很忙"
+          },
+          {
+            "id": 5177680,
+            "mid": "003xv4w313tZHV",
+            "name": "红尘客栈",
+            "album": "十二新作"
+          },
+          {
+            "id": 449201,
+            "mid": "00128N3r2SYKMF",
+            "name": "兰亭序",
+            "album": "魔杰座"
+          },
+          {
+            "id": 5105986,
+            "mid": "001xd0HI0X9GNq",
+            "name": "一路向北",
+            "album": "J III MP3 Player"
+          },
+          {
+            "id": 101787870,
+            "mid": "002u8ZOM4C7QF4",
+            "name": "手写的从前",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 449200,
+            "mid": "0042QMDR1VzSsx",
+            "name": "说好的幸福呢",
+            "album": "魔杰座"
+          },
+          {
+            "id": 680279,
+            "mid": "004emQMs09Z1lz",
+            "name": "烟花易冷",
+            "album": "跨时代"
+          },
+          {
+            "id": 3585884,
+            "mid": "000oW8J53xPhZA",
+            "name": "明明就",
+            "album": "十二新作"
+          },
+          {
+            "id": 102340965,
+            "mid": "004Yi5BD3ksoAN",
+            "name": "蒲公英的约定",
+            "album": "我很忙"
+          },
+          {
+            "id": 97759,
+            "mid": "0017K7gL4WYnw2",
+            "name": "反方向的钟",
+            "album": "Jay"
+          },
+          {
+            "id": 680284,
+            "mid": "0022b7OX2STU86",
+            "name": "我落泪情绪零碎",
+            "album": "跨时代"
+          },
+          {
+            "id": 107192078,
+            "mid": "003OUlho2HcRHC",
+            "name": "告白气球",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 237773700,
+            "mid": "001qvvgF38HVc4",
+            "name": "说好不哭 (with 五月天阿信)",
+            "album": "说好不哭（with 五月天阿信）"
+          },
+          {
+            "id": 718486,
+            "mid": "001K0AjL2huSxx",
+            "name": "珊瑚海",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 718475,
+            "mid": "0027oMO61wWi55",
+            "name": "发如雪",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97740,
+            "mid": "002usg9o4GTAKf",
+            "name": "爱在西元前",
+            "album": "范特西"
+          },
+          {
+            "id": 403778,
+            "mid": "002MXZNu1GToOk",
+            "name": "不能说的秘密",
+            "album": "不能说的秘密 电影原声带"
+          },
+          {
+            "id": 107192076,
+            "mid": "000sxzol11raSd",
+            "name": "不该 (with aMEI)",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 649556373,
+            "mid": "003FdJZH1wljMU",
+            "name": "西西里",
+            "album": "太阳之子"
+          },
+          {
+            "id": 247261229,
+            "mid": "001PLl3C4gPSCI",
+            "name": "我是如此相信",
+            "album": "我是如此相信"
+          },
+          {
+            "id": 680282,
+            "mid": "002zouNc0L8Llg",
+            "name": "雨下一整晚",
+            "album": "跨时代"
+          },
+          {
+            "id": 102700397,
+            "mid": "001T3JAT15palI",
+            "name": "我不配",
+            "album": "我很忙"
+          },
+          {
+            "id": 649556361,
+            "mid": "0001bLnu2ULqYf",
+            "name": "太阳之子",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556363,
+            "mid": "0007XPND1Mf9dN",
+            "name": "湘女多情",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556370,
+            "mid": "004fFOIE1n0fhE",
+            "name": "淘金小镇",
+            "album": "太阳之子"
+          },
+          {
+            "id": 102065753,
+            "mid": "003nEQHr3Ceet5",
+            "name": "园游会",
+            "album": "七里香"
+          },
+          {
+            "id": 649556367,
+            "mid": "000UVWY709sJLh",
+            "name": "I Do",
+            "album": "太阳之子"
+          },
+          {
+            "id": 649556365,
+            "mid": "003wwuRJ3OmrGc",
+            "name": "七月的极光",
+            "album": "太阳之子"
+          },
+          {
+            "id": 361947424,
+            "mid": "001KhHrT4Mv4pd",
+            "name": "红颜如霜",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 97782,
+            "mid": "003ZdxP61ClQZ5",
+            "name": "断了的弦",
+            "album": "寻找周杰伦"
+          },
+          {
+            "id": 97775,
+            "mid": "003uEbEr0jcW7c",
+            "name": "东风破",
+            "album": "叶惠美"
+          },
+          {
+            "id": 649556371,
+            "mid": "002Rf1gB25DDL4",
+            "name": "乡间的路",
+            "album": "太阳之子"
+          },
+          {
+            "id": 361947427,
+            "mid": "003QrnHn2kR4FD",
+            "name": "倒影",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 718482,
+            "mid": "002fi7iG0VvUj2",
+            "name": "浪漫手机",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97766,
+            "mid": "002IyJxz0FBFEJ",
+            "name": "爷爷泡的茶",
+            "album": "八度空间"
+          },
+          {
+            "id": 102340969,
+            "mid": "000xdZuV2LcQ19",
+            "name": "甜甜的",
+            "album": "我很忙"
+          },
+          {
+            "id": 680285,
+            "mid": "003CxS6w14OQyM",
+            "name": "爱的飞行日记",
+            "album": "跨时代"
+          },
+          {
+            "id": 102066448,
+            "mid": "001bo9Wy1NfHpb",
+            "name": "本草纲目",
+            "album": "依然范特西"
+          },
+          {
+            "id": 165121,
+            "mid": "002HeqcH2GMiOL",
+            "name": "霍元甲",
+            "album": "霍元甲"
+          },
+          {
+            "id": 97778,
+            "mid": "001FSVRg08JLpi",
+            "name": "她的睫毛",
+            "album": "叶惠美"
+          },
+          {
+            "id": 102698215,
+            "mid": "003FRy0r0wyGHl",
+            "name": "千里之外",
+            "album": "依然范特西"
+          },
+          {
+            "id": 13410,
+            "mid": "002QoT9n3hcEIr",
+            "name": "布拉格广场",
+            "album": "看我72变"
+          },
+          {
+            "id": 7179645,
+            "mid": "000Fylg7450RG2",
+            "name": "心雨",
+            "album": "依然范特西"
+          },
+          {
+            "id": 102065754,
+            "mid": "0042fRqf4fC8ZB",
+            "name": "止战之殇",
+            "album": "七里香"
+          },
+          {
+            "id": 107192073,
+            "mid": "002lW4Yl3ylM02",
+            "name": "一点点",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 102066450,
+            "mid": "004RUiXu49ufy1",
+            "name": "菊花台",
+            "album": "依然范特西"
+          },
+          {
+            "id": 102204538,
+            "mid": "001bnNGN127Kbq",
+            "name": "阳光宅男",
+            "album": "我很忙"
+          },
+          {
+            "id": 101787873,
+            "mid": "0026N9sT4aBGcV",
+            "name": "听见下雨的声音",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 3223506,
+            "mid": "001tCE0T2vR5p5",
+            "name": "画沙",
+            "album": "袁咏琳 Cindy"
+          },
+          {
+            "id": 361947419,
+            "mid": "000Zu3Ah1jb4gl",
+            "name": "还在流浪",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 97760,
+            "mid": "001FUQiy2ZCiVt",
+            "name": "半兽人",
+            "album": "八度空间"
+          },
+          {
+            "id": 97768,
+            "mid": "001HdNmX0urp4Q",
+            "name": "米兰的小铁匠",
+            "album": "八度空间"
+          },
+          {
+            "id": 97749,
+            "mid": "000F0lmz1cBq4c",
+            "name": "对不起",
+            "album": "范特西"
+          },
+          {
+            "id": 361947426,
+            "mid": "000EqWxe275Yd2",
+            "name": "粉色海洋",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 108174049,
+            "mid": "002AFY9402ZoW4",
+            "name": "不该 (with aMEI)",
+            "album": "幻城 电视剧原声带"
+          },
+          {
+            "id": 3586269,
+            "mid": "003t0fFq4JbjaR",
+            "name": "傻笑",
+            "album": "十二新作"
+          },
+          {
+            "id": 97769,
+            "mid": "000HafPI0dzzwp",
+            "name": "最后的战役",
+            "album": "八度空间"
+          },
+          {
+            "id": 97746,
+            "mid": "001MNqZU3YDLrE",
+            "name": "忍者",
+            "album": "范特西"
+          },
+          {
+            "id": 97747,
+            "mid": "00218ObD0yrANX",
+            "name": "双截棍",
+            "album": "范特西"
+          },
+          {
+            "id": 97742,
+            "mid": "002YzCdA2Hybr0",
+            "name": "上海一九四三",
+            "album": "范特西"
+          },
+          {
+            "id": 97763,
+            "mid": "004R20x748kyO1",
+            "name": "龙拳",
+            "album": "八度空间"
+          },
+          {
+            "id": 718485,
+            "mid": "004DI5Vw0DnEOW",
+            "name": "飘移",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 361947422,
+            "mid": "001RtHic1PivYc",
+            "name": "错过的烟火",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 4963132,
+            "mid": "003nLOYI4gJ6U0",
+            "name": "周大侠",
+            "album": "2007世界巡回演唱会"
+          },
+          {
+            "id": 97748,
+            "mid": "0046grpK0A1l9G",
+            "name": "威廉古堡",
+            "album": "范特西"
+          },
+          {
+            "id": 13802,
+            "mid": "004ZH3Qv2qjMhT",
+            "name": "刀马旦",
+            "album": "Promise"
+          },
+          {
+            "id": 102320104,
+            "mid": "0016oRIN0hu5zE",
+            "name": "迷迭香",
+            "album": "依然范特西"
+          },
+          {
+            "id": 101787867,
+            "mid": "001zqHER0WFQvO",
+            "name": "怎么了",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 101787866,
+            "mid": "00162TQ12285h4",
+            "name": "天涯过客",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97774,
+            "mid": "004csbVP1E2dv1",
+            "name": "三年二班",
+            "album": "叶惠美"
+          },
+          {
+            "id": 449203,
+            "mid": "000sRQrz0aEDFp",
+            "name": "时光机",
+            "album": "魔杰座"
+          },
+          {
+            "id": 718483,
+            "mid": "003WtI8C0FMf3r",
+            "name": "麦芽糖",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 97753,
+            "mid": "002pImGM1R2Afa",
+            "name": "娘子",
+            "album": "Jay"
+          },
+          {
+            "id": 1026963,
+            "mid": "000rVzOf3JnUQg",
+            "name": "超跑女神",
+            "album": "惊叹号"
+          },
+          {
+            "id": 102065751,
+            "mid": "0031tzbX3Lps0M",
+            "name": "乱舞春秋",
+            "album": "七里香"
+          },
+          {
+            "id": 97757,
+            "mid": "002GQJAQ3w9yuh",
+            "name": "印第安老斑鸠",
+            "album": "Jay"
+          },
+          {
+            "id": 97751,
+            "mid": "001NQNgU2HfxJg",
+            "name": "完美主义",
+            "album": "Jay"
+          },
+          {
+            "id": 101133228,
+            "mid": "004KpNVr0EdY0v",
+            "name": "鞋子特大号",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 97764,
+            "mid": "002h3LO64ElQP2",
+            "name": "火车叨位去",
+            "album": "八度空间"
+          },
+          {
+            "id": 107192071,
+            "mid": "002MVjb31ZNK5m",
+            "name": "床边故事",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 102065755,
+            "mid": "004WrpV81DMGHv",
+            "name": "我的地盘",
+            "album": "七里香"
+          },
+          {
+            "id": 449195,
+            "mid": "000B3Ekk1I79hc",
+            "name": "龙战骑士",
+            "album": "魔杰座"
+          },
+          {
+            "id": 107192072,
+            "mid": "003J6p942xp6ho",
+            "name": "说走就走",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 718274,
+            "mid": "000N1SIT2I0uPN",
+            "name": "黄金甲",
+            "album": "黄金甲"
+          },
+          {
+            "id": 97781,
+            "mid": "003BkwkH0iS8Ko",
+            "name": "双刀",
+            "album": "叶惠美"
+          },
+          {
+            "id": 876439,
+            "mid": "003To9qp0jQdhW",
+            "name": "千山万水",
+            "album": "北京2008年奥运会歌曲专辑"
+          },
+          {
+            "id": 97777,
+            "mid": "000U62Ay0ndxCh",
+            "name": "同一种调调",
+            "album": "叶惠美"
+          },
+          {
+            "id": 1026964,
+            "mid": "002I7ms805kX4p",
+            "name": "世界未末日",
+            "album": "惊叹号"
+          },
+          {
+            "id": 718481,
+            "mid": "004MQUa83RyfVJ",
+            "name": "蓝色风暴",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 1026966,
+            "mid": "000BZGDQ24uwTT",
+            "name": "琴伤",
+            "album": "惊叹号"
+          },
+          {
+            "id": 97754,
+            "mid": "003J20t02i1vV5",
+            "name": "斗牛",
+            "album": "Jay"
+          },
+          {
+            "id": 102340967,
+            "mid": "002Jp6If3ltWv9",
+            "name": "无双",
+            "album": "我很忙"
+          },
+          {
+            "id": 3586268,
+            "mid": "001KTt4d1BTJOz",
+            "name": "公公偏头痛",
+            "album": "十二新作"
+          },
+          {
+            "id": 102340968,
+            "mid": "0008S2Z53H5C07",
+            "name": "扯",
+            "album": "我很忙"
+          },
+          {
+            "id": 449199,
+            "mid": "000HcRmh2IYxm8",
+            "name": "魔术先生",
+            "album": "魔杰座"
+          },
+          {
+            "id": 104792513,
+            "mid": "001TtMaW2j3k2h",
+            "name": "惊叹号",
+            "album": "惊叹号"
+          },
+          {
+            "id": 107192079,
+            "mid": "00376COL0nP51S",
+            "name": "Now You See Me",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 101787868,
+            "mid": "003md41m1MBhMc",
+            "name": "一口气全念对",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 105471061,
+            "mid": "001faq2u0gVP6j",
+            "name": "Try",
+            "album": "Try"
+          },
+          {
+            "id": 4962640,
+            "mid": "004MdCMq2pU6lx",
+            "name": "天台的月光",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 1023645,
+            "mid": "0016Wf0A0FhLBt",
+            "name": "迷魂曲",
+            "album": "惊叹号"
+          },
+          {
+            "id": 449202,
+            "mid": "003suDvd4KLUmF",
+            "name": "流浪诗人",
+            "album": "魔杰座"
+          },
+          {
+            "id": 101787864,
+            "mid": "003b6hhl3jOPyV",
+            "name": "阳明山",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 3586267,
+            "mid": "0010jyte3izshw",
+            "name": "四季列车",
+            "album": "十二新作"
+          },
+          {
+            "id": 3585886,
+            "mid": "004O4Kun0wasxn",
+            "name": "比较大的大提琴",
+            "album": "十二新作"
+          },
+          {
+            "id": 680283,
+            "mid": "000ES19W2iTudx",
+            "name": "嘻哈空姐",
+            "album": "跨时代"
+          },
+          {
+            "id": 4826244,
+            "mid": "000MqFFW4UlzTr",
+            "name": "波爷",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 732012,
+            "mid": "003ynQ462ua9bV",
+            "name": "阿爸",
+            "album": "恋花"
+          },
+          {
+            "id": 362435564,
+            "mid": "002PmJmr3qy031",
+            "name": "我是如此相信",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 361947423,
+            "mid": "001QIYQm4BPlCe",
+            "name": "说好不哭 (with 五月天阿信)",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:古小力->target:zhoujielun:作词",
+        "source": "artist:name:古小力",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 2,
+        "songs": [
+          {
+            "id": 449198,
+            "mid": "003cI52o4daJJL",
+            "name": "花海",
+            "album": "魔杰座"
+          },
+          {
+            "id": 680278,
+            "mid": "00265Jxe3JzXOJ",
+            "name": "说了再见",
+            "album": "跨时代"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:黄淩嘉->target:zhoujielun:作词",
+        "source": "artist:name:黄淩嘉",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 3,
+        "songs": [
+          {
+            "id": 449198,
+            "mid": "003cI52o4daJJL",
+            "name": "花海",
+            "album": "魔杰座"
+          },
+          {
+            "id": 680278,
+            "mid": "00265Jxe3JzXOJ",
+            "name": "说了再见",
+            "album": "跨时代"
+          },
+          {
+            "id": 3586263,
+            "mid": "002tNzue0g8xQA",
+            "name": "爱你没差",
+            "album": "十二新作"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:刘畊宏->target:zhoujielun:作词",
+        "source": "artist:name:刘畊宏",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 3,
+        "songs": [
+          {
+            "id": 649556366,
+            "mid": "003WPrjL4dimFE",
+            "name": "爱琴海",
+            "album": "太阳之子"
+          },
+          {
+            "id": 97767,
+            "mid": "003rxgIM2eOFSF",
+            "name": "回到过去",
+            "album": "八度空间"
+          },
+          {
+            "id": 102065752,
+            "mid": "0048Gwq23HPs1o",
+            "name": "困兽之斗",
+            "album": "七里香"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:徐若瑄->target:zhoujielun:作词",
+        "source": "artist:name:徐若瑄",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 6,
+        "songs": [
+          {
+            "id": 97744,
+            "mid": "0009BCJK1nRaad",
+            "name": "简单爱",
+            "album": "范特西"
+          },
+          {
+            "id": 97758,
+            "mid": "002l8JN71d2Dxy",
+            "name": "龙卷风",
+            "album": "Jay"
+          },
+          {
+            "id": 97745,
+            "mid": "0020qX4u2JJRxK",
+            "name": "开不了口",
+            "album": "范特西"
+          },
+          {
+            "id": 97750,
+            "mid": "004VR0Hn3bkqqE",
+            "name": "可爱女人",
+            "album": "Jay"
+          },
+          {
+            "id": 97779,
+            "mid": "0037FWzg2csDmh",
+            "name": "爱情悬崖",
+            "album": "叶惠美"
+          },
+          {
+            "id": 97756,
+            "mid": "0033ZO6x09eHB0",
+            "name": "伊斯坦堡",
+            "album": "Jay"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:许世昌->target:zhoujielun:作词",
+        "source": "artist:name:许世昌",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 97762,
+            "mid": "000NQDjk4BA0W3",
+            "name": "暗号",
+            "album": "八度空间"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:曾郁婷->target:zhoujielun:作词",
+        "source": "artist:name:曾郁婷",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 5244390,
+            "mid": "002elTc93yuXu2",
+            "name": "你听得到",
+            "album": "叶惠美"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:黄俊郎->target:zhoujielun:作词",
+        "source": "artist:name:黄俊郎",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 21,
+        "songs": [
+          {
+            "id": 97784,
+            "mid": "0036g6g628i2gI",
+            "name": "轨迹",
+            "album": "寻找周杰伦"
+          },
+          {
+            "id": 466722,
+            "mid": "0010ibBn4bYFTk",
+            "name": "夜的第七章",
+            "album": "依然范特西"
+          },
+          {
+            "id": 268352018,
+            "mid": "001glaI72k8BQX",
+            "name": "Mojito",
+            "album": "Mojito"
+          },
+          {
+            "id": 97771,
+            "mid": "001n4C3p1yv0FU",
+            "name": "以父之名",
+            "album": "叶惠美"
+          },
+          {
+            "id": 649556368,
+            "mid": "001AuhUk0VdWjC",
+            "name": "圣徒",
+            "album": "太阳之子"
+          },
+          {
+            "id": 361947418,
+            "mid": "003w2xz20QlUZt",
+            "name": "最伟大的作品",
+            "album": "最伟大的作品"
+          },
+          {
+            "id": 410314,
+            "mid": "003O5GaP1SYe94",
+            "name": "牛仔很忙",
+            "album": "我很忙"
+          },
+          {
+            "id": 102065749,
+            "mid": "000yJtoB39k2NF",
+            "name": "将军",
+            "album": "七里香"
+          },
+          {
+            "id": 718484,
+            "mid": "003Q71hB2wOpFU",
+            "name": "逆鳞",
+            "album": "十一月的萧邦"
+          },
+          {
+            "id": 107192074,
+            "mid": "000cFsFl1o17jp",
+            "name": "前世情人",
+            "album": "周杰伦的床边故事"
+          },
+          {
+            "id": 680277,
+            "mid": "004gKsOK06opcc",
+            "name": "跨时代",
+            "album": "跨时代"
+          },
+          {
+            "id": 449204,
+            "mid": "002kuUy64JJlDi",
+            "name": "乔克叔叔",
+            "album": "魔杰座"
+          },
+          {
+            "id": 1026965,
+            "mid": "0019fxNe1bLVch",
+            "name": "水手怕水",
+            "album": "惊叹号"
+          },
+          {
+            "id": 449197,
+            "mid": "001LNPit4TsTn8",
+            "name": "蛇舞",
+            "album": "魔杰座"
+          },
+          {
+            "id": 101787865,
+            "mid": "003zL01l3vYMKT",
+            "name": "窃爱",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 680280,
+            "mid": "004Kvozl3zYFGx",
+            "name": "免费教学录影带",
+            "album": "跨时代"
+          },
+          {
+            "id": 852567,
+            "mid": "004Q7tlZ04YMAi",
+            "name": "天地一斗",
+            "album": "乐酷‧概念合辑"
+          },
+          {
+            "id": 4962655,
+            "mid": "001SfztX0qCH4e",
+            "name": "天台",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 4826243,
+            "mid": "000bJqZD4Loq2e",
+            "name": "打架舞",
+            "album": "天台 电影原声带"
+          },
+          {
+            "id": 403762,
+            "mid": "003mQTrM2aqiRe",
+            "name": "阿郎与阿宝",
+            "album": "不能说的秘密 电影原声带"
+          },
+          {
+            "id": 361947421,
+            "mid": "003aEU1q1eO6kD",
+            "name": "Mojito",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:谢迪->target:zhoujielun:作词",
+        "source": "artist:name:谢迪",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 361947418,
+            "mid": "003w2xz20QlUZt",
+            "name": "最伟大的作品",
+            "album": "最伟大的作品"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:袁咏琳->target:zhoujielun:作曲",
+        "source": "artist:name:袁咏琳",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 3223506,
+            "mid": "001tCE0T2vR5p5",
+            "name": "画沙",
+            "album": "袁咏琳 Cindy"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:罗宇轩->target:zhoujielun:作词",
+        "source": "artist:name:罗宇轩",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 2,
+        "songs": [
+          {
+            "id": 101787872,
+            "mid": "001XPgTm3faHRb",
+            "name": "美人鱼",
+            "album": "哎呦，不错哦"
+          },
+          {
+            "id": 1023644,
+            "mid": "0040Dgn94YNWxA",
+            "name": "你好吗",
+            "album": "惊叹号"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:黄婕熙->target:zhoujielun:作词",
+        "source": "artist:name:黄婕熙",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 101787872,
+            "mid": "001XPgTm3faHRb",
+            "name": "美人鱼",
+            "album": "哎呦，不错哦"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:李汪哲->target:zhoujielun:作词",
+        "source": "artist:name:李汪哲",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 1023644,
+            "mid": "0040Dgn94YNWxA",
+            "name": "你好吗",
+            "album": "惊叹号"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:派伟俊->target:zhoujielun:作词",
+        "source": "artist:name:派伟俊",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 555154644,
+            "mid": "001FFffS0hAS0A",
+            "name": "Six Degrees",
+            "album": "Six Degrees"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:father orson->target:zhoujielun:作词",
+        "source": "artist:name:father orson",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 555154644,
+            "mid": "001FFffS0hAS0A",
+            "name": "Six Degrees",
+            "album": "Six Degrees"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:派伟俊->target:zhoujielun:作曲",
+        "source": "artist:name:派伟俊",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 2,
+        "songs": [
+          {
+            "id": 555154644,
+            "mid": "001FFffS0hAS0A",
+            "name": "Six Degrees",
+            "album": "Six Degrees"
+          },
+          {
+            "id": 105471061,
+            "mid": "001faq2u0gVP6j",
+            "name": "Try",
+            "album": "Try"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:蔡依林->target:zhoujielun:作词",
+        "source": "artist:name:蔡依林",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 13415,
+            "mid": "003qvgqV4LiXHY",
+            "name": "骑士精神",
+            "album": "看我72变"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:hathaway->target:zhoujielun:作曲",
+        "source": "artist:name:hathaway",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 107192074,
+            "mid": "000cFsFl1o17jp",
+            "name": "前世情人",
+            "album": "周杰伦的床边故事"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:funky monkey babys->target:zhoujielun:作词",
+        "source": "artist:name:funky monkey babys",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:川村結花->target:zhoujielun:作词",
+        "source": "artist:name:川村結花",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:邱凯伟->target:zhoujielun:作词",
+        "source": "artist:name:邱凯伟",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:杨常青->target:zhoujielun:作词",
+        "source": "artist:name:杨常青",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:funky monkey babys->target:zhoujielun:作曲",
+        "source": "artist:name:funky monkey babys",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:川村結花->target:zhoujielun:作曲",
+        "source": "artist:name:川村結花",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 102367248,
+            "mid": "0016xHTc34N1Aw",
+            "name": "你是我的OK绷",
+            "album": "浪花兄弟"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:五月天 阿信->target:zhoujielun:作词",
+        "source": "artist:name:五月天 阿信",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 621944135,
+            "mid": "002yIFEJ0ssJjj",
+            "name": "恒星不忘 Forever Forever",
+            "album": "恒星不忘 Forever Forever"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:黄婷->target:zhoujielun:作词",
+        "source": "artist:name:黄婷",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 621944135,
+            "mid": "002yIFEJ0ssJjj",
+            "name": "恒星不忘 Forever Forever",
+            "album": "恒星不忘 Forever Forever"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:陈镇川->target:zhoujielun:作词",
+        "source": "artist:name:陈镇川",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 13390,
+            "mid": "00070H9Q4ENl2Y",
+            "name": "海盗",
+            "album": "城堡"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:林义杰->target:zhoujielun:作词",
+        "source": "artist:name:林义杰",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 3586264,
+            "mid": "001QnhDT0UJJIT",
+            "name": "梦想启动",
+            "album": "十二新作"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:冼佩瑾->target:zhoujielun:作词",
+        "source": "artist:name:冼佩瑾",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 105471061,
+            "mid": "001faq2u0gVP6j",
+            "name": "Try",
+            "album": "Try"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:唐从圣->target:zhoujielun:作词",
+        "source": "artist:name:唐从圣",
+        "target": "target:zhoujielun",
+        "role": "作词",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 1003266,
+            "mid": "003HuF913gIZQ3",
+            "name": "皮影戏",
+            "album": "惊叹号"
+          }
+        ]
+      },
+      {
+        "id": "artist:name:terdsak janpan->target:zhoujielun:作曲",
+        "source": "artist:name:terdsak janpan",
+        "target": "target:zhoujielun",
+        "role": "作曲",
+        "song_count": 1,
+        "songs": [
+          {
+            "id": 403762,
+            "mid": "003mQTrM2aqiRe",
+            "name": "阿郎与阿宝",
+            "album": "不能说的秘密 电影原声带"
+          }
+        ]
+      }
+    ],
+    "song_nodes": [
+      {
+        "id": "song:0039MnYb0qxYhV",
+        "type": "song",
+        "name": "晴天",
+        "mid": "0039MnYb0qxYhV",
+        "song_id": 97773,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001Bbywq2gicae",
+        "type": "song",
+        "name": "搁浅",
+        "mid": "001Bbywq2gicae",
+        "song_id": 102065750,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0044SaFh0apuR2",
+        "type": "song",
+        "name": "那天下雨了",
+        "mid": "0044SaFh0apuR2",
+        "song_id": 649556362,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004Z8Ihr0JIu5s",
+        "type": "song",
+        "name": "七里香",
+        "mid": "004Z8Ihr0JIu5s",
+        "song_id": 102065756,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001zMQr71F1Qo8",
+        "type": "song",
+        "name": "夜曲",
+        "mid": "001zMQr71F1Qo8",
+        "song_id": 718477,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002qU5aY3Qu24y",
+        "type": "song",
+        "name": "青花瓷",
+        "mid": "002qU5aY3Qu24y",
+        "song_id": 410316,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003cI52o4daJJL",
+        "type": "song",
+        "name": "花海",
+        "mid": "003cI52o4daJJL",
+        "song_id": 449198,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003aAYrm3GE0Ac",
+        "type": "song",
+        "name": "稻香",
+        "mid": "003aAYrm3GE0Ac",
+        "song_id": 449205,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003xv4w313tZHV",
+        "type": "song",
+        "name": "红尘客栈",
+        "mid": "003xv4w313tZHV",
+        "song_id": 5177680,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00128N3r2SYKMF",
+        "type": "song",
+        "name": "兰亭序",
+        "mid": "00128N3r2SYKMF",
+        "song_id": 449201,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001xd0HI0X9GNq",
+        "type": "song",
+        "name": "一路向北",
+        "mid": "001xd0HI0X9GNq",
+        "song_id": 5105986,
+        "album": "J III MP3 Player",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003KtYhg4frNXC",
+        "type": "song",
+        "name": "枫",
+        "mid": "003KtYhg4frNXC",
+        "song_id": 718479,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002u8ZOM4C7QF4",
+        "type": "song",
+        "name": "手写的从前",
+        "mid": "002u8ZOM4C7QF4",
+        "song_id": 101787870,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001L1lqm4UAdyo",
+        "type": "song",
+        "name": "退后",
+        "mid": "001L1lqm4UAdyo",
+        "song_id": 102066449,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0042QMDR1VzSsx",
+        "type": "song",
+        "name": "说好的幸福呢",
+        "mid": "0042QMDR1VzSsx",
+        "song_id": 449200,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004emQMs09Z1lz",
+        "type": "song",
+        "name": "烟花易冷",
+        "mid": "004emQMs09Z1lz",
+        "song_id": 680279,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000oW8J53xPhZA",
+        "type": "song",
+        "name": "明明就",
+        "mid": "000oW8J53xPhZA",
+        "song_id": 3585884,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004Yi5BD3ksoAN",
+        "type": "song",
+        "name": "蒲公英的约定",
+        "mid": "004Yi5BD3ksoAN",
+        "song_id": 102340965,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0017K7gL4WYnw2",
+        "type": "song",
+        "name": "反方向的钟",
+        "mid": "0017K7gL4WYnw2",
+        "song_id": 97759,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00265Jxe3JzXOJ",
+        "type": "song",
+        "name": "说了再见",
+        "mid": "00265Jxe3JzXOJ",
+        "song_id": 680278,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0022b7OX2STU86",
+        "type": "song",
+        "name": "我落泪情绪零碎",
+        "mid": "0022b7OX2STU86",
+        "song_id": 680284,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003OUlho2HcRHC",
+        "type": "song",
+        "name": "告白气球",
+        "mid": "003OUlho2HcRHC",
+        "song_id": 107192078,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001qvvgF38HVc4",
+        "type": "song",
+        "name": "说好不哭 (with 五月天阿信)",
+        "mid": "001qvvgF38HVc4",
+        "song_id": 237773700,
+        "album": "说好不哭（with 五月天阿信）",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002tNzue0g8xQA",
+        "type": "song",
+        "name": "爱你没差",
+        "mid": "002tNzue0g8xQA",
+        "song_id": 3586263,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001K0AjL2huSxx",
+        "type": "song",
+        "name": "珊瑚海",
+        "mid": "001K0AjL2huSxx",
+        "song_id": 718486,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0027oMO61wWi55",
+        "type": "song",
+        "name": "发如雪",
+        "mid": "0027oMO61wWi55",
+        "song_id": 718475,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002usg9o4GTAKf",
+        "type": "song",
+        "name": "爱在西元前",
+        "mid": "002usg9o4GTAKf",
+        "song_id": 97740,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003WPrjL4dimFE",
+        "type": "song",
+        "name": "爱琴海",
+        "mid": "003WPrjL4dimFE",
+        "song_id": 649556366,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001J5QJL1pRQYB",
+        "type": "song",
+        "name": "等你下课 (with 杨瑞代)",
+        "mid": "001J5QJL1pRQYB",
+        "song_id": 212877900,
+        "album": "等你下课",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003ZrdgZ0UnjDl",
+        "type": "song",
+        "name": "最长的电影",
+        "mid": "003ZrdgZ0UnjDl",
+        "song_id": 5177785,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004BhQke4adHcf",
+        "type": "song",
+        "name": "给我一首歌的时间",
+        "mid": "004BhQke4adHcf",
+        "song_id": 101091484,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0009BCJK1nRaad",
+        "type": "song",
+        "name": "简单爱",
+        "mid": "0009BCJK1nRaad",
+        "song_id": 97744,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002OKIox28ad9a",
+        "type": "song",
+        "name": "半岛铁盒",
+        "mid": "002OKIox28ad9a",
+        "song_id": 97761,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002MXZNu1GToOk",
+        "type": "song",
+        "name": "不能说的秘密",
+        "mid": "002MXZNu1GToOk",
+        "song_id": 403778,
+        "album": "不能说的秘密 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000sxzol11raSd",
+        "type": "song",
+        "name": "不该 (with aMEI)",
+        "mid": "000sxzol11raSd",
+        "song_id": 107192076,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000NQDjk4BA0W3",
+        "type": "song",
+        "name": "暗号",
+        "mid": "000NQDjk4BA0W3",
+        "song_id": 97762,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003FdJZH1wljMU",
+        "type": "song",
+        "name": "西西里",
+        "mid": "003FdJZH1wljMU",
+        "song_id": 649556373,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001PLl3C4gPSCI",
+        "type": "song",
+        "name": "我是如此相信",
+        "mid": "001PLl3C4gPSCI",
+        "song_id": 247261229,
+        "album": "我是如此相信",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002zouNc0L8Llg",
+        "type": "song",
+        "name": "雨下一整晚",
+        "mid": "002zouNc0L8Llg",
+        "song_id": 680282,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002XWgfo0IKPOH",
+        "type": "song",
+        "name": "借口",
+        "mid": "002XWgfo0IKPOH",
+        "song_id": 102065757,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002hXDfk0LX9KO",
+        "type": "song",
+        "name": "听妈妈的话",
+        "mid": "002hXDfk0LX9KO",
+        "song_id": 102066257,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002elTc93yuXu2",
+        "type": "song",
+        "name": "你听得到",
+        "mid": "002elTc93yuXu2",
+        "song_id": 5244390,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001T3JAT15palI",
+        "type": "song",
+        "name": "我不配",
+        "mid": "001T3JAT15palI",
+        "song_id": 102700397,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0036g6g628i2gI",
+        "type": "song",
+        "name": "轨迹",
+        "mid": "0036g6g628i2gI",
+        "song_id": 97784,
+        "album": "寻找周杰伦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000fpbFh2Uu80G",
+        "type": "song",
+        "name": "圣诞星 (feat. 杨瑞代)",
+        "mid": "000fpbFh2Uu80G",
+        "song_id": 649556372,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0001bLnu2ULqYf",
+        "type": "song",
+        "name": "太阳之子",
+        "mid": "0001bLnu2ULqYf",
+        "song_id": 649556361,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0007XPND1Mf9dN",
+        "type": "song",
+        "name": "湘女多情",
+        "mid": "0007XPND1Mf9dN",
+        "song_id": 649556363,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000amRvH3wxv56",
+        "type": "song",
+        "name": "安静",
+        "mid": "000amRvH3wxv56",
+        "song_id": 97743,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002l8JN71d2Dxy",
+        "type": "song",
+        "name": "龙卷风",
+        "mid": "002l8JN71d2Dxy",
+        "song_id": 97758,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004fFOIE1n0fhE",
+        "type": "song",
+        "name": "淘金小镇",
+        "mid": "004fFOIE1n0fhE",
+        "song_id": 649556370,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003nEQHr3Ceet5",
+        "type": "song",
+        "name": "园游会",
+        "mid": "003nEQHr3Ceet5",
+        "song_id": 102065753,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000eskGX0ijIFi",
+        "type": "song",
+        "name": "爱情废柴",
+        "mid": "000eskGX0ijIFi",
+        "song_id": 107192080,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000UVWY709sJLh",
+        "type": "song",
+        "name": "I Do",
+        "mid": "000UVWY709sJLh",
+        "song_id": 649556367,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0010ibBn4bYFTk",
+        "type": "song",
+        "name": "夜的第七章",
+        "mid": "0010ibBn4bYFTk",
+        "song_id": 466722,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003wwuRJ3OmrGc",
+        "type": "song",
+        "name": "七月的极光",
+        "mid": "003wwuRJ3OmrGc",
+        "song_id": 649556365,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003rxgIM2eOFSF",
+        "type": "song",
+        "name": "回到过去",
+        "mid": "003rxgIM2eOFSF",
+        "song_id": 97767,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0020qX4u2JJRxK",
+        "type": "song",
+        "name": "开不了口",
+        "mid": "0020qX4u2JJRxK",
+        "song_id": 97745,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004bRWFg3fej9y",
+        "type": "song",
+        "name": "彩虹",
+        "mid": "004bRWFg3fej9y",
+        "song_id": 102340966,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000bcKcM3AaJCU",
+        "type": "song",
+        "name": "谁稀罕",
+        "mid": "000bcKcM3AaJCU",
+        "song_id": 649556364,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001KhHrT4Mv4pd",
+        "type": "song",
+        "name": "红颜如霜",
+        "mid": "001KhHrT4Mv4pd",
+        "song_id": 361947424,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004VR0Hn3bkqqE",
+        "type": "song",
+        "name": "可爱女人",
+        "mid": "004VR0Hn3bkqqE",
+        "song_id": 97750,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001glaI72k8BQX",
+        "type": "song",
+        "name": "Mojito",
+        "mid": "001glaI72k8BQX",
+        "song_id": 268352018,
+        "album": "Mojito",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003kFxD41vOh6l",
+        "type": "song",
+        "name": "女儿殿下",
+        "mid": "003kFxD41vOh6l",
+        "song_id": 649556369,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003ZdxP61ClQZ5",
+        "type": "song",
+        "name": "断了的弦",
+        "mid": "003ZdxP61ClQZ5",
+        "song_id": 97782,
+        "album": "寻找周杰伦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003uEbEr0jcW7c",
+        "type": "song",
+        "name": "东风破",
+        "mid": "003uEbEr0jcW7c",
+        "song_id": 97775,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003iY6cU4YG0xi",
+        "type": "song",
+        "name": "黑色毛衣",
+        "mid": "003iY6cU4YG0xi",
+        "song_id": 718480,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002Rf1gB25DDL4",
+        "type": "song",
+        "name": "乡间的路",
+        "mid": "002Rf1gB25DDL4",
+        "song_id": 649556371,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001n4C3p1yv0FU",
+        "type": "song",
+        "name": "以父之名",
+        "mid": "001n4C3p1yv0FU",
+        "song_id": 97771,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001AuhUk0VdWjC",
+        "type": "song",
+        "name": "圣徒",
+        "mid": "001AuhUk0VdWjC",
+        "song_id": 649556368,
+        "album": "太阳之子",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002jkBM53MLB9Q",
+        "type": "song",
+        "name": "大笨钟",
+        "mid": "002jkBM53MLB9Q",
+        "song_id": 3585890,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003QrnHn2kR4FD",
+        "type": "song",
+        "name": "倒影",
+        "mid": "003QrnHn2kR4FD",
+        "song_id": 361947427,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000DdOAF0ED7i4",
+        "type": "song",
+        "name": "白色风车",
+        "mid": "000DdOAF0ED7i4",
+        "song_id": 102320103,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001Js78a40BZU6",
+        "type": "song",
+        "name": "算什么男人",
+        "mid": "001Js78a40BZU6",
+        "song_id": 101369814,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001Zi7Ly4ZtVQk",
+        "type": "song",
+        "name": "星晴",
+        "mid": "001Zi7Ly4ZtVQk",
+        "song_id": 97752,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002fi7iG0VvUj2",
+        "type": "song",
+        "name": "浪漫手机",
+        "mid": "002fi7iG0VvUj2",
+        "song_id": 718482,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002IyJxz0FBFEJ",
+        "type": "song",
+        "name": "爷爷泡的茶",
+        "mid": "002IyJxz0FBFEJ",
+        "song_id": 97766,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000xdZuV2LcQ19",
+        "type": "song",
+        "name": "甜甜的",
+        "mid": "000xdZuV2LcQ19",
+        "song_id": 102340969,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003CxS6w14OQyM",
+        "type": "song",
+        "name": "爱的飞行日记",
+        "mid": "003CxS6w14OQyM",
+        "song_id": 680285,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001bo9Wy1NfHpb",
+        "type": "song",
+        "name": "本草纲目",
+        "mid": "001bo9Wy1NfHpb",
+        "song_id": 102066448,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002HeqcH2GMiOL",
+        "type": "song",
+        "name": "霍元甲",
+        "mid": "002HeqcH2GMiOL",
+        "song_id": 165121,
+        "album": "霍元甲",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001FSVRg08JLpi",
+        "type": "song",
+        "name": "她的睫毛",
+        "mid": "001FSVRg08JLpi",
+        "song_id": 97778,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003FRy0r0wyGHl",
+        "type": "song",
+        "name": "千里之外",
+        "mid": "003FRy0r0wyGHl",
+        "song_id": 102698215,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003w2xz20QlUZt",
+        "type": "song",
+        "name": "最伟大的作品",
+        "mid": "003w2xz20QlUZt",
+        "song_id": 361947418,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002QoT9n3hcEIr",
+        "type": "song",
+        "name": "布拉格广场",
+        "mid": "002QoT9n3hcEIr",
+        "song_id": 13410,
+        "album": "看我72变",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0006rBfE3htPqG",
+        "type": "song",
+        "name": "黑色幽默",
+        "mid": "0006rBfE3htPqG",
+        "song_id": 97755,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000Fylg7450RG2",
+        "type": "song",
+        "name": "心雨",
+        "mid": "000Fylg7450RG2",
+        "song_id": 7179645,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0042fRqf4fC8ZB",
+        "type": "song",
+        "name": "止战之殇",
+        "mid": "0042fRqf4fC8ZB",
+        "song_id": 102065754,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002lW4Yl3ylM02",
+        "type": "song",
+        "name": "一点点",
+        "mid": "002lW4Yl3ylM02",
+        "song_id": 107192073,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004RUiXu49ufy1",
+        "type": "song",
+        "name": "菊花台",
+        "mid": "004RUiXu49ufy1",
+        "song_id": 102066450,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002U3qIp3n7yke",
+        "type": "song",
+        "name": "分裂",
+        "mid": "002U3qIp3n7yke",
+        "song_id": 97765,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001bnNGN127Kbq",
+        "type": "song",
+        "name": "阳光宅男",
+        "mid": "001bnNGN127Kbq",
+        "song_id": 102204538,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002RqWle4FvqRy",
+        "type": "song",
+        "name": "好久不见",
+        "mid": "002RqWle4FvqRy",
+        "song_id": 680281,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0026N9sT4aBGcV",
+        "type": "song",
+        "name": "听见下雨的声音",
+        "mid": "0026N9sT4aBGcV",
+        "song_id": 101787873,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001tCE0T2vR5p5",
+        "type": "song",
+        "name": "画沙",
+        "mid": "001tCE0T2vR5p5",
+        "song_id": 3223506,
+        "album": "袁咏琳 Cindy",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003oF0Pc0ahSx4",
+        "type": "song",
+        "name": "屋顶",
+        "mid": "003oF0Pc0ahSx4",
+        "song_id": 95742,
+        "album": "爱回温",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004JQ70v4Fddyj",
+        "type": "song",
+        "name": "超人不会飞",
+        "mid": "004JQ70v4Fddyj",
+        "song_id": 680287,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0027gHes1HjRNe",
+        "type": "song",
+        "name": "外婆",
+        "mid": "0027gHes1HjRNe",
+        "song_id": 102065748,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002CUU2B3WuGLc",
+        "type": "song",
+        "name": "Mine Mine",
+        "mid": "002CUU2B3WuGLc",
+        "song_id": 1018543,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000Zu3Ah1jb4gl",
+        "type": "song",
+        "name": "还在流浪",
+        "mid": "000Zu3Ah1jb4gl",
+        "song_id": 361947419,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002sfzQB12abuc",
+        "type": "song",
+        "name": "哪里都是你",
+        "mid": "002sfzQB12abuc",
+        "song_id": 3586266,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003O5GaP1SYe94",
+        "type": "song",
+        "name": "牛仔很忙",
+        "mid": "003O5GaP1SYe94",
+        "song_id": 410314,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001FUQiy2ZCiVt",
+        "type": "song",
+        "name": "半兽人",
+        "mid": "001FUQiy2ZCiVt",
+        "song_id": 97760,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001HdNmX0urp4Q",
+        "type": "song",
+        "name": "米兰的小铁匠",
+        "mid": "001HdNmX0urp4Q",
+        "song_id": 97768,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000F0lmz1cBq4c",
+        "type": "song",
+        "name": "对不起",
+        "mid": "000F0lmz1cBq4c",
+        "song_id": 97749,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001XPgTm3faHRb",
+        "type": "song",
+        "name": "美人鱼",
+        "mid": "001XPgTm3faHRb",
+        "song_id": 101787872,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000EqWxe275Yd2",
+        "type": "song",
+        "name": "粉色海洋",
+        "mid": "000EqWxe275Yd2",
+        "song_id": 361947426,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002AFY9402ZoW4",
+        "type": "song",
+        "name": "不该 (with aMEI)",
+        "mid": "002AFY9402ZoW4",
+        "song_id": 108174049,
+        "album": "幻城 电视剧原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003t0fFq4JbjaR",
+        "type": "song",
+        "name": "傻笑",
+        "mid": "003t0fFq4JbjaR",
+        "song_id": 3586269,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000HafPI0dzzwp",
+        "type": "song",
+        "name": "最后的战役",
+        "mid": "000HafPI0dzzwp",
+        "song_id": 97769,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001MNqZU3YDLrE",
+        "type": "song",
+        "name": "忍者",
+        "mid": "001MNqZU3YDLrE",
+        "song_id": 97746,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00218ObD0yrANX",
+        "type": "song",
+        "name": "双截棍",
+        "mid": "00218ObD0yrANX",
+        "song_id": 97747,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002YzCdA2Hybr0",
+        "type": "song",
+        "name": "上海一九四三",
+        "mid": "002YzCdA2Hybr0",
+        "song_id": 97742,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0031TAKo0095np",
+        "type": "song",
+        "name": "不爱我就拉倒",
+        "mid": "0031TAKo0095np",
+        "song_id": 213922043,
+        "album": "不爱我就拉倒",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004R20x748kyO1",
+        "type": "song",
+        "name": "龙拳",
+        "mid": "004R20x748kyO1",
+        "song_id": 97763,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004DI5Vw0DnEOW",
+        "type": "song",
+        "name": "飘移",
+        "mid": "004DI5Vw0DnEOW",
+        "song_id": 718485,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001RtHic1PivYc",
+        "type": "song",
+        "name": "错过的烟火",
+        "mid": "001RtHic1PivYc",
+        "song_id": 361947422,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003nLOYI4gJ6U0",
+        "type": "song",
+        "name": "周大侠",
+        "mid": "003nLOYI4gJ6U0",
+        "song_id": 4963132,
+        "album": "2007世界巡回演唱会",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0037FWzg2csDmh",
+        "type": "song",
+        "name": "爱情悬崖",
+        "mid": "0037FWzg2csDmh",
+        "song_id": 97779,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0046grpK0A1l9G",
+        "type": "song",
+        "name": "威廉古堡",
+        "mid": "0046grpK0A1l9G",
+        "song_id": 97748,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004ZH3Qv2qjMhT",
+        "type": "song",
+        "name": "刀马旦",
+        "mid": "004ZH3Qv2qjMhT",
+        "song_id": 13802,
+        "album": "Promise",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0016oRIN0hu5zE",
+        "type": "song",
+        "name": "迷迭香",
+        "mid": "0016oRIN0hu5zE",
+        "song_id": 102320104,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001zqHER0WFQvO",
+        "type": "song",
+        "name": "怎么了",
+        "mid": "001zqHER0WFQvO",
+        "song_id": 101787867,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00162TQ12285h4",
+        "type": "song",
+        "name": "天涯过客",
+        "mid": "00162TQ12285h4",
+        "song_id": 101787866,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000yJtoB39k2NF",
+        "type": "song",
+        "name": "将军",
+        "mid": "000yJtoB39k2NF",
+        "song_id": 102065749,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0043qT5x2DnxaL",
+        "type": "song",
+        "name": "四面楚歌",
+        "mid": "0043qT5x2DnxaL",
+        "song_id": 718476,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003BiKB44LknC0",
+        "type": "song",
+        "name": "听爸爸的话",
+        "mid": "003BiKB44LknC0",
+        "song_id": 101787871,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004csbVP1E2dv1",
+        "type": "song",
+        "name": "三年二班",
+        "mid": "004csbVP1E2dv1",
+        "song_id": 97774,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0040Dgn94YNWxA",
+        "type": "song",
+        "name": "你好吗",
+        "mid": "0040Dgn94YNWxA",
+        "song_id": 1023644,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003APYKg4GrqPB",
+        "type": "song",
+        "name": "手语",
+        "mid": "003APYKg4GrqPB",
+        "song_id": 3585882,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000sRQrz0aEDFp",
+        "type": "song",
+        "name": "时光机",
+        "mid": "000sRQrz0aEDFp",
+        "song_id": 449203,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003WtI8C0FMf3r",
+        "type": "song",
+        "name": "麦芽糖",
+        "mid": "003WtI8C0FMf3r",
+        "song_id": 718483,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002pImGM1R2Afa",
+        "type": "song",
+        "name": "娘子",
+        "mid": "002pImGM1R2Afa",
+        "song_id": 97753,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000rVzOf3JnUQg",
+        "type": "song",
+        "name": "超跑女神",
+        "mid": "000rVzOf3JnUQg",
+        "song_id": 1026963,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0033ZO6x09eHB0",
+        "type": "song",
+        "name": "伊斯坦堡",
+        "mid": "0033ZO6x09eHB0",
+        "song_id": 97756,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0031tzbX3Lps0M",
+        "type": "song",
+        "name": "乱舞春秋",
+        "mid": "0031tzbX3Lps0M",
+        "song_id": 102065751,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000Ookkj0sEkfD",
+        "type": "song",
+        "name": "红模仿",
+        "mid": "000Ookkj0sEkfD",
+        "song_id": 101101739,
+        "album": "依然范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001FFffS0hAS0A",
+        "type": "song",
+        "name": "Six Degrees",
+        "mid": "001FFffS0hAS0A",
+        "song_id": 555154644,
+        "album": "Six Degrees",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002GQJAQ3w9yuh",
+        "type": "song",
+        "name": "印第安老斑鸠",
+        "mid": "002GQJAQ3w9yuh",
+        "song_id": 97757,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003qvgqV4LiXHY",
+        "type": "song",
+        "name": "骑士精神",
+        "mid": "003qvgqV4LiXHY",
+        "song_id": 13415,
+        "album": "看我72变",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001beoYX0K09xu",
+        "type": "song",
+        "name": "乌克丽丽",
+        "mid": "001beoYX0K09xu",
+        "song_id": 3586265,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001NQNgU2HfxJg",
+        "type": "song",
+        "name": "完美主义",
+        "mid": "001NQNgU2HfxJg",
+        "song_id": 97751,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004KpNVr0EdY0v",
+        "type": "song",
+        "name": "鞋子特大号",
+        "mid": "004KpNVr0EdY0v",
+        "song_id": 101133228,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002h3LO64ElQP2",
+        "type": "song",
+        "name": "火车叨位去",
+        "mid": "002h3LO64ElQP2",
+        "song_id": 97764,
+        "album": "八度空间",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000P0AxP15jei5",
+        "type": "song",
+        "name": "梯田",
+        "mid": "000P0AxP15jei5",
+        "song_id": 97780,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002MVjb31ZNK5m",
+        "type": "song",
+        "name": "床边故事",
+        "mid": "002MVjb31ZNK5m",
+        "song_id": 107192071,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003KrQ401gzm8x",
+        "type": "song",
+        "name": "自导自演",
+        "mid": "003KrQ401gzm8x",
+        "song_id": 680286,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004WrpV81DMGHv",
+        "type": "song",
+        "name": "我的地盘",
+        "mid": "004WrpV81DMGHv",
+        "song_id": 102065755,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000B3Ekk1I79hc",
+        "type": "song",
+        "name": "龙战骑士",
+        "mid": "000B3Ekk1I79hc",
+        "song_id": 449195,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003J6p942xp6ho",
+        "type": "song",
+        "name": "说走就走",
+        "mid": "003J6p942xp6ho",
+        "song_id": 107192072,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000N1SIT2I0uPN",
+        "type": "song",
+        "name": "黄金甲",
+        "mid": "000N1SIT2I0uPN",
+        "song_id": 718274,
+        "album": "黄金甲",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003Q71hB2wOpFU",
+        "type": "song",
+        "name": "逆鳞",
+        "mid": "003Q71hB2wOpFU",
+        "song_id": 718484,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003BkwkH0iS8Ko",
+        "type": "song",
+        "name": "双刀",
+        "mid": "003BkwkH0iS8Ko",
+        "song_id": 97781,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000cFsFl1o17jp",
+        "type": "song",
+        "name": "前世情人",
+        "mid": "000cFsFl1o17jp",
+        "song_id": 107192074,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003To9qp0jQdhW",
+        "type": "song",
+        "name": "千山万水",
+        "mid": "003To9qp0jQdhW",
+        "song_id": 876439,
+        "album": "北京2008年奥运会歌曲专辑",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003hWWWP4Rdj4A",
+        "type": "song",
+        "name": "公主病",
+        "mid": "003hWWWP4Rdj4A",
+        "song_id": 1026967,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001mhQbn2eKHiR",
+        "type": "song",
+        "name": "爸，我回来了",
+        "mid": "001mhQbn2eKHiR",
+        "song_id": 97741,
+        "album": "范特西",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0016xHTc34N1Aw",
+        "type": "song",
+        "name": "你是我的OK绷",
+        "mid": "0016xHTc34N1Aw",
+        "song_id": 102367248,
+        "album": "浪花兄弟",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0007w9Eb0lilhZ",
+        "type": "song",
+        "name": "我要夏天",
+        "mid": "0007w9Eb0lilhZ",
+        "song_id": 101787869,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000U62Ay0ndxCh",
+        "type": "song",
+        "name": "同一种调调",
+        "mid": "000U62Ay0ndxCh",
+        "song_id": 97777,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004gKsOK06opcc",
+        "type": "song",
+        "name": "跨时代",
+        "mid": "004gKsOK06opcc",
+        "song_id": 680277,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002I7ms805kX4p",
+        "type": "song",
+        "name": "世界未末日",
+        "mid": "002I7ms805kX4p",
+        "song_id": 1026964,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002kuUy64JJlDi",
+        "type": "song",
+        "name": "乔克叔叔",
+        "mid": "002kuUy64JJlDi",
+        "song_id": 449204,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001CiqFG20FOXg",
+        "type": "song",
+        "name": "疗伤烧肉粽",
+        "mid": "001CiqFG20FOXg",
+        "song_id": 1026968,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004MQUa83RyfVJ",
+        "type": "song",
+        "name": "蓝色风暴",
+        "mid": "004MQUa83RyfVJ",
+        "song_id": 718481,
+        "album": "十一月的萧邦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000BZGDQ24uwTT",
+        "type": "song",
+        "name": "琴伤",
+        "mid": "000BZGDQ24uwTT",
+        "song_id": 1026966,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003J20t02i1vV5",
+        "type": "song",
+        "name": "斗牛",
+        "mid": "003J20t02i1vV5",
+        "song_id": 97754,
+        "album": "Jay",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0048Gwq23HPs1o",
+        "type": "song",
+        "name": "困兽之斗",
+        "mid": "0048Gwq23HPs1o",
+        "song_id": 102065752,
+        "album": "七里香",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002yIFEJ0ssJjj",
+        "type": "song",
+        "name": "恒星不忘 Forever Forever",
+        "mid": "002yIFEJ0ssJjj",
+        "song_id": 621944135,
+        "album": "恒星不忘 Forever Forever",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002Jp6If3ltWv9",
+        "type": "song",
+        "name": "无双",
+        "mid": "002Jp6If3ltWv9",
+        "song_id": 102340967,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0019fxNe1bLVch",
+        "type": "song",
+        "name": "水手怕水",
+        "mid": "0019fxNe1bLVch",
+        "song_id": 1026965,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001KTt4d1BTJOz",
+        "type": "song",
+        "name": "公公偏头痛",
+        "mid": "001KTt4d1BTJOz",
+        "song_id": 3586268,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00070H9Q4ENl2Y",
+        "type": "song",
+        "name": "海盗",
+        "mid": "00070H9Q4ENl2Y",
+        "song_id": 13390,
+        "album": "城堡",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0008S2Z53H5C07",
+        "type": "song",
+        "name": "扯",
+        "mid": "0008S2Z53H5C07",
+        "song_id": 102340968,
+        "album": "我很忙",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001LNPit4TsTn8",
+        "type": "song",
+        "name": "蛇舞",
+        "mid": "001LNPit4TsTn8",
+        "song_id": 449197,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000ZauFj0E8qi0",
+        "type": "song",
+        "name": "懦夫",
+        "mid": "000ZauFj0E8qi0",
+        "song_id": 97772,
+        "album": "叶惠美",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000HcRmh2IYxm8",
+        "type": "song",
+        "name": "魔术先生",
+        "mid": "000HcRmh2IYxm8",
+        "song_id": 449199,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0040jaL23QceqJ",
+        "type": "song",
+        "name": "英雄",
+        "mid": "0040jaL23QceqJ",
+        "song_id": 107192075,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001TtMaW2j3k2h",
+        "type": "song",
+        "name": "惊叹号",
+        "mid": "001TtMaW2j3k2h",
+        "song_id": 104792513,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00376COL0nP51S",
+        "type": "song",
+        "name": "Now You See Me",
+        "mid": "00376COL0nP51S",
+        "song_id": 107192079,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001QnhDT0UJJIT",
+        "type": "song",
+        "name": "梦想启动",
+        "mid": "001QnhDT0UJJIT",
+        "song_id": 3586264,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003zL01l3vYMKT",
+        "type": "song",
+        "name": "窃爱",
+        "mid": "003zL01l3vYMKT",
+        "song_id": 101787865,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003md41m1MBhMc",
+        "type": "song",
+        "name": "一口气全念对",
+        "mid": "003md41m1MBhMc",
+        "song_id": 101787868,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004Kvozl3zYFGx",
+        "type": "song",
+        "name": "免费教学录影带",
+        "mid": "004Kvozl3zYFGx",
+        "song_id": 680280,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001faq2u0gVP6j",
+        "type": "song",
+        "name": "Try",
+        "mid": "001faq2u0gVP6j",
+        "song_id": 105471061,
+        "album": "Try",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004MdCMq2pU6lx",
+        "type": "song",
+        "name": "天台的月光",
+        "mid": "004MdCMq2pU6lx",
+        "song_id": 4962640,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003HuF913gIZQ3",
+        "type": "song",
+        "name": "皮影戏",
+        "mid": "003HuF913gIZQ3",
+        "song_id": 1003266,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0016Wf0A0FhLBt",
+        "type": "song",
+        "name": "迷魂曲",
+        "mid": "0016Wf0A0FhLBt",
+        "song_id": 1023645,
+        "album": "惊叹号",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003suDvd4KLUmF",
+        "type": "song",
+        "name": "流浪诗人",
+        "mid": "003suDvd4KLUmF",
+        "song_id": 449202,
+        "album": "魔杰座",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003b6hhl3jOPyV",
+        "type": "song",
+        "name": "阳明山",
+        "mid": "003b6hhl3jOPyV",
+        "song_id": 101787864,
+        "album": "哎呦，不错哦",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003uYI3j4EDf5q",
+        "type": "song",
+        "name": "土耳其冰淇淋",
+        "mid": "003uYI3j4EDf5q",
+        "song_id": 107192077,
+        "album": "周杰伦的床边故事",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0010jyte3izshw",
+        "type": "song",
+        "name": "四季列车",
+        "mid": "0010jyte3izshw",
+        "song_id": 3586267,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004O4Kun0wasxn",
+        "type": "song",
+        "name": "比较大的大提琴",
+        "mid": "004O4Kun0wasxn",
+        "song_id": 3585886,
+        "album": "十二新作",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000ES19W2iTudx",
+        "type": "song",
+        "name": "嘻哈空姐",
+        "mid": "000ES19W2iTudx",
+        "song_id": 680283,
+        "album": "跨时代",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000C7mLv3209PA",
+        "type": "song",
+        "name": "秘密花园",
+        "mid": "000C7mLv3209PA",
+        "song_id": 418617,
+        "album": "大灌篮 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:0046cKwK2Rhmtw",
+        "type": "song",
+        "name": "麦烝玮",
+        "mid": "0046cKwK2Rhmtw",
+        "song_id": 852572,
+        "album": "乐酷‧概念合辑",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004Q7tlZ04YMAi",
+        "type": "song",
+        "name": "天地一斗",
+        "mid": "004Q7tlZ04YMAi",
+        "song_id": 852567,
+        "album": "乐酷‧概念合辑",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002ejPGF43AvcY",
+        "type": "song",
+        "name": "夜店咖",
+        "mid": "002ejPGF43AvcY",
+        "song_id": 101812768,
+        "album": "嘻游记 首张同名EP",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000MqFFW4UlzTr",
+        "type": "song",
+        "name": "波爷",
+        "mid": "000MqFFW4UlzTr",
+        "song_id": 4826244,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001gbqL91krccm",
+        "type": "song",
+        "name": "大明星",
+        "mid": "001gbqL91krccm",
+        "song_id": 4962637,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003n9ZUX0WjtUj",
+        "type": "song",
+        "name": "狗仔舞",
+        "mid": "003n9ZUX0WjtUj",
+        "song_id": 4962642,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001SfztX0qCH4e",
+        "type": "song",
+        "name": "天台",
+        "mid": "001SfztX0qCH4e",
+        "song_id": 4962655,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003ynQ462ua9bV",
+        "type": "song",
+        "name": "阿爸",
+        "mid": "003ynQ462ua9bV",
+        "song_id": 732012,
+        "album": "恋花",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:000bJqZD4Loq2e",
+        "type": "song",
+        "name": "打架舞",
+        "mid": "000bJqZD4Loq2e",
+        "song_id": 4826243,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003mQTrM2aqiRe",
+        "type": "song",
+        "name": "阿郎与阿宝",
+        "mid": "003mQTrM2aqiRe",
+        "song_id": 403762,
+        "album": "不能说的秘密 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:004Y37UI2gxazu",
+        "type": "song",
+        "name": "竹竿舞",
+        "mid": "004Y37UI2gxazu",
+        "song_id": 4962641,
+        "album": "天台 电影原声带",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:002PmJmr3qy031",
+        "type": "song",
+        "name": "我是如此相信",
+        "mid": "002PmJmr3qy031",
+        "song_id": 362435564,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:00176bPZ2wu39R",
+        "type": "song",
+        "name": "等你下课 (with 杨瑞代)",
+        "mid": "00176bPZ2wu39R",
+        "song_id": 361947425,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001QIYQm4BPlCe",
+        "type": "song",
+        "name": "说好不哭 (with 五月天阿信)",
+        "mid": "001QIYQm4BPlCe",
+        "song_id": 361947423,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:003aEU1q1eO6kD",
+        "type": "song",
+        "name": "Mojito",
+        "mid": "003aEU1q1eO6kD",
+        "song_id": 361947421,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      },
+      {
+        "id": "song:001QeDJq1n9cCk",
+        "type": "song",
+        "name": "不爱我就拉倒",
+        "mid": "001QeDJq1n9cCk",
+        "song_id": 361947420,
+        "album": "最伟大的作品",
+        "target_slug": "zhoujielun"
+      }
+    ]
+  },
+  "songs": [
+    {
+      "id": 97773,
+      "mid": "0039MnYb0qxYhV",
+      "name": "晴天",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065750,
+      "mid": "001Bbywq2gicae",
+      "name": "搁浅",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "宋健彰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556362,
+      "mid": "0044SaFh0apuR2",
+      "name": "那天下雨了",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065756,
+      "mid": "004Z8Ihr0JIu5s",
+      "name": "七里香",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718477,
+      "mid": "001zMQr71F1Qo8",
+      "name": "夜曲",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 410316,
+      "mid": "002qU5aY3Qu24y",
+      "name": "青花瓷",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449198,
+      "mid": "003cI52o4daJJL",
+      "name": "花海",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "古小力",
+        "黄淩嘉"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449205,
+      "mid": "003aAYrm3GE0Ac",
+      "name": "稻香",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 5177680,
+      "mid": "003xv4w313tZHV",
+      "name": "红尘客栈",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449201,
+      "mid": "00128N3r2SYKMF",
+      "name": "兰亭序",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 5105986,
+      "mid": "001xd0HI0X9GNq",
+      "name": "一路向北",
+      "album": "J III MP3 Player",
+      "time_public": "2005-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718479,
+      "mid": "003KtYhg4frNXC",
+      "name": "枫",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "宋健彰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787870,
+      "mid": "002u8ZOM4C7QF4",
+      "name": "手写的从前",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102066449,
+      "mid": "001L1lqm4UAdyo",
+      "name": "退后",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "宋健彰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449200,
+      "mid": "0042QMDR1VzSsx",
+      "name": "说好的幸福呢",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680279,
+      "mid": "004emQMs09Z1lz",
+      "name": "烟花易冷",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3585884,
+      "mid": "000oW8J53xPhZA",
+      "name": "明明就",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102340965,
+      "mid": "004Yi5BD3ksoAN",
+      "name": "蒲公英的约定",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97759,
+      "mid": "0017K7gL4WYnw2",
+      "name": "反方向的钟",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680278,
+      "mid": "00265Jxe3JzXOJ",
+      "name": "说了再见",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "古小力",
+        "黄淩嘉"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680284,
+      "mid": "0022b7OX2STU86",
+      "name": "我落泪情绪零碎",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192078,
+      "mid": "003OUlho2HcRHC",
+      "name": "告白气球",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 237773700,
+      "mid": "001qvvgF38HVc4",
+      "name": "说好不哭 (with 五月天阿信)",
+      "album": "说好不哭（with 五月天阿信）",
+      "time_public": "2019-09-16",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586263,
+      "mid": "002tNzue0g8xQA",
+      "name": "爱你没差",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "黄淩嘉"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718486,
+      "mid": "001K0AjL2huSxx",
+      "name": "珊瑚海",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718475,
+      "mid": "0027oMO61wWi55",
+      "name": "发如雪",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97740,
+      "mid": "002usg9o4GTAKf",
+      "name": "爱在西元前",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556366,
+      "mid": "003WPrjL4dimFE",
+      "name": "爱琴海",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "刘畊宏"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 212877900,
+      "mid": "001J5QJL1pRQYB",
+      "name": "等你下课 (with 杨瑞代)",
+      "album": "等你下课",
+      "time_public": "2018-01-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 5177785,
+      "mid": "003ZrdgZ0UnjDl",
+      "name": "最长的电影",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101091484,
+      "mid": "004BhQke4adHcf",
+      "name": "给我一首歌的时间",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97744,
+      "mid": "0009BCJK1nRaad",
+      "name": "简单爱",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97761,
+      "mid": "002OKIox28ad9a",
+      "name": "半岛铁盒",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 403778,
+      "mid": "002MXZNu1GToOk",
+      "name": "不能说的秘密",
+      "album": "不能说的秘密 电影原声带",
+      "time_public": "2007-08-13",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192076,
+      "mid": "000sxzol11raSd",
+      "name": "不该 (with aMEI)",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97762,
+      "mid": "000NQDjk4BA0W3",
+      "name": "暗号",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "许世昌"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556373,
+      "mid": "003FdJZH1wljMU",
+      "name": "西西里",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 247261229,
+      "mid": "001PLl3C4gPSCI",
+      "name": "我是如此相信",
+      "album": "我是如此相信",
+      "time_public": "2019-12-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680282,
+      "mid": "002zouNc0L8Llg",
+      "name": "雨下一整晚",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065757,
+      "mid": "002XWgfo0IKPOH",
+      "name": "借口",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102066257,
+      "mid": "002hXDfk0LX9KO",
+      "name": "听妈妈的话",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 5244390,
+      "mid": "002elTc93yuXu2",
+      "name": "你听得到",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "曾郁婷"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102700397,
+      "mid": "001T3JAT15palI",
+      "name": "我不配",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97784,
+      "mid": "0036g6g628i2gI",
+      "name": "轨迹",
+      "album": "寻找周杰伦",
+      "time_public": "2003-11-13",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556372,
+      "mid": "000fpbFh2Uu80G",
+      "name": "圣诞星 (feat. 杨瑞代)",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556361,
+      "mid": "0001bLnu2ULqYf",
+      "name": "太阳之子",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556363,
+      "mid": "0007XPND1Mf9dN",
+      "name": "湘女多情",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97743,
+      "mid": "000amRvH3wxv56",
+      "name": "安静",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97758,
+      "mid": "002l8JN71d2Dxy",
+      "name": "龙卷风",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556370,
+      "mid": "004fFOIE1n0fhE",
+      "name": "淘金小镇",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065753,
+      "mid": "003nEQHr3Ceet5",
+      "name": "园游会",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192080,
+      "mid": "000eskGX0ijIFi",
+      "name": "爱情废柴",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556367,
+      "mid": "000UVWY709sJLh",
+      "name": "I Do",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 466722,
+      "mid": "0010ibBn4bYFTk",
+      "name": "夜的第七章",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556365,
+      "mid": "003wwuRJ3OmrGc",
+      "name": "七月的极光",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97767,
+      "mid": "003rxgIM2eOFSF",
+      "name": "回到过去",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "刘畊宏"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97745,
+      "mid": "0020qX4u2JJRxK",
+      "name": "开不了口",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102340966,
+      "mid": "004bRWFg3fej9y",
+      "name": "彩虹",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556364,
+      "mid": "000bcKcM3AaJCU",
+      "name": "谁稀罕",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947424,
+      "mid": "001KhHrT4Mv4pd",
+      "name": "红颜如霜",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97750,
+      "mid": "004VR0Hn3bkqqE",
+      "name": "可爱女人",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 268352018,
+      "mid": "001glaI72k8BQX",
+      "name": "Mojito",
+      "album": "Mojito",
+      "time_public": "2020-06-12",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556369,
+      "mid": "003kFxD41vOh6l",
+      "name": "女儿殿下",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97782,
+      "mid": "003ZdxP61ClQZ5",
+      "name": "断了的弦",
+      "album": "寻找周杰伦",
+      "time_public": "2003-11-13",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97775,
+      "mid": "003uEbEr0jcW7c",
+      "name": "东风破",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718480,
+      "mid": "003iY6cU4YG0xi",
+      "name": "黑色毛衣",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556371,
+      "mid": "002Rf1gB25DDL4",
+      "name": "乡间的路",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97771,
+      "mid": "001n4C3p1yv0FU",
+      "name": "以父之名",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 649556368,
+      "mid": "001AuhUk0VdWjC",
+      "name": "圣徒",
+      "album": "太阳之子",
+      "time_public": "2026-03-25",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3585890,
+      "mid": "002jkBM53MLB9Q",
+      "name": "大笨钟",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947427,
+      "mid": "003QrnHn2kR4FD",
+      "name": "倒影",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102320103,
+      "mid": "000DdOAF0ED7i4",
+      "name": "白色风车",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101369814,
+      "mid": "001Js78a40BZU6",
+      "name": "算什么男人",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97752,
+      "mid": "001Zi7Ly4ZtVQk",
+      "name": "星晴",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718482,
+      "mid": "002fi7iG0VvUj2",
+      "name": "浪漫手机",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97766,
+      "mid": "002IyJxz0FBFEJ",
+      "name": "爷爷泡的茶",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102340969,
+      "mid": "000xdZuV2LcQ19",
+      "name": "甜甜的",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680285,
+      "mid": "003CxS6w14OQyM",
+      "name": "爱的飞行日记",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102066448,
+      "mid": "001bo9Wy1NfHpb",
+      "name": "本草纲目",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 165121,
+      "mid": "002HeqcH2GMiOL",
+      "name": "霍元甲",
+      "album": "霍元甲",
+      "time_public": "2006-01-20",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97778,
+      "mid": "001FSVRg08JLpi",
+      "name": "她的睫毛",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102698215,
+      "mid": "003FRy0r0wyGHl",
+      "name": "千里之外",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947418,
+      "mid": "003w2xz20QlUZt",
+      "name": "最伟大的作品",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "黄俊郎",
+        "谢迪"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 13410,
+      "mid": "002QoT9n3hcEIr",
+      "name": "布拉格广场",
+      "album": "看我72变",
+      "time_public": "2003-03-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97755,
+      "mid": "0006rBfE3htPqG",
+      "name": "黑色幽默",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 7179645,
+      "mid": "000Fylg7450RG2",
+      "name": "心雨",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065754,
+      "mid": "0042fRqf4fC8ZB",
+      "name": "止战之殇",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192073,
+      "mid": "002lW4Yl3ylM02",
+      "name": "一点点",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102066450,
+      "mid": "004RUiXu49ufy1",
+      "name": "菊花台",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97765,
+      "mid": "002U3qIp3n7yke",
+      "name": "分裂",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102204538,
+      "mid": "001bnNGN127Kbq",
+      "name": "阳光宅男",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680281,
+      "mid": "002RqWle4FvqRy",
+      "name": "好久不见",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787873,
+      "mid": "0026N9sT4aBGcV",
+      "name": "听见下雨的声音",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3223506,
+      "mid": "001tCE0T2vR5p5",
+      "name": "画沙",
+      "album": "袁咏琳 Cindy",
+      "time_public": "2009-10-30",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "袁咏琳"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 95742,
+      "mid": "003oF0Pc0ahSx4",
+      "name": "屋顶",
+      "album": "爱回温",
+      "time_public": "2005-06-01",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680287,
+      "mid": "004JQ70v4Fddyj",
+      "name": "超人不会飞",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065748,
+      "mid": "0027gHes1HjRNe",
+      "name": "外婆",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1018543,
+      "mid": "002CUU2B3WuGLc",
+      "name": "Mine Mine",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947419,
+      "mid": "000Zu3Ah1jb4gl",
+      "name": "还在流浪",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586266,
+      "mid": "002sfzQB12abuc",
+      "name": "哪里都是你",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 410314,
+      "mid": "003O5GaP1SYe94",
+      "name": "牛仔很忙",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97760,
+      "mid": "001FUQiy2ZCiVt",
+      "name": "半兽人",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97768,
+      "mid": "001HdNmX0urp4Q",
+      "name": "米兰的小铁匠",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97749,
+      "mid": "000F0lmz1cBq4c",
+      "name": "对不起",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787872,
+      "mid": "001XPgTm3faHRb",
+      "name": "美人鱼",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "罗宇轩",
+        "黄婕熙"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947426,
+      "mid": "000EqWxe275Yd2",
+      "name": "粉色海洋",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 108174049,
+      "mid": "002AFY9402ZoW4",
+      "name": "不该 (with aMEI)",
+      "album": "幻城 电视剧原声带",
+      "time_public": "2016-08-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586269,
+      "mid": "003t0fFq4JbjaR",
+      "name": "傻笑",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97769,
+      "mid": "000HafPI0dzzwp",
+      "name": "最后的战役",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97746,
+      "mid": "001MNqZU3YDLrE",
+      "name": "忍者",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97747,
+      "mid": "00218ObD0yrANX",
+      "name": "双截棍",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97742,
+      "mid": "002YzCdA2Hybr0",
+      "name": "上海一九四三",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 213922043,
+      "mid": "0031TAKo0095np",
+      "name": "不爱我就拉倒",
+      "album": "不爱我就拉倒",
+      "time_public": "2018-05-15",
+      "lyricists": [
+        "周杰伦",
+        "宋健彰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97763,
+      "mid": "004R20x748kyO1",
+      "name": "龙拳",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718485,
+      "mid": "004DI5Vw0DnEOW",
+      "name": "飘移",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947422,
+      "mid": "001RtHic1PivYc",
+      "name": "错过的烟火",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4963132,
+      "mid": "003nLOYI4gJ6U0",
+      "name": "周大侠",
+      "album": "2007世界巡回演唱会",
+      "time_public": "2008-01-30",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97779,
+      "mid": "0037FWzg2csDmh",
+      "name": "爱情悬崖",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97748,
+      "mid": "0046grpK0A1l9G",
+      "name": "威廉古堡",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 13802,
+      "mid": "004ZH3Qv2qjMhT",
+      "name": "刀马旦",
+      "album": "Promise",
+      "time_public": "2001-10-13",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102320104,
+      "mid": "0016oRIN0hu5zE",
+      "name": "迷迭香",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787867,
+      "mid": "001zqHER0WFQvO",
+      "name": "怎么了",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787866,
+      "mid": "00162TQ12285h4",
+      "name": "天涯过客",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065749,
+      "mid": "000yJtoB39k2NF",
+      "name": "将军",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718476,
+      "mid": "0043qT5x2DnxaL",
+      "name": "四面楚歌",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787871,
+      "mid": "003BiKB44LknC0",
+      "name": "听爸爸的话",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97774,
+      "mid": "004csbVP1E2dv1",
+      "name": "三年二班",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1023644,
+      "mid": "0040Dgn94YNWxA",
+      "name": "你好吗",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "罗宇轩",
+        "李汪哲"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3585882,
+      "mid": "003APYKg4GrqPB",
+      "name": "手语",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449203,
+      "mid": "000sRQrz0aEDFp",
+      "name": "时光机",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718483,
+      "mid": "003WtI8C0FMf3r",
+      "name": "麦芽糖",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97753,
+      "mid": "002pImGM1R2Afa",
+      "name": "娘子",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026963,
+      "mid": "000rVzOf3JnUQg",
+      "name": "超跑女神",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97756,
+      "mid": "0033ZO6x09eHB0",
+      "name": "伊斯坦堡",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "徐若瑄"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065751,
+      "mid": "0031tzbX3Lps0M",
+      "name": "乱舞春秋",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101101739,
+      "mid": "000Ookkj0sEkfD",
+      "name": "红模仿",
+      "album": "依然范特西",
+      "time_public": "2006-09-05",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 555154644,
+      "mid": "001FFffS0hAS0A",
+      "name": "Six Degrees",
+      "album": "Six Degrees",
+      "time_public": "2025-01-10",
+      "lyricists": [
+        "派伟俊",
+        "周杰伦",
+        "Father Orson"
+      ],
+      "composers": [
+        "派伟俊"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97757,
+      "mid": "002GQJAQ3w9yuh",
+      "name": "印第安老斑鸠",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 13415,
+      "mid": "003qvgqV4LiXHY",
+      "name": "骑士精神",
+      "album": "看我72变",
+      "time_public": "2003-03-07",
+      "lyricists": [
+        "蔡依林"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586265,
+      "mid": "001beoYX0K09xu",
+      "name": "乌克丽丽",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97751,
+      "mid": "001NQNgU2HfxJg",
+      "name": "完美主义",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101133228,
+      "mid": "004KpNVr0EdY0v",
+      "name": "鞋子特大号",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97764,
+      "mid": "002h3LO64ElQP2",
+      "name": "火车叨位去",
+      "album": "八度空间",
+      "time_public": "2002-07-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97780,
+      "mid": "000P0AxP15jei5",
+      "name": "梯田",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192071,
+      "mid": "002MVjb31ZNK5m",
+      "name": "床边故事",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680286,
+      "mid": "003KrQ401gzm8x",
+      "name": "自导自演",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065755,
+      "mid": "004WrpV81DMGHv",
+      "name": "我的地盘",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449195,
+      "mid": "000B3Ekk1I79hc",
+      "name": "龙战骑士",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192072,
+      "mid": "003J6p942xp6ho",
+      "name": "说走就走",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718274,
+      "mid": "000N1SIT2I0uPN",
+      "name": "黄金甲",
+      "album": "黄金甲",
+      "time_public": "2006-12-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718484,
+      "mid": "003Q71hB2wOpFU",
+      "name": "逆鳞",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97781,
+      "mid": "003BkwkH0iS8Ko",
+      "name": "双刀",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192074,
+      "mid": "000cFsFl1o17jp",
+      "name": "前世情人",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦",
+        "Hathaway"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 876439,
+      "mid": "003To9qp0jQdhW",
+      "name": "千山万水",
+      "album": "北京2008年奥运会歌曲专辑",
+      "time_public": "2008-04-30",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026967,
+      "mid": "003hWWWP4Rdj4A",
+      "name": "公主病",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97741,
+      "mid": "001mhQbn2eKHiR",
+      "name": "爸，我回来了",
+      "album": "范特西",
+      "time_public": "2001-09-14",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102367248,
+      "mid": "0016xHTc34N1Aw",
+      "name": "你是我的OK绷",
+      "album": "浪花兄弟",
+      "time_public": "2010-03-16",
+      "lyricists": [
+        "FUNKY MONKEY BABYS",
+        "川村結花",
+        "邱凯伟",
+        "杨常青",
+        "周杰伦"
+      ],
+      "composers": [
+        "FUNKY MONKEY BABYS",
+        "川村結花"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787869,
+      "mid": "0007w9Eb0lilhZ",
+      "name": "我要夏天",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97777,
+      "mid": "000U62Ay0ndxCh",
+      "name": "同一种调调",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680277,
+      "mid": "004gKsOK06opcc",
+      "name": "跨时代",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026964,
+      "mid": "002I7ms805kX4p",
+      "name": "世界未末日",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449204,
+      "mid": "002kuUy64JJlDi",
+      "name": "乔克叔叔",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026968,
+      "mid": "001CiqFG20FOXg",
+      "name": "疗伤烧肉粽",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 718481,
+      "mid": "004MQUa83RyfVJ",
+      "name": "蓝色风暴",
+      "album": "十一月的萧邦",
+      "time_public": "2005-11-01",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026966,
+      "mid": "000BZGDQ24uwTT",
+      "name": "琴伤",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97754,
+      "mid": "003J20t02i1vV5",
+      "name": "斗牛",
+      "album": "Jay",
+      "time_public": "2000-11-07",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102065752,
+      "mid": "0048Gwq23HPs1o",
+      "name": "困兽之斗",
+      "album": "七里香",
+      "time_public": "2004-08-03",
+      "lyricists": [
+        "刘畊宏"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 621944135,
+      "mid": "002yIFEJ0ssJjj",
+      "name": "恒星不忘 Forever Forever",
+      "album": "恒星不忘 Forever Forever",
+      "time_public": "2025-12-05",
+      "lyricists": [
+        "五月天 阿信",
+        "黄婷"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102340967,
+      "mid": "002Jp6If3ltWv9",
+      "name": "无双",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1026965,
+      "mid": "0019fxNe1bLVch",
+      "name": "水手怕水",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586268,
+      "mid": "001KTt4d1BTJOz",
+      "name": "公公偏头痛",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 13390,
+      "mid": "00070H9Q4ENl2Y",
+      "name": "海盗",
+      "album": "城堡",
+      "time_public": "2004-02-27",
+      "lyricists": [
+        "陈镇川"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 102340968,
+      "mid": "0008S2Z53H5C07",
+      "name": "扯",
+      "album": "我很忙",
+      "time_public": "2007-11-02",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449197,
+      "mid": "001LNPit4TsTn8",
+      "name": "蛇舞",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 97772,
+      "mid": "000ZauFj0E8qi0",
+      "name": "懦夫",
+      "album": "叶惠美",
+      "time_public": "2003-07-31",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449199,
+      "mid": "000HcRmh2IYxm8",
+      "name": "魔术先生",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192075,
+      "mid": "0040jaL23QceqJ",
+      "name": "英雄",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 104792513,
+      "mid": "001TtMaW2j3k2h",
+      "name": "惊叹号",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192079,
+      "mid": "00376COL0nP51S",
+      "name": "Now You See Me",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586264,
+      "mid": "001QnhDT0UJJIT",
+      "name": "梦想启动",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "林义杰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787865,
+      "mid": "003zL01l3vYMKT",
+      "name": "窃爱",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787868,
+      "mid": "003md41m1MBhMc",
+      "name": "一口气全念对",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680280,
+      "mid": "004Kvozl3zYFGx",
+      "name": "免费教学录影带",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 105471061,
+      "mid": "001faq2u0gVP6j",
+      "name": "Try",
+      "album": "Try",
+      "time_public": "2016-01-06",
+      "lyricists": [
+        "方文山",
+        "冼佩瑾"
+      ],
+      "composers": [
+        "派伟俊"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4962640,
+      "mid": "004MdCMq2pU6lx",
+      "name": "天台的月光",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1003266,
+      "mid": "003HuF913gIZQ3",
+      "name": "皮影戏",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "唐从圣"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 1023645,
+      "mid": "0016Wf0A0FhLBt",
+      "name": "迷魂曲",
+      "album": "惊叹号",
+      "time_public": "2011-11-11",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 449202,
+      "mid": "003suDvd4KLUmF",
+      "name": "流浪诗人",
+      "album": "魔杰座",
+      "time_public": "2008-10-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101787864,
+      "mid": "003b6hhl3jOPyV",
+      "name": "阳明山",
+      "album": "哎呦，不错哦",
+      "time_public": "2014-12-26",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 107192077,
+      "mid": "003uYI3j4EDf5q",
+      "name": "土耳其冰淇淋",
+      "album": "周杰伦的床边故事",
+      "time_public": "2016-06-24",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3586267,
+      "mid": "0010jyte3izshw",
+      "name": "四季列车",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 3585886,
+      "mid": "004O4Kun0wasxn",
+      "name": "比较大的大提琴",
+      "album": "十二新作",
+      "time_public": "2012-12-28",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 680283,
+      "mid": "000ES19W2iTudx",
+      "name": "嘻哈空姐",
+      "album": "跨时代",
+      "time_public": "2010-05-18",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 418617,
+      "mid": "000C7mLv3209PA",
+      "name": "秘密花园",
+      "album": "大灌篮 电影原声带",
+      "time_public": "2008-01-18",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 852572,
+      "mid": "0046cKwK2Rhmtw",
+      "name": "麦烝玮",
+      "album": "乐酷‧概念合辑",
+      "time_public": "2011-06-04",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 852567,
+      "mid": "004Q7tlZ04YMAi",
+      "name": "天地一斗",
+      "album": "乐酷‧概念合辑",
+      "time_public": "2011-06-04",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 101812768,
+      "mid": "002ejPGF43AvcY",
+      "name": "夜店咖",
+      "album": "嘻游记 首张同名EP",
+      "time_public": "2015-01-09",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4826244,
+      "mid": "000MqFFW4UlzTr",
+      "name": "波爷",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4962637,
+      "mid": "001gbqL91krccm",
+      "name": "大明星",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4962642,
+      "mid": "003n9ZUX0WjtUj",
+      "name": "狗仔舞",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4962655,
+      "mid": "001SfztX0qCH4e",
+      "name": "天台",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 732012,
+      "mid": "003ynQ462ua9bV",
+      "name": "阿爸",
+      "album": "恋花",
+      "time_public": "2010-10-22",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4826243,
+      "mid": "000bJqZD4Loq2e",
+      "name": "打架舞",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 403762,
+      "mid": "003mQTrM2aqiRe",
+      "name": "阿郎与阿宝",
+      "album": "不能说的秘密 电影原声带",
+      "time_public": "2007-08-13",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦",
+        "Terdsak Janpan"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 4962641,
+      "mid": "004Y37UI2gxazu",
+      "name": "竹竿舞",
+      "album": "天台 电影原声带",
+      "time_public": "2013-07-08",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 362435564,
+      "mid": "002PmJmr3qy031",
+      "name": "我是如此相信",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947425,
+      "mid": "00176bPZ2wu39R",
+      "name": "等你下课 (with 杨瑞代)",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "周杰伦"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947423,
+      "mid": "001QIYQm4BPlCe",
+      "name": "说好不哭 (with 五月天阿信)",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "方文山"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947421,
+      "mid": "003aEU1q1eO6kD",
+      "name": "Mojito",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "黄俊郎"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    },
+    {
+      "id": 361947420,
+      "mid": "001QeDJq1n9cCk",
+      "name": "不爱我就拉倒",
+      "album": "最伟大的作品",
+      "time_public": "2022-07-15",
+      "lyricists": [
+        "周杰伦",
+        "宋健彰"
+      ],
+      "composers": [
+        "周杰伦"
+      ],
+      "target": "周杰伦",
+      "target_slug": "zhoujielun"
+    }
+  ],
+  "quality": {
+    "credit_incomplete": 30,
+    "credit_filter_reason_counts": {
+      "ready": 210,
+      "missing_lyricists": 20,
+      "credit_status:missing_producer_list": 10
+    }
+  }
+}

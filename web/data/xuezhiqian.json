@@ -3,11 +3,10 @@
   "name": "薛之谦",
   "mid": "002J4UUk29y8BY",
   "source_dir": "data/processed/singer_songs/xuezhiqian",
-  "generated_at": "2026-05-11T22:16:07.644702+00:00",
+  "generated_at": "2026-05-11T23:37:22.190734+00:00",
   "summary": {
     "songs": 124,
     "initial_candidates": 127,
-    "credit_incomplete": 3,
     "nodes": 57,
     "edges": 77,
     "contributors": 57,
@@ -5155,12 +5154,5 @@
       "target": "薛之谦",
       "target_slug": "xuezhiqian"
     }
-  ],
-  "quality": {
-    "credit_incomplete": 3,
-    "credit_filter_reason_counts": {
-      "ready": 124,
-      "credit_status:missing_producer_list": 3
-    }
-  }
+  ]
 }

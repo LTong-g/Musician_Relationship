@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T22:16:07.697115+00:00",
+  "generated_at": "2026-05-11T23:37:22.216299+00:00",
   "source_dataset": {
     "slug": "qqmusic",
     "name": "QQ 音乐",
@@ -14,28 +14,11 @@
       "summary": {
         "songs": 210,
         "initial_candidates": 240,
-        "credit_incomplete": 30,
         "nodes": 30,
         "edges": 32,
         "contributors": 30,
         "self_lyricist_songs": 53,
         "self_composer_songs": 206
-      }
-    },
-    {
-      "slug": "xuezhiqian",
-      "name": "薛之谦",
-      "mid": "002J4UUk29y8BY",
-      "file": "xuezhiqian.json",
-      "summary": {
-        "songs": 124,
-        "initial_candidates": 127,
-        "credit_incomplete": 3,
-        "nodes": 57,
-        "edges": 77,
-        "contributors": 57,
-        "self_lyricist_songs": 84,
-        "self_composer_songs": 75
       }
     },
     {
@@ -46,19 +29,32 @@
       "summary": {
         "songs": 232,
         "initial_candidates": 266,
-        "credit_incomplete": 34,
         "nodes": 105,
         "edges": 133,
         "contributors": 105,
         "self_lyricist_songs": 27,
         "self_composer_songs": 216
       }
+    },
+    {
+      "slug": "xuezhiqian",
+      "name": "薛之谦",
+      "mid": "002J4UUk29y8BY",
+      "file": "xuezhiqian.json",
+      "summary": {
+        "songs": 124,
+        "initial_candidates": 127,
+        "nodes": 57,
+        "edges": 77,
+        "contributors": 57,
+        "self_lyricist_songs": 84,
+        "self_composer_songs": 75
+      }
     }
   ],
   "totals": {
     "targets": 3,
     "songs": 566,
-    "credit_incomplete": 67,
     "unique_nodes": 183,
     "bridge_contributors": 9
   },
@@ -1431,85 +1427,6 @@
       ]
     },
     {
-      "id": "artist:name:李荣浩",
-      "name": "李荣浩",
-      "target_slugs": [
-        "linjunjie",
-        "xuezhiqian"
-      ],
-      "target_count": 2,
-      "song_count": 4,
-      "targets": [
-        {
-          "slug": "linjunjie",
-          "name": "林俊杰",
-          "target_id": "artist:001BLpXF2DyJe2",
-          "song_count": 2,
-          "roles": {
-            "作曲": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 393959375,
-                  "mid": "000lj2LC0R9ncL",
-                  "name": "慢慢喜欢你",
-                  "album": "JJ的咖啡调调, Vol. 1",
-                  "target": "林俊杰",
-                  "target_slug": "linjunjie",
-                  "role": "作曲"
-                }
-              ]
-            },
-            "作词": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 393959375,
-                  "mid": "000lj2LC0R9ncL",
-                  "name": "慢慢喜欢你",
-                  "album": "JJ的咖啡调调, Vol. 1",
-                  "target": "林俊杰",
-                  "target_slug": "linjunjie",
-                  "role": "作词"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "slug": "xuezhiqian",
-          "name": "薛之谦",
-          "target_id": "artist:002J4UUk29y8BY",
-          "song_count": 2,
-          "roles": {
-            "作曲": {
-              "song_count": 2,
-              "songs": [
-                {
-                  "id": 5106429,
-                  "mid": "000QwTVo0YHdcP",
-                  "name": "丑八怪",
-                  "album": "意外",
-                  "target": "薛之谦",
-                  "target_slug": "xuezhiqian",
-                  "role": "作曲"
-                },
-                {
-                  "id": 104792679,
-                  "mid": "003EKHdv2KvTc6",
-                  "name": "一半",
-                  "album": "一半",
-                  "target": "薛之谦",
-                  "target_slug": "xuezhiqian",
-                  "role": "作曲"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
       "id": "artist:name:小寒",
       "name": "小寒",
       "target_slugs": [
@@ -1600,132 +1517,6 @@
                   "mid": "0024vbNZ4bQz74",
                   "name": "最好",
                   "album": "怪咖",
-                  "target": "薛之谦",
-                  "target_slug": "xuezhiqian",
-                  "role": "作词"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "artist:name:丁于",
-      "name": "丁于",
-      "target_slugs": [
-        "linjunjie",
-        "xuezhiqian"
-      ],
-      "target_count": 2,
-      "song_count": 3,
-      "targets": [
-        {
-          "slug": "linjunjie",
-          "name": "林俊杰",
-          "target_id": "artist:001BLpXF2DyJe2",
-          "song_count": 1,
-          "roles": {
-            "作曲": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 3487964,
-                  "mid": "004akXk93yQIRz",
-                  "name": "天涯共此时",
-                  "album": "亚运金曲十五首",
-                  "target": "林俊杰",
-                  "target_slug": "linjunjie",
-                  "role": "作曲"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "slug": "xuezhiqian",
-          "name": "薛之谦",
-          "target_id": "artist:002J4UUk29y8BY",
-          "song_count": 2,
-          "roles": {
-            "作曲": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 391198456,
-                  "mid": "002M6WZl1QjJOL",
-                  "name": "银河少年",
-                  "album": "守村人",
-                  "target": "薛之谦",
-                  "target_slug": "xuezhiqian",
-                  "role": "作曲"
-                }
-              ]
-            },
-            "作词": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 391198456,
-                  "mid": "002M6WZl1QjJOL",
-                  "name": "银河少年",
-                  "album": "守村人",
-                  "target": "薛之谦",
-                  "target_slug": "xuezhiqian",
-                  "role": "作词"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "artist:name:廖莹如",
-      "name": "廖莹如",
-      "target_slugs": [
-        "linjunjie",
-        "xuezhiqian"
-      ],
-      "target_count": 2,
-      "song_count": 2,
-      "targets": [
-        {
-          "slug": "linjunjie",
-          "name": "林俊杰",
-          "target_id": "artist:001BLpXF2DyJe2",
-          "song_count": 1,
-          "roles": {
-            "作词": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 648243,
-                  "mid": "004Cvuk43vequm",
-                  "name": "转动",
-                  "album": "100天",
-                  "target": "林俊杰",
-                  "target_slug": "linjunjie",
-                  "role": "作词"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "slug": "xuezhiqian",
-          "name": "薛之谦",
-          "target_id": "artist:002J4UUk29y8BY",
-          "song_count": 1,
-          "roles": {
-            "作词": {
-              "song_count": 1,
-              "songs": [
-                {
-                  "id": 1771035,
-                  "mid": "0031mRtD35QuPt",
-                  "name": "为了遇见你",
-                  "album": "几个薛之谦",
                   "target": "薛之谦",
                   "target_slug": "xuezhiqian",
                   "role": "作词"
@@ -1881,6 +1672,211 @@
                   "mid": "0008Pk9f3mSKIY",
                   "name": "我的Show",
                   "album": "薛之谦",
+                  "target": "薛之谦",
+                  "target_slug": "xuezhiqian",
+                  "role": "作词"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "artist:name:廖莹如",
+      "name": "廖莹如",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2,
+      "song_count": 2,
+      "targets": [
+        {
+          "slug": "linjunjie",
+          "name": "林俊杰",
+          "target_id": "artist:001BLpXF2DyJe2",
+          "song_count": 1,
+          "roles": {
+            "作词": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 648243,
+                  "mid": "004Cvuk43vequm",
+                  "name": "转动",
+                  "album": "100天",
+                  "target": "林俊杰",
+                  "target_slug": "linjunjie",
+                  "role": "作词"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "slug": "xuezhiqian",
+          "name": "薛之谦",
+          "target_id": "artist:002J4UUk29y8BY",
+          "song_count": 1,
+          "roles": {
+            "作词": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 1771035,
+                  "mid": "0031mRtD35QuPt",
+                  "name": "为了遇见你",
+                  "album": "几个薛之谦",
+                  "target": "薛之谦",
+                  "target_slug": "xuezhiqian",
+                  "role": "作词"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "artist:name:李荣浩",
+      "name": "李荣浩",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2,
+      "song_count": 4,
+      "targets": [
+        {
+          "slug": "linjunjie",
+          "name": "林俊杰",
+          "target_id": "artist:001BLpXF2DyJe2",
+          "song_count": 2,
+          "roles": {
+            "作曲": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 393959375,
+                  "mid": "000lj2LC0R9ncL",
+                  "name": "慢慢喜欢你",
+                  "album": "JJ的咖啡调调, Vol. 1",
+                  "target": "林俊杰",
+                  "target_slug": "linjunjie",
+                  "role": "作曲"
+                }
+              ]
+            },
+            "作词": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 393959375,
+                  "mid": "000lj2LC0R9ncL",
+                  "name": "慢慢喜欢你",
+                  "album": "JJ的咖啡调调, Vol. 1",
+                  "target": "林俊杰",
+                  "target_slug": "linjunjie",
+                  "role": "作词"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "slug": "xuezhiqian",
+          "name": "薛之谦",
+          "target_id": "artist:002J4UUk29y8BY",
+          "song_count": 2,
+          "roles": {
+            "作曲": {
+              "song_count": 2,
+              "songs": [
+                {
+                  "id": 5106429,
+                  "mid": "000QwTVo0YHdcP",
+                  "name": "丑八怪",
+                  "album": "意外",
+                  "target": "薛之谦",
+                  "target_slug": "xuezhiqian",
+                  "role": "作曲"
+                },
+                {
+                  "id": 104792679,
+                  "mid": "003EKHdv2KvTc6",
+                  "name": "一半",
+                  "album": "一半",
+                  "target": "薛之谦",
+                  "target_slug": "xuezhiqian",
+                  "role": "作曲"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "artist:name:丁于",
+      "name": "丁于",
+      "target_slugs": [
+        "linjunjie",
+        "xuezhiqian"
+      ],
+      "target_count": 2,
+      "song_count": 3,
+      "targets": [
+        {
+          "slug": "linjunjie",
+          "name": "林俊杰",
+          "target_id": "artist:001BLpXF2DyJe2",
+          "song_count": 1,
+          "roles": {
+            "作曲": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 3487964,
+                  "mid": "004akXk93yQIRz",
+                  "name": "天涯共此时",
+                  "album": "亚运金曲十五首",
+                  "target": "林俊杰",
+                  "target_slug": "linjunjie",
+                  "role": "作曲"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "slug": "xuezhiqian",
+          "name": "薛之谦",
+          "target_id": "artist:002J4UUk29y8BY",
+          "song_count": 2,
+          "roles": {
+            "作曲": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 391198456,
+                  "mid": "002M6WZl1QjJOL",
+                  "name": "银河少年",
+                  "album": "守村人",
+                  "target": "薛之谦",
+                  "target_slug": "xuezhiqian",
+                  "role": "作曲"
+                }
+              ]
+            },
+            "作词": {
+              "song_count": 1,
+              "songs": [
+                {
+                  "id": 391198456,
+                  "mid": "002M6WZl1QjJOL",
+                  "name": "银河少年",
+                  "album": "守村人",
                   "target": "薛之谦",
                   "target_slug": "xuezhiqian",
                   "role": "作词"

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>音乐人合作关系图谱</title>
-    <link rel="stylesheet" href="styles.css?v=20260511-compact-top-cards" />
+    <link rel="stylesheet" href="styles.css?v=20260512-native-select-overlay" />
   </head>
   <body>
     <header class="topbar">
@@ -13,14 +13,25 @@
         <p id="dataset-scope">加载数据中...</p>
       </div>
       <div class="toolbar">
-        <div class="source-pill">
-          <span>数据集</span>
-          <strong id="source-name">QQ 音乐</strong>
+        <div class="target-filter">
+          <span class="control-label">目标歌手</span>
+          <div class="target-select-shell">
+            <select id="target-visual-select" class="target-visual-select" aria-hidden="true" tabindex="-1">
+              <option>全部目标歌手</option>
+            </select>
+            <button id="target-dropdown-toggle" class="target-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+              <span id="target-dropdown-label" class="target-dropdown-label">全部目标歌手</span>
+            </button>
+          </div>
+          <div id="target-dropdown-menu" class="target-dropdown-menu" hidden>
+            <input id="target-filter-search" class="target-filter-search" type="search" placeholder="搜索目标歌手" />
+            <div class="target-actions">
+              <button id="target-select-all" type="button">全选</button>
+              <button id="target-invert" type="button">反选</button>
+            </div>
+            <div id="target-checkboxes" class="target-checkboxes"></div>
+          </div>
         </div>
-        <label>
-          目标歌手
-          <select id="target-select"></select>
-        </label>
         <label>
           视图
           <select id="view-mode">
@@ -32,37 +43,22 @@
           职能显示
           <select id="role-display">
             <option value="split">作词/作曲分开</option>
-            <option value="merged">合并为合作次数</option>
+            <option value="merged">不区分职能</option>
           </select>
         </label>
-        <label>
-          连线方向
-          <select id="direction-mode">
-            <option value="directed">有向</option>
-            <option value="undirected">无向</option>
-          </select>
+        <label class="switch-control">
+          粒子效果
+          <input id="particle-toggle" type="checkbox" checked />
+          <span class="switch-track" aria-hidden="true"></span>
         </label>
         <label>
-          关系至少支撑歌曲数
+          显示阈值
           <input id="min-count" type="number" min="1" value="1" />
         </label>
       </div>
     </header>
 
     <main class="layout">
-      <section class="source-band">
-        <div>
-          <span>当前数据源</span>
-          <strong id="source-description">由 QQ 音乐元数据离线采集生成的静态关系图谱数据。</strong>
-        </div>
-        <div>
-          <span>范围切换</span>
-          <strong>目标歌手只是筛选范围，不是独立数据集。</strong>
-        </div>
-      </section>
-
-      <section class="summary-strip" id="summary-strip"></section>
-
       <section class="workspace">
         <div class="graph-panel">
           <div class="panel-head">
@@ -85,13 +81,12 @@
         <div class="tabs">
           <button class="tab active" data-tab="songs">歌曲明细</button>
           <button class="tab" data-tab="edges">关系明细</button>
-          <button class="tab" data-tab="quality">数据质量</button>
         </div>
         <div id="table-content"></div>
       </section>
     </main>
 
     <script src="vendor/force-graph.min.js"></script>
-    <script src="app.js?v=20260511-min-edge-songs"></script>
+    <script src="app.js?v=20260512-native-select-overlay"></script>
   </body>
 </html>

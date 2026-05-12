@@ -15,10 +15,10 @@ body {
 
 .topbar {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: 18px;
-  align-items: end;
-  padding: 18px 22px;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, auto);
+  gap: 14px;
+  align-items: center;
+  padding: 16px 22px;
   background: #ffffff;
   border-bottom: 1px solid #d7dde6;
 }
@@ -47,61 +47,208 @@ h2 {
 
 .toolbar {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
+  min-width: 0;
 }
 
-label {
-  display: grid;
-  gap: 4px;
+label,
+.target-filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
   font-size: 12px;
   color: #475467;
+  white-space: nowrap;
 }
 
 select,
 input,
 button {
-  min-height: 34px;
+  min-height: 26px;
   border: 1px solid #c7ced9;
-  border-radius: 6px;
+  border-radius: 5px;
   background: #ffffff;
   color: #182230;
   font: inherit;
+  line-height: 1.2;
 }
 
 select,
 input {
-  padding: 6px 9px;
+  padding: 3px 7px;
 }
 
-#target-select {
-  min-width: 150px;
+.control-label {
+  color: #475467;
+}
+
+.target-filter {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.target-select-shell {
+  position: relative;
+  width: 168px;
+}
+
+.target-visual-select {
+  width: 100%;
+  pointer-events: none;
+}
+
+.target-dropdown-toggle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+
+.target-dropdown-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.target-dropdown-arrow {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.target-dropdown-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 168px;
+  padding: 7px;
+  border: 1px solid #c7ced9;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.14);
+}
+
+.target-filter-search {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.target-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.target-actions button {
+  min-height: 24px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.target-checkboxes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  max-height: 180px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+.target-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 22px;
+  color: #182230;
+  white-space: nowrap;
+}
+
+.target-option input {
+  min-height: 0;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+.target-empty {
+  padding: 4px 0;
+  color: #667085;
 }
 
 #min-count {
-  width: 92px;
+  width: 56px;
 }
 
-.source-pill {
-  display: grid;
-  min-height: 34px;
-  padding: 5px 12px;
+.switch-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.switch-control input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-track {
+  position: relative;
+  display: inline-flex;
+  width: 34px;
+  height: 18px;
+  flex: 0 0 auto;
   border: 1px solid #c7ced9;
-  border-radius: 6px;
-  background: #f8fafc;
+  border-radius: 999px;
+  background: #f2f4f7;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
 }
 
-.source-pill span,
-.source-band span,
-.metric span {
-  color: #667085;
-  font-size: 12px;
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.24);
+  transition: transform 120ms ease;
 }
 
-.source-pill strong {
-  font-size: 14px;
+.switch-control input:checked + .switch-track {
+  border-color: #2458c7;
+  background: #2458c7;
+}
+
+.switch-control input:checked + .switch-track::after {
+  transform: translateX(16px);
+}
+
+.switch-control input:focus-visible + .switch-track {
+  outline: 2px solid #84a8ff;
+  outline-offset: 2px;
+}
+
+#view-mode {
+  width: 108px;
+}
+
+#role-display {
+  width: 128px;
 }
 
 .layout {
@@ -110,53 +257,11 @@ input {
   padding: 10px 14px 14px;
 }
 
-.source-band {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-  gap: 8px;
-}
-
-.source-band > div {
-  display: grid;
-  gap: 3px;
-  min-height: 44px;
-  padding: 8px 13px;
-  background: #ffffff;
-  border: 1px solid #d7dde6;
-  border-radius: 8px;
-}
-
-.source-band strong {
-  font-size: 14px;
-  line-height: 1.25;
-}
-
-.summary-strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(118px, 1fr));
-  gap: 8px;
-}
-
-.metric {
-  min-height: 54px;
-  padding: 8px 12px;
-  background: #ffffff;
-  border: 1px solid #d7dde6;
-  border-radius: 8px;
-}
-
-.metric strong {
-  display: block;
-  margin-top: 3px;
-  font-size: 21px;
-  line-height: 1.08;
-}
-
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
   gap: 14px;
-  min-height: 610px;
+  min-height: 0;
 }
 
 .graph-panel,
@@ -188,7 +293,7 @@ input {
 #graph {
   display: block;
   width: 100%;
-  min-height: 640px;
+  min-height: 360px;
   position: relative;
   cursor: grab;
   background:
@@ -207,14 +312,18 @@ input {
 }
 
 .detail-panel {
+  min-height: 0;
   padding: 15px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .detail-content {
   display: grid;
   gap: 10px;
   margin-top: 13px;
+  max-height: calc(100% - 30px);
+  overflow: auto;
+  padding-right: 2px;
   font-size: 14px;
 }
 
@@ -275,19 +384,21 @@ th {
   font-weight: 600;
 }
 
+@media (max-width: 1280px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 1050px) {
   .topbar,
-  .source-band,
   .workspace {
     grid-template-columns: 1fr;
   }
 
   .toolbar {
     justify-content: flex-start;
-  }
-
-  .summary-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-wrap: wrap;
   }
 
   #search-input {
@@ -306,7 +417,8 @@ th {
     grid-template-columns: 1fr;
   }
 
-  .summary-strip {
-    grid-template-columns: 1fr;
+  label,
+  .target-filter {
+    align-items: stretch;
   }
 }

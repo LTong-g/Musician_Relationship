@@ -11,9 +11,9 @@ from typing import Any
 
 DEFAULT_OUTPUT = Path("web/data/catalog.json")
 DEFAULT_SINGER_INPUTS = (
-    "zhoujielun=周杰伦=0025NhlN2yWrP4=data/processed/singer_songs/zhoujielun",
-    "xuezhiqian=薛之谦=002J4UUk29y8BY=data/processed/singer_songs/xuezhiqian",
-    "linjunjie=林俊杰=001BLpXF2DyJe2=data/processed/singer_songs/linjunjie",
+    "zhoujielun=周杰伦=0025NhlN2yWrP4=data/processed/singer_songs/zhoujielun=1",
+    "linjunjie=林俊杰=001BLpXF2DyJe2=data/processed/singer_songs/linjunjie=2",
+    "xuezhiqian=薛之谦=002J4UUk29y8BY=data/processed/singer_songs/xuezhiqian=3",
 )
 EDGE_ROLES = ("作词", "作曲")
 
@@ -37,15 +37,17 @@ def dump_json(path: Path, payload: Any) -> None:
 
 
 def parse_singer_input(value: str) -> dict[str, Any]:
-    parts = value.split("=", 3)
-    if len(parts) != 4:
-        raise ValueError("Singer input must be slug=name=mid=directory")
-    slug, name, mid, directory = parts
+    parts = value.split("=")
+    if len(parts) not in (4, 5):
+        raise ValueError("Singer input must be slug=name=mid=directory or slug=name=mid=directory=hot_rank")
+    slug, name, mid, directory = parts[:4]
+    hot_rank = int(parts[4]) if len(parts) == 5 and parts[4] else None
     return {
         "slug": slug,
         "name": name,
         "mid": mid,
         "directory": Path(directory),
+        "hot_rank": hot_rank,
     }
 
 
@@ -101,10 +103,8 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
     mid = config["mid"]
     directory = config["directory"]
     songs_path = directory / "songs_kept.json"
-    incomplete_path = directory / "songs_credit_incomplete.json"
     snapshot_path = directory / "singer_song_snapshot.json"
     songs = load_json(songs_path)
-    incomplete = load_json(incomplete_path) if incomplete_path.exists() else []
     snapshot = load_json(snapshot_path) if snapshot_path.exists() else {}
 
     nodes: dict[str, dict[str, Any]] = {}
@@ -214,7 +214,6 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
         "summary": {
             "songs": len(songs),
             "initial_candidates": (snapshot.get("counts") or {}).get("songs_after_initial_dedupe", len(songs)),
-            "credit_incomplete": len(incomplete),
             "nodes": len(nodes),
             "edges": len(graph_edges),
             "contributors": len([node for node in nodes.values() if node["type"] == "artist"]),
@@ -229,10 +228,6 @@ def build_dataset(config: dict[str, Any]) -> dict[str, Any]:
             "song_nodes": song_nodes,
         },
         "songs": song_records,
-        "quality": {
-            "credit_incomplete": len(incomplete),
-            "credit_filter_reason_counts": snapshot.get("credit_filter_reason_counts") or {},
-        },
     }
 
 
@@ -315,6 +310,7 @@ def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
                 "slug": dataset["slug"],
                 "name": dataset["name"],
                 "mid": dataset["mid"],
+                **({"hot_rank": dataset["hot_rank"]} if dataset.get("hot_rank") is not None else {}),
                 "file": f"{dataset['slug']}.json",
                 "summary": dataset["summary"],
             }
@@ -323,7 +319,6 @@ def build_catalog(datasets: list[dict[str, Any]]) -> dict[str, Any]:
         "totals": {
             "targets": len(datasets),
             "songs": sum(dataset["summary"]["songs"] for dataset in datasets),
-            "credit_incomplete": sum(dataset["summary"]["credit_incomplete"] for dataset in datasets),
             "unique_nodes": len(all_nodes),
             "bridge_contributors": len(bridge_contributors),
         },

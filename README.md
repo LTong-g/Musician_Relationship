@@ -59,7 +59,7 @@ python -m music_metadata_graph.pipelines.collect_singer_songs `
 - `lyricists`、`composers`、`arrangers`、`producers`：常用职能的姓名展开字段，CSV 中也会同步写出。
 - `status`：`ok` 表示成功取得制作人员列表；`missing_producer_list` 表示上游响应没有制作人员列表；`failed` 表示请求或解析异常。
 
-制作人员补全开启时，`songs_kept` 默认只保留作词和作曲都非空的歌曲，作为后续图谱和可视化可直接消费的数据。缺作词或缺作曲的条目会写入 `songs_credit_incomplete.json/csv`，并带 `credit_filter_reason`；如果调试时需要保留这些条目，可加 `--keep-incomplete-credits`。
+制作人员补全开启时，`songs_kept` 默认只保留作词和作曲都非空的歌曲，作为后续图谱和可视化可直接消费的数据。缺作词或缺作曲的条目只作为本地调试输出写入 `songs_credit_incomplete.json/csv`，并带 `credit_filter_reason`；如果调试时需要保留这些条目，可加 `--keep-incomplete-credits`。
 
 调试时可用 `--max-producer-songs` 限制制作人员请求数量；如果只想生成歌曲列表，可加 `--skip-producers`。
 
@@ -130,9 +130,9 @@ web/data/xuezhiqian.json
 web/data/linjunjie.json
 ```
 
-打开 `web/index.html` 可查看静态图谱工作台。网页中的“数据集”指 QQ 音乐元数据集；周杰伦、薛之谦、林俊杰等是当前数据集下的目标歌手覆盖范围，可以单独筛选或合并查看。网页支持不完整数据；即使当前视图没有边，也会保留孤立节点显示。
+打开 `web/index.html` 可查看静态图谱工作台。网页中的“数据集”指 QQ 音乐元数据集；周杰伦、薛之谦、林俊杰等是当前数据集下的目标歌手覆盖范围，可以单独筛选或合并查看。网页只使用 `songs_kept` 中作词和作曲都齐全的歌曲；即使当前视图没有边，也会保留节点显示。
 
-网页图谱区域使用本地 `force-graph` 静态脚本渲染，支持缩放、平移、拖拽节点、点击节点或边查看右侧详情；有向模式下选中边会显示方向箭头和流动粒子。图谱中所有音乐人节点按同一视觉规则绘制，目标歌手不会作为特殊中心节点或独立重复节点出现。`web/vendor/force-graph.min.js` 来自项目根目录安装的 `force-graph` 包，用于保证静态网页不依赖 CDN。
+网页图谱区域使用本地 `force-graph` 静态脚本渲染，支持缩放、平移、拖拽节点、点击节点或边查看右侧详情；有向模式下所有边会直接显示流动粒子，粒子流动方向表示贡献关系方向，不额外显示箭头。图谱中所有音乐人节点按同一视觉规则绘制，目标歌手不会作为特殊中心节点或独立重复节点出现。`web/vendor/force-graph.min.js` 来自项目根目录安装的 `force-graph` 包，用于保证静态网页不依赖 CDN。
 
 ## 数据边界
 

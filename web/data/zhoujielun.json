@@ -3,11 +3,10 @@
   "name": "周杰伦",
   "mid": "0025NhlN2yWrP4",
   "source_dir": "data/processed/singer_songs/zhoujielun",
-  "generated_at": "2026-05-11T22:16:07.627233+00:00",
+  "generated_at": "2026-05-11T23:37:22.149532+00:00",
   "summary": {
     "songs": 210,
     "initial_candidates": 240,
-    "credit_incomplete": 30,
     "nodes": 30,
     "edges": 32,
     "contributors": 30,
@@ -6829,13 +6828,5 @@
       "target": "周杰伦",
       "target_slug": "zhoujielun"
     }
-  ],
-  "quality": {
-    "credit_incomplete": 30,
-    "credit_filter_reason_counts": {
-      "ready": 210,
-      "missing_lyricists": 20,
-      "credit_status:missing_producer_list": 10
-    }
-  }
+  ]
 }

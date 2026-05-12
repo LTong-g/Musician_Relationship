@@ -1,28 +1,31 @@
 const state = {
   catalog: null,
   targetData: new Map(),
-  currentTarget: "all",
+  currentTargets: new Set(),
   viewMode: "artist",
   roleDisplay: "split",
-  directionMode: "directed",
+  particlesEnabled: true,
   minCount: 1,
   search: "",
   activeTab: "songs",
   selected: null,
   hoveredNode: null,
   hoveredEdge: null,
+  targetMenuOpen: false,
+  targetFilterSearch: "",
 };
 
 let graphInstance = null;
 let graphResizeObserver = null;
 let graphDataKey = "";
 const imageCache = new Map();
-const layoutVersion = "equal-artist-nodes-20260511";
+const layoutVersion = "slow-particles-20260512";
 const maxVisibleContributors = 36;
+const directedParticleSpeed = 0.003;
 
 const roleLabels = {
   split: "作词/作曲分开",
-  merged: "合并为合作次数",
+  merged: "不区分职能",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -34,7 +37,30 @@ async function loadJson(path) {
 }
 
 function catalogTargets() {
-  return state.catalog?.targets || state.catalog?.datasets || [];
+  return [...(state.catalog?.targets || state.catalog?.datasets || [])].sort(compareTargetsByHotRank);
+}
+
+function catalogTargetSlugs() {
+  return catalogTargets().map((item) => item.slug);
+}
+
+function targetHotRank(item) {
+  return Number(item.hot_rank || item.discovery_rank || item.hot_discovery_rank || Number.MAX_SAFE_INTEGER);
+}
+
+function compareTargetsByHotRank(a, b) {
+  const rankDiff = targetHotRank(a) - targetHotRank(b);
+  if (rankDiff) return rankDiff;
+  return (a.name || "").localeCompare(b.name || "", "zh-CN");
+}
+
+function selectedTargetItems() {
+  return catalogTargets().filter((item) => state.currentTargets.has(item.slug));
+}
+
+function allTargetsSelected() {
+  const slugs = catalogTargetSlugs();
+  return slugs.length > 0 && slugs.every((slug) => state.currentTargets.has(slug));
 }
 
 function sourceDataset() {
@@ -145,16 +171,46 @@ async function init() {
 }
 
 function bindControls() {
-  const targetSelect = $("target-select");
-  targetSelect.innerHTML = [
-    `<option value="all">全部目标歌手</option>`,
-    ...catalogTargets().map((item) => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.name)}</option>`),
-  ].join("");
-  targetSelect.value = state.currentTarget;
-  targetSelect.addEventListener("change", () => {
-    state.currentTarget = targetSelect.value;
+  state.currentTargets = new Set(catalogTargetSlugs());
+  renderTargetCheckboxes();
+  updateTargetDropdownLabel();
+  $("target-dropdown-toggle").addEventListener("click", () => {
+    state.targetMenuOpen = !state.targetMenuOpen;
+    renderTargetMenuState();
+    if (state.targetMenuOpen) $("target-filter-search").focus();
+  });
+  document.addEventListener("click", (event) => {
+    if (!state.targetMenuOpen || event.target.closest(".target-filter")) return;
+    state.targetMenuOpen = false;
+    renderTargetMenuState();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !state.targetMenuOpen) return;
+    state.targetMenuOpen = false;
+    renderTargetMenuState();
+  });
+  $("target-select-all").addEventListener("click", () => {
+    state.currentTargets = new Set(catalogTargetSlugs());
     state.selected = null;
+    renderTargetCheckboxes();
+    updateTargetDropdownLabel();
     render();
+  });
+  $("target-invert").addEventListener("click", () => {
+    const nextTargets = new Set();
+    catalogTargetSlugs().forEach((slug) => {
+      if (!state.currentTargets.has(slug)) nextTargets.add(slug);
+    });
+    state.currentTargets = nextTargets;
+    state.selected = null;
+    renderTargetCheckboxes();
+    updateTargetDropdownLabel();
+    render();
+  });
+
+  $("target-filter-search").addEventListener("input", (event) => {
+    state.targetFilterSearch = event.target.value.trim().toLowerCase();
+    renderTargetCheckboxes();
   });
 
   $("view-mode").addEventListener("change", (event) => {
@@ -167,8 +223,8 @@ function bindControls() {
     state.selected = null;
     render();
   });
-  $("direction-mode").addEventListener("change", (event) => {
-    state.directionMode = event.target.value;
+  $("particle-toggle").addEventListener("change", (event) => {
+    state.particlesEnabled = event.target.checked;
     renderGraph();
   });
   $("min-count").addEventListener("input", (event) => {
@@ -188,11 +244,57 @@ function bindControls() {
       renderTable();
     });
   });
+  window.addEventListener("resize", renderGraph);
+}
+
+function renderTargetMenuState() {
+  $("target-dropdown-menu").hidden = !state.targetMenuOpen;
+  $("target-dropdown-toggle").setAttribute("aria-expanded", String(state.targetMenuOpen));
+}
+
+function updateTargetDropdownLabel() {
+  const label = currentScopeLabel();
+  $("target-dropdown-label").textContent = label;
+  $("target-dropdown-toggle").setAttribute("aria-label", `目标歌手：${label}`);
+  $("target-visual-select").innerHTML = `<option>${escapeHtml(label)}</option>`;
+}
+
+function renderTargetCheckboxes() {
+  const keyword = state.targetFilterSearch;
+  const targets = catalogTargets().filter((item) => {
+    if (!keyword) return true;
+    return [item.name, item.slug, item.mid].filter(Boolean).some((value) => String(value).toLowerCase().includes(keyword));
+  });
+  $("target-checkboxes").innerHTML = targets.length
+    ? targets
+    .map(
+      (item) => `
+        <label class="target-option">
+          <input type="checkbox" value="${escapeHtml(item.slug)}" ${state.currentTargets.has(item.slug) ? "checked" : ""} />
+          <span>${escapeHtml(item.name)}</span>
+        </label>
+      `,
+    )
+    .join("")
+    : `<div class="target-empty">没有匹配的目标歌手</div>`;
+  document.querySelectorAll("#target-checkboxes input").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        state.currentTargets.add(checkbox.value);
+      } else {
+        state.currentTargets.delete(checkbox.value);
+      }
+      state.selected = null;
+      updateTargetDropdownLabel();
+      render();
+    });
+  });
 }
 
 function selectedTargets() {
-  if (state.currentTarget === "all") return [...state.targetData.values()];
-  return state.targetData.has(state.currentTarget) ? [state.targetData.get(state.currentTarget)] : [];
+  return selectedTargetItems()
+    .map((item) => state.targetData.get(item.slug))
+    .filter(Boolean);
 }
 
 function mergeSummary(targets) {
@@ -200,7 +302,6 @@ function mergeSummary(targets) {
     (summary, dataset) => {
       summary.songs += dataset.summary.songs || 0;
       summary.initial_candidates += dataset.summary.initial_candidates || 0;
-      summary.credit_incomplete += dataset.summary.credit_incomplete || 0;
       summary.edges += dataset.summary.edges || 0;
       summary.contributors += dataset.summary.contributors || 0;
       summary.self_lyricist_songs += dataset.summary.self_lyricist_songs || 0;
@@ -210,7 +311,6 @@ function mergeSummary(targets) {
     {
       songs: 0,
       initial_candidates: 0,
-      credit_incomplete: 0,
       edges: 0,
       contributors: 0,
       self_lyricist_songs: 0,
@@ -220,8 +320,14 @@ function mergeSummary(targets) {
 }
 
 function currentScopeLabel() {
-  if (state.currentTarget === "all") return `全部 ${formatNumber(catalogTargets().length)} 位目标歌手`;
-  return catalogTargets().find((item) => item.slug === state.currentTarget)?.name || "当前目标歌手";
+  const selected = selectedTargetItems();
+  if (!selected.length) return "未选择目标歌手";
+  if (allTargetsSelected()) return `全部 ${formatNumber(catalogTargets().length)} 位目标歌手`;
+  if (selected.length <= 3) return selected.map((item) => item.name).join("、");
+  return `${selected
+    .slice(0, 3)
+    .map((item) => item.name)
+    .join("、")} 等 ${formatNumber(selected.length)} 位目标歌手`;
 }
 
 function render() {
@@ -229,30 +335,11 @@ function render() {
   const totals = state.catalog.totals || {};
   $("dataset-scope").textContent =
     `${source.name}数据集 · 当前范围：${currentScopeLabel()} · ` +
-    `${formatNumber(totals.songs)} 首可视化歌曲，${formatNumber(totals.credit_incomplete)} 首制作人员不完整条目已隔离。`;
-  $("source-name").textContent = source.name;
-  $("source-description").textContent = source.description || "";
-  renderSummary(selectedTargets());
+    `${formatNumber(totals.songs)} 首作词作曲齐全歌曲。`;
+  updateTargetDropdownLabel();
   renderGraph();
   renderDetail();
   renderTable();
-}
-
-function renderSummary(targets) {
-  const summary = mergeSummary(targets);
-  const bridgeCount = countBridgeContributorsForScope();
-  const graph = buildArtistGraph();
-  const metrics = [
-    ["目标歌手", state.currentTarget === "all" ? targets.length : 1],
-    ["可视化歌曲", summary.songs],
-    ["贡献者", countUniqueContributors(targets)],
-    ["当前图谱边", graph.edges.length],
-    ["共同合作者", bridgeCount],
-    ["隔离条目", summary.credit_incomplete],
-  ];
-  $("summary-strip").innerHTML = metrics
-    .map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${formatNumber(value)}</strong></div>`)
-    .join("");
 }
 
 function countUniqueContributors(targets) {
@@ -362,11 +449,16 @@ function buildArtistGraph() {
 }
 
 function bridgeItemsForScope() {
-  const selectedSlug = state.currentTarget === "all" ? "" : state.currentTarget;
-  const allowed = new Set(catalogTargets().map((target) => target.slug));
+  const selected = selectedTargetItems();
+  if (!selected.length) return [];
+  const selectedSlugs = selected.map((target) => target.slug);
+  const allowed =
+    selected.length === 1 || allTargetsSelected()
+      ? new Set(catalogTargetSlugs())
+      : new Set(selectedSlugs);
   return (state.catalog.bridge_contributors || [])
     .map((bridge) => {
-      if (selectedSlug && !(bridge.target_slugs || []).includes(selectedSlug)) return null;
+      if (selected.length === 1 && !(bridge.target_slugs || []).includes(selectedSlugs[0])) return null;
       const targets = (bridge.targets || []).filter((target) => allowed.has(target.slug));
       if (!targets.length) return null;
       return {
@@ -380,13 +472,31 @@ function bridgeItemsForScope() {
     .filter((bridge) => bridge && bridge.target_count > 1);
 }
 
+function bridgeContributorNode(bridge) {
+  const datasets = (bridge.target_slugs || [])
+    .map((slug) => state.targetData.get(slug))
+    .filter(Boolean);
+  for (const dataset of datasets) {
+    const node = (dataset.graph.nodes || []).find(
+      (item) => item.id === bridge.id || (item.type === "artist" && item.name === bridge.name),
+    );
+    if (node?.icon) return { ...node, id: bridge.id, name: bridge.name, is_target: false };
+  }
+  return {
+    id: bridge.id,
+    type: "artist",
+    name: bridge.name,
+    is_target: false,
+  };
+}
+
 function buildBridgeGraph() {
   const nodes = new Map();
   const edges = [];
   const targetsBySlug = new Map();
   const bridgeItems = bridgeItemsForScope();
   const targetSlugs = new Set(bridgeItems.flatMap((bridge) => bridge.target_slugs || []));
-  if (state.currentTarget !== "all") targetSlugs.add(state.currentTarget);
+  selectedTargetItems().forEach((target) => targetSlugs.add(target.slug));
   if (!targetSlugs.size) {
     selectedTargets().forEach((dataset) => targetSlugs.add(dataset.slug));
   }
@@ -400,12 +510,7 @@ function buildBridgeGraph() {
     }
   });
   bridgeItems.forEach((bridge) => {
-    addNode(nodes, {
-      id: bridge.id,
-      type: "artist",
-      name: bridge.name,
-      is_target: false,
-    });
+    addNode(nodes, bridgeContributorNode(bridge));
     bridge.targets.forEach((target) => {
       const targetNode = targetsBySlug.get(target.slug);
       if (!targetNode) return;
@@ -459,9 +564,9 @@ function seededRandom(seed) {
 }
 
 function graphHeightFor(nodes) {
-  const nodeCount = nodes.length;
-  if (state.viewMode === "bridge") return Math.max(660, Math.min(1180, 610 + nodeCount * 8));
-  return Math.max(660, Math.min(1220, 620 + nodeCount * 4));
+  const graphTop = $("graph")?.getBoundingClientRect().top || 0;
+  const bottomPadding = 14;
+  return Math.max(360, Math.floor(window.innerHeight - graphTop - bottomPadding));
 }
 
 function nodeRadius(node) {
@@ -614,10 +719,9 @@ function setupGraphInstance(container) {
     .linkColor((edge) => (selectedEdgeId() === edge.id ? "#111827" : edgeColor(edge)))
     .linkWidth((edge) => (selectedEdgeId() === edge.id ? 2.8 : Math.min(2.2, 0.7 + Math.sqrt(edge.song_count || 1) * 0.36)))
     .linkCurvature("curvature")
-    .linkDirectionalArrowLength((edge) => (state.directionMode === "directed" && selectedEdgeId() === edge.id ? 8 : 0))
-    .linkDirectionalArrowRelPos(0.88)
-    .linkDirectionalArrowColor((edge) => (selectedEdgeId() === edge.id ? "#111827" : edgeColor(edge)))
-    .linkDirectionalParticles((edge) => (state.directionMode === "directed" && selectedEdgeId() === edge.id ? 1 : 0))
+    .linkDirectionalArrowLength(0)
+    .linkDirectionalParticles(() => (state.particlesEnabled ? 1 : 0))
+    .linkDirectionalParticleSpeed(directedParticleSpeed)
     .linkDirectionalParticleWidth(3)
     .linkDirectionalParticleColor((edge) => edgeColor(edge))
     .linkHoverPrecision(8)
@@ -682,6 +786,8 @@ function renderGraph() {
 
   const height = graphHeightFor(nodes);
   container.style.height = `${height}px`;
+  const detailPanel = document.querySelector(".detail-panel");
+  if (detailPanel) detailPanel.style.height = `${height + document.querySelector(".panel-head").offsetHeight}px`;
   const width = container.clientWidth || 960;
   const nextGraphDataKey = JSON.stringify({
     nodes: nodes.map((node) => node.id).sort(),
@@ -796,17 +902,6 @@ function renderTable() {
       songs: (edge.songs || []).map((song) => song.name).join(" / "),
     }));
     renderRows(["职能", "贡献者", "目标歌手", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
-    return;
-  }
-  if (state.activeTab === "quality") {
-    const rows = selectedTargets().flatMap((dataset) =>
-      Object.entries(dataset.quality.credit_filter_reason_counts || {}).map(([reason, count]) => ({
-        target: dataset.name,
-        reason,
-        count,
-      })),
-    );
-    renderRows(["目标歌手", "隔离原因", "数量"], rows, ["target", "reason", "count"]);
     return;
   }
   renderRows(["歌曲", "专辑", "作词", "作曲", "目标歌手"], allSongs(), ["name", "album", "lyricists", "composers", "target"]);

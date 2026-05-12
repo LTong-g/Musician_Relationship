@@ -3,11 +3,10 @@
   "name": "林俊杰",
   "mid": "001BLpXF2DyJe2",
   "source_dir": "data/processed/singer_songs/linjunjie",
-  "generated_at": "2026-05-11T22:16:07.671965+00:00",
+  "generated_at": "2026-05-11T23:37:22.175680+00:00",
   "summary": {
     "songs": 232,
     "initial_candidates": 266,
-    "credit_incomplete": 34,
     "nodes": 105,
     "edges": 133,
     "contributors": 105,
@@ -10048,14 +10047,5 @@
       "target": "林俊杰",
       "target_slug": "linjunjie"
     }
-  ],
-  "quality": {
-    "credit_incomplete": 34,
-    "credit_filter_reason_counts": {
-      "ready": 232,
-      "credit_status:missing_producer_list": 18,
-      "missing_lyricists": 15,
-      "missing_composers": 1
-    }
-  }
+  ]
 }

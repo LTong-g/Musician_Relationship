@@ -1,6 +1,44 @@
-data/raw/
-data/processed/
-*.pyc
-__pycache__/
+# Local environment and secrets
 .env
+.env.*
+!.env.example
+
+# Python cache and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node dependencies and frontend build outputs
 node_modules/
+dist/
+build/
+.vite/
+
+# Local data and generated artifacts
+data/
+archive/
+reports/
+
+# Local databases and binary analysis outputs
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+*.parquet
+*.feather
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db

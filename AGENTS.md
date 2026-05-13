@@ -1,4 +1,4 @@
-Read this file as UTF-8.
+﻿Read this file as UTF-8.
 
 # AGENTS 协作说明
 
@@ -170,6 +170,8 @@ AI 给方案时使用以下顺序：
 - AI 说明方案时应优先使用用户可见效果和验收路径表达。
 - 修改文件后进行机械式替换，把行尾符统一为CRLF。
 - 用户需要本地文件以可点击 Markdown 链接形式给出，不接受只给纯文本路径；Windows 本地链接必须使用正斜杠绝对路径，例如 `[文件名](D:/B0Projects/my_tools/Musician_Relationship/path/file.md)`，不得在链接目标中使用反斜杠。
+- 高可信分支之外的另一个歌曲输入分支统一称为“补充分支”，不得称为“全集分支”“主页分支”或其他名称。
+- 由于 PowerShell 对中文和编码处理不稳定，涉及中文常量、中文文件内容、Markdown 表格、报告生成或中文输出判断时，必要时优先使用明确 UTF-8 配置的 Python 工具或仓库脚本，而不是直接依赖 PowerShell。
 
 ## 项目补充规则
 
@@ -191,7 +193,11 @@ AI 给方案时使用以下顺序：
 
 - 正式源码目录：主动开发应落在 `music_metadata_graph/pipelines/` 及后续正式包目录中；不再保留包根同名薄包装脚本，命令入口统一使用 `python -m music_metadata_graph.pipelines.<module>` 或 `pyproject.toml` 中的脚本入口。
 - 本地数据目录：`data/raw/` 保存接口原始缓存，`data/processed/` 保存本地处理结果和报告，二者默认不提交 Git；实验性输出验证完成后应清理，不长期保留多个 `processed_*` 平铺目录。
-- 推荐 pipeline 输出：歌手身份表写入 `data/processed/singer_registry/qqmusic_hot/`；单歌手初过滤写入 `data/processed/singer_songs/<singer_slug>/`；专辑验证写入 `data/processed/album_validated/<singer_slug>/`；检查报告写入 `data/processed/reports/singer_pipeline/<singer_slug>/`。
+- 推荐 pipeline 输出：歌手身份表写入 `data/processed/singer_registry/qqmusic_hot/`；当前补充分支候选写入 `data/processed/supplement_singer_songs/<singer_slug>/`；专辑验证写入 `data/processed/album_validated/<singer_slug>/`；检查报告写入 `data/processed/reports/singer_pipeline/<singer_slug>/`。
+- 旧端到端流程的代码、网页、数据产物和缓存已剥离到 `archive/legacy_pipeline_2026-05-12/`，包括旧 `collect_singer_songs.py`、`validate_album_ownership.py`、`write_singer_pipeline_report.py`、`export_web_dataset.py`、旧 `web/`、旧 `data/processed/singer_songs/`、旧 `data/processed/validation/legacy/`、旧 `data/raw/qqmusic/singer_songs/`、旧 `data/raw/qqmusic/song_producers/` 和旧 `data/raw/qqmusic/album_probe/`；当前正式流程不得再把旧流程代码、网页或数据写回当前正式目录。
+- 正式流程输出目录只保留 JSON、摘要和后续正式数据库/图谱产物；CSV 只作为人工查看或测试验证视图，统一写入 `data/processed/validation/.../csv_views/`，不得与正式流程 JSON 混放。
+- 当前 QQ 音乐歌曲列表流程分为两个正式输入分支：高可信歌曲子集分支输出目标为 `data/processed/high_confidence_singer_songs/`；补充分支输出目标为 `data/processed/supplement_singer_songs/`。补充分支当前顺序为先去重，再过滤空专辑，最后从补充候选集合中减去高可信子集歌名；减去高可信子集不是独立流程或独立目录。四位歌手样本属于测试验证数据，JSON 查看版本写入 `data/processed/validation/four_singers/json_outputs/`，CSV 查看版本写入 `data/processed/validation/four_singers/csv_views/`，不得混入正式输出目录。
+- 验证测试阶段每一步过滤必须同时输出保留行和被过滤行；被过滤行不得丢弃，必须写入对应 JSON/CSV，并使用 `aux_filter_reason` 或该分支已有的原因字段说明过滤原因。
 - 数据源优先级：第一阶段以 QQ 音乐非官方接口作为主数据源，优先验证 `qqmusic-api-python`；网易云音乐作为补充和交叉校验；酷我、酷狗等平台仅作为缺失字段兜底来源。
 - 前端图谱库：`force-graph` 已作为正式依赖安装到项目根目录，网页图谱优先围绕该库设计和实现；不得再依赖临时克隆仓库作为长期来源。
 - 数据采集边界：只采集关系图谱研究需要的元数据，例如歌曲名、音乐人名、平台 ID、头像 URL、专辑、发行信息、演唱/作词/作曲/编曲/制作人关系、榜单或热度快照；不采集音频文件，不实现下载播放能力。

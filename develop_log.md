@@ -1,4 +1,4 @@
-Read this file as UTF-8.
+﻿Read this file as UTF-8.
 
 # 开发日志
 
@@ -235,7 +235,7 @@ Read this file as UTF-8.
 ### 修正保留歌曲 Markdown 表格报告
 
 - 用户要求查看过滤后保留歌曲的全量 Markdown 清单，并指出生成的 Markdown 表格多次渲染失败且出现问号。
-- 复核发现第一次失败原因是报告表格行之间被写入空行，Markdown 渲染器将表格拆断；后续又发现 Windows 文本模式写入 `\r\n` 时被二次转换为 `\r\r\n`，继续产生空行。
+- 复核发现第一次失败原因是报告表格行之间被写入空行，Markdown 渲染器将表格拆断；后续又发现 Windows 文本模式写入 `\r\n` 时被二次转换为 `\r\n\r\n`，继续产生空行。
 - 复核还发现 `Six Degrees (Slowed|Reverb)` 等字段中包含未转义竖线，会导致 Markdown 表格列数错乱。
 - 已将 `data/processed_jay_priority_filter/songs_kept_alpha_report.md` 重新生成为单表格式，并对所有单元格内容中的 `|` 执行转义。
 - 为避免 PowerShell 临时脚本中文常量再次被本机编码污染，报告标题和列名改为 ASCII，中文只来自 JSON 数据本身。
@@ -1008,3 +1008,484 @@ Read this file as UTF-8.
 - 已更新 `web/index.html` 的 CSS/JS 资源版本号为 `20260512-native-select-overlay`，降低浏览器继续加载旧按钮样式缓存的风险。
 - 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
 - 静态断言确认原生视觉 select、透明覆盖按钮、视觉文本同步、覆盖按钮可访问标签和新版资源号均已存在。
+
+### 澄清 QQ 音乐歌手到歌曲数据流程
+
+- 用户质疑当前数据流程是否只能通过音乐人名字搜索歌曲，并对照 QQ 音乐软件中“先搜索音乐人，再进入音乐人页查看歌曲”的路径提出疑问。
+- 复核当前实现后确认，项目正式采集流程并不是“音乐人名字搜索歌曲”，而是先通过 `qqmusic.singer.get_singer_list_index` 建立歌手身份表，取得歌手 `mid`、姓名、头像等身份信息。
+- 单歌手采集脚本在有 `target_singer_mid` 时直接使用该 `mid`，没有 `target_singer_mid` 时使用热门歌手列表接口取得候选歌手；随后通过 `qqmusic.singer.get_songs_list(singer_mid)` 按歌手 `mid` 分页获取歌曲列表。
+- 歌曲制作人员补全继续使用 `qqmusic.song.get_producer(song_mid 或 song_id)`，因此完整主路径是“歌手身份 -> 歌手歌曲列表 -> 歌曲制作人员”，而不是“歌手名搜索歌曲”。
+- 搜索接口在当前方案中的合理定位是辅助解析入口，例如用户只给出歌手名字时先搜索或候选确认出 QQ 音乐歌手 `mid`；它不应作为主采集路径，也不应直接用名字搜索歌曲替代歌手歌曲列表。
+- 当前剩余缺口是用户侧入口和文档表达仍可能让人误以为需要手工知道 `mid` 或通过名字搜歌；后续若继续优化，应增加“按歌手名搜索并确认歌手身份”的小工具或页面入口，再把确认出的 `mid` 交给现有采集流程。
+
+### 定位歌手歌曲接口返回非主页官方歌曲的原因
+
+- 用户指出如果流程等价于 QQ 音乐客户端歌手主页歌曲页，不应返回 `安徽卫视非常静距离杰伦部分`、`土耳其进行曲` 这类明显不属于周杰伦官方歌曲的条目。
+- 复核 `qqmusic-api-python` 源码后确认，当前 `collect_singer_songs.py` 使用的 `client.singer.get_songs_list(mid)` 实际请求 `musichall.song_list_server.GetSingerSongList`，参数为 `singerMid`、`order`、`number`、`begin`。
+- 本地原始缓存 `data/raw/qqmusic/singer_songs/0025NhlN2yWrP4/page_0031_size_30.json` 中确实包含用户指出的两个异常条目，且原始 `songInfo.singer[0].mid` 均为周杰伦 `0025NhlN2yWrP4`；因此这些条目不是项目后处理混入，而是旧接口原始响应曾经直接返回。
+- 缓存中的 `土耳其进行曲` 专辑为 `最脍炙人口的古典音乐100首`，`安徽卫视非常静距离杰伦部分` 专辑为空，二者说明旧接口更像“按歌手标记聚合的宽泛歌曲索引”，不等价于客户端歌手主页经过产品规则筛选后的官方歌曲列表。
+- 进一步检查库中另一个接口 `client.singer.get_tab_detail(mid, TabType.SONG)`，该接口请求 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail`，`TabID` 为 `song_sing`，从命名、参数和响应字段上更接近客户端歌手主页的“歌曲”Tab。
+- 联网验证周杰伦主页 `song_sing` Tab 共翻页 34 页、检查 1012 首歌，未命中 `安徽卫视非常静距离` 或 `土耳其进行曲`。
+- 联网重新扫描旧 `GetSingerSongList` 接口当前 1012 首结果时，也未命中这两个具体异常项；这说明本地缓存还叠加了平台数据已变化或旧缓存过期问题，但不改变旧缓存证据：历史采集时该接口确实返回过非主页官方歌曲。
+- 当前结论是采集主流程不应继续把 `GetSingerSongList` 当作“客户端歌手主页官方歌曲列表”的等价来源；后续应优先切换到 `GetHomepageTabDetail + song_sing` 作为歌手主页歌曲来源，并将旧接口降级为补充或对照来源。
+
+### 切换单歌手歌曲采集源到主页歌曲 Tab
+
+- 用户要求开始切换采集源，并先采集周杰伦、薛之谦、林俊杰三位歌手的新接口全量数据，以 CSV 展示并按歌曲首字母排序，中文按拼音排序，英文中文混排。
+- 已修改 `music_metadata_graph/pipelines/collect_singer_songs.py`：单歌手歌曲采集从 `client.singer.get_songs_list(mid)` 切换为 `client.singer.get_tab_detail(mid, TabType.SONG)`，并使用 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail` 的 `SongTab.List` 作为歌曲来源。
+- 新增 `SONG_SOURCE = qqmusic.singer.get_tab_detail.song_sing` 并写入每首歌曲的 `song_source` 字段，便于后续追溯采集源。
+- 新接口原始缓存目录改为 `data/raw/qqmusic/singer_homepage_song_tab/<singer_mid>/`，避免与旧 `GetSingerSongList` 缓存混用。
+- 新增 `sort_key` 字段，使用 `pypinyin.lazy_pinyin` 对歌曲名生成排序键；所有歌曲 CSV 输出按 `sort_key`、发行时间和歌曲 id/mid 排序。
+- README 已同步说明默认主采集源为歌手主页歌曲 Tab，旧 `GetSingerSongList` 只作为补充或对照来源，不再作为默认主采集源。
+- 本轮未执行逐首制作人员补全；三位歌手全量采集使用 `--skip-producers`，目的是先检查新接口歌曲列表本身的数据形态，避免把上千次制作人员请求混入采集源切换验证。
+
+### 验证主页歌曲 Tab 全量采集结果
+
+- 语法验证对象为 `music_metadata_graph/pipelines/collect_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
+- Smoke 验证对象为周杰伦主页歌曲 Tab 第 1 页，采集 30 条歌曲，初过滤后保留 26 条、过滤 4 条，并对前 3 首请求制作人员，3 首均返回 `ok`，作词和作曲字段均非空。
+- 全量采集周杰伦：主页歌曲 Tab 返回 1012 行，初过滤后保留 240 行，过滤 772 行，输出到 `data/processed/singer_songs_homepage/zhoujielun/`。
+- 全量采集薛之谦：主页歌曲 Tab 返回 528 行，初过滤后保留 127 行，过滤 401 行，输出到 `data/processed/singer_songs_homepage/xuezhiqian/`。
+- 全量采集林俊杰：主页歌曲 Tab 返回 1013 行，初过滤后保留 266 行，过滤 747 行，输出到 `data/processed/singer_songs_homepage/linjunjie/`。
+- 已生成三位歌手合并 CSV `data/processed/singer_songs_homepage/three_singers_songs_all_sorted.csv`，共 2553 行，按歌手和拼音排序键排序，便于按歌手查看新接口全量返回。
+- 已生成三位歌手全局混排 CSV `data/processed/singer_songs_homepage/three_singers_songs_all_global_sorted.csv`，共 2553 行，不按歌手分组，直接按歌曲拼音/英文排序键混排。
+- 验证对象为每位歌手的 `songs_all.csv`、`songs_kept.csv`、`songs_filtered.csv` 和合并 CSV，检查结果显示文件均存在且非空、UTF-8 可读、包含 `sort_key` 和 `song_source` 字段。
+- 新接口全量结果中仍出现用户点名的异常项：`安徽卫视非常静距离杰伦部分` 被 `name_title_mismatch` 过滤，`土耳其进行曲` 仍进入 `songs_kept`；因此接口切换降低了来源语义风险，但不能单独解决“官方歌曲”定义，后续需要继续增强专辑归属、空专辑、古典合集和非原创/非主唱条目的过滤或验证规则。
+
+### 对比周杰伦两个歌手歌曲接口全量结果
+
+- 用户质疑 `songs_all` 是否混入旧数据，并指出新结果中仍包含 `安徽卫视非常静距离杰伦部分`，要求分别全量请求两个接口对比差异。
+- 已绕开现有缓存，实时全量请求周杰伦旧接口 `musichall.song_list_server.GetSingerSongList` 和主页歌曲 Tab 接口 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail`，两者均按 30 条分页完整请求 34 页。
+- 对比结果显示旧接口返回 1012 行、主页歌曲 Tab 返回 1012 行；按歌曲 `mid/id` 建立唯一 key 后，旧接口唯一 key 为 1012 个，主页歌曲 Tab 唯一 key 为 1012 个，两者交集为 1012 个，旧接口独有 0 个，主页 Tab 独有 0 个。
+- 因此 `songs_all` 中出现 `安徽卫视非常静距离杰伦部分` 不是旧数据混入，而是主页歌曲 Tab 接口实时返回的原始全量数据本身包含该条目。
+- 两个接口的主要差异不是歌曲集合，而是分页排序位置不同：例如 `土耳其进行曲` 在旧接口第 31 页第 9 行，在主页 Tab 第 5 页第 7 行；`安徽卫视非常静距离杰伦部分` 在旧接口第 31 页第 14 行，在主页 Tab 第 20 页第 5 行。
+- 已生成对比输出目录 `data/processed/interface_compare/zhoujielun/`，其中包括两个接口全量 CSV、两个独有集合 CSV、共有歌曲位置对比 CSV 和 `summary.json`。
+- 当前结论修正为：切换到主页歌曲 Tab 不能解决异常条目问题，因为两个接口当前返回的周杰伦歌曲集合完全一致；后续应把重点转向业务过滤规则和“官方歌曲”判定，而不是继续寻找这两个接口之间的数据集合差异。
+
+### 梳理可用于歌曲和专辑请求的 QQ 音乐接口
+
+- 用户要求继续查找是否还有其他接口可能有用，并先列出能用来请求歌曲或专辑的所有接口并分析。
+- 本轮依据本地已安装的 `qqmusic-api-python` 源码梳理，重点查看 `modules/song.py`、`modules/album.py`、`modules/singer.py`、`modules/search.py`、`modules/top.py`、`modules/songlist.py`、`modules/recommend.py` 以及对应模型文件。
+- 可直接返回目标歌手歌曲集合的接口包括 `singer.get_songs_list(mid)` 和 `singer.get_tab_detail(mid, TabType.SONG)`；前一轮已验证二者对周杰伦当前返回集合完全一致，不能单独解决异常条目问题。
+- 歌手主页 Tab 还支持 `COMPOSER`、`LYRICIST`、`PRODUCER`、`ARRANGER`、`MUSICIAN` 等角色型歌曲 Tab；这些接口可能用于补充“该歌手参与创作/制作的歌曲”，但不能直接当作“该歌手演唱的官方歌曲”来源。
+- 专辑相关接口包括 `singer.get_album_list(mid)`、`singer.get_tab_detail(mid, TabType.ALBUM)`、`album.get_detail(album_id/mid)` 和 `album.get_song(album_id/mid)`；其中专辑详情的专辑署名歌手、专辑类型、发行公司、发行日期和专辑歌曲列表对判定官方歌曲最有用。
+- 歌曲相关接口包括 `song.query_song(ids/mids)`、`song.get_detail(id/mid)`、`song.get_other_version(id/mid)`、`song.get_producer(id/mid)`、`song.get_labels(songid)`、`song.get_similar_song(songid)`、`song.get_sheet(mid)`、`song.get_fav_num(song_ids)`；其中歌曲详情、制作人员、其他版本和标签对过滤规则有辅助价值，推荐/相似/收藏数不适合作为官方归属依据。
+- 搜索接口包括 `search.search_by_type(keyword, SearchType.SONG/ALBUM/SINGER)` 和 `search.general_search(keyword)`；搜索专辑结果模型包含 `album_type`，注释指出通常 `1` 代表正规专辑，可作为候选专辑筛选或交叉验证，但搜索接口不适合做全量主采集。
+- 排行榜、新歌推荐、歌单详情等接口能返回歌曲列表，但来源语义是榜单、推荐或用户歌单，不适合判定某个歌手的官方作品，只适合发现样本或交叉热度信息。
+- 当前分析结论是：后续最有价值的路线不是再换一个单一歌曲列表接口，而是以歌手专辑列表和专辑详情/专辑歌曲列表作为官方作品验证主链路，再用歌曲详情、制作人员、其他版本和标签作为辅助证据。
+
+### 探查汪苏泷歌手专辑列表返回形态
+
+- 用户指出部分歌手作品首发语境可能就是综艺或 Live，例如“我是唱作人”，不能简单按 Live 或节目专辑一刀切过滤，并要求先用汪苏泷请求全量歌手专辑列表。
+- 使用汪苏泷 QQ 音乐歌手 `mid=001z2JmX09LLgL` 请求 `client.singer.get_album_list(mid)`，按每页 30 条完整请求 4 页，接口返回总数 117，实际落盘 117 条。
+- 输出目录为 `data/processed/album_probe/wangsulong/`，包含 `wangsulong_singer_album_list.csv`、`wangsulong_singer_album_list.json` 和 `summary.json`；原始缓存保存到 `data/raw/qqmusic/album_probe/wangsulong/singer_album_list/`。
+- 专辑类型分布为：`Single` 77 条、`录音室专辑` 33 条、`演唱会` 5 条、`EP` 1 条、`人声音频` 1 条。
+- 歌手专辑列表中包含普通录音室专辑、单曲、影视原声带、多人合集、演唱会、品牌活动/现场类专辑和人声音频；例如 `爱你 影视原声带`、`风起洛阳 影视原声带`、`登陆星球2016演唱会`、`就让这大雨全都落下 (Live)`、`雀巢咖啡1+2唤醒大咖秀 郁可唯汪苏泷专场`。
+- 当前汪苏泷歌手专辑列表未检索到专辑名包含 `我是唱作人` 的条目；这说明综艺首发作品不一定会通过歌手专辑列表以节目名专辑形式出现，后续还需要结合歌曲列表、专辑详情、搜索专辑和歌曲制作人员验证。
+- 本轮发现 `album_type=演唱会` 的条目可能既包含个人演唱会，也包含活动现场或合作现场；因此不能简单把 `演唱会` 或 `Live` 全部判为噪声，需要看目标歌手是否为专辑署名歌手、歌曲是否为该歌手演唱、制作人员是否匹配，以及是否属于明确节目/现场首发作品。
+
+### 采集三位歌手全量专辑列表
+
+- 用户要求继续用周杰伦、薛之谦、林俊杰请求全量歌手专辑列表查看结果。
+- 使用 `client.singer.get_album_list(mid)` 分别请求三位歌手，每页 30 条，输出到 `data/processed/album_probe/three_singers/`，原始缓存写入 `data/raw/qqmusic/album_probe/three_singers/`。
+- 周杰伦专辑列表返回 43 条，类型分布为 `录音室专辑` 18、`Single` 16、`演唱会` 7、`EP` 2；专辑署名包含目标歌手的数量为 43，多歌手专辑 4。
+- 薛之谦专辑列表返回 32 条，类型分布为 `Single` 17、`录音室专辑` 14、`演唱会` 1；专辑署名包含目标歌手的数量为 32，多歌手专辑 4。
+- 林俊杰专辑列表返回 76 条，类型分布为 `Single` 48、`录音室专辑` 18、`EP` 5、`演唱会` 5；专辑署名包含目标歌手的数量为 76，多歌手专辑 20。
+- 三位歌手的歌手专辑列表均未命中 `声生不息`、`歌手`、`我是唱作人`、`综艺` 等关键词；这进一步说明歌手专辑列表适合作为高可信个人/署名专辑来源，但不能覆盖音乐综艺节目专辑。
+- 已生成每位歌手的 `singer_album_list.csv/json`、`summary.json` 和合并表 `three_singers_album_list.csv`；验证确认文件存在、大小非零、UTF-8 可读，合并表共 151 行。
+
+### 核对四位歌手高可信歌曲子集采集状态
+
+- 用户反馈采集过程中程序卡死并重启电脑，要求检查周杰伦、薛之谦、林俊杰、汪苏泷四位歌手的高可信歌曲子集是否请求完整。
+- 检查 `data/processed/high_confidence_singer_songs/summary.json`，汇总结果存在，生成时间为 `2026-05-12T18:21:32.562260+00:00`，记录歌手数 4、去重后高可信歌曲总数 1062。
+- 周杰伦结果完整：歌手专辑列表 43 条，按 `Single`、`EP`、`录音室专辑` 保留 36 张专辑，原始专辑歌曲缓存目录 36 个，高可信歌曲 CSV 225 行。
+- 薛之谦结果完整：歌手专辑列表 32 条，按规则保留 31 张专辑，原始专辑歌曲缓存目录 31 个，高可信歌曲 CSV 154 行。
+- 林俊杰结果完整：歌手专辑列表 76 条，按规则保留 71 张专辑，原始专辑歌曲缓存目录 71 个，高可信歌曲 CSV 321 行。
+- 汪苏泷结果完整：歌手专辑列表 117 条，按规则保留 111 张专辑，原始专辑歌曲缓存目录 111 个，高可信歌曲 CSV 362 行。
+- 四位歌手单人 `songs_high_confidence.csv/json`、`album_song_rows_kept_before_dedupe.csv/json`、`album_song_rows_rejected.csv/json`、`albums_included.csv/json`、`albums_excluded.csv/json` 和 `summary.json` 均存在且非空。
+- 汇总 CSV `four_singers_high_confidence_songs.csv` 存在且非空，行数为 1062，等于四位歌手单人高可信歌曲数之和，说明汇总未缺歌手、未出现汇总行数缺口。
+
+### 分析高可信采集超时原因
+
+- 首次高可信歌曲子集采集命令在外层执行工具等待约 245 秒后返回超时状态，属于本地执行工具的等待上限触发；该状态本身不是 QQ 音乐接口返回的封禁、限流或鉴权失败证据。
+- 本轮采集需要请求四位歌手的专辑列表和 249 张保留专辑的歌曲列表，且脚本使用低频请求策略，因此运行时间超过 4 分钟属于可解释范围。
+- 电脑重启前已经落盘四位歌手的原始缓存、单人结果和汇总结果；当前没有残留 Python 采集进程。
+- 当前未发现接口封禁证据：没有观察到 HTTP 鉴权失败、封禁提示、连续空响应或脚本异常退出留下的半成品结果；相反，四位歌手的专辑数、原始缓存目录数、单人 CSV 行数和汇总 CSV 行数都能对齐。
+- 剩余风险是脚本当前缺少结构化运行日志，无法精确复盘每个接口请求的耗时和最后一个成功请求；后续若继续扩展采集，建议增加每页/每专辑请求耗时、重试次数和异常摘要日志。
+
+### 规范高可信歌曲 CSV 列名来源
+
+- 用户指出整理 CSV 时不应增加或修改接口键名，列名只能是请求得到的键名或明确的辅助键，并质疑 `confidence` 不是有用的辅助键。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：歌曲 CSV 的非辅助列改为 QQ 音乐 `album.get_song` 歌曲响应顶层键，例如 `id`、`type`、`mid`、`name`、`title`、`subtitle`、`singer`、`album`、`time_public`、`file`、`pay`、`action` 等。
+- 已修改专辑 CSV 的非辅助列为 QQ 音乐 `singer.get_album_list` 专辑响应顶层键，例如 `albumMid`、`albumName`、`albumTranName`、`publishDate`、`totalNum`、`albumType`、`pmid`、`albumID`、`singerName`、`tags`。
+- 所有项目流程新增列统一改为 `aux_` 前缀，例如 `aux_target_singer`、`aux_target_singer_mid`、`aux_sort_key`、`aux_include_album`、`aux_album_filter_reason`、`aux_target_singer_match`、`aux_source`。
+- 已移除 `confidence` 列；当前高可信含义由输出目录、脚本规则、summary 规则和辅助筛选列表达，不再作为 CSV 普通列写出。
+- 已使用本地原始缓存重新生成四位歌手单人 CSV、专辑 CSV、拒绝行 CSV 和四位歌手汇总 CSV，未重新请求外部接口。
+- 验证对象为 `collect_high_confidence_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
+- 验证对象为四位歌手 `songs_high_confidence.csv`、`albums_included.csv` 和汇总 `four_singers_high_confidence_songs.csv`，检查确认不存在 `confidence` 列；非 `aux_` 列均属于对应接口原始顶层键；单人行数仍为周杰伦 225、薛之谦 154、林俊杰 321、汪苏泷 362，汇总 1062 行且等于单人行数之和。
+
+### 澄清高可信歌曲子集与原采集流程关系
+
+- 用户询问当前是否只得到高可信歌曲列表子集，后续流程是否仍存在，以及原来的流程是否保留。
+- 复核 `pyproject.toml` 脚本入口后确认，原有入口 `mr-collect-hot-singers`、`mr-collect-singer-songs`、`mr-validate-albums`、`mr-write-pipeline-report`、`mr-export-web-dataset` 仍保留；新增入口为 `mr-collect-high-confidence-songs`。
+- 复核源码后确认，`collect_high_confidence_singer_songs.py` 当前只负责从歌手专辑列表和专辑歌曲列表生成高可信歌曲子集，不请求 `song.get_producer`，也不直接生成作词、作曲、图谱边或网页数据。
+- 原流程 `collect_singer_songs.py` 仍保留歌手主页歌曲 Tab 全量采集、初过滤、去重、制作人员补全和作词作曲完整性过滤能力，输出 `songs_kept.json/csv`、`songs_credit_incomplete.json/csv` 等。
+- 原后处理 `validate_album_ownership.py`、`write_singer_pipeline_report.py` 和 `export_web_dataset.py` 仍按原数据结构读取 `songs_kept.json` 或专辑验证结果；当前尚未改成直接消费高可信子集。
+- 当前明确状态是高可信子集已经作为新的候选入口完成，但还没有接入制作人员补全、关系边生成、网页导出等下游阶段；后续需要决定是把高可信子集作为主输入替换旧歌曲入口，还是与原全量入口并行并在下游合并。
+
+### 展开当前数据流程的逐步细节
+
+- 用户要求不要把步骤合并成“初过滤”“报告”“去重”等概括词，而是把流程中每一步具体做什么完整展开。
+- 已复核 `collect_hot_singer_registry.py`、`collect_singer_songs.py`、`collect_high_confidence_singer_songs.py`、`validate_album_ownership.py`、`write_singer_pipeline_report.py` 和 `export_web_dataset.py` 的实际逻辑。
+- 原歌手歌曲流程的具体步骤包括：可选请求热门歌手列表或手动使用目标歌手 `mid`；请求歌手主页歌曲 Tab；把原始歌曲压缩为项目行结构；按 `name` 与 `title` 是否一致、专辑是否为空、标题是否包含版本词依次标记过滤原因；对未过滤歌曲按 `mid/id/歌名+歌手` 去重；请求制作人员接口；展开演唱、作词、作曲、编曲、制作人；按制作人员请求状态、作词是否为空、作曲是否为空决定是否进入可视化候选；写出全量、过滤、保留、制作人员不完整和快照文件。
+- 专辑归属验证流程的具体步骤包括：读取原流程 `songs_kept.json`；收集唯一 `album_mid`；请求专辑详情；构造非版本歌曲基础标题集合；识别歌曲或专辑标题中的版本词；判断专辑署名歌手是否匹配目标歌手；检查专辑歌手、专辑标题、语言、发行公司、简介等可疑信号；按版本重复、强专辑归属不匹配、弱专辑归属不匹配输出 kept、rejected 或 review。
+- 报告流程的具体步骤包括：读取原始全量歌曲、原始过滤歌曲、原始保留歌曲、专辑验证保留、专辑验证拒绝和专辑验证待复核数据；统计各类原因；按拼音/英文排序；分别写出汇总、原始过滤、原始保留、专辑待复核、专辑拒绝和最终保留 Markdown 表；生成后逐个校验 Markdown 表格列数和 UTF-8 可读性。
+- 网页导出流程的具体步骤包括：读取每个目标歌手目录下的 `songs_kept.json` 和快照；为目标歌手创建 artist 节点；为每首歌创建 song 节点记录；从 `credits.groups` 中只取“作词”和“作曲”；为词曲作者创建 artist 节点；把非目标词曲作者指向目标歌手生成边；统计角色、贡献者、跨目标贡献者；写出单歌手 JSON 和总 catalog。
+- 高可信专辑子集流程的具体步骤包括：请求指定歌手专辑列表；按 `albumType` 只保留 `Single`、`EP`、`录音室专辑`；对每张保留专辑请求专辑歌曲；检查歌曲 `singer[].mid` 是否包含目标歌手 `mid`；不匹配的写入 rejected 行；匹配的写入保留行；按歌曲 `mid/id` 去重；按辅助拼音排序键排序；写出单人和四人汇总 CSV/JSON、保留专辑、排除专辑、专辑歌曲保留前行和拒绝行。
+- 当前结论仍是：原流程是端到端网页图谱流程但入口召回偏宽；高可信流程是更可靠的歌曲入口但尚未接入制作人员补全、专辑验证、报告和网页导出。
+
+### 纠正高可信流程正式边界和 CSV 定位
+
+- 用户纠正：高可信流程正式目标应使用全部歌手，当前四位歌手只是测试流程；CSV 应与 JSON 内容一致，只是方便查看的版本；正式流程不应包含 CSV。
+- 已修改 `collect_high_confidence_singer_songs.py`：默认不再内置四位歌手作为正式输入，而是读取 `data/processed/singer_registry/qqmusic_hot/singer_registry.json` 中的全部歌手。
+- 已新增 `--test-four-singers` 参数，用于显式运行周杰伦、薛之谦、林俊杰、汪苏泷四位测试样本；`--singer slug=name=mid` 仍保留为手动测试入口；`--max-singers` 用于 registry smoke test。
+- 已新增 `--write-csv` 参数；默认正式输出只写 JSON，只有显式传入该参数时才生成 CSV 查看文件。
+- 汇总正式 JSON 文件名从带四人语义的 `four_singers_high_confidence_songs.json` 调整为通用的 `singers_high_confidence_songs.json`；CSV 查看文件同名但扩展名为 `.csv`。
+- CSV 生成逻辑改为从同一批 JSON 行动态生成列，嵌套字段序列化为 JSON 字符串，避免 CSV 与 JSON 使用两套字段结构。
+- README 已同步说明高可信流程的前置条件是先生成歌手身份表；正式流程默认读取全部歌手；四位歌手和 CSV 都是调试或查看参数，不是正式流程边界。
+- 验证对象为 `collect_high_confidence_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
+- 使用已有原始缓存执行 `--test-four-singers` 且不加 `--write-csv` 输出到临时目录，结果为 4 位测试歌手、1062 首高可信歌曲、26 个 JSON 文件、0 个 CSV 文件，确认默认不写 CSV。
+- 使用已有原始缓存执行 `--test-four-singers --write-csv` 输出到临时目录，结果汇总 JSON 和汇总 CSV 均为 1062 行，确认 CSV 是同一批 JSON 行的查看版。
+- 当前工作区没有默认路径下的 `singer_registry.json`，因此正式全部歌手流程需要先运行歌手身份表采集，或通过 `--registry` 指向已有身份表文件。
+
+### 生成四位歌手全集减高可信子集差集
+
+- 用户要求用原流程接口请求周杰伦、薛之谦、林俊杰、汪苏泷四位歌手的全量歌曲，不做任何过滤，并从全集中减去高可信子集生成差集 CSV。
+- 检查本地结果后确认，周杰伦、薛之谦、林俊杰的主页歌曲 Tab 全量 `songs_all.json/csv` 已存在于 `data/processed/singer_songs_homepage/`。
+- 汪苏泷此前没有主页歌曲 Tab 全量缓存；首次补请求因沙箱网络权限触发 `WinError 5` 连接失败，未观察到 QQ 音乐接口封禁或限流响应；随后按权限规则联网重跑成功。
+- 已使用原流程接口 `singer.get_tab_detail(mid, TabType.SONG)` 补采汪苏泷主页歌曲 Tab 全量数据，输出到 `data/processed/singer_songs_homepage/wangsulong/`；本次使用 `--skip-producers`，未请求制作人员，也未使用过滤后的结果。
+- 汪苏泷主页歌曲 Tab 全量返回 939 行，写入 `songs_all.json/csv`；脚本同时按旧逻辑生成了 `songs_kept` 和 `songs_filtered`，但本次差集只读取 `songs_all.json`。
+- 差集计算读取四位歌手的全集 `songs_all.json` 和高可信 `songs_high_confidence.json`，按歌曲 `mid` 优先、其次 `id`、最后 `规范化歌名+歌手` 建立 key。
+- 差集规则为：全集中的每一行只要其 key 不在高可信 key 集中，就写入 `full_minus_high_confidence`；因此差集保留全集中的原始剩余行，不会先对全集去重。
+- 已生成输出目录 `data/processed/high_confidence_diff/`，包含四位歌手单独 CSV/JSON、四位汇总 CSV/JSON 和 `summary.json`。
+- 差集结果为：周杰伦全集 1012 行、高可信 225 行、差集 792 行；薛之谦全集 528 行、高可信 154 行、差集 399 行；林俊杰全集 1013 行、高可信 321 行、差集 746 行；汪苏泷全集 939 行、高可信 362 行、差集 627 行。
+- 四位歌手汇总全集 3492 行、高可信 1062 行、差集 2564 行；差集数量不等于全集行数直接减高可信行数，因为全集保留未去重原始行，而高可信集合是去重后的 key 集。
+- 验证对象为四位单独差集 CSV 和汇总差集 CSV，回读确认行数分别为 792、399、746、627 和 2564，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
+
+### 重算全集去重后差集
+
+- 用户指出全集也应该先按同一规则去重后再作为全集参与集合运算，而不是直接保留所有请求结果。
+- 已按与高可信子集一致的歌曲 key 规则重算差集：优先使用 `mid`，没有 `mid` 时使用 `id`，再缺失时使用 `规范化歌名+歌手标识`。
+- 新输出目录为 `data/processed/high_confidence_diff_deduped_full/`，其中四位歌手单独差集文件名为 `songs_deduped_full_minus_high_confidence.csv/json`，汇总文件名为 `four_singers_deduped_full_minus_high_confidence.csv/json`。
+- 本次重算结果显示四位歌手的主页歌曲 Tab 全集 `songs_all.json` 中按该 key 规则没有重复 key：全集去重前 3492 行，去重后仍为 3492 行，移除重复 0 行。
+- 因全集本身没有重复 key，重算后的差集行数与上一版一致：周杰伦 792、薛之谦 399、林俊杰 746、汪苏泷 627，汇总 2564。
+- 新差集 CSV 增加 `aux_song_key`、`aux_duplicate_count_in_full` 和 `aux_duplicate_sources_json`，用于说明全集去重依据和每个 key 在全集中的原始来源行数。
+- 验证对象为四位单独新差集 CSV 和汇总新差集 CSV，回读确认行数分别为 792、399、746、627 和 2564，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
+
+### 按歌名键重算补充候选差集
+
+- 用户要求调整作差使用的键，不再用 `mid` 和 `id`，而是直接用歌名；全集和高可信集合内部去重规则保持不变。
+- 已生成新输出目录 `data/processed/high_confidence_diff_name_key/`，保留原有按 `mid/id` 作差结果不覆盖。
+- 新差集计算流程为：全集先按原去重规则去重；高可信子集保持现有去重结果；作差时把两边歌曲名规范化后作为 `aux_diff_name_key`，全集中歌名 key 不在高可信歌名 key 集中的歌曲进入差集。
+- 本次四位歌手全集按原去重规则仍无重复 key：去重前 3492 行，去重后 3492 行。
+- 高可信子集 1062 行对应 828 个规范化歌名 key，说明在歌名层面存在同名不同版本或不同 id 的合并。
+- 按歌名 key 作差后结果为：周杰伦 300 行、薛之谦 167 行、林俊杰 333 行、汪苏泷 467 行，汇总 1267 行。
+- 新 CSV 保留 `aux_song_key` 作为原去重 key，同时新增 `aux_diff_name_key` 记录本次作差使用的歌名 key。
+- 验证对象为四位单独新差集 CSV 和汇总新差集 CSV，回读确认行数分别为 300、167、333、467 和 1267，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
+
+### 对齐补充候选差集 CSV 与高可信子集列结构
+
+- 用户指出差集 CSV 列名应该与高可信子集保持一致，而不是沿用原流程整理字段。
+- 已使用主页歌曲 Tab 原始缓存 `data/raw/qqmusic/singer_homepage_song_tab/<mid>/page_*.json` 重新生成按歌名作差的差集，而不是从原流程整理后的 `songs_all.json` 导出。
+- 新输出目录为 `data/processed/high_confidence_diff_name_key_raw_schema/`，保留上一版整理字段差集不覆盖。
+- 新差集 CSV 的非辅助列使用 QQ 音乐歌曲原始顶层键，列顺序与高可信 CSV 前置原始列一致，例如 `id`、`type`、`mid`、`name`、`title`、`subtitle`、`singer`、`album`、`mv`、`interval`、`isonly`、`language` 等。
+- 新差集 CSV 的项目新增字段统一使用 `aux_` 前缀，包括 `aux_target_singer`、`aux_target_singer_mid`、`aux_sort_key`、`aux_song_key`、`aux_diff_name_key`、`aux_set_relation`、`aux_duplicate_count_in_full`、`aux_duplicate_sources` 和 `aux_source`。
+- 按歌名作差的结果行数保持不变：周杰伦 300、薛之谦 167、林俊杰 333、汪苏泷 467，汇总 1267。
+- 验证对象为新汇总差集 CSV 和四位单独差集 CSV，回读确认非 `aux_` 列均属于 QQ 音乐歌曲原始顶层键；汇总 CSV 前 12 列与高可信 CSV 前 12 列一致；文件 UTF-8 可读且无 U+FFFD 替换字符。
+
+### 清理高可信差集旧输出目录
+
+- 用户要求清理没用的旧目录。
+- 已保留当前仍在使用的高可信源 JSON 目录 `data/processed/high_confidence_singer_songs/`、高可信 CSV 查看目录 `data/processed/high_confidence_singer_songs_csv_check/` 和最新差集目录 `data/processed/high_confidence_diff_name_key_raw_schema/`。
+- 已删除中间验证目录 `data/processed/high_confidence_diff/`、`data/processed/high_confidence_diff_deduped_full/`、`data/processed/high_confidence_diff_name_key/` 和 `data/processed/high_confidence_singer_songs_json_only_check/`。
+- 删除前校验了解析后的目标路径均位于当前工作区内；未删除 `data/raw/` 原始缓存。
+- 清理后复核确认 `data/processed/high_confidence_singer_songs_csv_check/singers_high_confidence_songs.csv` 和 `data/processed/high_confidence_diff_name_key_raw_schema/four_singers_deduped_full_minus_high_confidence_by_name.csv` 仍存在且非空。
+
+### 进一步清理 processed 探查和临时目录
+
+- 用户指出 `data/processed` 中仍有很多目录，质疑它们是否都有用。
+- 复核后确认上次清理过于保守：`album_probe`、`interface_compare`、`smoke` 是阶段性探查或验证产物；`high_confidence_singer_songs_csv_check` 是临时 CSV 查看目录；`high_confidence_singer_songs` 中旧命名 `four_singers_high_confidence_songs.*` 也已经被新命名 `singers_high_confidence_songs.*` 取代。
+- 已先使用已有缓存将高可信 CSV 查看版重新生成回正式目录 `data/processed/high_confidence_singer_songs/`，确保删除临时 CSV 查看目录后仍保留当前高可信 CSV。
+- 已删除 `data/processed/album_probe/`、`data/processed/interface_compare/`、`data/processed/smoke/`、`data/processed/high_confidence_singer_songs_csv_check/`。
+- 已删除 `data/processed/high_confidence_singer_songs/four_singers_high_confidence_songs.csv` 和 `four_singers_high_confidence_songs.json`，保留通用命名的 `singers_high_confidence_songs.csv/json`。
+- 已删除 `data/processed/singer_songs_homepage/three_singers_songs_all_sorted.csv` 和 `three_singers_songs_all_global_sorted.csv`，保留四位歌手各自目录下的主页歌曲 Tab 全集。
+- 当前 `data/processed` 只保留 4 个目录：`high_confidence_singer_songs/`、`high_confidence_diff_name_key_raw_schema/`、`singer_songs_homepage/` 和 `singer_songs/`。
+- 保留 `singer_songs_homepage/` 是因为它是当前全集分支来源；保留 `singer_songs/` 是因为当前网页导出脚本和已生成网页数据仍引用原端到端流程目录。
+- 复核确认当前高可信汇总 `singers_high_confidence_songs.csv/json`、最新差集汇总 `four_singers_deduped_full_minus_high_confidence_by_name.csv/json` 以及四位歌手主页全集 `songs_all.json` 均存在且非空。
+
+### 纠正正式流程目录和验证 CSV 目录混放
+
+- 用户指出目录结构仍不清晰，正式流程目录和测试验证目录混在一起，正式流程目录中不应该保留 CSV。
+- 已将正式流程目录中的 CSV 全部迁移到验证视图目录：高可信子集 CSV 移到 `data/processed/validation/four_singers/csv_views/high_confidence_singer_songs/`；补充候选差集 CSV 移到 `data/processed/validation/four_singers/csv_views/supplement_candidates_by_name/`；主页全集 CSV 移到 `data/processed/validation/four_singers/csv_views/homepage_full_singer_songs/`；旧端到端流程 CSV 移到 `data/processed/validation/legacy/csv_views/singer_songs/`。
+- 已将临时命名目录 `data/processed/high_confidence_diff_name_key_raw_schema/` 改名为 `data/processed/high_confidence_supplement_candidates/`，使其对应新流程的“高可信以外补充候选”分支。
+- 已修正补充候选 `summary.json`：输出路径改为新正式 JSON 目录，CSV 只作为 `csv_view` 指向验证目录，并修复此前临时脚本编码导致的歌手名 `???`。
+- 已修改 `collect_high_confidence_singer_songs.py`：`--write-csv` 生成的 CSV 默认写入验证目录；四位歌手测试模式默认写入 `data/processed/validation/four_singers/csv_views/high_confidence_singer_songs/`；新增校验禁止把 `--csv-output-dir` 放在正式 `--output-dir` 内。
+- 已同步 README 和 `AGENTS.md`：正式流程输出目录只保留 JSON、摘要和后续正式数据库/图谱产物；CSV 只作为人工查看或测试验证视图，统一写入 `data/processed/validation/.../csv_views/`。
+- 验证对象为 `data/processed` 目录结构、`collect_high_confidence_singer_songs.py` 语法和 CSV 目录防护逻辑。
+- 验证结果显示：`data/processed` 中位于 `data/processed/validation/` 之外的 CSV 数量为 0；验证目录中保留 54 个 CSV；脚本 `py_compile` 无语法错误；当 `--csv-output-dir` 位于正式输出目录内时会抛出明确 `ValueError`。
+- 本次调整没有删除 `data/raw/` 原始缓存；重新执行四位歌手高可信测试时使用已有缓存，结果仍为 4 位歌手、1062 首高可信歌曲。
+
+### 生成 data 目录完整树清单
+
+- 用户要求列出 `data` 目录完整树到最子一级文件，并说明每类目录和文件的用途。
+- 已统计当前 `data` 目录共有 328 个子目录、1243 个文件，其中 `data/raw/` 包含 283 个目录和 1115 个文件，`data/processed/` 包含 43 个目录和 128 个文件。
+- 已生成 `reports/data_directory_tree_2026-05-12.md`，报告包含顶层计数、文件扩展名计数、主要路径用途说明、常见文件名含义说明、原始缓存路径提示和完整 ASCII 目录树。
+- 报告说明了 `data/raw/qqmusic/album_probe/` 为旧专辑探查缓存，`data/raw/qqmusic/high_confidence_singer_songs/` 为高可信分支原始缓存，`data/raw/qqmusic/singer_homepage_song_tab/` 为当前全集分支原始缓存，`data/raw/qqmusic/song_producers/` 为旧端到端制作人员缓存。
+- 报告说明了 `data/processed/high_confidence_singer_songs/` 和 `data/processed/high_confidence_supplement_candidates/` 为正式 JSON 输出目录，`data/processed/validation/.../csv_views/` 为人工查看 CSV 目录。
+- 验证对象为生成的 Markdown 报告，已回读确认文件大小非零、UTF-8 可读且没有 U+FFFD 替换字符；因完整树包含 1243 个叶子文件，最终向用户提供报告链接和摘要而不直接在对话中粘贴全文。
+### 纠正 data 目录报告粒度和中文写入方式
+
+- 用户要求报告不要具体到最后一级文件，改为目录级别说明，并要求报告使用中文 UTF-8。
+- 已重写
+eports/data_directory_tree_2026-05-12.md：完整树不再逐个列出 .json 或 .csv 叶子文件，只列目录层级，并在目录后标注该目录本级直接包含的文件类型和数量。
+- 已将报告内容改为中文，保留总目录数、总文件数、CSV 位置检查、顶层目录统计、文件类型统计、主要目录用途和常见文件名/模式含义。
+- 首次重写时通过 PowerShell here-string 承载中文常量，导致中文或中文冒号被写成问号；已按用户纠正改为只用 Python 按 UTF-8 读写中文内容，PowerShell 仅作为启动 Python 的外壳且不承载中文正文。
+- 验证对象为重写后的报告文件，使用 Python 读取 UTF-8 内容确认问号数量为 0、U+FFFD 替换字符数量为 0、目录树中逐个列出的 .json/.csv 叶子文件行数为 0，文件大小非零。
+
+### 剥离旧端到端流程数据
+
+- 用户要求把旧流程的所有东西从当前目录剥离，放到别的地方，避免混入正式流程。
+- 已将旧端到端流程数据和缓存整体移动到 rchive/legacy_pipeline_2026-05-12/，并生成 manifest.txt 记录来源、移动状态、目录数、文件数和目标位置。
+- 已移动的旧流程内容包括：data/processed/singer_songs/、data/processed/validation/legacy/、data/raw/qqmusic/singer_songs/、data/raw/qqmusic/song_producers/ 和 data/raw/qqmusic/album_probe/。
+- 当前 data/raw/qqmusic/ 只保留 high_confidence_singer_songs/ 和 singer_homepage_song_tab/；当前 data/processed/ 只保留 high_confidence_singer_songs/、high_confidence_supplement_candidates/、singer_songs_homepage/ 和 alidation/。
+- 已修改 collect_singer_songs.py，使主页全集候选流程默认只写 JSON；CSV 只有显式 --write-csv 时才写入 --csv-output-dir 指定的 validation 目录，并禁止 CSV 输出目录位于正式 --processed-dir 内。
+- 已同步 README 和 AGENTS.md，说明旧流程数据归档位置、当前主页全集候选目录、正式目录不放 CSV 的规则，以及旧网页导出路径需要读取 archive 中的旧输入。
+- 已新增 scripts/write_data_directory_report.py，用 Python UTF-8 生成中文 data 目录报告，避免通过 PowerShell 承载中文正文。
+- 已重新生成
+eports/data_directory_tree_2026-05-12.md，报告显示当前 data 下共有 303 个子目录、483 个文件；旧流程归档包含 30 个子目录、761 个文件；当前 data 中 CSV 总数为 42 个且全部位于 data/processed/validation/ 下。
+- 验证对象包括目录移动结果、CSV 位置、报告编码和脚本语法；验证结果显示旧流程候选目录在 data 下均不存在，归档目标均存在；py_compile 无语法错误；报告中问号数量为 0、U+FFFD 替换字符数量为 0、逐个列出的 .json/.csv 叶子文件行数为 0。
+
+### 剥离旧端到端流程代码和旧网页
+
+- 用户指出旧流程代码和网页也应该全部剥离，不应继续混在当前正式流程里。
+- 已将旧端到端流程代码移动到 rchive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/，包括旧 collect_singer_songs.py、alidate_album_ownership.py、write_singer_pipeline_report.py 和 export_web_dataset.py。
+- 已将旧静态网页目录 web/ 整体移动到 rchive/legacy_pipeline_2026-05-12/web/，包括旧页面、样式、脚本、静态数据和本地 vendor 文件。
+- 已更新 rchive/legacy_pipeline_2026-05-12/manifest.txt，追加记录旧代码和旧网页的来源、移动状态、目录数、文件数和归档位置。
+- 已从 pyproject.toml 删除旧流程脚本入口，只保留 mr-collect-hot-singers 和 mr-collect-high-confidence-songs。
+- 已同步 README 和 AGENTS.md，说明旧流程代码、旧网页、旧数据和旧缓存都位于 archive，当前正式流程不再从这些目录读取，也不再向当前正式目录写入旧流程内容。
+- 已更新 scripts/write_data_directory_report.py 和重新生成
+eports/data_directory_tree_2026-05-12.md，报告显示旧流程归档现在包含 36 个子目录、773 个文件。
+- 验证对象包括当前源码目录、旧网页目录、脚本入口、归档目录、报告编码和剩余正式 pipeline 语法；验证结果显示当前 music_metadata_graph/pipelines/ 仅剩 collect_hot_singer_registry.py 与 collect_high_confidence_singer_songs.py 两个正式采集脚本，当前根目录不再存在 web/，旧流程入口不再出现在 pyproject.toml，旧代码和旧网页在 archive 中存在，py_compile 无语法错误。
+
+### 将四位测试 JSON 从正式目录移入 validation
+
+- 用户指出 data/processed 中除验证目录外的三个目录仍包含周杰伦、薛之谦、林俊杰、汪苏泷等四位测试歌手数据，导致正式流程目录不干净。
+- 复核后确认 data/processed/high_confidence_singer_songs/、data/processed/high_confidence_supplement_candidates/ 和 data/processed/singer_songs_homepage/ 中保存的都是四位测试样本 JSON，而不是全量正式流程结果。
+- 已将这三类四位样本 JSON 整体移入 data/processed/validation/four_singers/json_outputs/：高可信子集移入 high_confidence_singer_songs/，主页全集移入 homepage_full_singer_songs/，补充候选差集移入 supplement_candidates_by_name/。
+- 当前 data/processed 顶层只剩 alidation/；四位歌手样本 JSON 和 CSV 均位于 data/processed/validation/four_singers/ 下，不再混入正式输出目录。
+- 已同步 README、AGENTS.md 和 scripts/write_data_directory_report.py，说明正式输出目录只是未来全量正式运行的目标位置，当前四位样本属于 validation 数据。
+- 已重新生成
+eports/data_directory_tree_2026-05-12.md，报告显示当前 data/processed/ 只保留验证数据；四位歌手样本 JSON 和 CSV 均在 data/processed/validation/four_singers/ 下。
+- 验证结果显示：data/processed 顶层目录仅有 alidation；validation 外不存在包含 zhoujielun、xuezhiqian、linjunjie、wangsulong 或 our_singers 的样本路径；四位样本 JSON 输出共 57 个文件，CSV 查看版共 42 个文件；报告无问号、无 U+FFFD，且不逐个列出 .json/.csv 叶子文件。
+
+### 重新整理 gitignore
+
+- 用户要求重新整理 .gitignore，以匹配当前正式流程、验证数据和旧流程归档边界。
+- 已将 .gitignore 重写为分组规则：本地环境和密钥、Python 缓存和工具产物、虚拟环境、Node 依赖和构建产物、本地数据和生成物、本地数据库/二进制分析输出、日志和临时文件。
+- 当前忽略 data/、rchive/、
+eports/ 和
+ode_modules/，确保验证数据、旧流程归档、生成报告和本地依赖不进入 Git；源码、脚本、README、AGENTS、开发日志和项目配置不被忽略。
+- 已按项目偏好确认 .gitignore 使用 CRLF，且没有双回车换行。
+- 尝试使用 git check-ignore 和 git status --ignored 验证时，Git 因仓库 owner 与当前用户 SID 不一致报 dubious ownership，未修改全局 safe.directory 配置。
+- 替代验证使用 Python 检查规则覆盖：data/processed/...、rchive/...、
+eports/...、
+ode_modules/... 会被规则忽略；README.md、AGENTS.md、develop_log.md、pyproject.toml、正式 pipeline 脚本和 scripts/write_data_directory_report.py 不会被当前规则忽略。
+
+
+
+
+### 补齐全集过滤步骤的移除视图
+
+- 用户明确验证测试阶段每一步过滤除了查看留下的行，也必须查看被过滤掉的行。
+- 已新增 `scripts/write_homepage_filter_validation_views.py`，用于从主页全集原始缓存和高可信子集生成全集分支第一步过滤的验证视图。
+- 该脚本为每个歌手输出三类 JSON/CSV：`songs_after_high_confidence_name_filter`（留下）、`songs_removed_by_high_confidence_name_filter`（因歌名命中高可信子集被过滤掉）、`songs_removed_as_duplicate_before_high_confidence_name_filter`（进入该过滤前去重移除）。
+- 已重跑四位样本：全集 3492 行，去重移除 0 行，按高可信歌名过滤留下 1267 行、移除 2225 行；四个歌手各自计数均满足 `songs_all = kept + removed + duplicates`。
+- 已同步 README、AGENTS.md 和 scripts/write_data_directory_report.py，记录验证阶段每一步过滤都要同时输出保留行和过滤掉的行，并写明 `aux_filter_reason` 或分支已有原因字段。
+
+### 统一全集分支 CSV 列结构
+
+- 用户要求所有 CSV 列名都必须符合新规定结构，重新生成全集分支。
+- 已修改 `scripts/write_homepage_filter_validation_views.py`，使 `songs_all.json/csv` 也从主页歌曲 Tab 原始缓存重建为 QQ 音乐原始歌曲顶层键加 `aux_` 辅助键结构，不再保留旧流程扁平字段如 `album_name`、`singer_names`、`lyricists`、`composers`。
+- 已修正空 CSV 写出逻辑：即使某一步过滤移除 0 行，也写出标准表头，避免空文件没有列名。
+- 已重跑四位样本全集分支，当前 `songs_all`、`songs_after_high_confidence_name_filter`、`songs_removed_by_high_confidence_name_filter`、`songs_removed_as_duplicate_before_high_confidence_name_filter` 均使用统一列结构。
+- 验证结果显示当前四位样本下 41 个 CSV 均只包含接口原始顶层键或 `aux_` 辅助键；高可信分支 21 个表格 JSON 与 CSV 一一对应，全集分支 20 个表格 JSON 与 CSV 一一对应；全集计数仍闭合。
+
+### 补齐高可信分支专辑歌曲全集和去重移除视图
+
+- 用户指出高可信分支每个歌手只有保留和剔除结果，缺少专辑请求到的全集歌曲列表。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：请求保留专辑歌曲后先写出 `album_song_rows_all_before_artist_filter`，再按目标歌手 mid 分成 `album_song_rows_kept_before_dedupe` 和 `album_song_rows_rejected`。
+- 已补充高可信歌曲去重移除视图 `album_song_rows_removed_as_duplicate`，并为歌曲过滤/去重步骤写入 `aux_filter_step`、`aux_filter_result`、`aux_filter_reason`。
+- 已重跑四位样本高可信分支：专辑歌曲全集 1475 行，目标歌手过滤保留 1062 行、移除 413 行；去重移除 0 行，最终高可信 1062 行。
+- 验证结果显示每个歌手均满足 `album_song_rows_all_before_artist_filter = album_song_rows_kept_before_dedupe + album_song_rows_rejected`，且 `album_song_rows_kept_before_dedupe = songs_high_confidence + album_song_rows_removed_as_duplicate`；当前高可信分支 29 个表格 JSON 与 29 个 CSV 一一对应，全部 CSV 列名符合接口原始顶层键或 `aux_` 辅助键规则。
+
+### 移除跨歌手合并验证表
+
+- 用户指出全集分支存在每个 CSV 的四人合并表，而高可信分支没有对应合并表，流程不统一；要求统一为不需要合并汇总。
+- 已修改 `scripts/write_homepage_filter_validation_views.py`，不再生成 `four_singers_*` 合并 JSON/CSV；只保留每个歌手自己的全集、过滤保留、过滤移除和去重移除文件。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`，不再生成 `singers_high_confidence_songs.json/csv`，总 `summary.json` 只保留汇总计数，不再指向跨歌手表格产物。
+- 已删除当前验证目录中已有的 `four_singers_*` 和 `singers_high_confidence_songs.*` 合并表，并重跑高可信分支与全集分支验证输出。
+- 验证结果显示当前不存在跨歌手合并表；高可信分支每个歌手 7 个表格 JSON/CSV，全集分支每个歌手 4 个表格 JSON/CSV，两个分支 JSON/CSV 一一对应；当前 44 个 CSV 均符合接口原始顶层键或 `aux_` 辅助键规则。
+
+## 2026-05-13
+
+### 人工核查全集分支剩余歌曲目标歌手覆盖
+
+- 用户要求手动检查主页全集分支在过滤掉高可信子集已有歌曲后，剩余歌曲的歌手列表是否每一首都包含对应目标歌手，并明确 Python 检查只能作为临时人工核查，不能作为正式流程。
+- 核查对象为四位样本歌手的 `songs_after_high_confidence_name_filter.json`：周杰伦、薛之谦、林俊杰、汪苏泷。
+- 核查方式为临时只读 Python 脚本读取 `high_confidence_name_filter_summary.json` 中记录的目标歌手 `mid` 和剩余歌曲 JSON，逐行检查歌曲 `singer` 或 `singers` 列表是否包含目标歌手 `mid`，缺失时再用目标歌手姓名兜底判断；该脚本未写入仓库文件，也未纳入正式 pipeline。
+- 验证结果显示周杰伦剩余 300 首、薛之谦剩余 167 首、林俊杰剩余 333 首、汪苏泷剩余 467 首均包含对应目标歌手。
+- 四位样本合计核查 1267 条剩余歌曲，目标歌手缺失数为 0。
+
+### 在主页全集分支追加空专辑过滤
+
+- 用户纠正前一轮理解，明确空专辑过滤不是插入到第一步前面，而是接在现有“减去高可信歌名”之后继续过滤。
+- 当前目标仅涉及主页全集分支的验证流水线，不改高可信子集分支和旧端到端流程。
+- 实现方案是让 `scripts/write_homepage_filter_validation_views.py` 在 `songs_after_high_confidence_name_filter` 之后再执行一层空专辑过滤，按 `album.name/title/subtitle` 为空判定 `empty_album`，并分别输出保留行和移除行。
+- 新增输出为 `songs_after_empty_album_filter.json/csv` 和 `songs_removed_by_empty_album_filter.json/csv`；现有第一步输出保持不变。
+- 风险边界是空专辑判定依赖主页歌曲 `album` 对象是否存在且是否含有效名称字段；如果上游缓存的空值形态变化，规则可能需要再收敛。
+- 本轮不做范围是：不把空专辑规则同步到高可信子集分支，不改正式 JSON 目录结构，不删除既有第一步输出。
+
+### 分析歌曲反查专辑校验链路
+
+- 用户询问当前高可信分支是否可以反过来验证：先用一首歌请求它所属专辑，再检查该专辑是否存在于目标歌手的专辑列表中。
+- 复核当前高可信分支实现后确认正式流程为 `qqmusic.singer.get_album_list` 获取歌手专辑列表，再用 `qqmusic.album.get_song` 获取专辑歌曲，最后按歌曲 `singer[].mid` 是否包含目标歌手过滤。
+- 检查本地 `qqmusic-api-python` 暴露接口后确认可用候选链路包括 `song.get_detail(song_id_or_mid)`、`album.get_detail(album_id_or_mid)`、`album.get_song(album_id_or_mid)` 和 `singer.get_album_list(singer_mid)`。
+- 使用已知歌曲样例进行小范围真实请求验证，观察到 `song.get_detail` 返回的歌曲详情中包含 `album.id`、`album.mid`、`album.name`、`album.title` 和 `album.pmid`，可作为“歌曲 -> 所属专辑”的结构化依据。
+- 同一验证中继续请求 `album.get_detail(album_mid)`，观察到专辑详情可返回 `albumID`、`albumMid` 和 `albumName`；请求 `singer.get_album_list(target_mid)` 可返回 `albumList`，其中包含 `albumID`、`albumMid`、`albumName`、`albumType` 和 `singerName`。
+- 形成结论：可以设计反向验证规则，优先用歌曲详情里的 `album.mid` 或 `album.id` 与目标歌手专辑列表中的 `albumMid` 或 `albumID` 做精确匹配；专辑名只能作为人工排查或弱兜底，不应作为高可信自动合并依据。
+- 风险边界为 `singer.get_album_list` 当前样例中未返回可靠的 `singerMid`，因此“专辑属于目标歌手”的判断应以目标歌手接口返回的专辑集合为准；部分歌曲可能属于合辑、影视原声、群星专辑或平台拆分版本，反向验证不宜直接替代现有专辑正向采集流程。
+
+### 统一高可信分支与主页分支的 filter 命名
+
+- 用户进一步明确，两个分支的验证产物命名都应统一为 `songs_after_filter1/2/3_xxx` 与 `songs_removed_by/as_filter1/2/3_xxx`，不再出现 `before` 之类容易误解的命名。
+- 已将高可信分支的验证产物命名统一到 `songs_after_filter1_album_fetch.json/csv`、`songs_after_filter2_target_singer_match.json/csv`、`songs_after_filter3_dedupe.json/csv`、`songs_removed_by_filter2_target_singer_match.json/csv`、`songs_removed_as_filter3_dedupe.json/csv`，并同步清理旧名残留。
+- 已将主页全集验证分支统一到 `songs_after_filter1_dedupe.json/csv`、`songs_removed_as_filter1_dedupe.json/csv`、`songs_after_filter2_high_confidence_name_exclusion.json/csv`、`songs_removed_by_filter2_high_confidence_name_exclusion.json/csv`、`songs_after_filter3_empty_album_exclusion.json/csv`、`songs_removed_by_filter3_empty_album_exclusion.json/csv`，同时把 summary 和目录报告中的旧命名改为对应的新格式。
+- 已同步 `README.md`、`scripts/write_data_directory_report.py` 和主页验证脚本中的读取路径与说明文字，避免文档继续引用 `before`、`high_confidence_name_filter` 或其他旧术语。
+- 风险边界是此次只做命名统一，不改高可信分支的过滤逻辑和主页分支的过滤顺序；主页分支仍然是先去重，再减去高可信歌名，最后过滤空专辑。
+
+### 核对两个歌曲输入分支过滤口径
+
+- 用户询问当前两个分支各过滤几次，以及分别如何过滤。
+- 已复核 `README.md`、`music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py` 和 `scripts/write_homepage_filter_validation_views.py`。
+- 当前结论为：高可信歌曲子集分支有 3 个歌曲层面的 filter 产物，另有专辑层面的 albumType 纳入/排除；主页全集分支有 3 个歌曲层面的 filter 产物。
+- 高可信歌曲子集分支的歌曲层面顺序为：filter1 请求已纳入专辑的歌曲全集；filter2 只保留 `song.singer[].mid` 包含目标歌手 `mid` 的行；filter3 按歌曲 `mid` 优先、其次 `id` 去重。
+- 主页全集分支的歌曲层面顺序为：filter1 按歌曲 key 去重；filter2 按规范化歌名减去高可信子集已有歌名；filter3 过滤空专辑行。
+
+### 纠正高可信分支取数步骤命名
+
+- 用户指出高可信分支中的 `songs_all` 已经表达已纳入专辑请求到的歌曲全集，`songs_after_filter1_album_fetch` 与其重复，而且请求页不是过滤步骤。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：不再生成 `songs_after_filter1_album_fetch`；高可信歌曲层面 filter1 改为目标歌手匹配，输出 `songs_after_filter1_target_singer_match` 与 `songs_removed_by_filter1_target_singer_match`；filter2 改为去重，输出 `songs_after_filter2_dedupe` 与 `songs_removed_as_filter2_dedupe`。
+- 已修改 `scripts/write_homepage_filter_validation_views.py`，主页全集分支读取高可信最终集合时改用 `songs_after_filter2_dedupe.json`，并将原因字段从旧的 `filter3_dedupe` 表述改为 `song_name_exists_in_high_confidence_dedupe`。
+- 已同步 `README.md`、`scripts/write_data_directory_report.py` 和 `AGENTS.md`，说明高可信 `songs_all` 是取数全集而不是过滤步骤，主页全集分支顺序为去重、减去高可信歌名、过滤空专辑。
+- 验证对象为高可信 pipeline、主页全集验证脚本、目录报告脚本和四位样本验证输出；执行 `py_compile` 未报语法错误。
+- 已重跑四位样本高可信 JSON/CSV 验证目录，结果为 `songs_all` 1475 行、filter1 目标歌手匹配保留 1062 行、filter1 移除 413 行、filter2 去重保留 1062 行、filter2 移除 0 行。
+- 已重跑主页全集验证脚本，确认其能读取新的高可信最终集合文件；结果为全集 3492 行、filter1 去重后 3492 行、filter2 减高可信后 1267 行、filter3 空专辑过滤后 564 行。
+
+### 统一移除产物命名并补充高可信同名去重
+
+- 用户要求移除产物命名统一使用 `removed_by`，不再使用 `removed_as`；同时要求高可信分支 filter2 在 `mid/id` 去重后，对同名但 `mid/id` 不同的歌曲优先保留录音室专辑版本，其次保留 EP 版本。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：高可信 filter2 先按歌曲 key 去重，再按规范化歌名二次去重；同名候选按 `aux_source_albumType` 优先级选择，`录音室专辑` 优先于 `EP`，其他类型排在后面。
+- 高可信 filter2 移除产物改名为 `songs_removed_by_filter2_dedupe.json/csv`；移除原因区分 `duplicate_song_key_in_songs_after_filter1_target_singer_match` 与 `duplicate_song_name_prefer_recording_album_then_ep`。
+- 已修改 `scripts/write_homepage_filter_validation_views.py`：主页全集 filter1 移除产物改为 `songs_removed_by_filter1_dedupe.json/csv`，并删除旧 `high_confidence_name_filter_summary.json` 以避免历史 `removed_as` 路径残留。
+- 已同步 `README.md` 和 `scripts/write_data_directory_report.py`，说明新的移除产物命名和高可信 filter2 的同名专辑类型优先规则。
+- 验证对象为高可信 pipeline、主页全集验证脚本、目录报告脚本和四位样本验证输出；执行 `py_compile` 未报语法错误。
+- 已重跑四位样本高可信验证目录，结果为 `songs_all` 1475 行、filter1 保留 1062 行、filter1 移除 413 行、filter2 最终保留 828 行、filter2 移除 234 行。
+- 已重跑主页全集验证目录，结果为全集 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 减高可信后 1267 行、filter3 空专辑过滤后 564 行。
+- 已检查当前源码、README、AGENTS 和四位样本验证输出目录中不再存在 `removed_as` 或 `songs_removed_as` 字符串。
+
+### 统一第二歌曲输入分支命名为补充分支
+
+- 用户纠正命名规范：高可信分支之外的另一个歌曲输入分支统一叫“补充分支”，不得再称为“全集分支”“主页分支”或其他名称。
+- 已在 `AGENTS.md` 的用户长期偏好中记录该命名规则，并把项目补充规则中的输出目标改为 `data/processed/supplement_singer_songs/`。
+- 已同步 `README.md`，将四位样本歌手相关说明统一改为补充分支，并将验证输出路径说明改为 `data/processed/validation/four_singers/json_outputs/supplement_singer_songs/` 和 `data/processed/validation/four_singers/csv_views/supplement_singer_songs/`。
+- 已将验证脚本从 `scripts/write_homepage_filter_validation_views.py` 改名为 `scripts/write_supplement_filter_validation_views.py`，脚本后续生成目录改为 `supplement_singer_songs`，并将输出数据中的 `aux_filter_step`、`aux_set_relation` 和 summary `step/branch` 改为 supplement 语义。
+- 已同步 `scripts/write_data_directory_report.py`，使目录报告中的主要目录和常见文件说明统一称为补充分支。
+- 已重跑补充分支验证脚本，结果为补充候选 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 减高可信后 1267 行、filter2 移除 2225 行、filter3 空专辑过滤后 564 行、filter3 移除 703 行。
+- 已重跑目录报告 `reports/data_directory_tree_2026-05-12.md`，报告可用 UTF-8 回读，文件大小非零，无 U+FFFD 替换字符，也无问号乱码。
+- 验证对象为 `scripts/write_data_directory_report.py` 和 `scripts/write_supplement_filter_validation_views.py`，执行 `py_compile` 未报语法错误；搜索 README、AGENTS、scripts、pyproject 和正式源码，除“不得称为”的规范句外未发现旧分支名称残留。
+- 本轮未删除旧本地验证目录；如需清理旧目录，需要用户明确确认删除范围。
+
+### 记录 PowerShell 中文处理偏好
+
+- 用户新增长期偏好：由于 PowerShell 对中文不友好，必要时采用 Python 工具而不是 PowerShell。
+- 已将该偏好写入 `AGENTS.md` 用户长期偏好，明确涉及中文常量、中文文件内容、Markdown 表格、报告生成或中文输出判断时，优先使用明确 UTF-8 配置的 Python 工具或仓库脚本。
+- 本次仅同步协作规则和开发日志，未修改业务代码。
+
+### 调换补充分支 filter2 与 filter3 顺序
+
+- 用户要求把补充分支的过滤 2 和过滤 3 换顺序。
+- 目标效果调整为：补充分支仍先执行 filter1 去重；filter2 改为过滤空专辑；filter3 改为在空专辑过滤后的剩余集合中减去高可信子集已有歌名。
+- 已修改 `scripts/write_supplement_filter_validation_views.py`，将 filter2 输出改为 `songs_after_filter2_empty_album_exclusion.json/csv` 与 `songs_removed_by_filter2_empty_album_exclusion.json/csv`，将 filter3 输出改为 `songs_after_filter3_high_confidence_name_exclusion.json/csv` 与 `songs_removed_by_filter3_high_confidence_name_exclusion.json/csv`。
+- 已同步 `README.md`、`AGENTS.md` 和 `scripts/write_data_directory_report.py` 中对补充分支过滤顺序与常见产物名的说明。
+- 已重跑补充分支四位样本验证脚本，结果为补充候选 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 空专辑过滤后 1856 行、filter2 移除 1636 行、filter3 减高可信歌名后 564 行、filter3 移除 1292 行。
+- 验证对象为 `scripts/write_supplement_filter_validation_views.py` 和 `scripts/write_data_directory_report.py`，执行 `py_compile` 未报语法错误。
+- 已检查补充分支 JSON/CSV 验证目录，当前只保留新顺序对应的 filter 文件名，不再残留旧的 filter2 高可信歌名过滤或 filter3 空专辑过滤产物名。
+
+### 临时探查周杰伦补充分支专辑详情
+
+- 用户要求手动尝试查询周杰伦补充分支 filter3 后结果的每首歌专辑信息，并写出 `tmp` 开头临时 CSV，不写入正式流程。
+- 已新增临时脚本 `tmp_probe_jay_supplement_album_details.py`，读取 `data/processed/validation/four_singers/json_outputs/supplement_singer_songs/zhoujielun/songs_after_filter3_high_confidence_name_exclusion.json`，按歌曲自带的 `album.mid` 或 `album.id` 请求 `client.album.get_detail()`。
+- 首次沙箱内请求 QQ 音乐接口失败，失败原因为本地网络访问被拒绝；随后按权限规则放行网络后重跑成功。
+- 已生成临时 CSV `tmp_jay_supplement_filter3_album_details.csv`，共 88 行歌曲；其中 84 行成功取得专辑详情，4 行因原歌曲缺少专辑 mid/id 未请求。
+- 专辑详情接口返回结构包含 `album`、`company` 和 `singers`，其中 `album.album_type` 可用于观察专辑类型；本次临时样本中专辑类型分布为：`现场专辑` 51 行、`录音室专辑` 24 行、`Single` 7 行、`人声音频` 2 行。
+- 本次输出和缓存均为临时核查资产：`tmp_jay_supplement_filter3_album_details.csv`、`tmp_probe_jay_supplement_album_details.py` 和 `tmp_qqmusic_album_detail_cache/`，未接入正式 pipeline 或验证目录规则。
+
+### 仅调整补充分支 filter1 与 filter2 脚本顺序
+
+- 用户要求把补充分支 filter1 和 filter2 换顺序，并明确只更新脚本、不跑生成流程。
+- 已修改 `scripts/write_supplement_filter_validation_views.py`：filter1 改为空专辑过滤，输出 `songs_after_filter1_empty_album_exclusion` 与 `songs_removed_by_filter1_empty_album_exclusion`；filter2 改为对 filter1 保留结果按歌曲 key 去重，输出 `songs_after_filter2_dedupe` 与 `songs_removed_by_filter2_dedupe`；filter3 仍为减去高可信子集已有歌名。
+- 已同步脚本内 summary 的 `step`、`description`、`filter_rules`、计数字段和输出路径字段。
+- 本次按用户要求未执行 `scripts/write_supplement_filter_validation_views.py`，因此现有 JSON/CSV 验证产物尚未更新到新命名和新顺序。
+- 验证对象仅为脚本语法和静态命名检查：执行 `py_compile` 未报语法错误；搜索脚本未发现旧的补充分支 filter1 去重或 filter2 空专辑命名残留。
+
+### 接入补充分支专辑详情与专辑类型过滤脚本
+
+- 用户要求删除前一轮临时产物，并把临时专辑详情探针接入正式补充分支脚本；同时要求只改脚本、不跑验证。
+- 已删除临时脚本 `tmp_probe_jay_supplement_album_details.py`、临时缓存目录 `tmp_qqmusic_album_detail_cache/` 和临时 CSV `tmp_jay_supplement_filter3_album_details.csv`；临时 CSV 初次删除时被进程占用，随后重试删除成功。
+- 已修改 `scripts/write_supplement_filter_validation_views.py`，将补充分支改为 5 个过滤步骤：filter1 过滤空专辑；filter2 移除专辑 id/mid 为空的行；随后请求 `client.album.get_detail()` 补充专辑详情并缓存到 `data/raw/qqmusic/supplement_album_details/`；filter3 只保留专辑类型为 `Single`、`EP`、`录音室专辑` 的行；filter4 去重；filter5 减去高可信子集已有歌名。
+- 新增输出命名包括 `songs_after_filter2_album_identity`、`songs_removed_by_filter2_album_identity`、`songs_after_album_detail_enrich`、`songs_after_filter3_album_type`、`songs_removed_by_filter3_album_type`、`songs_after_filter4_dedupe`、`songs_removed_by_filter4_dedupe`、`songs_after_filter5_high_confidence_name_exclusion` 和 `songs_removed_by_filter5_high_confidence_name_exclusion`。
+- 已将专辑详情字段写入 `aux_` 辅助列，包括请求 key/status、专辑 id/mid/name/type、专辑歌手、语言、流派、发行时间、简介和缓存文件路径。
+- 本次按用户要求未执行 `scripts/write_supplement_filter_validation_views.py`，因此未请求新专辑详情、未写入新正式缓存，也未更新补充分支 JSON/CSV 验证产物。
+- 验证对象仅为脚本语法和静态命名检查：执行 `py_compile` 未报语法错误；搜索脚本确认旧补充分支 filter2 去重、filter3 高可信命名不再作为补充分支产物残留。
+
+### 统一两个分支同名去重规则
+
+- 用户要求高可信分支和补充分支都改为：先按歌曲 `id/mid` 去重；不再按歌名加歌手键去重；再只按原始 `name` 去重，不使用 `title`；同 `name` 不同专辑类型时按 `录音室专辑`、`EP`、`Single` 顺序保留；如果同 `name` 且同专辑类型仍有多条，保留数值 `id` 更小的歌曲。
+- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：`song_key()` 不再使用 `name + singer` 兜底；`song_name_key()` 只读取原始 `name`；同名去重优先级加入 `Single`，并在专辑类型优先级后按数值歌曲 `id` 升序选择。
+- 已修改高可信分支重复原因和辅助字段，补充记录同名组选中歌曲的数值 `id`，并将同名移除原因更新为包含 `录音室专辑 -> EP -> Single -> 最小 id` 的选择规则。
+- 已修改 `scripts/write_supplement_filter_validation_views.py`：补充分支 filter4 先按歌曲 `mid/id` 去重，再只按原始 `name` 去重；同名优先级使用补充专辑详情中的 `aux_album_detail_type`，并以数值歌曲 `id` 作为最终 tie-breaker。
+- 已同步 `README.md` 和 `scripts/write_data_directory_report.py`，说明两个分支共享的新去重口径以及补充分支当前 5 步过滤流程。
+- 本次未运行高可信分支或补充分支生成流程，未更新 JSON/CSV 验证产物，也未请求新的专辑详情接口。
+- 验证对象为 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`、`scripts/write_supplement_filter_validation_views.py` 和 `scripts/write_data_directory_report.py`，执行 `py_compile` 未报语法错误；静态搜索未发现旧的 `name + singer` 去重说明或补充分支旧 filter1/filter2/filter3 产物说明残留。
+
+### 重跑四位样本歌曲输入全流程
+
+- 用户要求现在跑一次全流程；本次按当前阶段上下文执行四位样本验证链路：先跑高可信分支，再跑补充分支。
+- 已运行高可信分支命令：`python -m music_metadata_graph.pipelines.collect_high_confidence_singer_songs --test-four-singers --write-csv --output-dir data/processed/validation/four_singers/json_outputs/high_confidence_singer_songs --csv-output-dir data/processed/validation/four_singers/csv_views/high_confidence_singer_songs`。
+- 高可信分支验证结果为：`songs_all` 1475 行，filter1 目标歌手匹配后 1062 行、移除 413 行，filter2 去重后 828 行、移除 234 行。
+- 已运行补充分支脚本 `scripts/write_supplement_filter_validation_views.py`；首次沙箱内执行时专辑详情请求被本机网络权限拒绝，导致专辑类型缺失并使 filter3 全部移除，该结果被识别为无效中间结果。
+- 随后按权限规则放行网络后重跑补充分支脚本，成功请求并缓存专辑详情到 `data/raw/qqmusic/supplement_album_details/`，当前缓存文件数为 654。
+- 补充分支有效验证结果为：`songs_all` 3492 行；filter1 空专辑过滤后 1856 行、移除 1636 行；filter2 专辑 id/mid 非空过滤后 1816 行、移除 40 行；专辑详情补充后 1816 行；filter3 专辑类型过滤后 1126 行、移除 690 行；filter4 去重后 954 行、移除 172 行；filter5 减高可信歌名后 128 行、移除 826 行。
+- 按歌手拆分的补充分支最终保留数为：周杰伦 29 行、薛之谦 8 行、林俊杰 26 行、汪苏泷 65 行。
+- filter3 后保留行的专辑类型分布为：`录音室专辑` 863 行、`Single` 219 行、`EP` 44 行。
+- 已重跑目录报告脚本 `scripts/write_data_directory_report.py`，更新 `reports/data_directory_tree_2026-05-12.md`；报告文件可用 UTF-8 回读，大小非零，无 U+FFFD 替换字符，也无问号乱码。
+- 验证对象为高可信分支 summary、补充分支 summary、四位歌手每步 JSON 计数、专辑详情缓存数量、目录报告和三个脚本语法；观察结果显示每一步保留数与移除数加和关系成立，`py_compile` 未报语法错误。
+
+### 移除补充分支 CSV 中的专辑简介字段并重跑全流程
+
+- 用户要求补充分支 CSV 不写入 `aux_album_detail_desc`，并询问补充分支过滤过程中为何需要请求、是否只请求一次并缓存。
+- 已修改 `scripts/write_supplement_filter_validation_views.py`：JSON 仍保留 `aux_album_detail_desc` 便于回看，CSV 查看版使用独立字段列表并禁止追加额外字段，因此不再输出 `aux_album_detail_desc` 列。
+- 请求机制说明：补充分支在 filter2 后需要用歌曲自带的 `album.mid` 或 `album.id` 请求 `client.album.get_detail()`，以取得 `album.album_type` 等专辑详情供 filter3 专辑类型过滤；脚本先查 `data/raw/qqmusic/supplement_album_details/<album_mid_or_id>.json`，缓存存在则读取本地文件，只有缓存不存在才请求接口。
+- 已按用户要求重跑四位样本全流程：高可信分支计数保持为 `songs_all` 1475 行、filter1 后 1062 行、filter2 后 828 行；补充分支计数保持为 `songs_all` 3492 行、filter1 后 1856 行、filter2 后 1816 行、专辑详情补充后 1816 行、filter3 后 1126 行、filter4 后 954 行、filter5 后 128 行。
+- 重跑补充分支时，专辑详情补充的 1816 行请求状态全部为 `cache_hit`，说明本次没有重复请求已缓存专辑详情接口。
+- 已检查 `data/processed/validation/four_singers/csv_views/supplement_singer_songs/` 下 48 个 CSV，均不包含 `aux_album_detail_desc` 列。
+- 已重跑目录报告 `reports/data_directory_tree_2026-05-12.md`，并执行脚本语法检查；`py_compile` 未报语法错误。

@@ -1,14 +1,49 @@
 [project]
+
 name = "musician-relationship"
+
 version = "0.1.0"
+
 description = "QQ Music metadata collection and musician relationship graph experiments."
+
 requires-python = ">=3.12"
+
 dependencies = [
+
     "qqmusic-api-python",
+
     "pydantic",
+
     "pypinyin",
+
 ]
 
+
+
 [project.scripts]
-mr-collect-hot-singers = "music_metadata_graph.pipelines.collect_hot_singer_registry:main"
-mr-collect-high-confidence-songs = "music_metadata_graph.pipelines.collect_high_confidence_singer_songs:main"
+
+mr-collect-singer-list-raw = "music_metadata_graph.pipelines.collect_singer_list_raw:main"
+
+mr-import-singer-list-db = "music_metadata_graph.pipelines.import_singer_list_to_db:main"
+
+mr-collect-singer-song-tab-raw = "music_metadata_graph.pipelines.collect_singer_song_tab_raw:main"
+
+mr-collect-missing-song-singers-db = "music_metadata_graph.pipelines.collect_missing_song_singers_to_db:main"
+mr-fill-song-singer-missing-mids = "music_metadata_graph.pipelines.fill_song_singer_missing_mids:main"
+mr-collect-song-album-detail-raw = "music_metadata_graph.pipelines.collect_song_album_detail_raw:main"
+mr-import-song-album-detail-db = "music_metadata_graph.pipelines.import_song_album_detail_to_db:main"
+
+mr-import-singer-song-tab-db = "music_metadata_graph.pipelines.import_singer_song_tab_to_db:main"
+
+mr-filter-songs-album-type = "music_metadata_graph.pipelines.filter_songs_by_album_type:main"
+
+mr-collect-song-producer-raw = "music_metadata_graph.pipelines.collect_song_producer_raw:main"
+mr-fill-song-credit-missing-mids = "music_metadata_graph.pipelines.fill_song_credit_missing_mids:main"
+mr-import-song-credits-db = "music_metadata_graph.pipelines.import_song_credits_to_db:main"
+mr-filter-songs-credit-completeness = "music_metadata_graph.pipelines.filter_songs_by_credit_completeness:main"
+
+mr-filter-imported-songs = "music_metadata_graph.pipelines.filter_imported_songs:main"
+mr-filter-songs-language = "music_metadata_graph.pipelines.filter_songs_by_language:main"
+mr-run-full-pipeline = "music_metadata_graph.pipelines.run_full_pipeline:main"
+mr-run-from-song-tabs = "music_metadata_graph.pipelines.run_from_song_tabs:main"
+mr-build-static-graph = "music_metadata_graph.visualization.build_static_graph:main"

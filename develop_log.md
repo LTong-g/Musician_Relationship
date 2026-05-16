@@ -3009,3 +3009,182 @@ Read this file as UTF-8.
 - 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
 - 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
 - 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含多选关系边读取逻辑和支撑歌曲展开逻辑。
+
+### 分析同页 2D/3D 图谱切换方案
+- 用户询问当前使用的图谱库存在 3D 版本，是否可以在同一个页面里用开关切换 2D/3D。
+- 已确认当前可视化页面由 `music_metadata_graph/visualization/build_static_graph.py` 生成单页静态 HTML，现有前端使用本地 `force-graph.min.js`，数据结构已经是节点和边的图数据，适合复用到 3D 图谱。
+- 已核对 `3d-force-graph` 官方仓库和 API，确认其 script tag 入口暴露 `ForceGraph3D`，使用 `{nodes, links}` 图数据，支持节点、边、方向粒子、点击事件、宽高和背景色等现有页面需要的核心能力。
+- 目标效果确定为同一个 `index.html` 内新增“3D 视图”开关，默认保留现有 2D 体验；切到 3D 后复用相同筛选、搜索、高亮和右侧详情逻辑。
+- 风险边界为 3D 视图依赖 WebGL，且首版不复刻 2D canvas 的圆形头像节点；头像完整展示仍以 2D 视图为主，3D 首版使用颜色球体节点展示网络空间结构。
+- 本轮不做独立 3D 页面、后端服务、VR/AR 模式、3D 头像纹理精细化和数据管线重构。
+
+### 实现同页 2D/3D 图谱切换
+- 已新增本地 3D vendor 文件 `music_metadata_graph/visualization/vendor/3d-force-graph.min.js` 和对应 MIT 许可证文件，生成后的静态 HTML 不依赖在线 CDN。
+- 已修改 `BuildConfig`、命令行参数和 HTML 生成逻辑，新增 `--vendor-3d` 参数，并把 2D 与 3D vendor 脚本都嵌入最终 HTML。
+- 已在工具栏新增“3D 视图”开关，并在图谱区域新增 `graph-2d`、`graph-3d` 两个容器和 3D 降级提示区域。
+- 已将前端图谱实例拆分为 `graphInstance2d` 和 `graphInstance3d`，新增 `setupGraph2d()`、`setupGraph3d()`、`syncGraphViews()`、`activeGraphInstance()` 等逻辑。
+- 2D 视图保留原有头像节点、canvas 曲线粒子、曲线边、高亮和多选行为；3D 视图使用 `ForceGraph3D` 的球体节点、边颜色、边宽、方向粒子、点击节点、点击边和背景点击事件。
+- 3D 视图复用现有 `buildGraph()`、`graphPayload()`、`edgeColor()`、`linkLabel()`、`toggleNodeSelection()`、`setLinkHighlight()`、`renderSelection()` 等数据和交互逻辑。
+- 已同步 `README.md`，说明页面支持 2D/3D 视图开关、3D 使用本地 `3d-force-graph` WebGL 运行时，以及 3D 不可用时保留 2D。
+
+### 验证同页 2D/3D 图谱切换
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过。
+- 验证对象为 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，执行项目指定 Conda Python 的 `py_compile`，结果未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 存在且大小约 3.75 MB，包含 `graph-2d`、`graph-3d`、`view-mode-toggle` 和 `ForceGraph3D`，无 U+FFFD 替换字符。
+- 已尝试使用 Codex 内置浏览器打开本地 `file:///` 页面，但浏览器安全策略阻止访问；随后尝试通过 `127.0.0.1` 本地静态服务访问，也被浏览器策略拦截为 `ERR_BLOCKED_BY_CLIENT`，因此本轮未能完成真实浏览器截图和点击验收。
+- `git status --short` 仍因本机 Git safe.directory 所有权检查失败无法执行，本轮未修改全局 Git 配置。
+
+### 修正 3D 图谱空白加载问题
+- 用户反馈 3D 视图加载不出来，并询问是加载时间较长还是存在问题。
+- 已判断当前 MVP 规模为 1210 个节点、2271 条边，3D 首次初始化可能慢于 2D，但不应长期空白；更可能是 3D 初始化异常、WebGL 环境失败或渲染负载过重。
+- 已将 3D 初始化从 `new ForceGraph3D(container)` 改为官方示例使用的 `ForceGraph3D()(container)` 形式，降低不同版本 UMD 包下的初始化兼容风险。
+- 已降低 3D 首版渲染负载：3D 链接宽度改用库默认细线，链接透明度降为 `0.42`，降低 `linkResolution` 和 `nodeResolution`，减少 WebGL 几何压力。
+- 已新增 3D 初始化状态提示：切换 3D 且重新喂图数据时显示“正在初始化 3D 视图”，初始化完成后清除提示。
+- 已新增 3D 初始化异常捕获：如果构造实例、配置 force 或写入图数据时报错，页面会自动退回 2D，并在图谱右下角显示 `3D 初始化失败，已退回 2D` 及错误信息，避免用户只看到空白。
+- 已新增一个临时排查页 `data/visualization_mvp/3d_smoke.html`，内嵌同一 3D vendor 和 3 个节点的小图，用于区分 3D 库/WebGL 是否可用和主图数据规模是否导致问题；该文件位于生成产物目录，不作为长期源码入口。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含官方初始化形式、3D 初始化提示、失败回退提示，且无 U+FFFD 替换字符。
+
+### 瘦身 3D 引擎图数据
+- 用户反馈 `3d_smoke.html` 正常，但主项目仍一直显示初始化，并询问为什么官方 large 示例没有问题。
+- 已判断官方 large 示例通常只把节点和边的渲染必要字段传给 3D 引擎，而当前主项目此前把运行详情面板所需的完整边对象也传入 3D，包括每条边的支撑歌曲数组、方向拆解和其他展示字段；这些字段对 3D WebGL 渲染无用，会增加 3D 内部对象处理和布局负担。
+- 已修改 `graphPayload(nodes, edges, options)`，新增 `thin` 参数；当 `state.viewMode === "3d"` 时，传给 3D 引擎的节点只保留 `id`、`mid`、`name`、目标标记和统计计数字段，边只保留 `id`、`source`、`target`、`role`、`roles`、`song_count` 和 `directions`。
+- 右侧详情、关系明细和支撑歌曲仍继续从页面完整 `rawData` 和 `currentGraph` 中读取，不依赖 3D 引擎内的瘦身对象，因此用户可见详情能力不应丢失。
+- 已移除 3D 的 `linkWidth(0)` 设置，让 3D 链接回到库默认轻量线段渲染，避免宽度为 0 触发不可见或不稳定渲染路径。
+- 已新增 `clearGraphWarningSoon()`，在 3D `graphData()` 成功写入后短延迟清除初始化提示，避免仅因 force simulation 没有触发 `onEngineStop` 就一直显示初始化。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含 3D 瘦身 payload、官方初始化形式和短延迟清除提示逻辑，不再包含 `.linkWidth(0)`，且无 U+FFFD 替换字符。
+
+### 移除 3D 同步预热阻塞
+- 用户反馈主项目 3D 仍加载不出来，并追问到底是什么数据太重。
+- 已统计当前主页面完整图数据：`window.GRAPH_DATA` 约 2.19 MB，包含 1210 个节点、2271 条原始边、1970 首歌曲；传给 3D 引擎的瘦身 payload 约 0.86 MB，并非单纯 JSON 体积过大。
+- 已进一步定位更可能的阻塞点是 3D 配置中的 `warmupTicks(90)`：该设置会在 `api.graphData(...)` 内同步预跑 90 次 3D 力导向布局，导致主线程在首帧前被阻塞，初始化提示无法按时清除。
+- 当前主图合并后约 1210 个节点、2227 条边，最高加权度节点约 941，存在明显中心节点；这种拓扑在同步 warmup 下比 `3d_smoke.html` 的 3 个节点和官方 thin payload 示例更容易首帧阻塞。
+- 已将 3D 配置从 `warmupTicks(90)` 改为 `warmupTicks(0)`，并将 `cooldownTicks` 调整为 `180`，让 3D 视图先渲染首帧，再在浏览器中异步收敛布局，更接近官方 large 示例的加载方式。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含 `.warmupTicks(0)`、`.cooldownTicks(180)`、3D 瘦身 payload 和官方初始化形式，且无 U+FFFD 替换字符。
+
+### 进一步压缩 3D 渲染对象
+- 用户反馈初始化提示会很快消失，但 3D 画面仍一直加载不出来。
+- 已判断 `api.graphData()` 不再同步卡死，问题从“初始化阻塞”转为“3D 实例返回后画布没有可见图形”；排查方向改为 3D canvas、尺寸、相机、节点尺寸和传入对象形态。
+- 已进一步将 3D 引擎 payload 压缩到只包含渲染必要字段：3D 节点只保留 `id`、`name`、`is_target`、`degree` 和压缩后的 `val`，3D 边只保留 `id`、`source`、`target`、`role` 和 `song_count`；`directions`、`roles`、`songs` 和音乐人统计字段不再传给 3D 引擎。
+- 为保持 tooltip 和详情能力，新增 `fullEdge(edge)`，3D hover 或点击得到瘦身边对象后通过 `edge.id` 回查 `currentGraph.edges` 中的完整边。
+- 已将 3D 节点尺寸从沿用 2D 的 `val <= 65` 改为单独压缩到约 `1.2` 到 `7`，避免 2D 头像尺寸规则在 3D 球体中导致过大的几何体或异常取景。
+- 已将 3D 背景从透明改为浅色 `#f8fafc`，并将 `nodeRelSize` 调整为 `2.6`，使 3D smoke 与主图背景/节点可见性更接近。
+- 已停止对 3D 复用 2D 的强排斥力配置，3D 力布局改用库默认力配置，进一步接近官方 large 示例。
+- 静态测算当前 3D 最终 payload 约 471 KB，包含 1210 个节点和 2227 条合并边，最大节点 `val` 约 6.8；当前剩余负载主要是图拓扑本身和最高加权度约 941 的中心节点，不再是支撑歌曲数组或 directions 等业务字段。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含浅色 3D 背景、压缩节点尺寸、3D 瘦身 payload、完整边回查逻辑，且无 U+FFFD 替换字符。
+
+### 增加 3D 画布可见性诊断
+- 用户反馈右下角初始化弹窗很快消失，但 3D 画面仍一直加载不出来，说明 `graphData()` 已返回，问题转向 3D canvas 尺寸、相机取景或材质可见性。
+- 已新增 `graph3dDiagnostics()`，在 3D 图谱写入后显示节点数、边数、容器尺寸、canvas 像素尺寸和相机 z 值，便于判断是否存在 canvas 为 0、容器尺寸异常或相机位置异常。
+- 已新增 `stabilize3dView()`，在 3D 数据写入后分 120ms、700ms、1800ms 三次重新设置图谱宽高、相机位置、`zoomToFit(500, 80)` 和 `refresh()`，避免首帧时容器尺寸尚未稳定或相机未对准。
+- 已将 3D 链接颜色从动态 `rgba(...)` 改为纯 hex `solidEdgeColor(edge)`，并使用 `linkOpacity(0.36)` 控制透明度，排除 3D 材质解析 alpha 字符串导致线条不可见的可能。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含 3D 诊断、3D 稳定化取景、纯色链接和无 U+FFFD 替换字符。
+
+### 固定 3D 初始坐标和远距相机
+- 用户提供 3D 诊断结果：节点、边、容器、canvas 和相机 z 均正常，说明数据已写入且画布尺寸正常，但画面仍不可见。
+- 已将排查重点从数据和尺寸转到坐标范围与取景：即节点可能被力布局或初始位置推到相机视野外。
+- 已新增 `sphericalPosition()`，3D 初始节点不再使用随机盒状坐标，而是确定性铺到半径 520 的球面上，保证初始对象围绕原点分布。
+- 已将 3D 相机从 `z=980` 拉远到 `z=2200`，并停止在稳定化步骤里调用 `zoomToFit()`，避免 bbox 尚未稳定时自动取景把相机放到不合适位置。
+- 已扩展 `graph3dDiagnostics()`，额外显示节点坐标范围 `x/y/z min..max`，便于下一轮判断对象是否仍在视野范围内。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含球面初始坐标、远距相机和坐标范围诊断，且无 U+FFFD 替换字符。
+
+### 增加 3D 层叠和场景诊断
+- 用户提供新诊断结果显示节点 1025、边 1458、容器 1311x602、canvas 1966x903、相机 z=2200、坐标范围约 `±520`，但 3D 仍不可见且鼠标拖动缩放无效果。
+- 已判断数据、canvas 尺寸、相机距离和坐标范围均已正常，剩余高概率问题为 3D canvas 被其他层覆盖、当前/隐藏视图指针事件冲突，或 Three 场景对象没有被实际创建/渲染。
+- 已新增 CSS：隐藏视图显式 `display:none` 且禁用 pointer events；显示中的 `graph-3d` 和其 canvas 明确设置 z-index、浅色背景和蓝色半透明轮廓，用于判断用户看到的是否为真实 3D canvas 区域。
+- 已将 3D 诊断扩展为显示 `scene` 对象数量，用于判断 Three 场景是否包含已创建对象。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含 3D canvas 轮廓、隐藏视图 CSS、scene 诊断和无 U+FFFD 替换字符。
+
+### 使用自定义 Three 球体节点排查 3D 空白
+- 用户反馈新版本只看到蓝色 canvas 框，看不到诊断消息和 3D 节点。
+- 已判断蓝色框出现说明 3D canvas 层已经显示且没有被完全遮住，诊断消息消失是层级被 canvas 覆盖；节点仍不可见则可能是默认 3D 节点材质、灯光或对象创建路径问题。
+- 已将 `.graph-warning` 的 z-index 提高到 10，确保诊断条显示在 3D canvas 上方。
+- 已新增 `colorNumber()`，将 hex 颜色转换为 Three.js 可用数字颜色。
+- 已在 3D 图谱中新增 `nodeThreeObject()`，绕过库默认节点材质，直接为每个节点创建 `THREE.SphereGeometry` 加 `THREE.MeshBasicMaterial` 的球体；该材质不依赖场景灯光，适合排除灯光和默认材质不可见问题。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成主页面；静态检查确认 HTML 包含诊断条高层级、自定义 Three 球体节点、`MeshBasicMaterial` 和无 U+FFFD 替换字符。
+
+### 修复 3D 自定义节点回退和诊断消失
+- 用户反馈 3D 视图现在只能看到蓝色框，之前还能看到诊断消息，现在诊断消息也消失。
+- 已重新定位蓝色框含义：蓝色框来自诊断 CSS，说明 3D canvas 已挂载；诊断消失主要是 `onEngineStop()` 会清空诊断条，且自定义节点逻辑可能在 `window.THREE` 不存在时返回空对象。
+- 已修改 `setupGraph3d()`：只有检测到 `window.THREE` 时才注册 `api.nodeThreeObject()` 自定义球体；如果 3D vendor 没有把 Three.js 暴露到全局，则退回 `3d-force-graph` 默认节点渲染，避免把节点主动渲染为空。
+- 已修改 `colorNumber()`，只接受合法 6 位 hex 颜色，其他颜色字符串统一回退到 `0x3b82f6`，避免高亮态 `rgba(...)` 被解析为 `NaN`。
+- 已取消 3D 引擎停止后自动清空诊断条；3D 诊断现在会继续显示 `THREE yes/no`、renderer render calls 和 canvas 中心命中的 DOM 元素，便于判断是对象未创建、渲染未调用还是被层覆盖。
+- 已限制 `zoomToFit()` 只在 2D 视图执行，3D 继续使用固定球面初始坐标和 `camera z=2200`，避免自动取景干扰当前排查。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 存在且大小约 3.76 MB，无 U+FFFD 替换字符，包含 `if (window.THREE)`、`api.nodeThreeObject((node) =>`、`document.elementFromPoint` 和 3D 专用 `zoomToFit` 规避逻辑。
+
+### 收缩 3D 配置并放宽相机裁剪范围
+- 用户提供新诊断：节点 1025、边 1458、canvas 命中正常、`THREE no`、`scene 4`、`render 0`，说明 3D 实例和 canvas 存在，但主页面看不到实际图形。
+- 已判断 `scene 4` 是 `3d-force-graph` 顶层 scene 的正常结构，真实节点/边位于内部 forceGraph 对象子树，需递归统计；同时 `camera z=2200` 存在被 Three 相机 far clipping 裁剪的风险。
+- 已新增 `configure3dCamera(api)`，显式设置 `camera.near = 0.1`、`camera.far = 10000`，更新投影矩阵，启用 controls 并把 controls target 对准原点。
+- 已将 3D 稳定化相机从 `z=2200` 调整为 `z=1500`，并在稳定化时调用 `resumeAnimation()` 和 `refresh()`，确保动画循环恢复。
+- 已将 3D 配置收缩到更接近 smoke 示例：移除自定义 `nodeThreeObject()`、`nodeResolution()`、`linkResolution()` 和方向粒子相关配置，只保留背景、节点尺寸、颜色、标签、边颜色、边透明度和交互。
+- 已增强 3D 诊断：显示 `far`、递归对象统计 `obj total/mesh/line/points`、controls 开关状态，便于判断对象是否已经创建以及是否被相机裁剪。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 包含 `camera.far = 10000`、`api.resumeAnimation`、`.nodeRelSize(5.2)` 和递归对象诊断，且无 U+FFFD 替换字符。
+
+### 增加 3D 手动渲染循环
+- 用户提供新诊断：`obj 2488/1026/1458/0`，说明 1026 个 mesh 和 1458 条 line 已经创建，canvas、相机、坐标、控制器均正常，但 `render 0` 表示渲染器没有实际绘制场景。
+- 已判断当前问题不再是数据量、对象创建、坐标、相机或层叠遮挡，而是 `3d-force-graph` 在主页面组合场景下内部渲染循环或 scene 可见状态没有正常推进。
+- 已将 3D 初始化改为 `ForceGraph3D({ waitForLoadComplete: false })(container)`，绕过库内部等待加载完成后才显示 scene 的路径。
+- 已新增 `force3dSceneVisible(api)`，强制 `api.scene().visible = true`；3D 诊断新增 `vis on/off` 显示 scene 可见状态。
+- 已新增 `render3dFrame(api)` 和 `start3dManualRenderLoop(api)`：当 3D 视图激活时，本页面每帧调用 controls 更新并通过 post-processing composer 或 renderer 直接渲染当前 scene/camera；切回 2D 或实例失活后自动停止。
+- 已在 3D 初始化和稳定化步骤调用手动渲染循环，并保留 `resumeAnimation()` 作为库内部循环的补充。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 包含 `ForceGraph3D({ waitForLoadComplete: false })(container)`、`start3dManualRenderLoop`、`renderer.render(scene, camera)` 和 `vis` 诊断字段，且无 U+FFFD 替换字符。
+
+### 固定 3D 节点位置并同步 Three 对象
+- 用户反馈 3D 现在可以显示出来，但所有点都堆在同一个位置。
+- 已判断前一轮手动渲染循环只负责把 Three scene 画出来，但没有等价执行库内部 forceGraph tick 位置同步；因此节点对象已可见，但可能仍停留在默认原点。
+- 已修改 3D payload：3D 节点不再继承旧位置或等待力模拟展开，而是每次按确定性球面坐标写入 `x/y/z` 和 `fx/fy/fz`，让 3D 初始布局稳定分散。
+- 已新增 `sync3dObjectPositions(api)`：手动渲染每帧前递归扫描 scene，把 `__graphObjType === "node"` 的 Three object 位置同步到对应节点的 `x/y/z`；对 link object 尝试同步 geometry position 的起点和终点。
+- 已增强 3D 诊断：新增 `objxyz xMin..xMax/yMin..yMax/zMin..zMax`，用于直接观察实际 Three 节点对象是否仍堆叠在同一位置。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 包含 `sync3dObjectPositions`、`fx/fy/fz` 固定坐标、Three object 位置同步和 `objxyz` 诊断字段，且无 U+FFFD 替换字符。
+
+### 恢复 3D 真实关系布局
+- 用户反馈 3D 已能正常显示，但固定球面坐标不是歌手关系图，要求恢复真正的效果。
+- 已将 3D 坐标来源从前端球面兜底布局改为导出阶段预计算的关系布局：在 `build_graph_data()` 中按作词/作曲合作边构建无向加权图，边权使用 `log1p(song_count)`，再计算 3D Fruchterman-Reingold spring 坐标。
+- 为避免新增 SciPy 依赖，已直接使用 NetworkX 的 dense `_fruchterman_reingold` 计算路径和 `nx.to_numpy_array()`；当前 MVP 约 1210 节点时可在本地环境完成生成，不要求安装 `scipy`。
+- 已为每个节点写入 `layout_3d: {x, y, z}`；前端新增 `relationshipPosition3d()`，优先使用 `layout_3d`，仅在缺失时才回退到球面坐标。
+- 3D 手动渲染和对象位置同步逻辑保留，用于绕开此前主页面中 `3d-force-graph` 内部渲染/tick 未推进的问题；但同步的坐标现在来自真实关系布局，不再是装饰性球面。
+- 已同步 `README.md`，说明 3D 视图使用导出时按合作边权预计算的 3D spring 关系布局。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 大小约 3.82 MB，1210 个节点均包含 `layout_3d`，坐标范围约 x `-554..613`、y `-820..551`、z `-707..699`，且无 U+FFFD 替换字符。
+
+### 修复 3D 手动渲染下的点击交互
+- 用户反馈 3D 与 2D 效果仍不完全一致，且 3D 点击交互不可用。
+- 已判断 3D 与 2D 无法做到像素级一致：2D 是浏览器内实时 2D force 布局，3D 当前使用导出阶段预计算的 3D spring 关系布局；但 3D 应复用同一套节点/边详情、高亮和多选交互。
+- 由于 3D 当前使用手动渲染和对象位置同步兜底，`3d-force-graph` 内部 raycast 可能与实际可见位置不同步；已新增手动 3D 命中逻辑，绕过内部 raycast。
+- 新增 `collect3dNodeObjects()`、`screenPoint3d()`、`distanceToSegment()`、`pick3dGraphItem()` 和 `bind3dManualInteractions()`：点击时把 3D 节点投影到屏幕坐标，优先命中最近节点；未命中节点时按屏幕线段距离命中边；空白区域清空选择。
+- 手动 3D 命中复用现有 `handleNodeClick()`、`handleLinkClick()` 和 `handleBackgroundClick()`，因此点击节点、点击边、Ctrl 多选、详情面板和高亮状态与 2D 走同一套逻辑。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；执行 `py_compile` 未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 包含 `bind3dManualInteractions`、`handleNodeClick(picked.item, event)`、`handleLinkClick(picked.item)`，文件大小约 3.83 MB，且无 U+FFFD 替换字符。
+
+### 回退 3D 实验遗留未追踪文件
+- 用户反馈 3D 效果不理想，已将除日志外的 Git 跟踪文件回退，并要求清理剩余 Git 未追踪内容，同时记录日志。
+- 使用一次性 `git -c safe.directory=D:/B0Projects/my_tools/Musician_Relationship status --short --untracked-files=all` 检查状态，避免修改全局 Git safe.directory 配置；结果只显示 `develop_log.md` 修改，没有普通 untracked 文件。
+- 进一步检查本轮 3D 排障期间明确创建过的临时/新增路径：`music_metadata_graph/visualization/vendor/3d-force-graph.min.js` 和 `music_metadata_graph/visualization/vendor/3d-force-graph.LICENSE` 已不存在；`data/visualization_mvp/3d_smoke.html` 仍存在，但被 `.gitignore` 的 `data/` 规则忽略。
+- 已在确认目标解析后的绝对路径位于当前工作区内之后，删除临时诊断页 `data/visualization_mvp/3d_smoke.html`。
+- 删除后复查 `Test-Path data/visualization_mvp/3d_smoke.html` 返回 `False`；复查 Git 状态仍只显示 `M develop_log.md`，说明剩余可见变更仅为本日志。
+
+### 重新生成已回退源码对应的网页
+- 用户反馈网页仍未恢复。
+- 已确认当前跟踪源码中不再包含 `ForceGraph3D`、`graph-3d`、`view-mode-toggle`、`3D 视图`、`layout_3d` 或 `3d-force` 等 3D 实验代码，但 `data/visualization_mvp/index.html` 位于被忽略的 `data/` 目录中，Git 回退不会自动恢复该生成产物。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp`，用当前已回退源码覆盖生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认新生成的 `index.html` 大小约 2.41 MB，无 U+FFFD 替换字符，且不包含 `ForceGraph3D`、`graph-3d`、`view-mode-toggle`、`3D 视图`、`layout_3d` 或 `3d-force`。
+- 复查 Git 状态仍只显示 `M develop_log.md`，说明剩余可见变更仍仅为本日志。

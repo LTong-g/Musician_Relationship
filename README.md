@@ -524,6 +524,14 @@ D:\ASoftware\anaconda3\envs\Musician_Relationship\python.exe -m music_metadata_g
 
 关系口径为“作词/作曲人 -> 演唱者”，图谱按两位音乐人和职能合并线条，避免互相作词作曲时显示 4 条边；悬浮边、右侧边详情和粒子方向会按真实方向拆出 `A -> B` 与 `B -> A`。图谱永远排除同一音乐人自己给自己作词或作曲的自我边。节点优先使用 `artists.icon` 中的头像 URL；离线或头像不可访问时，页面会显示姓名首字占位。生成的 HTML、SQLite 数据库、raw 缓存和 validation 产物都位于 `data/`，默认不提交 Git。
 
+如果只想替换绘图区为 force-graph 官方 large-graph 示例风格，可以生成独立页面：
+
+```powershell
+D:\ASoftware\anaconda3\envs\Musician_Relationship\python.exe -m music_metadata_graph.visualization.build_large_graph_static --mvp
+```
+
+默认输出为 `data/visualization_mvp_large_graph/index.html`。该页面保留 MVP 的页面外壳、目标歌手筛选、搜索、最小歌曲数、作词/作曲合并、详情栏和明细表；只有绘图区按 force-graph 官方 `example/large-graph` 的绘图配置生成：设置 `window.devicePixelRatio = 1`，并使用 `.d3AlphaDecay(0)`、`.d3VelocityDecay(0.08)`、`.cooldownTime(60000)`、`.linkColor(() => 'rgba(0,0,0,0.05)')` 和 `.zoom(0.05)`；唯一差异是保留鼠标交互，即 `.enablePointerInteraction(true)`。绘图区不使用 MVP 的头像节点、自定义节点绘制、粒子、高亮线宽、自定义力参数或自动聚焦。
+
 
 
 

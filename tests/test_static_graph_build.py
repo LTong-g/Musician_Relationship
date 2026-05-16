@@ -2,6 +2,7 @@ import sqlite3
 import unittest
 
 from music_metadata_graph.visualization.build_static_graph import JS, build_graph_data, html_document, normalize_icon_url, safe_script_json
+from music_metadata_graph.visualization.build_large_graph_static import LARGE_GRAPH_JS, large_graph_html_document
 
 
 class StaticGraphBuildTests(unittest.TestCase):
@@ -194,6 +195,37 @@ class StaticGraphBuildTests(unittest.TestCase):
         self.assertNotIn("role-display", html)
         self.assertNotIn("Math.sqrt(edge.song_count || 1) * 0.38", JS)
         self.assertNotIn("rgba(239, 246, 255", JS)
+
+    def test_large_graph_variant_keeps_mvp_shell_but_mirrors_official_drawing_area(self):
+        graph_data = {
+            "nodes": [{"id": "artist:a", "name": "A"}, {"id": "artist:b", "name": "B"}],
+            "edges": [{"source": "artist:a", "target": "artist:b", "role": "作词"}],
+            "songs": [],
+            "targets": [],
+            "summary": {},
+        }
+        html = large_graph_html_document("测试", graph_data, "")
+
+        self.assertIn("topbar", html)
+        self.assertIn("detail-panel", html)
+        self.assertIn("target-dropdown-toggle", html)
+        self.assertIn("window.devicePixelRatio = 1; // use standard resolution in retina displays", LARGE_GRAPH_JS)
+        self.assertIn("graphInstance = new ForceGraph(container)", LARGE_GRAPH_JS)
+        self.assertIn("api.graphData(graphPayload(graph.nodes, graph.edges))", LARGE_GRAPH_JS)
+        self.assertIn(".d3AlphaDecay(0)", LARGE_GRAPH_JS)
+        self.assertIn(".d3VelocityDecay(0.08)", LARGE_GRAPH_JS)
+        self.assertIn(".cooldownTime(60000)", LARGE_GRAPH_JS)
+        self.assertIn(".linkColor(() => 'rgba(0,0,0,0.05)')", LARGE_GRAPH_JS)
+        self.assertIn(".zoom(0.05)", LARGE_GRAPH_JS)
+        self.assertIn(".enablePointerInteraction(true)", LARGE_GRAPH_JS)
+        self.assertNotIn(".nodeCanvasObject(", LARGE_GRAPH_JS)
+        self.assertNotIn(".nodePointerAreaPaint(", LARGE_GRAPH_JS)
+        self.assertNotIn(".nodeAutoColorBy(", LARGE_GRAPH_JS)
+        self.assertNotIn(".linkCanvasObject(", LARGE_GRAPH_JS)
+        self.assertNotIn(".linkDirectionalParticles(", LARGE_GRAPH_JS)
+        self.assertNotIn("api.zoomToFit", LARGE_GRAPH_JS)
+        self.assertNotIn("api.d3Force(\"link\")", LARGE_GRAPH_JS)
+        self.assertNotIn("api.d3Force(\"charge\")", LARGE_GRAPH_JS)
 
 
 if __name__ == "__main__":

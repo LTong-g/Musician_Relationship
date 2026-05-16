@@ -3188,3 +3188,70 @@ Read this file as UTF-8.
 - 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp`，用当前已回退源码覆盖生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
 - 静态检查确认新生成的 `index.html` 大小约 2.41 MB，无 U+FFFD 替换字符，且不包含 `ForceGraph3D`、`graph-3d`、`view-mode-toggle`、`3D 视图`、`layout_3d` 或 `3d-force`。
 - 复查 Git 状态仍只显示 `M develop_log.md`，说明剩余可见变更仍仅为本日志。
+
+## 2026-05-16
+
+### 清理 AGENTS 文档异常空行
+- 用户指出 `AGENTS.md` 也出现异常，要求检查并修复。
+- 复核确认 `AGENTS.md` 主要异常为空行膨胀：清理前文件大小为 89616 字节，共 29832 行，其中非空行 187 行；未发现 `BEL`、垂直制表、换页等隐藏控制字符。
+- 本次生成压缩备份 `AGENTS.before_blank_cleanup.md.gz` 后执行机械空行压缩，保留全部 187 行非空内容，并在标题前保留单个空行以维持 Markdown 可读性。
+- 清理后 `AGENTS.md` 文件大小为 30374 字节，共 206 行，其中非空行仍为 187 行。
+- 验证结果：UTF-8 严格读取成功，隐藏控制字符列表为空，U+FFFD 替换字符数量为 0，未发现三连空行、`<BEL>` 字面标记、`eports/` 或 `ode_modules/` 断行残留。
+
+### 设计 large-graph 风格可视化页面
+- 用户要求新增一个脚本，页面与 MVP 可视化网页一样，但绘图区模仿 force-graph 官方 `example/large-graph/index.html`。
+- 目标效果为生成独立 HTML，不覆盖 `data/visualization_mvp/index.html`；用户仍可使用 MVP 的目标歌手筛选、搜索、最小歌曲数、作词/作曲合并、详情栏和明细表，但绘图区改为轻量 2D 圆点和直线布局。
+- 实现方案为复用现有 SQLite 图谱数据构建、HTML 外壳和详情逻辑，新增 `music_metadata_graph.visualization.build_large_graph_static`，仅替换前端 `ForceGraph` 初始化、节点 payload 和绘图区说明。
+- 风险边界为该页面不加载头像自绘、不显示常驻文字节点、不做预热 tick 和自动 `zoomToFit`，节点名称保留在悬浮提示和详情栏中；本轮不重新引入 3D。
+
+### 实现 large-graph 风格可视化脚本
+- 新增 `music_metadata_graph/visualization/build_large_graph_static.py`，默认 `--mvp` 输出到 `data/visualization_mvp_large_graph/index.html`，正式模式输出到 `data/visualization_large_graph/index.html`。
+- 将 `html_document()` 扩展为可传入自定义 CSS 和 JS，使新脚本能复用现有页面外壳而不复制整份 HTML 模板。
+- large-graph 变体复用 MVP 的数据过滤和详情逻辑，但绘图区使用 `nodeAutoColorBy("large_group")`、默认圆点节点、直线边、内置力布局和按需粒子；移除了头像自绘、节点命中自绘、边自绘、预热 tick、自定义力参数和自动聚焦。
+- 已更新 `README.md` 的 MVP 可视化章节，补充新脚本运行命令、默认输出路径和绘图区行为差异。
+- 已新增 `tests.test_static_graph_build` 中的 large-graph 变体断言，覆盖轻量绘图区初始化和不包含主 MVP 自绘逻辑的约束。
+
+### 验证 large-graph 风格可视化脚本
+- 语法验证对象为 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未输出错误。
+- 单元测试对象为 `tests.test_static_graph_build`，执行项目指定 Conda Python 运行 7 个测试，结果全部通过。
+- 生成验证对象为 MVP 数据库，执行 `python -m music_metadata_graph.visualization.build_large_graph_static --mvp`，输出 `data/visualization_mvp_large_graph/index.html`，统计为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认新 HTML 大小约 2.4 MB，无 U+FFFD 替换字符，包含 `Large-graph 风格合作网络`，且不包含 `.nodeCanvasObject(drawNode)`、`.warmupTicks(` 或 `api.zoomToFit`。
+- 尝试使用本机 Chrome 和 Edge 无头模式对本地 `file://` HTML 截图做页面级冒烟检查，但命令未产出截图文件；本轮未完成浏览器视觉截图验证，剩余风险为实际浏览器首屏渲染仍需人工打开确认。
+- 已将本轮改动的文本文件统一为 CRLF 行尾，并复跑语法检查、单元测试和 MVP 生成命令。
+
+### 纠正 large-graph 模仿范围
+- 用户纠正前一版理解不符合要求：不是在 MVP 页面中保留筛选、详情、头像和高亮后只调整绘图区，而是除允许鼠标交互外，其他应完全模仿 force-graph 官方 `example/large-graph`。
+- 已将 `build_large_graph_static.py` 改为生成极简示例式 HTML：页面只包含 `body { margin: 0; }`、`#graph` 容器、`window.devicePixelRatio = 1` 和官方 large-graph 的 `ForceGraph` 链式配置。
+- 当前唯一有意差异为将官方示例中的 `.enablePointerInteraction(false)` 改为 `.enablePointerInteraction(true)`，以保留鼠标悬浮、点击和拖拽等交互能力。
+- 数据源仍使用项目 SQLite 导出的音乐人节点和关系边，但输出 payload 收缩为示例所需的 `nodes` 与 `links`，不再输出 MVP 的筛选、详情、表格、头像、粒子、高亮、边颜色分职能或自动聚焦逻辑。
+- 已同步 `README.md`，明确该页面不包含 MVP 的筛选栏、详情栏、表格、头像节点、粒子、高亮或自动聚焦。
+- 已更新单元测试，断言页面包含 `.d3AlphaDecay(0)`、`.d3VelocityDecay(0.08)`、`.cooldownTime(60000)`、`.linkColor(() => 'rgba(0,0,0,0.05)')`、`.zoom(0.05)` 和 `.enablePointerInteraction(true)`，并排除 MVP 外壳和自绘逻辑。
+
+### 验证 large-graph 完全模仿版本
+- 语法验证对象为 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未输出错误。
+- 单元测试对象为 `tests.test_static_graph_build`，执行项目指定 Conda Python 运行 7 个测试，结果全部通过。
+- 生成验证对象为 MVP 数据库，执行 `python -m music_metadata_graph.visualization.build_large_graph_static --mvp`，输出 `data/visualization_mvp_large_graph/index.html`，统计为 1970 首歌曲、1210 个节点、2271 条链接。
+- 静态检查确认新 HTML 大小约 386 KB，无 U+FFFD 替换字符，页面本体包含官方 large-graph 的核心配置和 `.enablePointerInteraction(true)`，且不包含 `topbar` 或 `detail-panel`。
+- 输出 HTML 内仍包含 `nodeCanvasObject`、`linkDirectionalParticles`、`zoomToFit` 等字样，这是内嵌本地 `force-graph.min.js` 运行库自身的 API 名称，不是页面脚本主动调用。
+
+### 再次纠正 large-graph 范围为仅绘图区
+- 用户进一步纠正：要求完全模仿的是绘图区，不是整个网页；网页外壳仍应像 MVP 可视化网页。
+- 已重新调整 `build_large_graph_static.py`：恢复复用 MVP 的 HTML 外壳、目标歌手筛选、搜索、最小歌曲数、作词/作曲合并、详情栏和明细表，只替换 `#graph` 绘图区的 `ForceGraph` 初始化和 payload。
+- 绘图区当前设置 `window.devicePixelRatio = 1`，并使用官方 large-graph 的 `.d3AlphaDecay(0)`、`.d3VelocityDecay(0.08)`、`.cooldownTime(60000)`、`.linkColor(() => 'rgba(0,0,0,0.05)')`、`.zoom(0.05)`；唯一差异仍为 `.enablePointerInteraction(true)`。
+- 绘图区不再调用 MVP 的 `.nodeCanvasObject()`、`.nodePointerAreaPaint()`、`.nodeAutoColorBy()`、`.linkCanvasObject()`、`.linkDirectionalParticles()`、`api.zoomToFit()` 或自定义 `api.d3Force()` 配置。
+- 点击节点和边仍保留为鼠标交互的一部分，用于更新右侧详情；但绘图区视觉不再随点击执行 MVP 高亮颜色、线宽或粒子变化。
+- 已同步 `README.md`，明确该页面保留 MVP 外壳，仅绘图区按 large-graph 示例配置生成。
+
+### 验证绘图区版 large-graph 页面
+- 语法验证对象为 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未输出错误。
+- 单元测试对象为 `tests.test_static_graph_build`，执行项目指定 Conda Python 运行 7 个测试，结果全部通过。
+- 生成验证对象为 MVP 数据库，执行 `python -m music_metadata_graph.visualization.build_large_graph_static --mvp`，输出 `data/visualization_mvp_large_graph/index.html`，统计为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认 HTML 无 U+FFFD 替换字符，保留 `topbar`、`detail-panel` 和 `target-dropdown-toggle`，页面脚本包含 large-graph 核心配置和 `.enablePointerInteraction(true)`，不包含 `.enablePointerInteraction(false)`。
+- 静态检查确认页面脚本未调用 `.nodeCanvasObject(`、`.nodeAutoColorBy(`、`.linkDirectionalParticles(`、`api.zoomToFit`、`api.d3Force("link")` 或 `api.d3Force("charge")`。
+
+### 修正最近两次提交信息
+- 用户指出最近两次提交标题和描述填写异常。
+- 复核确认最新提交标题使用中文且无英文描述，前一提交虽然使用英文标题但缺少描述正文，不符合仓库提交规则中“使用英文填写提交标题和描述”的要求。
+- 已在本地 `main` 分支重写最近两次提交信息，文件内容树保持不变；当前分支相对 `origin/main` 仍为本地 ahead 状态。
+- 修正后的提交标题分别为 `[feat] Add QQ Music pipeline and static graph visualization` 与 `[doc] Record 3D graph rollback and troubleshooting`，并补充了对应英文描述正文。
+- 验证对象为最近两次提交元数据，执行 `git log -2 --pretty=fuller`，结果显示两条提交均已使用修正后的英文标题和描述。

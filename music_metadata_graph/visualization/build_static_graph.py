@@ -268,7 +268,16 @@ def read_vendor_script(path: Path) -> str:
     raise FileNotFoundError(f"force-graph runtime not found: {path}")
 
 
-def html_document(title: str, graph_data: dict[str, Any], vendor_script: str) -> str:
+def html_document(
+    title: str,
+    graph_data: dict[str, Any],
+    vendor_script: str,
+    *,
+    css: str | None = None,
+    js: str | None = None,
+) -> str:
+    css = CSS if css is None else css
+    js = JS if js is None else js
     data_json = safe_script_json(graph_data)
     vendor_json = safe_script_json(vendor_script)
     title_json = json.dumps(title, ensure_ascii=False)
@@ -278,7 +287,7 @@ def html_document(title: str, graph_data: dict[str, Any], vendor_script: str) ->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{escape_html(title)}</title>
-  <style>{CSS}</style>
+  <style>{css}</style>
 </head>
 <body>
   <header class="topbar">
@@ -361,7 +370,7 @@ def html_document(title: str, graph_data: dict[str, Any], vendor_script: str) ->
     window.GRAPH_TITLE = {title_json};
     window.GRAPH_DATA = {data_json};
   </script>
-  <script>{JS}</script>
+  <script>{js}</script>
 </body>
 </html>
 """

@@ -936,7 +936,7 @@ function edgeWidth(edge) {
 
 function edgeAlpha(edge) {
   if (isHighlightedLink(edge)) return 1;
-  const alpha = 0.05 + edgeWeightRatio(edge) * 0.95;
+  const alpha = 0.2 + edgeWeightRatio(edge) * 0.8;
   return hasActiveHighlight() ? alpha * 0.5 : alpha;
 }
 
@@ -961,7 +961,11 @@ function baseEdges() {
 }
 
 function undirectedPair(edge) {
-  return [edge.source, edge.target].sort().join("--");
+  return edgePairId(edge);
+}
+
+function edgePairId(edge) {
+  return [nodeId(edge.source), nodeId(edge.target)].sort().join("--");
 }
 
 function mergeEdges(edges) {
@@ -1051,6 +1055,67 @@ function edgeId(edge) {
   return edge?.id || "";
 }
 
+function selectedEdgePair(selected) {
+  if (selected?.pair) return selected.pair;
+  const id = selected?.id || "";
+  const separator = id.lastIndexOf(":");
+  return separator > 0 ? id.slice(0, separator) : "";
+}
+
+function selectedEdgeRole(selected) {
+  if (selected?.role) return selected.role;
+  const id = selected?.id || "";
+  const separator = id.lastIndexOf(":");
+  return separator > 0 ? id.slice(separator + 1) : "";
+}
+
+function edgeSelectionSnapshot(edge) {
+  return {
+    type: "edge",
+    id: edge.id,
+    pair: edgePairId(edge),
+    role: edge.role,
+    roles: [...new Set(edge.roles || [edge.role])].filter(Boolean),
+  };
+}
+
+function edgeGroupSelectionSnapshot(edges) {
+  const roles = new Set();
+  edges.forEach((edge) => (edge.roles || [edge.role]).forEach((role) => roles.add(role)));
+  return {
+    type: "edges",
+    ids: edges.map((edge) => edge.id),
+    pair: edgePairId(edges[0]),
+    roles: [...roles].filter(Boolean),
+  };
+}
+
+function resolveSelectedEdges() {
+  if (state.selected?.type !== "edge" && state.selected?.type !== "edges") return [];
+  const exactIds = new Set(state.selected.ids || [state.selected.id].filter(Boolean));
+  const exact = currentGraph.edges.filter((edge) => exactIds.has(edge.id));
+  if (exact.length) return exact;
+  const pair = selectedEdgePair(state.selected);
+  if (!pair) return [];
+  const candidates = currentGraph.edges.filter((edge) => edgePairId(edge) === pair);
+  if (!candidates.length) return [];
+  const role = selectedEdgeRole(state.selected);
+  if (role) {
+    const sameRole = candidates.find((edge) => edge.role === role || (edge.roles || []).includes(role));
+    if (sameRole) return [sameRole];
+  }
+  const selectedRoles = new Set(state.selected.roles || []);
+  if (selectedRoles.size) {
+    const relatedRoles = candidates.filter((edge) => (edge.roles || [edge.role]).some((item) => selectedRoles.has(item)));
+    if (relatedRoles.length) return relatedRoles;
+  }
+  return candidates;
+}
+
+function resolveSelectedEdge() {
+  return resolveSelectedEdges()[0] || null;
+}
+
 function hasActiveHighlight() {
   return highlightNodes.size > 0 || highlightLinks.size > 0;
 }
@@ -1060,7 +1125,11 @@ function isHighlightedNode(node) {
 }
 
 function isHighlightedLink(edge) {
-  return highlightLinks.has(edgeId(edge)) || (state.selected?.type === "edge" && state.selected.id === edgeId(edge));
+  return (
+    highlightLinks.has(edgeId(edge)) ||
+    (state.selected?.type === "edge" && state.selected.id === edgeId(edge)) ||
+    (state.selected?.type === "edges" && (state.selected.ids || []).includes(edgeId(edge)))
+  );
 }
 
 function clearHighlights() {
@@ -1140,9 +1209,40 @@ function setLinkHighlight(edge) {
   highlightNodes.add(nodeId(edge.target));
 }
 
+function setLinksHighlight(edges) {
+  clearHighlights();
+  state.selectedNodeIds.clear();
+  edges.forEach((edge) => {
+    highlightLinks.add(edge.id);
+    highlightNodes.add(nodeId(edge.source));
+    highlightNodes.add(nodeId(edge.target));
+  });
+}
+
 function clearSelectionHighlight() {
   state.selected = null;
   state.selectedNodeIds.clear();
+  clearHighlights();
+}
+
+function restoreSelectionForCurrentGraph() {
+  const currentNodeIds = new Set(currentGraph.nodes.map((node) => node.id));
+  if (state.selectedNodeIds.size || state.selected?.type === "node" || state.selected?.type === "nodes") {
+    const selectedIds = state.selectedNodeIds.size ? [...state.selectedNodeIds] : [state.selected?.id].filter(Boolean);
+    state.selectedNodeIds = new Set(selectedIds.filter((id) => currentNodeIds.has(id)));
+    syncNodeSelectionState();
+    return;
+  }
+  if (state.selected?.type === "edge" || state.selected?.type === "edges") {
+    const edges = resolveSelectedEdges();
+    if (edges.length) {
+      state.selected = edges.length === 1 ? edgeSelectionSnapshot(edges[0]) : edgeGroupSelectionSnapshot(edges);
+      setLinksHighlight(edges);
+      return;
+    }
+    clearSelectionHighlight();
+    return;
+  }
   clearHighlights();
 }
 
@@ -1434,7 +1534,7 @@ function setupGraph(container) {
       renderSelection();
     })
     .onLinkClick((edge) => {
-      state.selected = { type: "edge", id: edge.id };
+      state.selected = edgeSelectionSnapshot(edge);
       setLinkHighlight(edge);
       renderSelection();
     })
@@ -1448,22 +1548,18 @@ function setupGraph(container) {
 function configureForces(api) {
   const linkForce = api.d3Force("link");
   if (linkForce?.distance) {
-    linkForce.distance((edge) => 88 + Math.max(0, 8 - Math.sqrt(edge.song_count || 1)) * 7);
+    linkForce.distance((edge) => 92 + Math.max(0, 8 - Math.sqrt(edge.song_count || 1)) * 5);
     linkForce.strength((edge) => Math.min(0.8, 0.16 + Math.sqrt(edge.song_count || 1) * 0.08));
   }
   const chargeForce = api.d3Force("charge");
-  if (chargeForce?.strength) chargeForce.strength(-285);
+  if (chargeForce?.strength) chargeForce.strength(-380);
 }
 
 function renderGraph() {
   const graph = buildGraph();
   currentGraph = graph;
   updateEdgeWeightScale(graph.edges);
-  if (state.selectedNodeIds.size) {
-    setNodeSelectionHighlight();
-  } else if (!state.selected) {
-    clearHighlights();
-  }
+  restoreSelectionForCurrentGraph();
   const container = $("graph");
   const height = graphHeight();
   container.style.height = `${height}px`;
@@ -1506,6 +1602,10 @@ function findSelected() {
   const graph = buildGraph();
   if (state.selected.type === "node") return graph.nodes.find((node) => node.id === state.selected.id);
   if (state.selected.type === "nodes") return graph.nodes.filter((node) => state.selectedNodeIds.has(node.id));
+  if (state.selected.type === "edges") {
+    const ids = new Set(state.selected.ids || []);
+    return graph.edges.filter((edge) => ids.has(edge.id));
+  }
   return graph.edges.find((edge) => edge.id === state.selected.id);
 }
 
@@ -1537,13 +1637,17 @@ function renderDetail() {
     `;
     return;
   }
-  if (state.selected.type === "edge") {
-    const directionRows = directionLabels(item)
-      .map((label) => `<div class="detail-card"><strong>${escapeHtml(label)}</strong></div>`)
-      .join("");
+  if (state.selected.type === "edge" || state.selected.type === "edges") {
+    const edges = Array.isArray(item) ? item : [item];
     $("detail-content").innerHTML = `
-      ${directionRows}
-      ${renderSongList(item.songs || [])}
+      ${edges
+        .map((edge) => {
+          const directionRows = directionLabels(edge)
+            .map((label) => `<div class="detail-card"><strong>${escapeHtml(label)}</strong></div>`)
+            .join("");
+          return `${directionRows}${renderSongList(edge.songs || [])}`;
+        })
+        .join("")}
     `;
     return;
   }
@@ -1709,7 +1813,6 @@ function renderTargetCheckboxes() {
       } else {
         state.selectedTargets.delete(checkbox.value);
       }
-      clearSelectionHighlight();
       updateTargetDropdownLabel();
       render();
     });
@@ -1737,7 +1840,6 @@ function bindControls() {
   });
   $("target-select-all").addEventListener("click", () => {
     state.selectedTargets = new Set(targetIds());
-    clearSelectionHighlight();
     renderTargetCheckboxes();
     render();
   });
@@ -1747,7 +1849,6 @@ function bindControls() {
       if (!state.selectedTargets.has(id)) nextTargets.add(id);
     });
     state.selectedTargets = nextTargets;
-    clearSelectionHighlight();
     renderTargetCheckboxes();
     render();
   });
@@ -1760,7 +1861,6 @@ function bindControls() {
   $("role-split-toggle").checked = state.roleDisplay === "split";
   $("role-split-toggle").addEventListener("change", (event) => {
     state.roleDisplay = event.target.checked ? "split" : "merged";
-    clearSelectionHighlight();
     render();
   });
   $("label-toggle").addEventListener("change", (event) => {
@@ -1773,12 +1873,10 @@ function bindControls() {
   });
   $("min-count").addEventListener("input", (event) => {
     state.minCount = Math.max(1, Number(event.target.value || 1));
-    clearSelectionHighlight();
     render();
   });
   $("search-input").addEventListener("input", (event) => {
     state.search = event.target.value.trim();
-    clearSelectionHighlight();
     render();
   });
   document.querySelectorAll(".tab").forEach((button) => {

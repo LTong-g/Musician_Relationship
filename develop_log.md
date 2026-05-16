@@ -3010,6 +3010,26 @@ Read this file as UTF-8.
 - 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
 - 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含多选关系边读取逻辑和支撑歌曲展开逻辑。
 
+### 尝试缓解节点重叠
+- 用户希望尝试缓解节点之间的重叠，但不希望边太长。
+- 已修改 `configureForces(api)`，新增 `d3.forceCollide((node) => nodeRadius(node) + 4).strength(0.9).iterations(2)`，优先通过节点碰撞半径减少头像重叠。
+- 已将排斥力从 `-285` 小幅增强到 `-380`，避免过强排斥导致图谱过度扩散。
+- 已将 link distance 从 `88 + ... * 7` 调整为 `92 + ... * 5`，只轻微增加基础距离，并降低随弱边额外拉长的幅度，控制边不要明显变长。
+- 已更新 `tests/test_static_graph_build.py`，断言碰撞力、排斥力和边距参数存在。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 7 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含碰撞力、`chargeForce.strength(-380)` 和新的 link distance 参数。
+
+### 回退导致图谱空白的碰撞力调用
+- 用户反馈新加的防重叠改动让网页绘图显示不出来。
+- 已定位最可疑原因是页面脚本调用 `d3.forceCollide(...)`，但当前静态 HTML 只通过 force-graph vendor 初始化图谱，不保证 `d3` 暴露为全局变量；该运行时错误会阻断后续绘图。
+- 已移除 `api.d3Force("collide", d3.forceCollide(...))`，先恢复图谱正常显示。
+- 保留不依赖全局 `d3` 的温和力导向调整：`chargeForce.strength(-380)` 和新的 link distance 参数。
+- 已更新 `tests/test_static_graph_build.py`，断言不再包含 `d3.forceCollide`。
+- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 7 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
+- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
+- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，不再包含 `d3.forceCollide`，仍保留 `chargeForce.strength(-380)` 和新的 link distance 参数。
+
 ### 分析同页 2D/3D 图谱切换方案
 - 用户询问当前使用的图谱库存在 3D 版本，是否可以在同一个页面里用开关切换 2D/3D。
 - 已确认当前可视化页面由 `music_metadata_graph/visualization/build_static_graph.py` 生成单页静态 HTML，现有前端使用本地 `force-graph.min.js`，数据结构已经是节点和边的图数据，适合复用到 3D 图谱。
@@ -3255,3 +3275,32 @@ Read this file as UTF-8.
 - 已在本地 `main` 分支重写最近两次提交信息，文件内容树保持不变；当前分支相对 `origin/main` 仍为本地 ahead 状态。
 - 修正后的提交标题分别为 `[feat] Add QQ Music pipeline and static graph visualization` 与 `[doc] Record 3D graph rollback and troubleshooting`，并补充了对应英文描述正文。
 - 验证对象为最近两次提交元数据，执行 `git log -2 --pretty=fuller`，结果显示两条提交均已使用修正后的英文标题和描述。
+
+### 检查制作人 raw 与补 MID 状态
+- 用户要求检查制作人补充情况和 JSON 文件数量。
+- 检查对象为正式 raw 目录 `data/raw/qqmusic/song_producer/`、制作人缺 MID 搜索 raw 目录 `data/raw/qqmusic/quick_search_artist_mid/song_credit/`、正式 SQLite 数据库和 MVP SQLite 数据库。
+- 统计结果显示制作人接口 raw JSON 共 246166 个，严格 UTF-8 JSON 解析均成功；制作人缺 MID quick_search raw JSON 共 18378 个，严格 UTF-8 JSON 解析均成功。
+- 正式 SQLite 数据库当前有 296960 首歌曲，其中 225622 首歌曲存在制作人 raw，71338 首当前歌曲尚无制作人 raw；另有 20544 个制作人 raw 对应的歌曲已不在当前正式 `songs` 表中。
+- 正式 SQLite 数据库当前仅有 `albums`、`artists`、`song_singers`、`songs` 四张表，尚无 `song_credit_artists` 表，因此作词/作曲关系尚未导入正式库。
+- 解析全部制作人 raw 后观察到 152556 首歌曲包含作词或作曲条目，93610 首歌曲不含作词或作曲条目；作词条目 152653 行，作曲条目 210577 行。
+- 解析全部制作人 raw 后观察到作词/作曲缺 MID 条目 131169 行，涉及 68300 首歌曲；这反映 raw 内容中的缺 MID 规模，不等同于已完成补入数据库的数量。
+- 正式验证目录中的 `song_producer_missing_mid.csv` 当前有 175 行、138 个唯一名称；该 CSV 是采集脚本运行时重写的视图，当前内容不能代表全部制作人 raw 的缺 MID 规模。
+- 正式验证目录中尚不存在 `song_credit_mid_fill.csv`；MVP 验证目录中该 CSV 有 146 行、138 个唯一名称，其中 `matched` 29 行、`db_matched` 8 行、`ambiguous_exact_match` 3 行、`no_singer_candidates` 77 行、`not_matched` 29 行。
+- MVP SQLite 数据库已有 `song_credit_artists` 表，共 4644 行，其中作词 2339 行、作曲 2305 行，覆盖 1970 首歌曲，且这 1970 首歌曲均同时具备作词和作曲关系。
+
+### 调高可视化边最低透明度
+- 用户要求把图谱边的最低透明度调高到 `0.2`。
+- 已修改 MVP 静态可视化的 `edgeAlpha(edge)`，未高亮边的连续透明度范围从 `0.05~1` 调整为 `0.2~1`，公式为 `0.2 + edgeWeightRatio(edge) * 0.8`。
+- 高亮边仍固定为不透明 `1`；存在高亮状态时，非高亮边仍按最终透明度乘以 `0.5` 压暗。
+- 已同步更新单元测试断言，覆盖新的透明度公式。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含新公式、不再包含旧 `0.05` 公式，且无 U+FFFD 替换字符。
+
+### 保留可视化筛选切换时的选中状态
+- 用户询问切换选项时能否不改变选中状态，或重新恢复选中状态。
+- 目标效果为：切换目标歌手筛选、作词/作曲分开、最小歌曲数、搜索、显示名字或粒子效果后，如果原选中的节点或边仍存在于当前图中，则继续保持选中和高亮；如果筛选后对象已经不在当前图中，则自动清除选择。
+- 已新增选中恢复逻辑：节点按 `artist:mid` 恢复；边优先按完整边 ID 恢复，职能合并/拆分导致 ID 变化时，按同一对音乐人和职能兼容恢复；合并关系切回作词/作曲分开时，可恢复为同一对音乐人之间对应的多条边。
+- 已移除目标歌手勾选、全选、反选、职能分开切换、最小歌曲数和搜索输入中的主动 `clearSelectionHighlight()` 调用，改由重新构图后的恢复逻辑判断是否保留或清除。
+- 已更新单元测试断言，覆盖选择恢复函数、单边/多边选中快照和不再主动清空选择的关键路径。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含选择恢复逻辑，且无 U+FFFD 替换字符。

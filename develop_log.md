@@ -3304,3 +3304,92 @@ Read this file as UTF-8.
 - 已更新单元测试断言，覆盖选择恢复函数、单边/多边选中快照和不再主动清空选择的关键路径。
 - 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
 - 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含选择恢复逻辑，且无 U+FFFD 替换字符。
+
+### 让底部明细跟随选中节点过滤
+- 用户要求选中节点后底部详情表也相应过滤，并在底部明细中新增搜索框。
+- 目标效果为：未选中节点时底部表格保持原范围；选中单个或多个节点后，歌曲明细只保留这些音乐人在演唱、作词或作曲中参与过的歌曲，且作词、作曲、演唱列只显示被选中的音乐人；关系明细只保留这些音乐人位于来源或目标的方向行。
+- 已新增底部独立搜索框 `table-search-input` 和状态 `state.tableSearch`，搜索只作用于当前底部明细的已过滤范围，不触发图谱重绘，也不复用顶部图谱搜索。
+- 已新增 `selectedTableNodeIds()`、`songHasAnyPerson()`、`personNamesForTable()` 和 `matchesTableSearch()`，用于把节点选中范围与表格搜索范围拆开处理。
+- 已调整 `renderSelection()`，节点点击、多选变化后会同时刷新右侧详情和底部表格。
+- 已更新单元测试断言，覆盖底部搜索框、选中节点过滤、关系方向过滤和选中刷新表格的关键逻辑。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含底部搜索和选中节点过滤逻辑，且无 U+FFFD 替换字符。
+
+### 分析 MVP 可视化后续优化方向
+- 用户要求分析当前 MVP 可视化还可以如何优化，并明确先不记录日志；随后用户要求补记本次分析日志。
+- 本次分析只读取 `AGENTS.md`、`develop_log.md`、README、可视化源码、测试和本地 MVP 数据状态，未修改可视化代码或生成新的页面产物。
+- 当前 MVP 可视化入口为 `python -m music_metadata_graph.visualization.build_static_graph --mvp`，默认输出 `data/visualization_mvp/index.html`；另有 `build_large_graph_static --mvp` 生成绘图区参考 large-graph 示例的独立页面。
+- 当前本地 MVP SQLite 数据规模为：`artists` 1839、`albums` 60025、`songs` 1970、`song_singers` 2347、`song_credit_artists` 4644，其中作词 2339、作曲 2305。
+- 当前 MVP 图谱生成数据规模为 1210 个节点、2271 条边、1970 首歌曲；边中 1858 条只对应 1 首歌，2 到 4 首歌的边 332 条，5 首及以上的边 81 条。
+- 当前 `data/visualization_mvp/index.html` 大小约 2.41 MB，其中内嵌图谱 JSON 约 2.19 MB，force-graph 运行库约 178 KB，说明后续规模扩大时主要体积压力来自重复嵌入的图谱数据。
+- 已识别优先优化方向：默认视图应从全量弱关系收敛为更可读的核心网络，例如默认最小歌曲数调高或提供“核心关系/全部关系”模式；边方向应在选中关系时更明确展示“谁给谁作词/作曲”，而不是主要依赖悬浮提示和粒子效果。
+- 已识别详情面板优化方向：点击音乐人后应优先展示“谁给 TA 写过歌”“TA 给谁写过歌”“自己演唱且自己作词/作曲的歌”和高频合作对象排行；点击边后应显示总支撑歌曲数、当前展示数量，并支持展开全部和排序。
+- 已识别交互优化方向：搜索应从单纯过滤图和表升级为可导航结果列表；目标歌手筛选应区分种子歌手、演唱目标和协作者，避免正式数据扩大后只展示前 10 个目标歌手造成探索范围误解。
+- 已识别性能与视觉优化方向：可将图谱数据拆为独立 JSON 或改为 `song_refs + songsById` 减少 HTML 体积；头像加载可优先加载目标歌手、高权重节点、选中节点和邻居节点；布局可引入轻量碰撞力或局部引力以减少大头像节点重叠。
+- 风险边界：本次只是分析和方案整理，未执行浏览器视觉验证、未改默认筛选值、未调整数据结构、未改变现有 HTML 入口和用户可见行为。
+
+### 固定底部明细区高度
+- 用户指出底部详细区在搜索时高度反复变化，要求固定高度或打开网页时计算后固定。
+- 已将 `#table-content` 从 `max-height: 420px` 改为固定 `height: 420px`，保留内部滚动，避免搜索结果变少时底部区域收缩。
+- 已更新单元测试断言，覆盖固定高度 CSS，并确认旧 `max-height` 写法不再存在。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含固定高度、没有旧 `max-height`，且无 U+FFFD 替换字符。
+
+### 修正右侧详情栏高度对齐
+- 用户指出右侧详情框高度异常，比左侧绘图框短一段。
+- 已将右侧详情栏高度计算从 `图高度 + panel-head.offsetHeight` 的手算方式，改为在设置图区域高度后直接读取左侧 `.graph-panel` 的实际 `getBoundingClientRect().height`。
+- 右侧 `.detail-panel` 的 `height` 和 `maxHeight` 现在统一使用左侧图面板实际高度，避免标题栏、边框和盒模型差异造成短一截。
+- 已更新单元测试断言，覆盖新的 `.graph-panel` 实际高度读取逻辑，并确认旧的 `panel-head` 手算方式不再存在。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含新的右侧高度同步逻辑，且无 U+FFFD 替换字符。
+
+### 强化右侧详情栏高度同步
+- 用户反馈上一版没有变化，右侧详情框仍然比左侧绘图框短。
+- 已把 `.workspace` 从 `align-items: start` 改为 `align-items: stretch`，让桌面端两列先由 CSS 网格天然拉齐高度。
+- 已新增 `syncDetailPanelHeight()`，改用左侧 `.graph-panel.offsetHeight` 读取最终布局后的 border-box 高度，同步到右侧详情栏的 `height` 和 `maxHeight`。
+- 已在 `renderGraph()` 中立即同步一次，并通过 `requestAnimationFrame(syncDetailPanelHeight)` 在下一帧再同步一次，避免首次渲染时机过早；`ResizeObserver` 回调中也会重新同步。
+- 已更新单元测试断言，覆盖 CSS 拉伸、`offsetHeight`、下一帧同步和旧 `panel-head` 手算逻辑移除。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含强化后的高度同步逻辑，且无 U+FFFD 替换字符。
+
+### 调整顶部工具栏靠下对齐
+- 用户指出顶部右侧工具栏应靠下，而不是靠上。
+- 已将 `.topbar` 的垂直对齐改为 `align-items: end`，并将 `.toolbar` 设置为 `align-self: end`，使右侧控件与左侧两行标题信息的下沿对齐。
+- 已更新单元测试断言，确认顶部不再使用 `align-items: start` 或 `align-items: center`。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含顶部靠下对齐逻辑，且无 U+FFFD 替换字符。
+
+### 收紧顶部栏底部空白
+- 用户指出顶部右侧工具栏下边距过大。
+- 原因是 `.topbar` 使用统一 `padding: 16px 22px`，右侧工具栏靠下对齐后，控件下方仍保留 16px 底部内边距。
+- 已将顶部栏 padding 改为 `16px 22px 8px`，保留上方留白，同时把底部空白收紧。
+- 已更新单元测试断言，覆盖新的顶部栏 padding，并确认旧统一 padding 不再存在。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含新的顶部栏 padding，且无 U+FFFD 替换字符。
+
+### 调整图标题行和动态图例
+- 用户要求左侧图标题区域从两排改成一排，只改排版不改字体字号颜色；右侧图例不要永远显示三项，而是根据作词/作曲是否分开显示两个或一个，合并状态文案写作词/作曲。
+- 已给图标题和说明外层增加 `.graph-heading`，使用 `display: flex` 和 `align-items: baseline` 将标题与说明排成同一行，未改原有 `h2` 和说明文字的字号、字重或颜色规则。
+- 已将 `renderLegend()` 改为动态渲染：作词/作曲分开时只显示“作词”和“作曲”；合并时只显示一项“作词/作曲”。
+- 已移除图例中的“合并”文案。
+- 已更新单元测试断言，覆盖单行标题容器、动态图例、分开/合并文案和旧“合并”文案移除。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含单行标题和动态图例逻辑，且无 U+FFFD 替换字符。
+
+### 明确目标歌手、数据库规模和当前图规模
+- 用户指出顶部和图标题区同时出现“全部 10 位目标歌手”“1,839 位库内音乐人”“1,025 个节点”等数字，口径没有说明清楚，容易误解为同一类数量。
+- 已明确三个口径：`目标歌手` 表示当前目标歌手筛选范围；`数据库` 表示当前 SQLite 数据库里的歌曲和音乐人总规模；`当前图` 表示当前筛选、最小歌曲数和搜索条件下实际显示的图节点和关系边。
+- 顶部摘要改为 `目标歌手：... · 数据库：... 首歌曲 / ... 位音乐人 · 生成于 ...`。
+- 图标题说明改为 `目标歌手：... · 当前图：... 个音乐人节点 / ... 条关系边 · ...`。
+- 右侧默认详情中的“数据规模”改为“数据库规模”，并将“库内音乐人”改为“数据库音乐人”。
+- 已更新单元测试断言，覆盖新文案并确认旧的混合口径文案不再存在。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 包含新口径文案，且无 U+FFFD 替换字符。
+
+### 移除顶部摘要中的目标歌手范围
+- 用户指出顶部摘要不需要再写“全部 10 位目标歌手”，因为图标题说明里已经写了。
+- 已将顶部 `dataset-scope` 文案改为只显示 `SQLite 静态图谱`、数据库歌曲/音乐人规模和生成时间。
+- 图标题说明里仍保留 `目标歌手：... · 当前图：...`，作为当前图范围说明。
+- 已更新单元测试断言，确认顶部不再包含 `目标歌手：${currentScopeLabel()}`，同时保留数据库摘要和图标题范围文案。
+- 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
+- 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 顶部摘要已移除目标歌手范围，且无 U+FFFD 替换字符。

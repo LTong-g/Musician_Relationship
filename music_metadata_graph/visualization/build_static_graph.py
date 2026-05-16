@@ -341,7 +341,7 @@ def html_document(
     <section class="workspace">
       <div class="graph-panel">
         <div class="panel-head">
-          <div>
+          <div class="graph-heading">
             <h2 id="graph-title">图谱</h2>
             <p id="graph-note"></p>
           </div>
@@ -357,8 +357,11 @@ def html_document(
 
     <section class="data-section">
       <div class="tabs">
-        <button class="tab active" data-tab="songs" type="button">歌曲明细</button>
-        <button class="tab" data-tab="edges" type="button">关系明细</button>
+        <div class="tab-buttons">
+          <button class="tab active" data-tab="songs" type="button">歌曲明细</button>
+          <button class="tab" data-tab="edges" type="button">关系明细</button>
+        </div>
+        <input id="table-search-input" type="search" placeholder="搜索当前明细" />
       </div>
       <div id="table-content"></div>
     </section>
@@ -458,8 +461,8 @@ body {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(0, auto);
   gap: 14px;
-  align-items: center;
-  padding: 16px 22px;
+  align-items: end;
+  padding: 16px 22px 8px;
   background: #ffffff;
   border-bottom: 1px solid #d8dee8;
 }
@@ -489,6 +492,7 @@ h2 {
 .toolbar {
   display: flex;
   align-items: center;
+  align-self: end;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
@@ -682,7 +686,7 @@ input {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .graph-panel,
@@ -695,11 +699,22 @@ input {
 
 .panel-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
   border-bottom: 1px solid #e6ebf2;
+}
+
+.graph-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.graph-heading h2 {
+  flex: 0 0 auto;
 }
 
 .legend {
@@ -767,9 +782,16 @@ input {
 
 .tabs {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 12px;
   border-bottom: 1px solid #e6ebf2;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 6px;
 }
 
 .tab {
@@ -783,8 +805,12 @@ input {
   color: #175cd3;
 }
 
+#table-search-input {
+  width: min(260px, 42vw);
+}
+
 #table-content {
-  max-height: 420px;
+  height: 420px;
   overflow: auto;
 }
 
@@ -848,6 +874,7 @@ const state = {
   particlesEnabled: false,
   minCount: 1,
   search: "",
+  tableSearch: "",
   selected: null,
   selectedNodeIds: new Set(),
   activeTab: "songs",
@@ -1251,6 +1278,15 @@ function graphHeight() {
   return Math.max(430, Math.floor(window.innerHeight - graphTop - 16));
 }
 
+function syncDetailPanelHeight() {
+  const detailPanel = document.querySelector(".detail-panel");
+  const graphPanel = document.querySelector(".graph-panel");
+  if (!detailPanel || !graphPanel) return;
+  const panelHeight = graphPanel.offsetHeight || Math.round(graphPanel.getBoundingClientRect().height);
+  detailPanel.style.height = `${panelHeight}px`;
+  detailPanel.style.maxHeight = `${panelHeight}px`;
+}
+
 function nodeDegreeMap(edges) {
   const degrees = new Map();
   edges.forEach((edge) => {
@@ -1563,11 +1599,6 @@ function renderGraph() {
   const container = $("graph");
   const height = graphHeight();
   container.style.height = `${height}px`;
-  const detailPanel = document.querySelector(".detail-panel");
-  if (detailPanel) {
-    detailPanel.style.height = `${height + document.querySelector(".panel-head").offsetHeight}px`;
-    detailPanel.style.maxHeight = `${height + document.querySelector(".panel-head").offsetHeight}px`;
-  }
   const width = container.clientWidth || 960;
   const key = JSON.stringify({
     nodes: graph.nodes.map((node) => node.id).sort(),
@@ -1578,6 +1609,8 @@ function renderGraph() {
   const api = setupGraph(container);
   configureForces(api);
   api.width(width).height(height);
+  syncDetailPanelHeight();
+  window.requestAnimationFrame(syncDetailPanelHeight);
   if (shouldFit) {
     api.graphData(graphPayload(graph.nodes, graph.edges));
   }
@@ -1590,11 +1623,12 @@ function renderGraph() {
   if (!graphResizeObserver) {
     graphResizeObserver = new ResizeObserver(() => {
       if (graphInstance) graphInstance.width(container.clientWidth || width).height(container.clientHeight || height);
+      syncDetailPanelHeight();
     });
     graphResizeObserver.observe(container);
   }
   $("graph-title").textContent = "无向合作网络";
-  $("graph-note").textContent = `${currentScopeLabel()} · ${formatNumber(graph.nodes.length)} 个节点，${formatNumber(graph.edges.length)} 条边 · Ctrl+点击节点可多选 · 多选时只高亮选中节点之间的边`;
+  $("graph-note").textContent = `目标歌手：${currentScopeLabel()} · 当前图：${formatNumber(graph.nodes.length)} 个音乐人节点 / ${formatNumber(graph.edges.length)} 条关系边 · Ctrl+点击节点可多选 · 多选时只高亮选中节点之间的边`;
 }
 
 function findSelected() {
@@ -1631,8 +1665,8 @@ function renderDetail() {
         <p class="muted">${escapeHtml(rawData.relationship_direction)}。Ctrl+点击节点可多选，点击边查看支撑歌曲。</p>
       </div>
       <div class="detail-card">
-        <strong>数据规模</strong>
-        <p class="muted">${formatNumber(rawData.summary.songs)} 首歌曲 · ${formatNumber(rawData.summary.artists)} 位库内音乐人 · ${formatNumber(rawData.summary.song_credit_artists)} 条作词/作曲记录</p>
+        <strong>数据库规模</strong>
+        <p class="muted">${formatNumber(rawData.summary.songs)} 首歌曲 · ${formatNumber(rawData.summary.artists)} 位数据库音乐人 · ${formatNumber(rawData.summary.song_credit_artists)} 条作词/作曲记录</p>
       </div>
     `;
     return;
@@ -1697,44 +1731,66 @@ function renderDetail() {
 }
 
 function renderTable() {
+  const selectedIds = selectedTableNodeIds();
+  const tableSearch = state.tableSearch.toLowerCase();
   if (state.activeTab === "edges") {
     const rows = buildGraph().edges.flatMap((edge) =>
-      (edge.directions || []).map((direction) => ({
-        role: (direction.roles || []).join("/"),
-        source: nodeName(direction.source),
-        target: nodeName(direction.target),
-        count: direction.song_count,
-        songs: (edge.songs || [])
-          .filter((song) => song.target_mid === String(direction.target).replace(/^artist:/, ""))
-          .filter((song) => (direction.roles || []).includes(song.role))
-          .map((song) => song.name)
-          .join(" / "),
-      })),
-    );
-  renderRows(["职能", "来源音乐人", "目标音乐人", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
+      (edge.directions || [])
+        .filter((direction) => !selectedIds.size || selectedIds.has(direction.source) || selectedIds.has(direction.target))
+        .map((direction) => ({
+          role: (direction.roles || []).join("/"),
+          source: nodeName(direction.source),
+          target: nodeName(direction.target),
+          count: direction.song_count,
+          songs: (edge.songs || [])
+            .filter((song) => song.target_mid === String(direction.target).replace(/^artist:/, ""))
+            .filter((song) => (direction.roles || []).includes(song.role))
+            .map((song) => song.name)
+            .join(" / "),
+        })),
+    ).filter((row) => matchesTableSearch(row, tableSearch, ["role", "source", "target", "count", "songs"]));
+    renderRows(["职能", "来源音乐人", "目标音乐人", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
     return;
   }
-  const search = state.search.toLowerCase();
   const rows = filteredSongs()
-    .filter((song) => {
-      if (!search) return true;
-      return [song.name, song.album, personNames(song.singers), personNames(song.lyricists), personNames(song.composers)]
-        .join(" ")
-        .toLowerCase()
-        .includes(search);
-    })
+    .filter((song) => !selectedIds.size || songHasAnyPerson(song, selectedIds))
     .map((song) => ({
       name: song.name,
       album: song.album,
-      lyricists: personNames(song.lyricists),
-      composers: personNames(song.composers),
-      singers: personNames(song.singers),
-    }));
+      lyricists: personNamesForTable(song.lyricists, selectedIds),
+      composers: personNamesForTable(song.composers, selectedIds),
+      singers: personNamesForTable(song.singers, selectedIds),
+    }))
+    .filter((song) => {
+      if (!tableSearch) return true;
+      return [song.name, song.album, song.lyricists, song.composers, song.singers].join(" ").toLowerCase().includes(tableSearch);
+    });
   renderRows(["歌曲", "专辑", "作词", "作曲", "演唱"], rows, ["name", "album", "lyricists", "composers", "singers"]);
 }
 
 function filteredSongs() {
   return rawData.songs.filter((song) => (song.singers || []).some((person) => state.selectedTargets.has(`artist:${person.mid}`)));
+}
+
+function selectedTableNodeIds() {
+  if (state.selected?.type !== "node" && state.selected?.type !== "nodes") return new Set();
+  return new Set([...state.selectedNodeIds]);
+}
+
+function songHasAnyPerson(song, selectedIds) {
+  return ["singers", "lyricists", "composers"].some((key) =>
+    (song[key] || []).some((person) => selectedIds.has(`artist:${person.mid}`)),
+  );
+}
+
+function personNamesForTable(values, selectedIds) {
+  const people = selectedIds.size ? (values || []).filter((person) => selectedIds.has(`artist:${person.mid}`)) : values;
+  return personNames(people);
+}
+
+function matchesTableSearch(row, search, keys) {
+  if (!search) return true;
+  return keys.map((key) => row[key]).join(" ").toLowerCase().includes(search);
 }
 
 function renderRows(headers, rows, keys) {
@@ -1751,16 +1807,20 @@ function renderRows(headers, rows, keys) {
 }
 
 function renderLegend() {
-  $("legend").innerHTML = `
-    <span class="legend-item"><span class="legend-swatch" style="background: rgba(31, 120, 180, 0.75)"></span>作词</span>
-    <span class="legend-item"><span class="legend-swatch" style="background: rgba(217, 95, 2, 0.75)"></span>作曲</span>
-    <span class="legend-item"><span class="legend-swatch" style="background: rgba(20, 132, 117, 0.75)"></span>合并</span>
-  `;
+  const items = state.roleDisplay === "split"
+    ? [
+      ["rgba(31, 120, 180, 0.75)", "作词"],
+      ["rgba(217, 95, 2, 0.75)", "作曲"],
+    ]
+    : [["rgba(20, 132, 117, 0.75)", "作词/作曲"]];
+  $("legend").innerHTML = items
+    .map(([color, label]) => `<span class="legend-item"><span class="legend-swatch" style="background: ${color}"></span>${label}</span>`)
+    .join("");
 }
 
 function renderHeader() {
   const summary = rawData.summary;
-  $("dataset-scope").textContent = `SQLite 静态图谱 · ${currentScopeLabel()} · ${formatNumber(summary.songs)} 首歌曲 · ${formatNumber(summary.artists)} 位库内音乐人 · 生成于 ${rawData.generated_at}`;
+  $("dataset-scope").textContent = `SQLite 静态图谱 · 数据库：${formatNumber(summary.songs)} 首歌曲 / ${formatNumber(summary.artists)} 位音乐人 · 生成于 ${rawData.generated_at}`;
 }
 
 function render() {
@@ -1774,6 +1834,7 @@ function render() {
 
 function renderSelection() {
   renderDetail();
+  renderTable();
 }
 
 function renderTargetMenuState() {
@@ -1878,6 +1939,10 @@ function bindControls() {
   $("search-input").addEventListener("input", (event) => {
     state.search = event.target.value.trim();
     render();
+  });
+  $("table-search-input").addEventListener("input", (event) => {
+    state.tableSearch = event.target.value.trim();
+    renderTable();
   });
   document.querySelectorAll(".tab").forEach((button) => {
     button.addEventListener("click", () => {

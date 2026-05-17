@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "generator_version": "avatar-atlas-v2",
+  "input_hash": "a53e905c6e72539543086a3bfc78af29e54a821db33e58558c84e0d1ea28deb7",
+  "input_summary": {
+    "config": {
+      "cell_size": 150,
+      "atlas_size": 3000,
+      "webp_quality": 80,
+      "include_unused_cache": false
+    },
+    "environment": {
+      "pillow_version": "12.2.0",
+      "webp_supported": true
+    },
+    "profile_keys_hash": "47c6ca46c40d652611db775bf142df89e82f9e538af7c2aed39658e2b2f64316",
+    "profile_order_counts": {
+      "mvp": 789,
+      "demo": 1046,
+      "full": 17183
+    },
+    "ordered_keys_count": 17183,
+    "ordered_keys_hash": "8b3208f23eba8932f4b920e1fb0d944c344d5f59d4afced458ca101e1cbc82fd",
+    "source_entries_count": 17183,
+    "source_entries_hash": "8da5349ba554ecb1887764dc7e20d47c7093e19d21adce137fd57539d9dc7728",
+    "missing_profile_keys_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "duplicate_urls_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "outputs": {
+    "files": [
+      {
+        "name": "avatar-atlas-manifest.json",
+        "size": 3061884,
+        "sha256": "215ae6f93a49394d31d0eead8e6b82dac72f28e949cbefb3b37cb0aed850778b"
+      },
+      {
+        "name": "avatar-atlas-manifest.js",
+        "size": 2185024,
+        "sha256": "1bbad4853014062cece0d96e60982a6f8c4f050b4f3eec4dc18237c649f11dbd"
+      },
+      {
+        "name": "avatar-atlas-report.json",
+        "size": 1312,
+        "sha256": "00ce0f30b7336ac00869f529ca66d91caa5f2f077a1a97dbbf96167b83eca401"
+      },
+      {
+        "name": "atlas_000.webp",
+        "size": 1325942,
+        "sha256": "5108f956a8b89c9f08b050d4226c6bea60c2ea046720b4cac95d92a1f043c032"
+      },
+      {
+        "name": "atlas_001.webp",
+        "size": 1300920,
+        "sha256": "4cfbc82fdb490a2914b77ef0d8e6f7c2146d28ee47b0059f229378b4b7cd3faa"
+      },
+      {
+        "name": "atlas_002.webp",
+        "size": 1260652,
+        "sha256": "0de2851ca18703325159f076172053326ff6acfee61f1c7219cd60e4a7759966"
+      },
+      {
+        "name": "atlas_003.webp",
+        "size": 1341664,
+        "sha256": "358785b386b5afbea4acccdc08670244f40913f3e1ea96125ec0099d6297a318"
+      },
+      {
+        "name": "atlas_004.webp",
+        "size": 1344738,
+        "sha256": "9f35800dc94f485911e29e10ba43bd8553df3f56ea4f395671f175e5c1b929e7"
+      },
+      {
+        "name": "atlas_005.webp",
+        "size": 1344774,
+        "sha256": "c235a1c2d25a4991d5eae3438f3e29457ea20b66f01cec68a0937699af5494da"
+      },
+      {
+        "name": "atlas_006.webp",
+        "size": 1367068,
+        "sha256": "7b0a319443a00aa852bdd2e6f53254a2b37905d9df1af4bda9e94b94b7c1b7b9"
+      },
+      {
+        "name": "atlas_007.webp",
+        "size": 1324514,
+        "sha256": "f9571371281385538261e4b98cd01d6936dcdb38660f03de7f27d032643570d5"
+      },
+      {
+        "name": "atlas_008.webp",
+        "size": 1397712,
+        "sha256": "01e47857b4b186f97ebd5a6a08fc9b879dc0c0d257b3a5f98655037b51bfd8d2"
+      },
+      {
+        "name": "atlas_009.webp",
+        "size": 1398462,
+        "sha256": "443741a248d2e974bfc9a38d562cc6a88a1e7b832594e8509ff8af8fb05bb7b8"
+      },
+      {
+        "name": "atlas_010.webp",
+        "size": 1315140,
+        "sha256": "2ab53e18e95a5d6db4312ebe385c1e8d2670f3a0af1a20b8d95aeae023231cd1"
+      },
+      {
+        "name": "atlas_011.webp",
+        "size": 1330998,
+        "sha256": "929a50f30891ef15ca9ec2302725eda3e1c08582587151132d7905ca2474cee6"
+      },
+      {
+        "name": "atlas_012.webp",
+        "size": 1340502,
+        "sha256": "bf897f6da0c7c27966db3e272b07016451de7bf8b17d2bf6fcbdf163e15e8a16"
+      },
+      {
+        "name": "atlas_013.webp",
+        "size": 1315882,
+        "sha256": "70556970bba63794029a5d466a0fe10ff0d3993c62bfcde8d91c90d27cc17304"
+      },
+      {
+        "name": "atlas_014.webp",
+        "size": 1350704,
+        "sha256": "3af4d09d15e1487de41635e7bb7232667f6aed776fc78179d216fc0bd82f8845"
+      },
+      {
+        "name": "atlas_015.webp",
+        "size": 1352974,
+        "sha256": "7517752f09f6fc0d1bc3618f36eeca2be65615a65dc77ee4515e0055cc3d569d"
+      },
+      {
+        "name": "atlas_016.webp",
+        "size": 1376398,
+        "sha256": "b30542933ca7df88ea5387279cb8d41b676338736e8d85324bc006d7e732b454"
+      },
+      {
+        "name": "atlas_017.webp",
+        "size": 1363430,
+        "sha256": "a79ae0b8f0c4ec01081bd808cdd804b2ffdf6467bcff7d7e4830f5b138dee24f"
+      },
+      {
+        "name": "atlas_018.webp",
+        "size": 1324210,
+        "sha256": "9733813e766d2050d9e17af069c4c02e86180084d2cd7fadbd8a5e652fe1ccb6"
+      },
+      {
+        "name": "atlas_019.webp",
+        "size": 1313226,
+        "sha256": "bd92d2398767e53f82fd49e7332597f21dbf9f36500667f814de72044d885213"
+      },
+      {
+        "name": "atlas_020.webp",
+        "size": 1303646,
+        "sha256": "762f89e602f0f3dd122c696c88723de335a7c59a2580ab2e3dff4f889a0e2b11"
+      },
+      {
+        "name": "atlas_021.webp",
+        "size": 1334124,
+        "sha256": "e63f02dab97d4422e23ec0cc24b8eed8a06b01b4dfcf0488032957a726274b6b"
+      },
+      {
+        "name": "atlas_022.webp",
+        "size": 1325628,
+        "sha256": "2ab2432be954dae5c169d33711097210316e951f93681d9753bb5d8205cfabcb"
+      },
+      {
+        "name": "atlas_023.webp",
+        "size": 1316892,
+        "sha256": "f326a3978259835f3cd477cb6fee5808ad1628708bb4ddae96ebb360ec9a0a53"
+      },
+      {
+        "name": "atlas_024.webp",
+        "size": 1333898,
+        "sha256": "d7ab643e52abe8e0d94b7e5b15308a37e10ee56aea28045523140b9da5bb6ce3"
+      },
+      {
+        "name": "atlas_025.webp",
+        "size": 1343644,
+        "sha256": "766121695998ebfa4c3cdeb274766709ee258e25b710659e19ce1b7e9d7bba82"
+      },
+      {
+        "name": "atlas_026.webp",
+        "size": 1345466,
+        "sha256": "5a9928fa93388ac1feff21341f9c7778a4a21ccdea4a60db9fff27c101e06980"
+      },
+      {
+        "name": "atlas_027.webp",
+        "size": 1333994,
+        "sha256": "6dd30cab284a0ada75c9ebc02206007151bf26c2840b2de1b2e14b49af413a92"
+      },
+      {
+        "name": "atlas_028.webp",
+        "size": 1338408,
+        "sha256": "4751c446271864de55b353c0a6c683de8395099eff78ed9cb3bd1a7006ca81a4"
+      },
+      {
+        "name": "atlas_029.webp",
+        "size": 1344958,
+        "sha256": "365e0e5fb360cc44667e03c1367157ee50cc669a8490c8377fddd6fe76a7092a"
+      },
+      {
+        "name": "atlas_030.webp",
+        "size": 1329874,
+        "sha256": "10633d966d8ba1e107e0148e91a09493399d5c9d35175a6358a2088bc4e1e648"
+      },
+      {
+        "name": "atlas_031.webp",
+        "size": 1308630,
+        "sha256": "f11c19caa02b4db1087b9cfd65f3de12b133543fd86081122f8a0f96d190caf3"
+      },
+      {
+        "name": "atlas_032.webp",
+        "size": 1351680,
+        "sha256": "d891c021d719b8445d0ab9bf2a8ecf77ae5d17b296be602cee1917dbd53911b5"
+      },
+      {
+        "name": "atlas_033.webp",
+        "size": 1288732,
+        "sha256": "09599995756dd152b9f9ff54786a1a29e5ae6f4491009bf66f71fefa887dfe64"
+      },
+      {
+        "name": "atlas_034.webp",
+        "size": 1361922,
+        "sha256": "0f40cacee67b8600e1d5cea2290bb121839e8bc8e4729273e62ccb7fb2c620a3"
+      },
+      {
+        "name": "atlas_035.webp",
+        "size": 1380008,
+        "sha256": "348c3ea43fabfeb0d360ea7d71b9a58058a49d83473a73774f676d84f8ea3627"
+      },
+      {
+        "name": "atlas_036.webp",
+        "size": 1374586,
+        "sha256": "19e8c561e2feb5071fdf302c58ad6e829361a1f07f671afe230c2a1456e02140"
+      },
+      {
+        "name": "atlas_037.webp",
+        "size": 1303576,
+        "sha256": "b24fff3e62cbcba939c6cbd9dab9040054ac8a4f1b453f862fcf8eb225fd2e87"
+      },
+      {
+        "name": "atlas_038.webp",
+        "size": 1294106,
+        "sha256": "1414a38c4f5ff65e87aafdfb476a55f7ee6a8d127ac41124f8687c2be9779d5b"
+      },
+      {
+        "name": "atlas_039.webp",
+        "size": 1286934,
+        "sha256": "311166c8ab82ea3e94910045cdfd5eb6f360f706edf38f456d324f5d8aa2e528"
+      },
+      {
+        "name": "atlas_040.webp",
+        "size": 1310166,
+        "sha256": "f539de49a633cc97e526049176fefbb0b4576d9fd0d1d451468e225610cc916d"
+      },
+      {
+        "name": "atlas_041.webp",
+        "size": 1290338,
+        "sha256": "6124c52699c67d1795402a4934d283e8355292bfa8a60c49238b12db5084973c"
+      },
+      {
+        "name": "atlas_042.webp",
+        "size": 1295290,
+        "sha256": "2f14ad602dab94ef62db1a00f123d3a5bdbb1646ff31ce009fafb1f3886304a8"
+      }
+    ],
+    "atlas_files": [
+      "atlas_000.webp",
+      "atlas_001.webp",
+      "atlas_002.webp",
+      "atlas_003.webp",
+      "atlas_004.webp",
+      "atlas_005.webp",
+      "atlas_006.webp",
+      "atlas_007.webp",
+      "atlas_008.webp",
+      "atlas_009.webp",
+      "atlas_010.webp",
+      "atlas_011.webp",
+      "atlas_012.webp",
+      "atlas_013.webp",
+      "atlas_014.webp",
+      "atlas_015.webp",
+      "atlas_016.webp",
+      "atlas_017.webp",
+      "atlas_018.webp",
+      "atlas_019.webp",
+      "atlas_020.webp",
+      "atlas_021.webp",
+      "atlas_022.webp",
+      "atlas_023.webp",
+      "atlas_024.webp",
+      "atlas_025.webp",
+      "atlas_026.webp",
+      "atlas_027.webp",
+      "atlas_028.webp",
+      "atlas_029.webp",
+      "atlas_030.webp",
+      "atlas_031.webp",
+      "atlas_032.webp",
+      "atlas_033.webp",
+      "atlas_034.webp",
+      "atlas_035.webp",
+      "atlas_036.webp",
+      "atlas_037.webp",
+      "atlas_038.webp",
+      "atlas_039.webp",
+      "atlas_040.webp",
+      "atlas_041.webp",
+      "atlas_042.webp"
+    ]
+  }
+}

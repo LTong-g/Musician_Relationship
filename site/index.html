@@ -630,6 +630,7 @@ td {
     window.GRAPH_TITLE = "音乐人合作关系图谱";
   </script>
   <script src="assets/graph-data.js"></script>
+  <script src="../site_assets/avatar_atlas_150/avatar-atlas-manifest.js"></script>
   <script>
 const rawData = window.GRAPH_DATA;
 const state = {
@@ -658,9 +659,113 @@ let currentGraph = { nodes: [], edges: [] };
 let currentEdgeWeightScale = { min: 1, max: 1 };
 const highlightNodes = new Set();
 const highlightLinks = new Set();
-const imageCache = new Map();
+const AVATAR_ATLAS_BASE = "../site_assets/avatar_atlas_150/";
+const AVATAR_ATLAS_MANIFEST = `${AVATAR_ATLAS_BASE}avatar-atlas-manifest.json`;
+const avatarAtlasState = {
+  manifest: null,
+  images: new Map(),
+  loading: new Map(),
+  queue: [],
+  queued: new Set(),
+  activeLoads: 0,
+  prefetching: false,
+  renderQueued: false,
+};
 const DEFAULT_FANS_MIN = 5000000;
 const $ = (id) => document.getElementById(id);
+function avatarProfile() {
+  if (rawData.avatar_profile) return rawData.avatar_profile;
+  return (rawData.nodes || []).some((node) => node.avatar_key) ? "full" : "";
+}
+function loadAtlasImage(filename) {
+  if (!filename) return Promise.resolve(null);
+  if (avatarAtlasState.images.has(filename)) return Promise.resolve(avatarAtlasState.images.get(filename));
+  if (avatarAtlasState.loading.has(filename)) return avatarAtlasState.loading.get(filename);
+  const promise = new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      avatarAtlasState.images.set(filename, image);
+      avatarAtlasState.loading.delete(filename);
+      resolve(image);
+    };
+    image.onerror = () => {
+      avatarAtlasState.loading.delete(filename);
+      resolve(null);
+    };
+    image.src = `${AVATAR_ATLAS_BASE}${filename}`;
+  });
+  avatarAtlasState.loading.set(filename, promise);
+  return promise;
+}
+function maxAvatarAtlasConcurrency() {
+  return avatarProfile() === "full" ? 2 : 3;
+}
+function pumpAvatarAtlasQueue() {
+  const concurrency = maxAvatarAtlasConcurrency();
+  while (avatarAtlasState.activeLoads < concurrency && avatarAtlasState.queue.length) {
+    const filename = avatarAtlasState.queue.shift();
+    avatarAtlasState.queued.delete(filename);
+    if (!filename || avatarAtlasState.images.has(filename) || avatarAtlasState.loading.has(filename)) continue;
+    avatarAtlasState.activeLoads += 1;
+    loadAtlasImage(filename).then(() => {
+      avatarAtlasState.activeLoads -= 1;
+      requestAvatarAtlasRender();
+      pumpAvatarAtlasQueue();
+    });
+  }
+}
+function enqueueAtlasImage(filename) {
+  if (!filename) return;
+  if (avatarAtlasState.images.has(filename) || avatarAtlasState.loading.has(filename) || avatarAtlasState.queued.has(filename)) return;
+  avatarAtlasState.queued.add(filename);
+  avatarAtlasState.queue.push(filename);
+  pumpAvatarAtlasQueue();
+}
+function requestAvatarAtlasRender() {
+  if (avatarAtlasState.renderQueued) return;
+  avatarAtlasState.renderQueued = true;
+  window.requestAnimationFrame(() => {
+    avatarAtlasState.renderQueued = false;
+    if (!graphInstance) return;
+    if (typeof graphInstance.resumeAnimation === "function") graphInstance.resumeAnimation();
+  });
+}
+async function loadAvatarManifest() {
+  if (avatarAtlasState.manifest) return avatarAtlasState.manifest;
+  try {
+    if (window.AVATAR_ATLAS_MANIFEST_DATA) {
+      avatarAtlasState.manifest = window.AVATAR_ATLAS_MANIFEST_DATA;
+    } else {
+      const response = await fetch(AVATAR_ATLAS_MANIFEST);
+      if (!response.ok) return null;
+      avatarAtlasState.manifest = await response.json();
+    }
+    return avatarAtlasState.manifest;
+  } catch (error) {
+    avatarAtlasState.manifest = null;
+    return null;
+  }
+}
+function atlasFilesForCurrentProfile() {
+  const profileName = avatarProfile();
+  if (!profileName || !avatarAtlasState.manifest) return [];
+  const profile = avatarAtlasState.manifest.profiles?.[profileName] || {};
+  return profile.atlas_files || [];
+}
+function prefetchAvatarAtlases() {
+  if (avatarAtlasState.prefetching) return;
+  const files = atlasFilesForCurrentProfile().filter((filename) => !avatarAtlasState.images.has(filename));
+  if (!files.length) return;
+  avatarAtlasState.prefetching = true;
+  files.forEach(enqueueAtlasImage);
+  avatarAtlasState.prefetching = false;
+}
+async function initializeAvatarAtlases() {
+  const manifest = await loadAvatarManifest();
+  if (!manifest) return;
+  requestAvatarAtlasRender();
+  window.setTimeout(prefetchAvatarAtlases, 0);
+}
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("zh-CN");
 }
@@ -1162,13 +1267,17 @@ function graphPayload(nodes, edges) {
     })),
   };
 }
-function getNodeImage(node) {
-  if (!node.icon) return null;
-  if (imageCache.has(node.icon)) return imageCache.get(node.icon);
-  const image = new Image();
-  image.src = node.icon;
-  imageCache.set(node.icon, image);
-  return image;
+function getNodeAvatar(node) {
+  const key = node.avatar_key;
+  if (!key || !avatarAtlasState.manifest) return null;
+  const item = avatarAtlasState.manifest.items?.[key];
+  if (!item) return null;
+  const image = avatarAtlasState.images.get(item.atlas);
+  if (!image) {
+    enqueueAtlasImage(item.atlas);
+    return null;
+  }
+  return { image, item };
 }
 function nodeRadius(node) {
   return Math.max(10, Math.min(65, node.val || 12));
@@ -1237,7 +1346,7 @@ function drawNode(node, ctx, globalScale) {
   const selected = state.selectedNodeIds.has(node.id);
   const highlighted = isHighlightedNode(node);
   const dimmed = hasActiveHighlight() && !highlighted;
-  const image = getNodeImage(node);
+  const avatar = getNodeAvatar(node);
   if (state.showLabels) {
     drawTextNode(node, ctx, globalScale, selected, highlighted, dimmed);
     return;
@@ -1248,10 +1357,20 @@ function drawNode(node, ctx, globalScale) {
   ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
   ctx.fillStyle = node.is_target ? "#11936f" : "#3b82f6";
   ctx.fill();
-  if (image?.complete && image.naturalWidth) {
+  if (avatar?.image?.complete && avatar.image.naturalWidth) {
     ctx.save();
     ctx.clip();
-    ctx.drawImage(image, node.x - radius, node.y - radius, radius * 2, radius * 2);
+    ctx.drawImage(
+      avatar.image,
+      avatar.item.x,
+      avatar.item.y,
+      avatar.item.w,
+      avatar.item.h,
+      node.x - radius,
+      node.y - radius,
+      radius * 2,
+      radius * 2
+    );
     ctx.restore();
   } else {
     ctx.fillStyle = "#ffffff";
@@ -1913,6 +2032,7 @@ function bindControls() {
 }
 bindControls();
 render();
+initializeAvatarAtlases();
 </script>
 </body>
 </html>

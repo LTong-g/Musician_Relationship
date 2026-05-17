@@ -540,9 +540,9 @@ td {
       <p id="dataset-scope">加载图谱数据...</p>
     </div>
     <div class="toolbar">
-      <label class="switch-control">
+      <label class="switch-control switch-control-disabled">
         作词/作曲分开
-        <input id="role-split-toggle" type="checkbox" checked />
+        <input id="role-split-toggle" type="checkbox" disabled />
         <span class="switch-track" aria-hidden="true"></span>
       </label>
       <label class="switch-control switch-control-disabled">
@@ -570,9 +570,9 @@ td {
       <div class="fans-filter">
         <span class="control-label">目标歌手粉丝</span>
         <div class="fans-range">
-          <input id="fans-min-input" class="fans-value-input fans-value-min" type="text" inputmode="numeric" aria-label="最低粉丝量" value="500万" />
+          <input id="fans-min-input" class="fans-value-input fans-value-min" type="text" inputmode="numeric" aria-label="最低粉丝量" value="0" />
           <div class="fans-slider-shell">
-            <input id="fans-min-range" type="range" min="0" max="5000000" step="10000" value="5000000" aria-label="最低粉丝量" />
+            <input id="fans-min-range" type="range" min="0" max="5000000" step="10000" value="0" aria-label="最低粉丝量" />
             <input id="fans-max-range" type="range" min="0" max="5000000" step="10000" value="5000000" aria-label="最高粉丝量" />
           </div>
           <input id="fans-max-input" class="fans-value-input fans-value-max" type="text" inputmode="numeric" aria-label="最高粉丝量" value="不限" />
@@ -645,12 +645,12 @@ const state = {
   selectedTargets: new Set(),
   targetMenuOpen: false,
   targetFilterSearch: "",
-  roleDisplay: "split",
+  roleDisplay: "merged",
   showLabels: false,
   particlesEnabled: false,
   hideLeafNodes: false,
   onlyTargetNodes: false,
-  fansMin: 5000000,
+  fansMin: 0,
   fansMax: 5000000,
   minCount: 1,
   tableSearch: "",
@@ -668,7 +668,7 @@ let currentEdgeWeightScale = { min: 1, max: 1 };
 const highlightNodes = new Set();
 const highlightLinks = new Set();
 const imageCache = new Map();
-const DEFAULT_FANS_MIN = 5000000;
+const DEFAULT_FANS_MIN = 0;
 const $ = (id) => document.getElementById(id);
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("zh-CN");

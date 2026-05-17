@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import asyncio
 import json
@@ -8,30 +7,26 @@ import sys
 from dataclasses import dataclass
 from dataclasses import replace as dataclass_replace
 from pathlib import Path
-
 from music_metadata_graph.run_log import run_with_log
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH, MVP_SINGER_LIMIT
 from typing import Any
-
 from qqmusic_api import Client
 from qqmusic_api.modules.singer import TabType
-
 from music_metadata_graph.pipelines.import_singer_list_to_db import DEFAULT_RAW_DIR as DEFAULT_SINGER_LIST_RAW_DIR
+from music_metadata_graph.pipelines.import_singer_list_to_db import attach_fans
 from music_metadata_graph.pipelines.import_singer_list_to_db import filter_singers_by_area
+from music_metadata_graph.pipelines.import_singer_list_to_db import filter_singers_by_fans
+from music_metadata_graph.pipelines.import_singer_list_to_db import load_fans_map
 from music_metadata_graph.pipelines.import_singer_list_to_db import load_singers
-
-
 DEFAULT_RAW_DIR = Path("data/raw/qqmusic")
 DEFAULT_PAGE_SIZE = 30
 REQUEST_RATE = 0.5
 REQUEST_CAPACITY = 1
 
-
 @dataclass(frozen=True)
 class SingerTarget:
     mid: str
     name: str
-
 
 @dataclass(frozen=True)
 class CollectConfig:
@@ -46,28 +41,23 @@ class CollectConfig:
     mids: tuple[str, ...]
     names: tuple[str, ...]
 
-
 def ensure_utf8_stdout() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-
 
 def dump_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, ensure_ascii=False, indent=2)
     path.write_text(text, encoding="utf-8")
 
-
 def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
-
 
 def try_load_cached_json(path: Path) -> Any | None:
     try:
         return load_json(path)
     except (OSError, json.JSONDecodeError):
         return None
-
 
 def connect(db_path: Path) -> sqlite3.Connection:
     if not db_path.exists():
@@ -76,7 +66,6 @@ def connect(db_path: Path) -> sqlite3.Connection:
     connection.row_factory = sqlite3.Row
     return connection
 
-
 def parse_csv_values(values: list[str] | None) -> tuple[str, ...]:
     if not values:
         return ()
@@ -84,7 +73,6 @@ def parse_csv_values(values: list[str] | None) -> tuple[str, ...]:
     for value in values:
         parsed.extend(part.strip() for part in value.split(",") if part.strip())
     return tuple(parsed)
-
 
 def unique_targets(rows: list[sqlite3.Row]) -> tuple[SingerTarget, ...]:
     targets: list[SingerTarget] = []
@@ -97,14 +85,14 @@ def unique_targets(rows: list[sqlite3.Row]) -> tuple[SingerTarget, ...]:
         targets.append(SingerTarget(mid=mid, name=str(row["name"])))
     return tuple(targets)
 
-
 def load_all_targets(connection: sqlite3.Connection, config: CollectConfig) -> tuple[SingerTarget, ...]:
-    second_step_rows = filter_singers_by_area(load_singers(config.singer_list_raw_dir))
+    third_step_rows = filter_singers_by_area(load_singers(config.singer_list_raw_dir))
+    third_step_rows = attach_fans(third_step_rows, load_fans_map(config.raw_dir, mvp=config.mvp))
+    third_step_rows = filter_singers_by_fans(third_step_rows)
     if config.mvp:
-        second_step_rows = second_step_rows[:MVP_SINGER_LIMIT]
-    if not second_step_rows:
-        raise ValueError(f"No second-step singer rows found in raw JSON: {config.singer_list_raw_dir}")
-
+        third_step_rows = third_step_rows[:MVP_SINGER_LIMIT]
+    if not third_step_rows:
+        raise ValueError(f"No third-step singer rows found in raw JSON: {config.singer_list_raw_dir}")
     db_rows = {
         str(row["mid"]): row
         for row in connection.execute("SELECT mid, name FROM artists ORDER BY rowid").fetchall()
@@ -112,7 +100,7 @@ def load_all_targets(connection: sqlite3.Connection, config: CollectConfig) -> t
     targets: list[SingerTarget] = []
     missing_mids: list[str] = []
     seen: set[str] = set()
-    for row in second_step_rows:
+    for row in third_step_rows:
         mid = str(row.get("mid") or "").strip()
         if not mid or mid in seen:
             continue
@@ -124,20 +112,18 @@ def load_all_targets(connection: sqlite3.Connection, config: CollectConfig) -> t
         targets.append(SingerTarget(mid=mid, name=str(db_row["name"])))
     if missing_mids:
         raise ValueError(
-            "Second-step singer targets are missing from artists. "
+            "Third-step singer targets are missing from artists. "
             "Run import_singer_list_to_db before collecting song tabs. "
             f"Missing mids: {', '.join(missing_mids[:20])}"
         )
     if not targets:
-        raise ValueError("No second-step singer targets found in artists.")
+        raise ValueError("No third-step singer targets found in artists.")
     return tuple(targets)
-
 
 def load_partial_targets(connection: sqlite3.Connection, config: CollectConfig) -> tuple[SingerTarget, ...]:
     requested_count = len(config.mids) + len(config.names)
     if requested_count == 0:
         raise ValueError("Provide --all, or at least one --mid or --name.")
-
     rows: list[sqlite3.Row] = []
     missing: list[str] = []
     for mid in config.mids:
@@ -162,15 +148,16 @@ def load_partial_targets(connection: sqlite3.Connection, config: CollectConfig) 
         raise ValueError("No singer targets resolved.")
     return targets
 
-
 def resolve_targets(config: CollectConfig) -> tuple[SingerTarget, ...]:
-    with connect(config.db_path) as connection:
+    connection = connect(config.db_path)
+    try:
         if config.all_singers:
             if config.mids or config.names:
                 raise ValueError("--all cannot be combined with --mid or --name.")
             return load_all_targets(connection, config)
         return load_partial_targets(connection, config)
-
+    finally:
+        connection.close()
 
 def cache_path(config: CollectConfig, target: SingerTarget, page: int) -> Path:
     return config.raw_dir / "singer_homepage_song_tab" / target.mid / f"page_{page:04d}_size_{config.page_size}.json"
@@ -255,21 +242,19 @@ async def collect(config: CollectConfig) -> None:
         )
     )
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect raw QQ Music singer homepage song-tab JSON pages.")
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--page-size", type=int, default=DEFAULT_PAGE_SIZE)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 2 to define --all targets.")
+    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 to define --all targets.")
     parser.add_argument("--max-pages-per-singer", type=int, default=None, help="Limit pages per singer for smoke tests.")
     parser.add_argument("--force", action="store_true", help="Refetch and overwrite cached raw JSON pages.")
-    parser.add_argument("--all", action="store_true", dest="all_singers", help="Collect song-tab pages for singers selected by the current step-2 singer-list import rules.")
+    parser.add_argument("--all", action="store_true", dest="all_singers", help="Collect song-tab pages for singers selected by the current step-3 singer-list import rules.")
     parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
     parser.add_argument("--mid", action="append", help="Singer mid to collect. Can be repeated or comma-separated.")
     parser.add_argument("--name", action="append", help="Singer exact name to collect. Can be repeated or comma-separated.")
     return parser.parse_args()
-
 
 def _main() -> None:
     ensure_utf8_stdout()
@@ -289,11 +274,8 @@ def _main() -> None:
     )
     asyncio.run(collect(config))
 
-
 def main() -> None:
     run_with_log(Path(__file__).stem, _main)
 
-
 if __name__ == "__main__":
     main()
-

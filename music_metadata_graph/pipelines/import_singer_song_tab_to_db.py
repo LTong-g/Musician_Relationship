@@ -275,7 +275,7 @@ def load_existing_song_tab_mids(connection: sqlite3.Connection, config: ImportCo
         if any((config.raw_dir / mid).glob("page_*_size_*.json"))
     )
     if not existing_target_mids:
-        raise FileNotFoundError("No step-3 target singer homepage song-tab raw JSON exists yet.")
+        raise FileNotFoundError("No step-4 target singer homepage song-tab raw JSON exists yet.")
     return existing_target_mids
 
 
@@ -556,9 +556,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--rejection-csv", type=Path, default=DEFAULT_REJECTION_CSV)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 2 and step 3 to define --all targets.")
-    parser.add_argument("--qqmusic-raw-dir", type=Path, default=DEFAULT_QQMUSIC_RAW_DIR, help="QQ Music raw root used for step-3 target resolution.")
-    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Import only song-tab raw for singers selected by the current step-2 singer-list import rules.")
+    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 and step 4 to define --all targets.")
+    parser.add_argument("--qqmusic-raw-dir", type=Path, default=DEFAULT_QQMUSIC_RAW_DIR, help="QQ Music raw root used for step-4 target resolution.")
+    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Import only song-tab raw for singers selected by the current step-3 singer-list import rules.")
     parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
     parser.add_argument("--mid", action="append", help="Singer mid whose song-tab raw JSON should be imported. Can be repeated or comma-separated.")
     parser.add_argument("--name", action="append", help="Singer exact name whose song-tab raw JSON should be imported. Can be repeated or comma-separated.")

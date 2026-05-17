@@ -23,6 +23,7 @@ dependencies = [
 [project.scripts]
 
 mr-collect-singer-list-raw = "music_metadata_graph.pipelines.collect_singer_list_raw:main"
+mr-collect-singer-fans-raw = "music_metadata_graph.pipelines.collect_singer_fans_raw:main"
 
 mr-import-singer-list-db = "music_metadata_graph.pipelines.import_singer_list_to_db:main"
 
@@ -46,4 +47,6 @@ mr-filter-imported-songs = "music_metadata_graph.pipelines.filter_imported_songs
 mr-filter-songs-language = "music_metadata_graph.pipelines.filter_songs_by_language:main"
 mr-run-full-pipeline = "music_metadata_graph.pipelines.run_full_pipeline:main"
 mr-run-from-song-tabs = "music_metadata_graph.pipelines.run_from_song_tabs:main"
-mr-build-static-graph = "music_metadata_graph.visualization.build_static_graph:main"
+mr-prepare-static-graph-assets = "music_metadata_graph.pipelines.prepare_static_graph_assets:main"
+mr-build-static-graph = "music_metadata_graph.pipelines.build_static_graph:main"
+mr-build-large-graph-static = "music_metadata_graph.pipelines.build_large_graph_static:main"

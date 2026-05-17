@@ -2234,6 +2234,7 @@ Read this file as UTF-8.
 - 边界记录：`quick_search` 当前可作为姓名到候选 MID 的轻量入口，且本轮未触发 `search_by_type(..., SearchType.SINGER)` 遇到的风控；但它返回的是智能框候选，不是完整分页搜索结果，候选数量少且需要结合本地歌手列表或后续 `singer.get_info(mid)` 校验。
 
 ## 2026-05-15
+
 ### 清理开发日志异常空行
 - 用户指出 `develop_log.md` 日志行数明显失控，要求先去掉异常空行再判断是否恢复正常。
 - 清理前文件大小为 593830012 字节，流式统计原始行数为 395660010 行，其中非空行 1982 行。
@@ -2241,6 +2242,7 @@ Read this file as UTF-8.
 - 清理前已生成压缩备份 `develop_log.before_blank_cleanup.md.gz`，用于必要时追溯原始文件。
 
 ## 2026-05-15
+
 ### 修复开发日志 BEL 控制字符
 - 用户指出 `develop_log.md` 约 1956-1972 行存在 `BEL` 异常字符。
 - 复核确认异常为 ASCII 控制字符 `\x07`，来源形态符合把 `\a` 当作转义写入后丢失字母 `a`，影响 `archive`、`area`、`artists` 等词。
@@ -2643,6 +2645,7 @@ Read this file as UTF-8.
 - 脚本最终提取可导入歌手 31293 个，并实际导入 31293 个；`artists` 表从检查时的 2746 行增长到 34039 行。
 - 本次仍跳过 38 个缺失演唱者，日志原因均为 `missing_name`；后续只读复算确认剩余 38 个 MID 均已有 `singer_info` JSON，但详情无法提取姓名且未被当前兜底逻辑导入。
 - 导入完成后按同一 `--all` 目标范围复算：目标歌手 2119 个、歌曲 Tab 行 463375 条、无 MID 演唱者条目 6496 条，剩余唯一缺失演唱者 MID 为 38 个。
+
 ### 查询 MVP 库歌曲名包含空格的歌曲
 - 用户要求从 MVP 库中查找歌曲名包含空格的歌曲。
 - 查询对象为 `data/music_metadata_graph_mvp.sqlite3` 的 `songs` 表，当前共有 1971 首歌曲。
@@ -3218,6 +3221,13 @@ Read this file as UTF-8.
 - 清理后 `AGENTS.md` 文件大小为 30374 字节，共 206 行，其中非空行仍为 187 行。
 - 验证结果：UTF-8 严格读取成功，隐藏控制字符列表为空，U+FFFD 替换字符数量为 0，未发现三连空行、`<BEL>` 字面标记、`eports/` 或 `ode_modules/` 断行残留。
 
+### 清理 README 文档异常空行
+- 用户指出 `README.md` 似乎也有异常，要求检查并修复。
+- 复核确认 `README.md` 主要异常为空行膨胀：清理前文件大小为 284028 字节，共 123510 行，其中非空行 501 行；未发现 `BEL`、垂直制表、换页等隐藏控制字符，U+FFFD 替换字符数量为 0。
+- 本次生成压缩备份 `README.before_blank_cleanup.md.gz` 后执行机械空行压缩，保留全部 501 行非空内容，并在标题前保留单个空行以维持 Markdown 可读性。
+- 清理后 `README.md` 文件大小为 38060 字节，共 526 行，其中非空行仍为 501 行。
+- 验证结果：UTF-8 严格读取成功，隐藏控制字符列表为空，U+FFFD 替换字符数量为 0，未发现三连空行、`<BEL>` 字面标记、`eports/`、`ode_modules/`、`ata/` 或 `rchive/` 断行残留。
+
 ### 设计 large-graph 风格可视化页面
 - 用户要求新增一个脚本，页面与 MVP 可视化网页一样，但绘图区模仿 force-graph 官方 `example/large-graph/index.html`。
 - 目标效果为生成独立 HTML，不覆盖 `data/visualization_mvp/index.html`；用户仍可使用 MVP 的目标歌手筛选、搜索、最小歌曲数、作词/作曲合并、详情栏和明细表，但绘图区改为轻量 2D 圆点和直线布局。
@@ -3393,3 +3403,798 @@ Read this file as UTF-8.
 - 已更新单元测试断言，确认顶部不再包含 `目标歌手：${currentScopeLabel()}`，同时保留数据库摘要和图标题范围文案。
 - 验证结果：`tests.test_static_graph_build` 共 7 个测试全部通过；`build_static_graph.py` 和 `tests/test_static_graph_build.py` 语法检查通过。
 - 已重新生成 `data/visualization_mvp/index.html`，静态检查确认 HTML 顶部摘要已移除目标歌手范围，且无 U+FFFD 替换字符。
+
+### 分析当前目录结构调整方向
+- 用户提出当前目录结构可能存在不合理之处，并询问如何调整。
+- 已按协作规则读取 `AGENTS.md`、`develop_log.md`、顶层目录、正式源码目录、测试目录、文档目录、`.gitignore`、`pyproject.toml` 和 README 章节分布。
+- 识别到当前主要问题不是单一目录命名，而是职责边界逐渐混杂：`pipelines/` 同时承载采集、入库、过滤、补 MID、编排和 CSV 工具；`data/` 同时承载 raw 缓存、SQLite、validation CSV 和可视化 HTML；README 过长并承担了流程手册、状态说明、归档说明等多种职责。
+- 目标效果应是用户从顶层目录能清楚分辨正式源码、命令入口、运行产物、验证产物、可视化产物和历史归档；开发者修改代码时能按领域定位模块，不需要在一个 `pipelines/` 目录中寻找所有行为。
+- 实现方案初步建议分为两层：先做文档和目录职责规范，再分批移动低风险模块；优先拆分 `pipelines/` 的内部职责，其次整理 `data/` 产物层级，最后拆分 README。
+- 风险边界包括命令入口、测试导入、README 命令示例、AGENTS 项目规则和开发日志历史引用都可能依赖旧路径；目录迁移应避免一次性大改导致验证成本过高。
+- 本轮未执行文件迁移、代码改名或清理数据，只形成结构调整建议和风险识别。
+
+### 细化全项目目录交付边界
+- 用户进一步指出问题不只在代码目录，而是整个项目目录：最后一步生成网站的代码没有进入主流程，生成的网站又输出到被 `.gitignore` 排除的 `data/` 目录。
+- 已核对当前事实：`run_full_pipeline` 默认只运行 1 到 15 个编排步骤，最后一步是 `language=9` 歌曲过滤；静态图谱生成只通过独立入口 `music_metadata_graph.visualization.build_static_graph` 或 `mr-build-static-graph` 手动执行。
+- 已核对当前事实：`build_static_graph.py` 的默认输出目录为 `data/visualization`，MVP 输出目录为 `data/visualization_mvp`；`.gitignore` 当前排除整个 `data/` 目录，因此生成的网站不属于仓库交付面。
+- 调整后的目标效果应是完整主流程最后明确生成一个可打开、可发布的网站目录；网站生成代码作为正式流程的一部分保留在源码中；网站成品输出到独立的可追踪交付目录，而不是本地数据缓存目录。
+- 初步目录方案为保留 `data/` 只承载 raw、SQLite、validation CSV 等本地运行产物；新增或明确 `site/` 作为 GitHub Pages 或本地打开的静态网站成品目录；新增 `web/` 或 `music_metadata_graph/web/` 承载网站模板、样式、脚本和静态资源来源。
+- 主流程方案为在现有第 15 步之后增加第 16 步“生成静态网站”，调用当前可视化构建逻辑，默认输出到 `site/`；MVP 流程可输出到 `site_mvp/` 或通过参数指定同一 `site/`，具体取决于后续确认是否需要同时保留正式站和 MVP 站。
+- 风险边界包括生成网站可能包含从数据库导出的派生数据，若提交 `site/`，需要确认站点数据体量、隐私边界、第三方数据使用说明和 GitHub Pages 发布方式；若只本地预览，则 `site/` 也可被忽略但不能作为项目交付网站。
+- 本轮未执行目录迁移或代码改动，只记录新的整体目录调整方向。
+
+### 移动静态网站生成脚本并调整输出目录
+- 用户明确本轮不移动 `data` 目录中的 raw、数据库或其他数据产物，只移动最后一步生成网页的脚本和脚本内默认输出路径。
+- 已将正式静态网页生成脚本从 `music_metadata_graph/visualization/build_static_graph.py` 移到 `music_metadata_graph/pipelines/build_static_graph.py`，使其语义上归入流程产物生成步骤。
+- 已将该脚本默认输出从 `data/visualization` 改为 `site`，MVP 默认输出从 `data/visualization_mvp` 改为 `site_mvp`。
+- 已保留 force-graph vendor 文件在 `music_metadata_graph/visualization/vendor/`，并调整生成脚本中的默认 vendor 路径，避免移动第三方资源。
+- 已同步 `pyproject.toml` 的 `mr-build-static-graph` 入口、单元测试导入、large-graph 变体内部导入和 README 中正式静态图谱命令说明。
+- 未迁移 large-graph 实验变体的脚本位置或默认输出目录，避免超出用户限定的本轮范围。
+
+### 验证静态网站生成脚本移动
+- 语法验证对象为移动后的 `music_metadata_graph/pipelines/build_static_graph.py`、依赖它的 `music_metadata_graph/visualization/build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱生成逻辑，执行 `tests.test_static_graph_build`，共 7 个测试全部通过。
+- 入口验证对象为移动后的模块路径，执行 `python -m music_metadata_graph.pipelines.build_static_graph --help`，命令正常输出参数帮助。
+- 生成验证对象为 MVP 静态网站，执行 `python -m music_metadata_graph.pipelines.build_static_graph --mvp`，输出为 `site_mvp/index.html`，读取结果显示节点 1210 个、边 2271 条、歌曲 1970 首。
+- 文件检查确认 `site_mvp/index.html` 存在且大小非零，UTF-8 读取无 U+FFFD 替换字符，并包含 force-graph 运行代码。
+
+### 整理 large-graph 网页生成流程目录
+- 用户要求继续整理项目目录，并将 large 图脚本也纳入正式流程，同时 large 图脚本使用完整数据库而不是 MVP 数据库。
+- 已将 `music_metadata_graph/visualization/build_large_graph_static.py` 移动为 `music_metadata_graph/pipelines/build_large_graph_static.py`，使标准图和 large 图生成脚本都位于流程目录。
+- 已将 force-graph vendor 文件从 `music_metadata_graph/visualization/vendor/` 移动到 `music_metadata_graph/pipelines/vendor/`，并更新标准图生成脚本默认 vendor 路径。
+- 已删除不再承载正式内容的 `music_metadata_graph/visualization/` 包目录。
+- 已新增命令入口 `mr-build-large-graph-static`，指向 `music_metadata_graph.pipelines.build_large_graph_static:main`。
+- 已将一键完整流程默认终点从第 15 步扩展为第 17 步：第 16 步生成标准静态网站，第 17 步生成 large-graph 静态网站。
+- 第 17 步固定以 `data/music_metadata_graph.sqlite3` 作为数据库输入，并默认输出到 `site_large/`；即使从 MVP 编排续跑，第 17 步也不会使用 MVP 数据库。
+- 已移除 large-graph 生成脚本自身的 `--mvp` 分支；如需临时测试其他数据库或输出目录，只能显式传入 `--db` 和 `--output-dir`。
+- 已同步 `run_from_song_tabs` 的默认终点和网站输出参数，使从已有歌曲 Tab 续跑时也能继续生成两个网站。
+- 已同步 README 和 AGENTS 中的流程说明、large 图命令和默认输出路径。
+- 尝试删除旧 `data/visualization_mvp*` 网页产物目录时被安全策略拦截；由于用户此前明确限制不动 data 侧目录，本轮保留这些旧产物，不再继续清理。
+
+### 验证 large-graph 正式流程接入
+- 语法验证对象为 `build_static_graph.py`、`build_large_graph_static.py`、`run_full_pipeline.py`、`run_from_song_tabs.py` 和相关测试文件，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱生成和完整流程编排，执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 10 个测试全部通过。
+- 流程验证对象为从第 16 步续跑到第 17 步，执行 `python -m music_metadata_graph.pipelines.run_full_pipeline --continue-from 16 --stop-after 17 --mvp`。
+- 流程验证结果显示第 16 步使用 MVP 数据库生成 `site_mvp/index.html`，第 17 步使用完整数据库 `data/music_metadata_graph.sqlite3` 生成 `site_large/index.html`。
+- `site_mvp/index.html` 当前大小约 2.4 MB，`site_large/index.html` 当前大小约 86.9 MB，两个文件均存在且由流程 postcheck 检查为非空、UTF-8 可读并包含 ForceGraph 运行代码。
+
+### 明确标准图谱脚本为通用入口
+- 用户提出可以再写一个与 MVP 一样但使用完整数据库的可视化脚本，或者将 MVP 可视化脚本改为根据传参决定使用哪个数据库。
+- 复核后确认 `music_metadata_graph.pipelines.build_static_graph` 已具备通用能力：默认读取完整数据库并输出 `site/index.html`，传入 `--mvp` 时读取 MVP 数据库并输出 `site_mvp/index.html`。
+- 已将脚本 `--mvp` 帮助文案调整为通用语义，明确默认使用完整数据库和 `site/` 输出目录。
+- 已将 README 小节从“MVP 可视化”调整为“标准可视化”，同时列出完整数据库命令和 MVP 命令。
+- 已执行 `python -m music_metadata_graph.pipelines.build_static_graph` 生成完整数据库标准图谱，输出为 `site/index.html`，读取结果显示节点 24361 个、边 104473 条、歌曲 77449 首。
+- 验证结果显示 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html` 均存在且大小非零，UTF-8 读取无 U+FFFD 替换字符，并包含 ForceGraph 运行代码。
+- 单元验证继续执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 10 个测试全部通过。
+
+### 修正完整数据库标准图谱目标歌手截断
+- 用户指出使用完整数据库时页面仍只显示 10 位歌手，完整数据库应把数据库里的所有关系都可视化出来。
+- 问题原因是 `build_static_graph.py` 中 `TARGET_FILTER_LIMIT = 10` 截断了 `targets` 列表，前端默认只选择 `targets` 中的目标歌手，导致完整库页面默认只展示前 10 位目标歌手相关边。
+- 已移除目标歌手数量截断，使标准图谱默认包含所有有演唱关系的目标歌手。
+- 已新增回归测试，构造 12 位目标歌手的内存数据库，确认 `build_graph_data()` 不再把目标歌手截断为 10 位。
+- 已重新生成完整数据库标准图谱 `site/index.html`，内嵌数据检查显示目标歌手 9746 位、节点 24361 个、边 104473 条、歌曲 77449 首。
+- 已重新生成 MVP 标准图谱 `site_mvp/index.html`，内嵌数据检查显示目标歌手 260 位、节点 1210 个、边 2271 条、歌曲 1970 首。
+- 验证结果显示两个 HTML 文件均 UTF-8 可读、无 U+FFFD 替换字符，并包含 ForceGraph 运行代码。
+- 单元验证执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 11 个测试全部通过。
+- 已同步 README 和 AGENTS，明确完整数据库标准图谱不得再限制为前 10 位目标歌手。
+
+### 拆分网站资源并加入头像缓存准备步骤
+- 用户指出当前头像图片没有落盘，浏览器可能在完整库可视化时并发请求大量远程头像，并要求在可视化之前、语言过滤之后增加头像请求下载与缓存步骤，同时尽量让数据库导出的图谱数据作为资源加载，而不是塞进单个网页文件。
+- 已新增 `music_metadata_graph.pipelines.prepare_static_graph_assets`：从 SQLite 构建可视化图谱数据，复制 force-graph 运行库，按头像 URL 生成本地头像缓存路径，逐个低频下载头像到 `site*/assets/avatars/`，并写入 `assets/avatar-manifest.json`。
+- 头像准备脚本支持断点续跑，已存在且状态为 `ok` 的本地头像会复用；下载失败的头像在图谱数据中改为空字符串，页面显示姓名首字占位，不再回退请求远程头像 URL。
+- 头像准备脚本提供 `--skip-avatar-download` 和 `--max-avatar-downloads`，用于无网络验证或分批下载，避免一次性强制发起完整库的全部头像请求。
+- 标准图谱数据从 HTML 内嵌改为 `assets/graph-data.js` 资源文件，force-graph 运行库从 HTML 内嵌改为 `assets/vendor/force-graph.min.js` 资源文件；`index.html` 只保留页面结构和业务脚本。
+- large-graph 页面也改为从 `assets/graph-data.js` 与 `assets/vendor/force-graph.min.js` 加载资源；由于 large-graph 绘图区不使用头像，已清空 large-graph 资源数据中的 `icon` 字段，避免误触发远程头像请求。
+- 一键完整流程调整为第 16 步准备标准网站资源、第 17 步生成标准静态网站、第 18 步生成 large-graph 静态网站；`run_from_song_tabs` 同步默认终点为第 18 步。
+- 已新增命令入口 `mr-prepare-static-graph-assets`，指向 `music_metadata_graph.pipelines.prepare_static_graph_assets:main`。
+- 已同步 README 和 AGENTS，说明标准网站资源目录、头像缓存、图谱数据资源和完整流程步骤。
+
+### 验证网站资源拆分和头像缓存逻辑
+- 语法验证对象为资源准备脚本、标准图谱脚本、large-graph 脚本、两个流程编排脚本和相关测试文件，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱生成、外部资源 HTML、目标歌手不截断和完整流程编排，执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 12 个测试全部通过。
+- 无网络资源验证执行 `python -m music_metadata_graph.pipelines.prepare_static_graph_assets --skip-avatar-download`，完整库输出 `site/assets/graph-data.js`、`site/assets/vendor/force-graph.min.js` 和 `site/assets/avatar-manifest.json`；完整库识别 17159 个头像 URL，本次全部按跳过记录，图谱数据中的远程头像 URL 被清空。
+- 无网络 MVP 资源验证执行 `python -m music_metadata_graph.pipelines.prepare_static_graph_assets --mvp --skip-avatar-download`，MVP 识别 949 个头像 URL，本次全部按跳过记录，输出资源位于 `site_mvp/assets/`。
+- 流程验证执行 `python -m music_metadata_graph.pipelines.run_full_pipeline --continue-from 16 --stop-after 18 --mvp --skip-avatar-download`，第 16 到 18 步全部完成，标准 MVP 网站与 full large-graph 网站均通过 postcheck。
+- 文件检查确认 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html` 不再内嵌全量 `window.GRAPH_DATA`，均引用 `assets/graph-data.js`；三个图谱资源文件均无 U+FFFD 替换字符，且不包含 QQ 音乐远程头像域名。
+- 本轮未执行完整头像下载，因为完整库当前识别到 17159 个头像 URL，直接下载会发起大量外部请求；后续可不带 `--skip-avatar-download` 运行资源准备步骤，或用 `--max-avatar-downloads N` 分批低频下载并续跑。
+
+## 2026-05-16
+
+### 增加头像缓存逐行进度和运行日志
+- 用户要求头像下载脚本像制作人补充脚本一样每行打印 `[当前/总数]` 进度，并把输出写入运行日志，避免终端内容过长后看不到前面的记录。
+- 已将 `music_metadata_graph.pipelines.prepare_static_graph_assets` 接入项目统一 `run_with_log` 运行日志机制，脚本启动时会打印 `run_id` 和 `run_log`，终端输出会同步写入 `logs/runs/prepare_static_graph_assets_*.log`。
+- 已为头像缓存处理新增逐 URL 进度输出，状态包括 `cache_hit`、`downloaded`、`failed` 和 `skipped`；下载成功时输出本地保存路径，失败时输出失败原因。
+- 已调整跳过判断顺序：显式传入 `--skip-avatar-download` 时，进度原因记录为 `avatar_download_disabled`；只有允许下载但达到 `--max-avatar-downloads` 时才记录 `download_limit`。
+- 已同步 README 的标准可视化说明和 AGENTS 项目规则，明确头像准备步骤会逐行输出并进入正式运行日志。
+
+### 验证头像缓存进度和运行日志
+- 语法验证对象为头像资源准备脚本和静态图谱测试文件，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱生成、流程编排和头像缓存进度输出，执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 14 个测试全部通过。
+- 实跑验证对象为 MVP 头像资源准备入口，执行 `prepare_static_graph_assets --mvp --skip-avatar-download --max-avatar-downloads 0`，终端输出包含 `run_log=logs/runs/prepare_static_graph_assets_20260516_210805.log`，并逐行打印 `[1/949]` 到 `[949/949]` 的头像处理进度。
+- 回读运行日志确认日志首部包含 `run_id`、`run_log`、`run_started_at` 和前几条头像进度，日志末尾包含汇总 JSON、`run_status=completed` 和 `run_log_closing_at`。
+- 本轮验证未发起真实头像下载；实跑使用 `--skip-avatar-download`，仅验证逐行输出、日志写入、资源重写和跳过状态。
+
+### 改为共享头像缓存目录
+- 用户指出每个网页目录各自下载一份头像数据会造成重复，要求改成共享资源并迁移已有资源。
+- 已将头像缓存从站点私有目录改为项目级共享目录：头像文件写入 `site_assets/avatars/`，头像清单写入 `site_assets/avatar-manifest.json`；`site/` 和 `site_mvp/` 仍各自保留自己的 `assets/graph-data.js` 与 `assets/vendor/force-graph.min.js`。
+- `prepare_static_graph_assets` 新增 `--avatar-cache-dir` 参数，默认值为 `site_assets`；manifest 中的 `local_path` 改为相对共享缓存目录保存，生成图谱数据时再按站点目录写成 `../site_assets/avatars/...`。
+- 一键完整流程和补充分支续跑入口已同步传递共享头像缓存目录，并在网站资源检查中检查 `site_assets/avatar-manifest.json`。
+- 已将 `site_assets/` 加入 `.gitignore`，避免共享头像缓存和大量图片进入 Git。
+- 已把现有 `site/assets/avatars/` 中的 90 个头像文件移动到 `site_assets/avatars/`，并把 `site/assets/avatar-manifest.json` 与 `site_mvp/assets/avatar-manifest.json` 合并为共享 manifest；合并后 manifest 共 17266 条记录，其中 `ok` 90 条、`skipped` 17176 条。
+- 已删除迁移后的旧站点私有 manifest；旧 `site/assets/avatars/` 和 `site_mvp/assets/avatars/` 中已无头像文件。
+
+### 验证共享头像缓存迁移
+- 语法验证对象为头像资源准备脚本、完整流程编排、补充分支续跑入口和相关测试文件，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱生成、流程编排和共享头像路径重写，执行 `tests.test_static_graph_build` 与 `tests.test_run_full_pipeline`，共 14 个测试全部通过。
+- 资源重写验证分别执行完整库 `prepare_static_graph_assets --skip-avatar-download` 和 MVP `prepare_static_graph_assets --mvp --skip-avatar-download`，均复用共享 manifest 并重写对应站点 `assets/graph-data.js`。
+- 迁移检查确认 `site_assets/avatar-manifest.json` 存在，`site_assets/avatars/` 下有 90 个头像文件，旧 `site/assets/avatar-manifest.json` 和 `site_mvp/assets/avatar-manifest.json` 已不存在，旧站点私有头像目录中头像文件数量为 0。
+- 图谱数据检查确认 `site/assets/graph-data.js` 和 `site_mvp/assets/graph-data.js` 包含共享头像路径 `../site_assets/avatars/`，不再包含站点私有 `assets/avatars/` 路径，也不包含 QQ 音乐远程头像域名。
+- 流程检查执行 `run_full_pipeline --continue-from 16 --stop-after 17 --mvp --skip-avatar-download --dry-run`，第 16 步命令包含 `--avatar-cache-dir site_assets`，postcheck 使用共享 `site_assets/avatar-manifest.json` 并通过。
+
+### 禁用 large 图节点拖动
+- 用户要求 large 图禁用拖动节点交互，但保留其他鼠标交互。
+- 已在 `music_metadata_graph.pipelines.build_large_graph_static` 的 large 图专用 `ForceGraph` 初始化链中加入 `.enableNodeDrag(false)`，同时保留 `.enablePointerInteraction(true)` 和现有节点点击、边点击、背景点击逻辑。
+- 已更新 large 图绘图区说明文案和生成结果摘要，明确 large 图保留鼠标交互但禁用节点拖动。
+- 已同步 README 中 large-graph 页面说明，明确仍保留鼠标缩放、平移、节点点击、边点击和空白点击交互，但节点不可拖动。
+- 已更新静态图谱测试，断言 large 图脚本包含 `.enableNodeDrag(false)` 且不包含 `.enableNodeDrag(true)`。
+
+### 验证 large 图节点拖动禁用
+- 语法验证对象为 `build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未报错。
+- 专项单元验证对象为 large-graph 变体初始化配置，执行 `tests.test_static_graph_build.StaticGraphBuildTests.test_large_graph_variant_keeps_mvp_shell_but_mirrors_official_drawing_area`，测试通过。
+- 静态图谱单元验证执行 `tests.test_static_graph_build`，共 11 个测试全部通过。
+- 生成验证执行 `python -m music_metadata_graph.pipelines.build_large_graph_static`，使用完整数据库重新生成 `site_large/index.html`、`site_large/assets/graph-data.js` 和 `site_large/assets/vendor/force-graph.min.js`；输出统计为 24361 个节点、104473 条边、77449 首歌曲。
+- 静态检查确认 `site_large/index.html` 包含 `.enableNodeDrag(false)` 和“保留鼠标交互但禁用节点拖动”说明。
+- 浏览器验证尝试先打开本地 `file://` 页面，被浏览器安全策略拦截；随后改用绑定 `127.0.0.1` 的临时静态文件服务器访问，浏览器返回 `net::ERR_BLOCKED_BY_CLIENT`，因此本轮未完成实际浏览器拖拽验证，剩余风险为未在浏览器中直接操作确认节点不可拖动。
+
+### 核对第二步歌手列表入库字段
+- 用户询问第二步入库的键和未入库的键。
+- 已按协作规则读取 `AGENTS.md`、`develop_log.md`，并定位第二步脚本为 `music_metadata_graph/pipelines/import_singer_list_to_db.py`。
+- 代码核对显示第二步从 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/` 的 `singerlist[]` 读取歌手行，只保留 `area_id` 可解析为 `0` 或 `1` 的行写入 `artists`。
+- `artists` 表当前入库列为 `mid`、`name`、`area_id`、`other_name`、`icon`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `icon` 来自 raw 的 `icon` 或 `singer_pic`，后三个追溯字段由入库脚本根据 raw 文件路径、页码和行号生成。
+- 当前 raw 样本共扫描 86 个文件、6803 条歌手行，原始歌手行实际出现键为 `area_id`、`concern_num`、`country`、`country_id`、`id`、`mid`、`name`、`other_name`、`pmid`、`singer_pic`、`spell`、`title`、`trend`、`type`、`uin`。
+- 当前 raw 样本中 `area_id in (0, 1)` 的可入库行数为 2119；`area_id` 为 2、3、4、5、6 的行按第二步过滤规则不入库。
+- 本轮未修改源码或数据库，仅追加本次字段核对分析记录。
+
+### 核对第一步歌手请求接口
+- 用户询问第一步使用的请求接口，以及是否还有其他歌手相关请求接口。
+- 已按协作规则读取 `AGENTS.md`、`develop_log.md`，并定位第一步脚本为 `music_metadata_graph/pipelines/collect_singer_list_raw.py`。
+- 代码核对显示第一步调用 `client.singer.get_singer_list_index(area, sex, genre, index, page, num)`，对应 `qqmusic-api-python` 中 `music.musichallSinger.SingerList` 模块的 `GetSingerListIndex` 方法；当前默认参数为 `AreaType.ALL`、`SexType.ALL`、`GenreType.ALL`、`IndexType.ALL`，分页大小 80。
+- 本地 `qqmusic-api-python` 的 `SingerApi` 还提供 `get_singer_list`、`get_info`、`get_tab_detail`、`get_desc`、`get_similar`、`get_songs_list`、`get_album_list`、`get_mv_list` 等歌手相关方法。
+- 当前正式流程中除第一步外，第三步使用 `get_tab_detail(..., TabType.SONG)` 请求歌手主页歌曲 Tab，第四步使用 `get_info(mid)` 补充缺失歌曲歌手信息；`get_album_list` 属于旧专辑来源，当前正式流程已改为从歌曲 album 字段请求专辑详情，不再把歌手专辑列表作为专辑来源。
+- 本轮未修改源码或数据库，仅追加本次接口核对分析记录。
+
+### 核对 singer.get_desc 接口含义
+- 用户询问 `get_desc` 是什么接口。
+- 已核对本地 `qqmusic-api-python` 源码，`client.singer.get_desc(mids)` 对应模块 `music.musichallSinger.SingerInfoInter`、方法 `GetSingerDetail`，请求参数为 `{"singer_mids": mids, "groups": 1, "wikis": 1}`。
+- 返回模型为 `SingerDetailResponse`，主体字段是 `singer_list[]`；每个条目包含 `basic_info`、`ex_info`、`wiki`、`group_list`、`photos`、`group_info`。
+- `basic_info` 映射字段包括 `singer_id`、`singer_mid`、`name`、`type`、`singer_pmid`、`has_photo`、`wikiurl`；`ex_info` 包含地区、描述文本、标签、身份、乐器、流派、外文名、生日、入驻或出道信息等扩展字段。
+- 该接口偏批量歌手详情/百科扩展信息；当前正式流程未使用它，第四步补歌手仍使用 `get_info(mid)` 请求主页头部信息以获取更直接的头像和主页基础字段。
+- 本轮未修改源码或数据库，仅追加本次接口核对分析记录。
+
+### 实测前十个歌手的 get_desc 返回结构
+- 用户要求对当前库里前 10 个歌手执行一次 `get_desc` 批量详情请求，并说明返回 JSON 结构。
+- 已从默认 SQLite `artists` 表按 `rowid` 读取前 10 个歌手：周杰伦、林俊杰、陈奕迅、薛之谦、王力宏、汪苏泷、G.E.M. 邓紫棋、许嵩、孙燕姿、王源。
+- 首次请求因沙箱网络权限被拦截，随后按权限规则申请放行后成功访问 `u.y.qq.com/cgi-bin/musicu.fcg`。
+- 实际请求使用 `client.singer.get_desc([...])` 并关闭 response model 获取原始 JSON；返回根对象只有 `singer_list`，列表长度为 10。
+- 每个 `singer_list[]` 条目包含 `basic_info`、`ex_info`、`wiki`、`group_list`、`pic`、`photos`、`group_info`。
+- 本次 10 个样本中 `basic_info` 包含 `singer_mid`、`name`、`type`、`has_photo`、`singer_id`、`singer_pmid`、`wikiurl`；`ex_info` 包含 `area`、`desc`、`tag`、`identity`、`instrument`、`genre`、`foreign_name`、`birthday`、`enter`、`blogFlag`。
+- 本次 10 个样本中 `wiki` 为空字符串，`group_list`、`photos`、`group_info` 为空数组，`pic` 下的 `big_black`、`big_white`、`pic` 为空字符串。
+- 本轮未修改源码或数据库，仅追加本次真实接口结构观察记录。
+
+### 摸底歌手粉丝量和出道信息接口
+- 用户希望了解还有哪些接口能拿歌手信息，重点是歌手出道时间和粉丝量信息。
+- 已实测周杰伦样本的 `get_info`、`get_desc`、`get_tab_detail(TabType.WIKI)` 和 `get_singer_list`。
+- `get_info(mid)` 的原始响应 `Info.FansNum.Num` 返回粉丝数，本次样本为 50212116；同一响应还包含 `Info.FansNum.HasEntry` 和粉丝榜跳转 URL。`Info.NumButtonList` 与 `Info.MedalListNew` 中还出现“3857万杰迷守护”这类粉丝勋章/守护人数文案，但它不是同一个粉丝数字口径。
+- `get_singer_list(area=ALL, sex=ALL, genre=ALL)` 的 `hotlist[]` 和 `singerlist[]` 返回 `concernNum`，本次样本周杰伦为 50212113；该值与 `get_info` 粉丝数接近但存在轻微差异，说明它是另一个关注数/粉丝数快照口径。
+- `get_singer_list_index(area=ALL, sex=ALL, genre=ALL, index=ALL)` 是当前第一步使用的完整分页索引接口，但当前已落盘样本中的 `concern_num` 基本为 0，不适合作为粉丝量来源。
+- `get_desc(mids)` 理论上有 `ex_info.enter`、`birthday`、`desc` 等字段，但本次前 10 个歌手样本和周杰伦样本中这些字段为空或 0，不能作为稳定出道时间来源。
+- `get_tab_detail(mid, TabType.WIKI)` 的 `IntroductionTab.List[].SingerInfoList[].Content` 返回简介文本，周杰伦样本中包含“2000年被吴宗宪发掘，发行首张个人专辑《Jay》”等描述，可人工或规则解析出疑似出道相关时间，但这不是结构化字段，解析结果需要低置信度标记并人工复核。
+- 当前结论：粉丝量优先候选为 `get_info.Info.FansNum.Num`，批量列表口径可用 `get_singer_list.concernNum` 做快照；出道时间目前没有确认稳定的结构化接口，最可用来源是 WIKI Tab 简介文本或 `get_desc.ex_info.enter` 这种可能为空的字段。
+- 本轮未修改源码或数据库，仅追加本次接口摸底分析记录。
+
+### 对比 get_singer_list 和 get_singer_list_index
+- 用户询问 `get_singer_list` 和 `get_singer_list_index` 的区别。
+- 已基于本地 `qqmusic-api-python` 源码和前序实测结果对比：`get_singer_list` 对应 `music.musichallSinger.SingerList.GetSingerList`，参数为 `hastag`、`area`、`sex`、`genre`，没有首字母索引参数和显式分页参数；`get_singer_list_index` 对应 `music.musichallSinger.SingerList.GetSingerListIndex`，参数为 `area`、`sex`、`genre`、`index`、`sin`、`cur_page`，用于按索引分页拉取更完整的歌手列表。
+- 实测 `get_singer_list(ALL, ALL, ALL)` 返回 `hotlist` 和 `singerlist`，其中样本包含 `concernNum` 粉丝/关注数，适合做热门或批量关注数快照，但不是当前完整歌手索引来源。
+- 当前第一步使用 `get_singer_list_index(ALL, ALL, ALL, ALL, page, num)`，已落盘 86 页、6803 条歌手行，适合做完整歌手列表 raw 缓存和第二步入库来源；但当前样本中的 `concern_num` 基本为 0，不适合做粉丝量来源。
+- 当前结论：完整覆盖优先用 `get_singer_list_index`；需要热门列表或关注数快照时再评估 `get_singer_list`；两者字段名相近但返回规模、分页能力和字段可用性不同，不能直接互换。
+- 本轮未修改源码或数据库，仅追加本次接口差异分析记录。
+
+### 分析批量请求歌手粉丝量方案
+- 用户询问如何批量请求粉丝量。
+- 基于前序实测，当前可用的高可信粉丝数字段为 `get_info(mid)` 返回的 `Info.FansNum.Num`；该接口业务语义仍是单个歌手 MID 一个请求。
+- `qqmusic-api-python` 支持把多个 request 描述符交给 `Client.gather()` 合包执行，因此工程上可以按小批量构造多个 `client.singer.get_info(mid)` 请求，批量发送并逐条解析、逐条缓存。
+- 备选接口 `get_singer_list(area, sex, genre)` 可一次返回一批 `concernNum`，但它不是任意 MID 查询接口，覆盖范围更像热门或筛选列表快照；当前第一步 `get_singer_list_index` 的 `concern_num` 基本为 0，不适合做粉丝量来源。
+- 若后续落地，应新增粉丝量快照流程，而不是改写 `artists` 主表：raw 缓存按 MID 保存，结构化结果写入独立快照表或导出 CSV，字段至少包含 `artist_mid`、`artist_name`、`fans_num`、`has_entry`、`source_interface`、`raw_json_path`、`fetched_at`。
+- 本轮未修改源码或数据库，仅追加本次方案分析记录。
+
+### 分析粉丝量快速补齐混合方案
+- 用户追问为什么不先用可一次返回一批歌手的接口快速获取粉丝量，再用另一个接口补剩余。
+- 已确认该方向可行：`get_singer_list(area, sex, genre)` 可作为快速覆盖来源，先按返回行的 `singer_mid/mid` 匹配当前 `artists`，写入 `concernNum` 快照；未覆盖的 MID 再用 `get_info(mid)` 的 `Info.FansNum.Num` 按小批量合包补齐。
+- 风险边界是两个字段口径不同：`get_singer_list.concernNum` 是列表接口关注数快照，`get_info.FansNum.Num` 是主页粉丝数快照；两者周杰伦样本相差数个计数，不能无来源地混写为同一字段。
+- 设计上应在快照表或 CSV 中保留 `source_interface`、`metric_name`、`metric_value`、`raw_json_path`、`fetched_at`，必要时另存 `confidence` 或 `priority`，例如主页 `FansNum.Num` 作为优先口径，列表 `concernNum` 作为快速初值。
+- 若后续实现，推荐先做估算或 dry-run：计算 `get_singer_list` 不同筛选组合能命中当前目标 MID 的覆盖率，再决定是否值得发起更多筛选组合请求。
+- 本轮未修改源码或数据库，仅追加本次混合方案分析记录。
+
+### 调整粉丝量近似口径判断
+- 用户说明当前只需要大概粉丝量，不需要实时精确值，只要两个接口数据差别不大就可以一起使用。
+- 用户指出前序周杰伦样本中两个接口只差 3 个粉丝，可能是请求间隔中粉丝数自然增长造成的。
+- 已调整判断：对于用户当前需求，可以把 `get_singer_list.concernNum` 和 `get_info.FansNum.Num` 作为同一近似粉丝量指标的不同来源使用。
+- 风险边界从“不能混用”调整为“需要先用重叠样本验证误差范围”；若重叠样本的相对误差远小于用户分析粒度，例如远低于 1%，则可以合并成 `fans_num_approx` 供排序、筛选和图谱展示使用。
+- 仍建议在底层保留来源字段，因为记录来源成本很低，并且后续发现某个接口异常、缓存为 0 或字段缺失时可以回溯。
+- 本轮未修改源码或数据库，仅追加本次口径调整分析记录。
+
+### 复测周杰伦两个粉丝量接口
+- 用户要求重新请求周杰伦的两个粉丝量接口。
+- 已联网请求 `get_info("0025NhlN2yWrP4")`，完成时间为 2026-05-16T21:20:12Z，返回 `Info.FansNum.Num=50212122`、`Info.FansNum.HasEntry=1`。
+- 已随后请求 `get_singer_list(ALL, ALL, ALL)`，完成时间为 2026-05-16T21:20:14Z，在 `singerlist` 中命中周杰伦，返回 `concernNum=50212122`。
+- 本次两个接口差值为 0，相对差异为 0；该结果支持当前“大概粉丝量”需求下将两者合并为近似口径使用。
+- 本轮未修改源码或数据库，仅追加本次复测记录。
+
+### 设计歌手粉丝量采集插入步骤
+- 用户要求在第一步完整歌手列表 raw 之后插入粉丝量请求步骤，后续流程编号顺延，并在歌手入库时把粉丝量一并写入 `artists`。
+- 目标效果为：完整流程第 2 步先低成本获取 `area_id in (0, 1)` 目标歌手的近似粉丝量 raw，第 3 步入库时 `artists` 中有可查询的 `fans_num`；后续歌曲 Tab、补 MID、专辑、歌曲、制作人、过滤和网站步骤全部顺延。
+- 实现方案确定为：第 2 步先请求 `qqmusic.singer.get_singer_list` 的 `TAIWAN`、`CHINA` 两个 area，从 `concernNum` 快速覆盖当前目标；再扫描第三步入库目标中未覆盖的 MID，用 `qqmusic.singer.get_info` 的 `Info.FansNum.Num` 通过 `Client.gather()` 合包补齐。
+- 断点与 raw 规则确定为：列表 raw 写入 `data/raw/qqmusic/singer_fans_list/`，单歌手补齐 raw 写入 `data/raw/qqmusic/singer_fans_info/`，汇总写入 `data/raw/qqmusic/singer_fans_summary.json`；重复运行默认复用已有 JSON，不追求实时更新。
+- 风险边界为：两种接口已按周杰伦样本复测为同一粉丝量口径，可用于当前近似分析；仍保留 `fans_source` 和 `fans_raw_json_path` 便于后续排查异常 raw 或字段缺失。
+
+### 实现歌手粉丝量采集和入库
+- 新增 `music_metadata_graph.pipelines.collect_singer_fans_raw`，并新增命令入口 `mr-collect-singer-fans-raw`。
+- 粉丝量采集脚本默认读取第一步歌手列表 raw，套用当前 `area_id in (0, 1)` 目标规则；MVP 模式只要求前 10 个目标歌手的粉丝量可用。
+- 粉丝量采集脚本先请求 `get_singer_list` 的 `TAIWAN`、`CHINA` 两个 area 并立即落盘；对未覆盖目标构造 `get_info(mid)` 请求，按批调用 `Client.gather()`，每批成功后立即逐 MID 写入 raw；批次失败时降级为单个请求，仍失败时保留已成功结果并非零退出。
+- `import_singer_list_to_db.py` 新增 `--fans-raw-dir` 参数，默认读取 `data/raw/qqmusic/singer_fans_summary.json`，把 `fans_num`、`fans_source`、`fans_raw_json_path` 合并到第三步入库行。
+- `artists` schema 新增 `fans_num`、`fans_source`、`fans_raw_json_path`；既有表会通过迁移添加列，旧 schema 重建和旧 `singers` 表迁移路径同步兼容这些列。
+- `import_artists()` 对后续歌曲歌手、制作人和 quick_search 补入的音乐人保持兼容：未提供粉丝量时不覆盖已有 `fans_num`、`fans_source`、`fans_raw_json_path`。
+- 修正 `import_singer_list_to_db.run()` 中 SQLite 连接显式关闭，避免 Windows 测试临时数据库文件句柄残留。
+
+### 顺延完整流程编号和文档规则
+- `run_full_pipeline` 新增第 2 个编排步骤“歌手粉丝量 raw JSON”，第 3 步变为歌手列表入库，第 4 步变为歌手主页歌曲 Tab raw，后续步骤整体顺延到第 19 步。
+- 完整流程新增粉丝量 postcheck：第 2 步检查 `singer_fans_summary.json` 非空且有可用 `fans_num`；第 3 步检查 `artists.fans_num` 列存在且至少有一行粉丝量。
+- `run_from_song_tabs` 的起点从旧第 4 步调整为新第 5 步，继续表示从已有歌曲 Tab raw 后的 quick_search 补歌曲歌手缺 MID 开始。
+- 已同步 `AGENTS.md`，记录新的第二步粉丝量 raw、第三步带粉丝量入库、后续步骤顺延、MVP 规则、单对象合包请求规则和 `artists` 新字段。
+- 已同步 README，新增“步骤二：歌手粉丝量 raw JSON”说明、命令入口、raw 目录、断点规则，并更新一键流程步骤数量、网站生成步骤编号和已有歌曲 Tab 续跑说明。
+- 已更新相关 pipeline 命令帮助文案，把歌手列表入库规则从旧 step 2 调整为新 step 3，把歌曲 Tab 目标从旧 step 3 调整为新 step 4。
+
+### 验证歌手粉丝量流程改动
+- 语法验证对象为新增粉丝量脚本、歌手入库脚本、完整流程编排、已有歌曲 Tab 续跑入口、相关下游脚本和新增测试文件，执行 `py_compile` 未报错。
+- 单元验证执行 `tests.test_run_full_pipeline` 与 `tests.test_import_singer_list_to_db`，共 4 个测试通过；新增测试确认第三步入库能从 `singer_fans_summary.json` 写入 `artists.fans_num`、`fans_source`、`fans_raw_json_path`。
+- 全量单元验证执行 `python -m unittest discover tests`，共 23 个测试全部通过。
+- 入口验证执行 `collect_singer_fans_raw --help`、`import_singer_list_to_db --help`、`run_full_pipeline --help`，均能正常输出帮助；新增入库入口包含 `--fans-raw-dir` 参数。
+- 真实 MVP 烟测执行 `python -m music_metadata_graph.pipelines.collect_singer_fans_raw --mvp`，成功请求 `TAIWAN` 和 `CHINA` 两个列表 raw，MVP 前 10 个目标歌手全部被列表接口覆盖，未触发单歌手补请求，写出 `data/raw/qqmusic/singer_fans_summary.json`。
+- 本轮未执行完整 2119 个目标歌手的全量粉丝量补齐；剩余工作是用户确认后运行完整第 2 步和第 3 步，更新正式 SQLite 中的 `fans_num`。
+
+### 修正头像下载有效频率判断
+- 用户实测头像缓存步骤约 20 个头像耗时 23 秒，即实际有效频率约为 0.87 个头像/秒。
+- 已修正对头像请求频率的理解：`prepare_static_graph_assets` 的 `DEFAULT_REQUEST_DELAY_SECONDS=0.05` 只是两次下载结束后的额外间隔，不等同于完整下载过程的实际请求吞吐；真实频率还包含 DNS、连接、响应和图片读取耗时。
+- 当前头像步骤仍与前面 QQ 音乐业务接口限速机制不一致：业务接口使用 `Client(rate=0.5, capacity=1)`，约 2 秒 1 次；头像下载使用串行 `urlopen` 加额外 sleep。
+- 当前风险判断调整为：实测约 0.87 个头像/秒不属于先前按 20 个/秒估算的高频，但高于业务接口默认的 0.5 次/秒；完整库上万头像仍应保留断点、上限和可调节延迟。
+- 本轮未修改源码，仅记录用户实测数据和频率判断修正。
+
+### 改造头像下载为按启动间隔异步调度
+- 用户要求头像下载脚本改为异步方式，每 1 秒发起一个请求，下载耗时不影响后续请求启动间隔。
+- 已将 `music_metadata_graph.pipelines.prepare_static_graph_assets` 的头像下载从同步循环改为 `asyncio` 调度：未缓存头像按 `--request-delay` 控制相邻下载任务的启动间隔，下载本身通过线程执行，慢下载不会阻塞后续请求启动。
+- 已将默认 `DEFAULT_REQUEST_DELAY_SECONDS` 从 `0.05` 调整为 `1.0`，并将 `--request-delay` 帮助文案改为“头像请求启动最小间隔”，避免继续理解为下载完成后的固定等待。
+- manifest 仍由主流程在下载任务完成后统一写入；缓存命中、禁用下载和达到 `--max-avatar-downloads` 上限的 URL 不发起远程请求。
+- 由于异步下载完成顺序不再保证等同 URL 顺序，已调整测试只校验每条进度内容和汇总结果，不再依赖完成顺序。
+- 已同步 README 和 AGENTS，记录头像准备步骤默认按 1 秒间隔启动未缓存头像下载，下载耗时不阻塞后续请求启动。
+
+### 验证头像异步下载调度
+- 语法验证对象为 `prepare_static_graph_assets.py`、`tests/test_static_graph_build.py` 和 `tests/test_run_full_pipeline.py`，执行 `py_compile` 未报错。
+- 单元验证对象为静态图谱与头像缓存逻辑，执行 `tests.test_static_graph_build`，共 12 个测试全部通过；新增测试使用模拟慢下载确认下载任务可按启动间隔重叠执行，而不是等待前一个下载完成后再启动下一个。
+- 流程编排验证对象为 `tests.test_run_full_pipeline`，共 3 个测试全部通过，确认第 16 步网站资源准备命令仍正确接入完整流程。
+- 入口参数验证执行 `python -m music_metadata_graph.pipelines.prepare_static_graph_assets --help`，输出显示 `--request-delay` 为头像请求启动最小间隔参数。
+- 本轮验证未发起真实头像下载，异步节奏通过模拟下载单元测试验证。
+
+### 调整头像下载优先级排序
+- 用户要求头像请求顺序改为按音乐人相关联行数量排序，即演唱、作词、作曲数量相加后从高到低请求。
+- 已修改 `music_metadata_graph.pipelines.prepare_static_graph_assets.collect_icon_urls()`：从图谱节点读取 `sung_song_count`、`lyricist_song_count` 和 `composer_song_count`，按三者之和降序排序头像 URL；分数相同按 URL 字符串排序，保证顺序稳定。
+- 如果多个节点共用同一个头像 URL，当前按这些节点中的最高关联数量作为该 URL 的排序分值，避免重复请求同一 URL。
+- 已同步 README 和 AGENTS，说明未缓存头像按 `演唱 + 作词 + 作曲` 关联数量从高到低排序。
+
+### 验证头像下载排序调整
+- 语法验证对象为 `prepare_static_graph_assets.py` 和 `tests/test_static_graph_build.py`，执行 `py_compile` 未报错。
+- 单元验证对象为头像 URL 收集排序、静态图谱和流程编排，执行 `tests.test_static_graph_build tests.test_run_full_pipeline`，共 16 个测试全部通过。
+- 新增排序测试覆盖高关联数优先、同分 URL 稳定排序和重复头像 URL 取最高关联数。
+- 本轮验证未发起真实头像下载。
+
+### 定位粉丝量缺失歌手
+- 用户询问全量粉丝量采集结果中 `covered_fans_num=2117` 相对 `target_singers=2119` 缺失的 2 个歌手是谁。
+- 已解析 `data/raw/qqmusic/singer_fans_summary.json` 的 `rows`，确认缺失项为 `TRNOTEARS`（MID `001uzjHC3YbguP`）和 `伍心杰`（MID `004HhqT03L1TVX`）。
+- 已检查对应单补 raw JSON，两个文件均存在，路径分别为 `data/raw/qqmusic/singer_fans_info/001uzjHC3YbguP.json` 和 `data/raw/qqmusic/singer_fans_info/004HhqT03L1TVX.json`。
+- 两个 raw 的 `Info.FansNum` 均返回 `HasEntry=0`、`Num=0`，因此采集汇总按没有可用粉丝入口处理为 `fans_num=null`。
+
+### 收紧第三步歌手入库粉丝量规则
+- 用户要求第三步歌手入库在 `area_id in (0, 1)` 之外增加粉丝数必须有可用数值，并要求数据库粉丝数字段限制非空。
+- 已将 `import_singer_list_to_db` 调整为先合并第二步 `singer_fans_summary.json`，再只导入 `area_id in (0, 1)` 且 `fans_num` 可解析为正数的歌手；本地当前 raw 验证结果为 2119 个 area 0/1 歌手中过滤掉 2 个无可用粉丝量歌手，导入目标为 2117 行。
+- 已将 `artists.fans_num` schema 改为 `INTEGER NOT NULL DEFAULT 0`，旧 nullable `fans_num` 表会重建迁移，旧 NULL 值迁移为 0；新增 `fans_num` 列时也使用非空默认值。
+- `import_artists()` 对新插入但没有粉丝量的后续补入音乐人写入 0 以满足非空约束；对已有正数粉丝量，后续无粉丝量写入不会覆盖正数。
+- 一键流程第 3 步 postcheck 已检查 `artists.fans_num` 存在、非空约束生效、没有 NULL 粉丝量，并保留正数粉丝量计数与非正数计数。
+- 已同步 `collect_singer_song_tab_raw.resolve_targets()`，使第四步 `--all` 目标范围复用第三步当前入库过滤规则，即同时要求 `area_id in (0, 1)` 和可用正数粉丝量。
+- 修正 `collect_singer_song_tab_raw.resolve_targets()` 中 SQLite 连接未显式关闭的问题，避免 Windows 测试临时数据库文件句柄残留。
+- 已同步 README 和 AGENTS，记录第三步导入条件、`fans_num` 非空约束、MVP 规则和后续补入音乐人的 0 默认值边界。
+- 本轮格式处理过程中发现部分修改文件短暂出现 `CRCRLF` 异常换行，已规范化为标准 CRLF 并重新执行验证。
+
+### 验证第三步粉丝量非空规则
+- 语法验证对象为 `import_singer_list_to_db.py`、`run_full_pipeline.py`、相关单元测试文件，执行 `py_compile` 未报错。
+- 单元验证执行 `tests.test_import_singer_list_to_db` 和 `tests.test_run_full_pipeline`，共 5 个测试通过；新增测试确认 area 0/1 但无粉丝量的歌手不会导入，`fans_num` 列为非空约束，并确认第四步 `--all` 目标范围会复用第三步粉丝量过滤。
+- 全量单元验证执行 `python -m unittest discover tests`，共 24 个测试全部通过。
+- 使用当前真实 raw 写入临时 SQLite 验证第三步导入和第四步目标解析结果：`filtered_rows_by_area=2119`、`filtered_out_missing_fans=2`、`imported_rows=2117`、`song_tab_all_targets=2117`、`fans_num` 非空约束生效，临时库中 `fans_num IS NULL` 为 0 且 `fans_num <= 0` 为 0。
+- 本轮未改写正式数据库文件；正式库需要用户重新运行第三步入库命令后才会应用新 schema 和新过滤结果。
+
+### 纠正粉丝量数据库非空约束
+- 用户纠正粉丝量规则：数据库里的 `artists.fans_num` 不应限制非空，只在第三步导入目标和后续从歌手列表 JSON 解析目标范围时过滤无可用粉丝量的歌手。
+- 已撤回 `artists.fans_num` 的 `NOT NULL DEFAULT 0` schema 约束，恢复为可空 `INTEGER`；新增列、旧表迁移和 schema 重建路径均不再把缺失粉丝量写成 0。
+- `import_artists()` 恢复为无粉丝量时写入 `NULL`，并在冲突更新时保留已有正数粉丝量。
+- 保留第三步导入前的 `area_id in (0, 1)` 加可用正数 `fans_num` 过滤，保留第四步 `--all` 从歌手列表 raw 和粉丝量 summary 解析目标时复用同一过滤规则。
+- 已同步 README 和 AGENTS，把 `fans_num` 说明改为可空整数，并说明后续补入音乐人没有粉丝量时保留为空。
+
+### 验证粉丝量可空规则
+- 语法验证对象为 `import_singer_list_to_db.py`、`collect_singer_song_tab_raw.py`、`run_full_pipeline.py` 和相关测试文件，执行 `py_compile` 未报错。
+- 单元验证执行 `tests.test_import_singer_list_to_db` 与 `tests.test_run_full_pipeline`，共 5 个测试通过；确认第三步会过滤无可用粉丝量歌手，且 `fans_num` 列不再是非空约束。
+- 全量单元验证执行 `python -m unittest discover tests`，共 24 个测试全部通过。
+- 使用当前真实 raw 写入临时 SQLite 验证：`filtered_rows_by_area=2119`、`filtered_out_missing_fans=2`、`imported_rows=2117`、`song_tab_all_targets=2117`、`fans_num_notnull=0`；第三步初始导入目标均有正数粉丝量。
+
+### 检查正式库粉丝量导入状态
+- 用户在正式 SQLite 上运行第三步入库后要求检查数据库状态。
+- 已只读检查 `data/music_metadata_graph.sqlite3`，确认数据库存在，包含 `albums`、`artists`、`songs`、`song_singers`、`song_credit_artists` 五张表，外键检查无违规。
+- `artists.fans_num` schema 为 `INTEGER` 且 `notnull=0`，符合可空字段规则。
+- 当前正式库 `artists` 共 48597 行，其中 2117 行有正数粉丝量，46480 行粉丝量为空，非正数粉丝量为 0。
+- 当前 `area_id in (0, 1)` 的歌手共 2119 行，其中 2117 行有正数粉丝量，2 行粉丝量为空；这 2 行为 `TRNOTEARS` 和 `伍心杰`。
+- 粉丝量来源分布为列表接口 `qqmusic.singer.get_singer_list.concernNum` 1336 行，单补接口 `qqmusic.singer.get_info.FansNum.Num` 781 行。
+- 因本次是在已有正式库上 upsert 第三步结果，第三步过滤无粉丝量歌手不会删除历史已存在的 `TRNOTEARS` 和 `伍心杰` 行，它们仍保留在库中且 `fans_num` 为空。
+
+### 统计正式库粉丝量分布
+- 用户要求统计 2117 个正数粉丝量数据的分布。
+- 已只读统计 `artists.fans_num > 0` 的 2117 行，确认粉丝量呈明显长尾分布：最小值 2，最大值 50212124，均值约 456068，中位数 21993。
+- 分位数结果为：P25=998、P50=21993、P75=248517、P90=931726、P95=2240317、P99=6524408。
+- 数量级分桶结果为：1-99 共 150 行，100-999 共 380 行，1000-9999 共 399 行，10000-99999 共 442 行，100000-999999 共 541 行，1000000-9999999 共 195 行，10000000+ 共 10 行。
+- 按来源统计：列表接口 1336 行，中位数 139033，最大值 50212124；单补接口 781 行，中位数 482，最大值 3210279。
+- 按地区统计：area_id=0 共 336 行，中位数 226664；area_id=1 共 1781 行，中位数 9773。
+
+### 删除正式库无粉丝量歌手及关联行
+- 用户要求手动移除正式库中 `TRNOTEARS`（MID `001uzjHC3YbguP`）和 `伍心杰`（MID `004HhqT03L1TVX`），以及连锁相关行。
+- 删除前已备份正式 SQLite 到 `data/music_metadata_graph.before_remove_no_fans_artists_20260516_224929.sqlite3`。
+- 删除前检查发现两个 artist 直接关联 6 条 `song_singers` 和 6 条 `song_credit_artists`，涉及 6 首歌曲。
+- 已在启用 SQLite 外键的事务中先删除这 6 首相关歌曲，再删除两个 artist；由于 `songs` 到 `song_singers`、`song_credit_artists` 配置了级联删除，最终级联减少 `song_singers` 7 行、`song_credit_artists` 13 行。
+- 删除后正式库状态为：`artists` 48595 行、`songs` 77443 行、`song_singers` 99555 行、`song_credit_artists` 181371 行。
+- 删除后两个目标 MID 在 `artists`、`song_singers`、`song_credit_artists` 中均无残留引用；`area_id in (0, 1)` 的 artist 为 2117 行且全部有正数粉丝量。
+- 删除后执行 `PRAGMA foreign_key_check` 无外键违规。
+
+## 2026-05-17
+
+### 检查 MVP 库粉丝量状态
+- 用户在运行 `collect_singer_fans_raw --mvp` 和 `import_singer_list_to_db --mvp` 后要求检查 MVP 库粉丝量数据。
+- 已只读检查 `data/music_metadata_graph_mvp.sqlite3`，确认数据库存在，包含 `albums`、`artists`、`songs`、`song_singers`、`song_credit_artists` 五张表，外键检查无违规。
+- `artists.fans_num` schema 为 `INTEGER` 且 `notnull=0`，符合可空字段规则。
+- MVP 库当前 `artists` 共 1839 行，其中 10 行有正数粉丝量，1829 行粉丝量为空，非正数粉丝量为 0。
+- MVP 库当前 `area_id in (0, 1)` 的 artist 共 10 行，且全部有正数粉丝量；后续补入 artist 没有地区字段或粉丝量为空符合当前规则。
+- 10 个 MVP 初始歌手均来自 `qqmusic.singer.get_singer_list.concernNum`，分别为周杰伦、林俊杰、陈奕迅、薛之谦、王力宏、汪苏泷、G.E.M. 邓紫棋、许嵩、孙燕姿、王源。
+- 检查中发现流程风险：`collect_singer_fans_raw --mvp` 当前会写入共享路径 `data/raw/qqmusic/singer_fans_summary.json`，使 summary 只剩 MVP 10 行；如果后续非 MVP 流程从该 summary 解析第三步或第四步目标，会被错误限制为 10 行。该问题尚未修复。
+
+### 检查两个静态网页生成脚本布局复用关系
+- 用户询问标准静态网页与 large-graph 静态网页除绘图内容外的布局是否分别写了两套相同实现。
+- 已检查 `music_metadata_graph.pipelines.build_static_graph` 和 `music_metadata_graph.pipelines.build_large_graph_static`，确认 HTML 外壳、顶部工具栏、图谱面板、详情面板、歌曲明细和关系明细区域统一由 `build_static_graph.html_document()` 生成。
+- `build_large_graph_static` 通过导入并调用同一个 `html_document()` 复用页面布局，只传入 `LARGE_GRAPH_CSS` 和 `LARGE_GRAPH_JS` 替换绘图区样式和绘图逻辑。
+- large-graph 脚本当前额外替换 `graphPayload()`、`setupGraph()`、`configureForces()` 和 `renderGraph()`，并在 `CSS` 基础上追加少量 `#graph` 与 canvas 样式；因此不是两套完整布局重复实现，而是共享布局加绘图区差异。
+- 本次只做源码阅读和结构确认，未修改网页生成逻辑，也未重新生成站点或运行构建。
+
+### 增加网页目标歌手粉丝量范围筛选
+- 用户要求在网页中增加粉丝量筛选条，用两个滑块决定展示的粉丝量范围，并要求目标歌手下拉菜单受该范围影响；初始默认范围为 10 万以上。
+- 已将 `build_static_graph` 输出的图谱数据扩展为在 `nodes` 和 `targets` 中带出 `fans_num`，并兼容旧测试库中暂时没有 `artists.fans_num` 列的情况。
+- 已在共享网页外壳顶部工具栏增加“目标歌手粉丝”双滑块控件，默认下限为 `100000`，上限为当前目标歌手最大粉丝量；滑块标签按万/亿格式展示。
+- 已将 `targetItems()` 改为先按当前粉丝量范围过滤目标歌手，因此目标歌手下拉菜单、全选、反选、当前范围标签、图谱边筛选和歌曲明细均基于粉丝量范围内的目标歌手集合。
+- 当前筛选语义限定为“目标歌手粉丝量范围”：作词/作曲补入音乐人没有粉丝量时不会因为缺粉丝量被提前删除，只会随着所选目标歌手的关系进入图谱。
+- large-graph 页面继续复用标准页面外壳和筛选逻辑，只替换绘图区配置。
+- 已同步 README，说明网页默认显示 10 万以上目标歌手、下拉菜单受粉丝量滑块约束；已同步 AGENTS，记录标准网页和 large-graph 网页必须共享该筛选行为。
+
+### 验证网页粉丝量筛选
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 12 个测试通过；新增断言覆盖 `fans_num` 图谱输出、粉丝量滑块控件和目标歌手过滤函数存在。
+- 编排验证执行 `tests.test_run_full_pipeline`，共 3 个测试通过。
+- 全量测试执行 `python -m unittest discover tests`，共 25 个测试全部通过。
+- 已用禁用头像下载方式重新生成 `site/`、`site_mvp/` 的网站资源和 HTML，并重新生成 `site_large/`；完整站点生成结果为 24357 个节点、104464 条边、77443 首歌，MVP 站点生成结果为 1210 个节点、2271 条边、1970 首歌。
+- 文件级验证确认 `site/index.html`、`site_large/index.html` 和 `site_mvp/index.html` 均包含 `fans-min-range`、`fans-max-range` 和“目标歌手粉丝”；`site/assets/graph-data.js` 中 9744 个目标歌手条目均包含 `fans_num` 字段，其中默认 10 万以上范围内有 743 位目标歌手，100 万以上有 205 位目标歌手。
+- 尝试用内置浏览器打开 `file://` 页面时被浏览器安全策略拒绝；改用本机临时 HTTP 服务访问 `http://127.0.0.1:8765/index.html` 时又被浏览器环境返回 `ERR_BLOCKED_BY_CLIENT`。已停止临时 HTTP 服务，未继续绕过浏览器策略；本轮实际页面交互验证以静态文件和数据级检查替代。
+- 已按项目偏好把本轮修改过的源码、文档、测试和站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile`、`tests.test_static_graph_build` 和 `python -m unittest discover tests`，结果仍为 25 个测试全部通过。
+
+### 修复粉丝量左滑块被轨道遮盖
+- 用户反馈网页粉丝量筛选的左滑块被轨道遮盖。
+- 已定位为两个 `range` 输入重叠时，各自浏览器原生轨道都在绘制，后一个滑块轨道会覆盖前一个滑块 thumb。
+- 已把粉丝量滑块的可见轨道改为 `.fans-slider-shell::before` 统一绘制，并将两个实际 `input[type="range"]` 的 WebKit 与 Firefox 轨道背景改为透明，只保留 thumb 可见和可拖动。
+- 已更新 `tests.test_static_graph_build`，增加对共享轨道伪元素和透明 input 轨道样式的断言。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html`，使三个现有网页产物都包含该 CSS 修复。
+- 验证执行 `py_compile` 覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错；执行 `tests.test_static_graph_build`，13 个测试通过；执行 `python -m unittest discover tests`，28 个测试全部通过。
+- 文件级验证确认 `site/index.html`、`site_large/index.html` 和 `site_mvp/index.html` 均包含 `.fans-slider-shell::before` 和 `background: transparent`。
+
+### 修正粉丝量滑块轨道垂直对齐
+- 用户截图反馈粉丝量滑块轨道仍显示异常，轨道线位于滑块圆点上方。
+- 已将 `.fans-slider-shell` 高度从 18px 调整为 24px，并将共享轨道改为 `top: 50%` 加 `transform: translateY(-50%)` 垂直居中，避免硬编码 `top: 7px` 与浏览器 range thumb 默认定位不一致。
+- 已显式给 range input、WebKit track 和 WebKit thumb 设置 `-webkit-appearance: none`，并清除 input 默认 margin；WebKit thumb 尺寸调整为 16px，`margin-top` 调整为 -6px，使 thumb 中心与 4px 轨道中心线一致。
+- 已更新 `tests.test_static_graph_build`，增加对居中轨道、WebKit 外观复位和透明轨道样式的断言。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html`；第一次生成 large-graph 时 Windows 对 `site_large/assets/graph-data.js` 写入返回一次 `OSError: [Errno 22] Invalid argument`，随后串行重试成功。
+- 验证执行 `py_compile` 覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错；执行 `tests.test_static_graph_build`，13 个测试通过；执行 `python -m unittest discover tests`，28 个测试全部通过。
+- 文件级验证确认三个站点 HTML 均包含 `.fans-slider-shell::before`、`top: 50%`、`transform: translateY(-50%)` 和 `-webkit-appearance: none`。
+
+### 修正目标歌手下拉菜单对齐
+- 用户截图反馈目标歌手下拉菜单没有和 select 框左侧对齐。
+- 已定位为 `target-dropdown-menu` 原本是 `.target-filter` 的绝对定位子元素，`left: 0` 会从“目标歌手”标签左侧开始，而不是从 select 框左侧开始。
+- 已将 `target-dropdown-menu` 移入 `.target-select-shell` 内，使菜单和 select 共用同一个定位容器；`.target-dropdown-menu` 保持 `left: 0`，宽度改为 `100%`，`.target-select-shell` 宽度调整为 210px。
+- 已更新 `tests.test_static_graph_build`，断言下拉菜单位于 `.target-select-shell` 内，并确认菜单宽度和定位样式。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html`，使三个现有网页产物都包含对齐修复。
+- 验证执行 `py_compile` 覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错；执行 `tests.test_static_graph_build`，13 个测试通过；执行 `python -m unittest discover tests`，28 个测试全部通过。
+- 文件级验证确认三个站点 HTML 均包含 `.target-select-shell`、嵌套的 `target-dropdown-menu`、`.target-select-shell` 210px 宽度，以及菜单 `top: calc(100% + 4px); left: 0; width: 100%;` 样式。
+
+### 拆分正式和 MVP 粉丝量 summary
+- 用户指出正式流程和 MVP 流程不应共用同一个粉丝量 summary 文件。
+- 已新增统一的 `singer_fans_summary_path()` 路径 helper：正式流程使用 `data/raw/qqmusic/singer_fans_summary.json`，MVP 流程使用 `data/raw/qqmusic/singer_fans_summary_mvp.json`。
+- `collect_singer_fans_raw` 已改为按 `--mvp` 写入对应 summary，避免 MVP 运行覆盖正式完整 summary。
+- `import_singer_list_to_db` 已改为按 `--mvp` 读取对应 summary；第三步的 area 过滤和可用正数粉丝量过滤规则保持不变，数据库 `fans_num` 仍为可空字段。
+- `collect_singer_song_tab_raw --all` 已改为按 `--mvp` 读取对应 summary 来解析第三步目标范围，避免第四步目标被错误限制或放大。
+- `run_full_pipeline` 的粉丝量 raw 检查已改为按当前流程模式检查对应 summary，并在检查结果中输出实际 summary 路径。
+- 已同步 README 和 AGENTS，记录正式 summary 与 MVP summary 分离，且 MVP 流程不再覆盖正式 summary。
+
+### 验证粉丝量 summary 拆分
+- 语法验证执行 `py_compile`，覆盖 `collect_singer_fans_raw.py`、`import_singer_list_to_db.py`、`collect_singer_song_tab_raw.py`、`run_full_pipeline.py` 和相关测试文件，未报错。
+- 单元验证执行 `tests.test_import_singer_list_to_db` 与 `tests.test_run_full_pipeline`，共 8 个测试通过；新增测试确认 MVP 入库和 MVP 歌曲 Tab 目标解析读取 `singer_fans_summary_mvp.json`，完整流程 MVP 检查也读取 MVP summary。
+- 全量单元验证执行 `python -m unittest discover tests`，共 28 个测试全部通过。
+- 真实 MVP 采集验证执行 `collect_singer_fans_raw --mvp`，两个列表 raw 均为 cache hit，写出 `data/raw/qqmusic/singer_fans_summary_mvp.json`，结果为 10 行且 10 个可用粉丝量。
+- 真实正式采集验证执行 `collect_singer_fans_raw`，两个列表 raw 均为 cache hit，783 个单歌手补齐 raw 均从缓存读取，写出 `data/raw/qqmusic/singer_fans_summary.json`，结果为 2119 行且 2117 个可用粉丝量。
+- 一键流程 dry-run 分别验证 MVP 与正式模式的第 2 到第 3 编排步骤：MVP postcheck 输出 `singer_fans_summary_mvp.json` 且为 10/10，正式 postcheck 输出 `singer_fans_summary.json` 且为 2119/2117；对应数据库检查分别显示 MVP 库 10 个带粉丝量 artist、正式库 2117 个带粉丝量 artist。
+
+### 修复 MVP 网页粉丝量筛选产物
+- 用户指出 MVP 网页中新增的粉丝量筛选读不到粉丝量。
+- 检查确认 `data/music_metadata_graph_mvp.sqlite3` 中 MVP 初始 10 个 `area_id in (0, 1)` 歌手均有正数 `fans_num`，但当前 `site_mvp/assets/graph-data.js` 是旧生成产物，260 个 target 的 `fans_num` 全部为 `null`。
+- 直接调用 `build_graph_data()` 读取 MVP 数据库验证生成逻辑本身正常：260 个 target 中 10 个带 `fans_num`，对应周杰伦、林俊杰、陈奕迅、薛之谦、王力宏、汪苏泷、G.E.M. 邓紫棋、许嵩、孙燕姿、王源。
+- 已重新执行 `prepare_static_graph_assets --mvp --skip-avatar-download`，使用当前 MVP 数据库重写 `site_mvp/assets/graph-data.js` 并复用已有头像缓存，未发起新头像下载。
+- 已重新执行 `build_static_graph --mvp`，重写 `site_mvp/index.html` 以使用更新后的外部 graph data。
+- 重新检查 `site_mvp/assets/graph-data.js`：target 共 260 个，其中 10 个有 `fans_num`，默认 `100000` 以上粉丝量范围内可见 target 为 10 个；节点共 1210 个，其中 10 个带 `fans_num`。
+- 单元验证执行 `tests.test_static_graph_build`，共 13 个测试通过。
+- 全量单元验证执行 `python -m unittest discover tests`，共 28 个测试全部通过。
+
+### 调整目标歌手下拉菜单为数据库默认顺序
+- 用户询问目标歌手下拉菜单排序依据，并要求改成不排序，即使用库里的默认顺序。
+- 已修改 `build_static_graph.build_graph_data()`：生成 `targets` 时先读取 `SELECT mid FROM artists` 的默认扫描顺序，再按该顺序输出当前图谱中的目标歌手候选，不再按歌曲数、粉丝量或姓名重新排序。
+- 为避免极端情况下目标歌手不在默认 artists 扫描结果中，保留了兜底追加逻辑；正常数据库路径下不会改变目标歌手集合，只改变下拉候选顺序。
+- 已更新 `tests.test_static_graph_build`，新增测试确认 `targets` 顺序跟随 `SELECT mid FROM artists` 的数据库默认顺序。
+- 已同步 README 和 AGENTS，记录目标歌手下拉菜单候选顺序保留数据库默认扫描顺序，不再按歌曲数或粉丝量排序。
+- 已重新生成 `site/`、`site_mvp/` 和 `site_large/` 的当前网页产物与 graph data，使现有页面直接采用新顺序。
+
+### 验证目标歌手下拉默认顺序
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 全量单元验证执行 `python -m unittest discover tests`，共 29 个测试全部通过。
+- 数据级验证读取 `site/assets/graph-data.js`、`site_large/assets/graph-data.js` 和 `site_mvp/assets/graph-data.js`，分别解析 `targets[].mid` 并与对应 SQLite 数据库 `SELECT mid FROM artists` 过滤到 target 集合后的顺序逐项比较。
+- 验证结果显示完整站点和 large-graph 站点均为 9744 个目标歌手且顺序完全匹配完整数据库默认扫描顺序，MVP 站点为 260 个目标歌手且顺序完全匹配 MVP 数据库默认扫描顺序。
+
+### 改回目标歌手下拉粉丝量排序并简化菜单文本
+- 用户要求目标歌手下拉菜单改回按粉丝量排序，同时菜单里除了人名不要写别的。
+- 已修改 `build_static_graph.build_graph_data()`：`targets` 按 `fans_num` 从高到低排序，缺粉丝量的目标歌手排在最后；同粉丝量时用姓名和 MID 做稳定兜底。
+- 已修改前端 `renderTargetCheckboxes()`，目标歌手下拉菜单项只渲染歌手名，不再显示歌曲数或粉丝量文本。
+- 已同步 README 和 AGENTS，记录目标歌手下拉候选按粉丝量降序排列，菜单项文本只显示歌手名。
+- 已重新生成 `site/`、`site_mvp/` 和 `site_large/` 的 graph data 与 HTML 页面产物。
+
+### 验证目标歌手粉丝量排序和纯人名菜单
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 14 个测试全部通过；测试覆盖目标歌手按粉丝量降序输出，以及菜单模板不再输出歌曲数或粉丝量。
+- 全量单元验证执行 `python -m unittest discover tests`，共 29 个测试全部通过。
+- 数据级验证解析 `site/assets/graph-data.js`、`site_large/assets/graph-data.js` 和 `site_mvp/assets/graph-data.js`，确认三者 `targets` 的 `fans_num` 均为降序。
+- 完整站点和 large-graph 站点目标歌手数均为 9744，MVP 站点目标歌手数为 260；三个站点前 5 位均为周杰伦、林俊杰、薛之谦、陈奕迅、G.E.M. 邓紫棋，对应粉丝量为 50212124、25620830、25352948、22122379、22091120。
+- 文件级验证确认 `site/index.html`、`site_large/index.html` 和 `site_mvp/index.html` 均包含只显示 `item.name` 的目标歌手菜单模板，且不再包含旧的“歌曲数 / 粉丝量”菜单项模板。
+- 已按项目偏好把本轮触碰的源码、测试、文档、日志和站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile` 和 `python -m unittest discover tests`，结果仍为 29 个测试全部通过。
+
+### 保留粉丝量范围外目标歌手勾选状态
+- 用户指出粉丝量范围缩小后再调回时，目标歌手下拉筛选应自动恢复此前勾选结果，不能只保持缩小范围后的 5 位。
+- 已修改前端筛选状态：`state.selectedTargets` 继续保存全局勾选集合，粉丝量范围只决定当前下拉候选和实际绘图使用的 `activeTargetIds()` 交集。
+- `syncSelectedTargetsWithFansRange()` 不再按当前粉丝量范围裁剪勾选集合，只清理不存在于原始目标歌手列表中的无效 ID，因此范围外的既有勾选会被记住。
+- 已调整全选和反选按钮：二者只作用于当前粉丝量范围内的目标歌手，同时保留范围外已有勾选记忆。
+- 已同步 README 和 AGENTS，记录粉丝量范围变化不得清除范围外目标歌手既有勾选，范围调回后必须恢复此前勾选状态。
+- 已重新生成 `site/`、`site_mvp/` 和 `site_large/` 的 HTML 页面产物，使现有页面包含该交互修复。
+
+### 验证粉丝量范围勾选恢复逻辑
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 14 个测试全部通过；新增断言确认存在 `activeTargetIds()`，且不再把 `selectedTargets` 裁剪到当前粉丝量范围。
+- 文件级验证确认 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html` 均包含全局勾选与当前范围交集逻辑，并且不再包含旧的按当前范围裁剪勾选集合的代码。
+- 已按项目偏好把本轮触碰的源码、测试、文档、日志和站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile` 和 `python -m unittest discover tests`，结果为 29 个测试全部通过。
+
+### 调整粉丝量筛选默认下限为 500 万
+- 用户要求把网页粉丝量筛选的默认下限从 10 万改为 500 万。
+- 已修改 `build_static_graph` 的前端默认状态和滑块初始值：`DEFAULT_FANS_MIN`、`state.fansMin` 和初始 range value 均改为 `5000000`。
+- 已同步 README 和 AGENTS，记录标准网页和 large-graph 网页的粉丝量筛选默认范围为 500 万以上。
+- 已重新生成 `site/`、`site_mvp/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证粉丝量默认下限 500 万
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 14 个测试全部通过；测试断言已更新为 `DEFAULT_FANS_MIN = 5000000`。
+- 文件级验证确认 `site/index.html`、`site_mvp/index.html` 和 `site_large/index.html` 均包含 `DEFAULT_FANS_MIN = 5000000`、`fansMin: 5000000` 和最低粉丝量滑块初始值 `5000000`。
+- 数据级检查显示当前完整站点和 large-graph 默认 500 万以上范围内各有 32 位目标歌手，MVP 站点默认范围内有 10 位目标歌手。
+
+### 增加隐藏叶节点开关
+- 用户要求网页增加“隐藏叶节点”开关，效果为隐藏只有一条边的节点；默认状态只在使用完整数据库且绘制完整图时开启，MVP、demo 和 large-graph 均不默认开启。
+- 已在共享网页工具栏增加“隐藏叶节点”开关，并在前端状态中新增 `hideLeafNodes`。
+- 已新增 `leafNodeIds()`，在当前筛选、搜索、作词/作曲合并状态生成的图上统计每个节点的可见边数；开关开启时隐藏度数为 1 的节点及其相关边。
+- 默认值通过 HTML 生成参数注入：标准完整图生成时写入 `hideLeafNodes: true` 且开关 checked；MVP、demo 和 large-graph 生成时写入 `hideLeafNodes: false` 且开关未勾选。
+- 已同步 README 和 AGENTS，记录开关语义和默认开启范围。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证隐藏叶节点开关
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认 `site/index.html` 包含“隐藏叶节点”、`leafNodeIds()`、`hideLeafNodes: true` 和 checked 状态。
+- 文件级验证确认 `site_mvp/index.html`、`site_demo/index.html` 和 `site_large/index.html` 均包含“隐藏叶节点”和 `leafNodeIds()`，但默认状态为 `hideLeafNodes: false` 且开关未勾选。
+- 已按项目偏好把本轮触碰的源码、测试、文档、日志和站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile` 和 `python -m unittest discover tests`，结果为 30 个测试全部通过。
+
+### 调整完整库标准图默认合并作词作曲
+- 用户要求完整库的标准图默认关闭“作词/作曲分开”。
+- 已将 `html_document()` 的作词/作曲分开默认值改为可注入参数，JS 初始 `roleDisplay` 和 checkbox checked 状态由生成入口统一写入。
+- 完整数据库标准图 `site/` 生成时默认写入 `roleDisplay: "merged"`，且“作词/作曲分开”开关未勾选。
+- MVP、demo 和 large-graph 页面继续默认写入 `roleDisplay: "split"`，且“作词/作曲分开”开关保持勾选。
+- 已同步 README 和 AGENTS，记录完整数据库标准完整图默认关闭“作词/作曲分开”，MVP、demo 和 large-graph 页面默认开启。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证作词作曲默认显示模式
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；新增断言覆盖默认 split/merged 注入和 checkbox 默认状态。
+- 文件级验证确认 `site/index.html` 包含 `roleDisplay: "merged"`，且 `role-split-toggle` 未默认 checked。
+- 文件级验证确认 `site_mvp/index.html`、`site_demo/index.html` 和 `site_large/index.html` 均包含 `roleDisplay: "split"`，且 `role-split-toggle` 默认 checked。
+- 已按项目偏好把本轮触碰的源码、测试、文档、日志和站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile` 和 `python -m unittest discover tests`，结果为 30 个测试全部通过。
+
+### 设计静态网页 demo 模式
+- 用户要求在网页生成脚本中增加 demo 模式：使用完整数据库，但从 MVP 的 10 位目标歌手出发，不只显示 10 位目标歌手，而是追加这 10 位歌手参与的全部边和相连节点。
+- 目标效果为用户可运行 `prepare_static_graph_assets --demo` 与 `build_static_graph --demo`，得到 `site_demo/index.html`；页面目标歌手下拉菜单仍围绕 MVP 10 位种子歌手，但图谱展示这些种子歌手作为演唱者、作词人或作曲人参与的全部关系边及邻接音乐人。
+- 实现方案为在 `build_static_graph.build_graph_data()` 增加 demo 数据裁剪：从完整库 `artists` 中按第三步/MVP 口径取前 10 个 `area_id in (0, 1)` 且有正数粉丝量的种子歌手，筛出包含任一种子歌手的歌曲，并只保留任一端连接种子歌手的作词/作曲关系边。
+- 前端方案为在图谱数据中增加 `target_match_mode`，普通模式继续按边的演唱者端匹配目标歌手，demo 模式改为按边任一端匹配目标歌手，以便展示种子歌手作为作词/作曲人参与的边。
+- 风险边界为 demo 种子歌手依赖完整库中 `artists.area_id`、`artists.fans_num`、`raw_page` 和 `raw_row_index` 可用；若完整库缺少足够 10 位 MVP 口径种子歌手，生成脚本应报错而不是静默生成错误页面。
+- 本轮不做范围为不改变完整站点、MVP 站点和 large-graph 的默认图谱口径，不把 demo 模式接入完整一键流程的 19 个编排步骤。
+
+### 实现静态网页 demo 模式
+- `build_static_graph.py` 新增 `--demo` 参数和 `site_demo/` 默认输出目录；`--demo` 使用完整数据库，且与 `--mvp` 互斥。
+- `prepare_static_graph_assets.py` 新增 `--demo` 参数和 `site_demo/` 默认输出目录；demo 资源仍复用共享头像缓存 `site_assets/`，避免重复维护头像。
+- `build_graph_data()` 新增 demo 裁剪逻辑，输出 `target_match_mode: incident`；普通模式继续输出 `target_match_mode: target` 并保持既有目标歌手生成方式。
+- 前端 `baseEdges()` 在 demo 模式下按边任一端是否命中当前目标歌手筛选；歌曲明细在 demo 模式下按演唱、作词、作曲任一角色命中当前目标歌手筛选。
+- 已新增单元测试覆盖 demo 种子歌手只取 MVP 口径前 10 位、保留种子歌手作为演唱者或作词/作曲人参与的边、排除不连接种子歌手的边，并覆盖前端 incident 匹配函数存在。
+- 已同步 README 和 AGENTS，记录 `--demo` 入口、`site_demo/` 输出、完整库来源和 demo 的边/节点范围。
+
+### 验证静态网页 demo 模式
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`prepare_static_graph_assets.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试通过。
+- 真实数据生成验证执行 `prepare_static_graph_assets --demo --skip-avatar-download`，使用完整数据库写出 `site_demo/assets/graph-data.js` 和站点 vendor 资源；结果为 1213 个节点、1828 条边、2119 首歌、10 位目标歌手，头像 URL 共 950 个，其中 835 个复用缓存、115 个因禁用下载跳过。
+- 真实页面生成验证执行 `build_static_graph --demo`，写出 `site_demo/index.html`；返回节点 1213、边 1828、歌曲 2119。
+- 数据级检查确认 `site_demo/assets/graph-data.js` 的 `target_match_mode` 为 `incident`，目标歌手为周杰伦、林俊杰、薛之谦、陈奕迅、G.E.M. 邓紫棋、许嵩、汪苏泷、王力宏、孙燕姿、王源；全部 1828 条边都至少有一端连接这 10 位目标歌手，且其中 446 条边为目标歌手作为作词/作曲来源端连接其他演唱者。
+- 已按项目偏好把本轮触碰的源码、测试、文档、日志和 demo 站点文本产物统一为 CRLF 行尾，并检查没有 `CRCRLF` 或残留裸 LF；随后重新执行 `py_compile` 和 `python -m unittest discover tests`，结果仍为 30 个测试全部通过。
+
+### 调整图谱空白处取消选中和节点拖动默认行为
+- 用户要求完整库标准图也禁用节点拖拽，并把所有图谱的空白处取消选中从左键点击改为右键点击。
+- 已在标准静态图生成配置中新增节点拖动默认值注入，完整数据库标准图 `site/` 生成时写入 `.enableNodeDrag(false)`，MVP 和 demo 页面继续写入 `.enableNodeDrag(true)`。
+- large-graph 页面保持原有 `.enableNodeDrag(false)`；共享标准图和 large-graph 的空白背景取消选中绑定均从 `.onBackgroundClick()` 改为 `.onBackgroundRightClick()`。
+- 已同步 README 和 AGENTS，记录完整库标准图默认禁用节点拖动，以及所有网页使用右键点击图谱空白处取消选中。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证图谱右键取消选中和节点拖动默认行为
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认 `site/index.html` 和 `site_large/index.html` 包含 `.enableNodeDrag(false)`、`.onBackgroundRightClick`，且不再包含 `.onBackgroundClick`。
+- 文件级验证确认 `site_mvp/index.html` 和 `site_demo/index.html` 包含 `.enableNodeDrag(true)`、`.onBackgroundRightClick`，且不再包含 `.onBackgroundClick`。
+
+### 增加仅显示目标歌手开关
+- 用户要求新增“仅显示目标歌手”开关，默认关闭；开启后只显示目标歌手节点，不显示延伸制作人节点。
+- 已在网页工具栏增加“仅显示目标歌手”开关，并在前端状态中新增 `onlyTargetNodes: false`。
+- 开关开启时，图谱使用当前粉丝量范围和目标歌手勾选得到的 active targets，只保留两端都是当前目标歌手的关系边，同时保留当前目标歌手节点本身。
+- 已同步 README 和 AGENTS，记录该开关默认关闭、开启后的节点和关系边范围。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证仅显示目标歌手开关
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面 `site/index.html`、`site_mvp/index.html`、`site_demo/index.html` 和 `site_large/index.html` 均包含“仅显示目标歌手”、`onlyTargetNodes: false`、开关绑定和两端均为目标歌手的边过滤逻辑，且默认未勾选。
+
+### 修正右键取消选中作用范围
+- 用户澄清右键取消选中不是只在空白处右键，而是图谱内任何地方右键都取消。
+- 已在标准图和 large-graph 初始化链中增加 `.onNodeRightClick()` 与 `.onLinkRightClick()`，并保留 `.onBackgroundRightClick()`；三者都执行 `clearSelectionHighlight()` 和 `renderSelection()`。
+- 已更新 README 和 AGENTS，将右键取消选中描述从“图谱空白处”修正为“图谱区域任意位置”。
+
+### 验证右键取消选中作用范围
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均同时包含 `.onNodeRightClick`、`.onLinkRightClick` 和 `.onBackgroundRightClick`，且不再包含 `.onBackgroundClick`；“仅显示目标歌手”开关也仍存在并保持默认关闭。
+
+### 修正仅显示目标歌手保留孤立目标节点
+- 用户指出“仅显示目标歌手”时应显示全部目标歌手节点，而不是隐藏孤立节点。
+- 已调整 `buildGraph()`：在搜索、隐藏叶节点等筛选之后，如果 `onlyTargetNodes` 开启，会再次按当前 active targets 回填节点列表，确保全部当前目标歌手节点保留。
+- 关系边仍只保留两端都是当前目标歌手的边；孤立目标歌手没有目标歌手之间关系边时仍作为节点显示。
+- 已同步 README 和 AGENTS，把“仅显示目标歌手”的语义修正为显示全部当前目标歌手节点，孤立目标歌手也必须保留。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证仅显示目标歌手孤立节点保留
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含回填目标歌手节点逻辑 `nodes = rawData.nodes.filter((node) => activeIds.has(node.id));`，且“仅显示目标歌手”开关仍默认关闭。
+
+### 调整顶部搜索为选中音乐人
+- 用户要求搜索功能改为执行后选中搜到的歌手，除非没搜到。
+- 已移除顶部搜索对图谱的实时裁剪状态，不再使用 `state.search` 过滤节点或边。
+- 顶部搜索框改为按 Enter 执行；执行时在当前图的可见节点中先精确匹配音乐人名称，再模糊匹配名称，最后匹配 MID。
+- 搜到音乐人时写入单节点选中状态并重新渲染，从而高亮该节点和相邻关系；没搜到时直接返回，不改变当前选中状态。
+- 已同步 README 和 AGENTS，记录顶部搜索按 Enter 执行、搜到才选中、没搜到不改变当前选择。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证顶部搜索选中音乐人
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含 `runNodeSearch()`、Enter 键触发、`state.selectedNodeIds = new Set([node.id])` 和 `if (!node) return`；同时确认不再包含 `state.search` 和顶部搜索框 input 实时渲染监听。
+
+### 恢复左键空白处取消选中
+- 用户要求把空白处左键点击取消选中恢复回来，同时保持任意处右键取消选中功能不变。
+- 已在标准图和 large-graph 的 force-graph 初始化链中恢复 `.onBackgroundClick()`，用于左键点击图谱空白处清空选中和高亮。
+- 已保留 `.onNodeRightClick()`、`.onLinkRightClick()` 和 `.onBackgroundRightClick()`，因此右键点击节点、边或空白处仍都会取消选中。
+- 已同步 README 和 AGENTS，记录左键空白处取消选中与右键图谱区域任意位置取消选中同时存在。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证左键空白取消与右键任意取消
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均同时包含 `.onBackgroundClick`、`.onNodeRightClick`、`.onLinkRightClick` 和 `.onBackgroundRightClick`。
+
+### 调整搜索多命中全选
+- 用户要求搜索框命中多个歌手时选中多个，而不是按某种排序只选中第一个。
+- 已将搜索函数从单节点返回改为节点列表返回；搜索仍按精确姓名、模糊姓名、MID 的优先级执行，但同一优先级下所有命中节点都会返回。
+- 搜索命中一个节点时保持单节点选中状态；命中多个节点时写入 `state.selectedNodeIds` 集合并设置 `state.selected = { type: "nodes" }`，从而高亮这些节点之间存在的关系。
+- 没有命中时仍直接返回，不改变当前选中状态。
+- 已同步 README 和 AGENTS，记录顶部搜索命中多个音乐人时必须全部选中。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证搜索多命中全选
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含 `findSearchNodes()`、精确姓名命中列表、模糊姓名命中列表、`state.selectedNodeIds = new Set(nodes.map((node) => node.id))`、多节点选中状态和未命中不改变选择逻辑。
+
+### 调整粉丝量滑块垂直位置
+- 用户指出粉丝量筛选滑块在顶部工具栏中视觉位置略微偏下，需要调整控件布局而不是粉丝量默认数值。
+- 已在标准静态图模板的 `.fans-slider-shell` 中增加 `margin-top: -3px`，让滑块轨道和手柄整体上移。
+- 已同步当前生成产物 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`，避免当前打开页面仍显示旧布局。
+- 本次改动只影响粉丝量筛选控件的 CSS 垂直位置，不改变筛选默认值、取值范围、事件绑定或图谱数据。
+
+### 验证粉丝量滑块垂直位置调整
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`，未报错。
+- 文件级验证确认标准静态图模板和四个当前生成页面均包含 `.fans-slider-shell` 的 `margin-top: -3px`。
+- 本次为 CSS 微调，未重新运行全量单元测试；剩余风险是不同浏览器 range 控件渲染可能有细微差异，需要用户在实际页面中目视确认。
+
+### 修正粉丝量滑块手柄对齐方式
+- 用户澄清需要调整的是滑块手柄本身相对轨道的位置，而不是整个粉丝量筛选控件区域的位置。
+- 已撤销 `.fans-slider-shell` 的外层 `margin-top: -3px`，避免同时移动轨道和手柄。
+- 已将 WebKit range 手柄的 `margin-top` 从 `-6px` 调整为 `-8px`，并为 Firefox range 手柄增加 `transform: translateY(-2px)`，让圆形手柄视觉上回到轨道中心线。
+- 已同步当前生成产物 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`。
+
+### 验证粉丝量滑块手柄对齐方式
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`，未报错。
+- 文件级验证确认标准静态图模板和四个当前生成页面均不再包含 `.fans-slider-shell` 的 `margin-top: -3px`，并均包含 WebKit 手柄 `margin-top: -8px` 与 Firefox 手柄 `transform: translateY(-2px)`。
+- 本次仍为 CSS 微调，未重新运行全量单元测试；剩余风险是不同浏览器原生 range 控件的垂直基线存在差异，需要在实际页面中目视确认。
+
+### 补充验证粉丝量滑块手柄 CSS
+- 补充执行 `tests.test_static_graph_build`，共 15 个测试全部通过。
+- 复查测试目录未发现继续断言旧的 WebKit 手柄 `margin-top: -6px`。
+- 尝试使用本地 Node 浏览器自动化检查页面渲染时，当前 REPL 环境未能解析 `playwright` 模块；因此本轮未取得浏览器截图验证，仍以代码级和单元测试验证为准。
+
+### 调整粉丝量范围输入控件
+- 用户指出粉丝量滑块上方的下限、上限和中间“至”字不应作为一段随数字宽度变化的文本显示，并要求上下限数值支持手动修改。
+- 已将粉丝量范围显示拆成固定三列：左侧下限输入框、中间固定“至”、右侧上限输入框，避免上下限数字位数变化导致“至”字横向漂移。
+- 上下限输入框支持普通数字、`500万`、`1.2亿` 和 `w` 后缀简写；上限输入框支持 `不限`，会映射为当前粉丝量范围上界。
+- 输入框在失焦或按 Enter 时提交，提交后会同步两个滑块、目标歌手下拉菜单和图谱筛选；无效输入会回退到当前有效值。
+- 已同步 README 和 AGENTS，记录粉丝量范围既可通过滑块调整，也可直接编辑上下限输入框。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证粉丝量范围输入控件
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含 `fans-min-input`、`fans-max-input`、固定三列 `grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr)`、`parseFansInputValue()` 和 `updateFansTextInput()`。
+- 浏览器入口验证通过本地预览打开 `site/index.html`，确认粉丝量范围显示为固定三列布局，默认下限为 `500万`、上限为 `不限`；将下限输入为 `1000万` 并按 Enter 后，下限滑块同步为 `10000000`。
+
+### 调整顶部控制区两排布局
+- 用户要求把顶部左侧的粉丝量筛选和目标歌手下拉组件移到第二排，搜索框也移到第二排，第一排只保留开关。
+- 已将顶部 HTML 结构拆为 `topbar-primary` 和 `toolbar-filter-row`：第一排左侧保留标题和数据库说明，右侧控制区只保留“作词/作曲分开”“显示名字”“粒子效果”“隐藏叶节点”“仅显示目标歌手”五个开关。
+- 第二排放置目标歌手粉丝量筛选、目标歌手下拉、最小歌曲数和顶部搜索框；搜索框仍按 Enter 执行选中音乐人，不改变搜索逻辑。
+- 已同步 README 和 AGENTS，记录顶部控制区分两排：第一排为图谱显示开关，第二排为筛选、最小歌曲数和搜索框。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物；large 页面首次生成时遇到一次 Windows 写入 `site_large/assets/graph-data.js` 的临时异常，重试后成功。
+
+### 验证顶部控制区两排布局
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含 `topbar-primary`、`toolbar-filter-row`、粉丝量输入框、目标歌手下拉和搜索框，且开关行位于筛选搜索行之前。
+- 浏览器入口验证通过本地预览打开 `site/index.html`，确认第一排控制区只有 5 个开关，第二排包含粉丝量筛选、目标歌手下拉、最小歌曲数和搜索框，且第二排位于开关行下方。
+
+### 调整粉丝量筛选为单行布局
+- 用户要求粉丝量筛选组件改为单行，格式为“目标歌手粉丝、下限数字、双滑块轨道、上限数字”，删除中间“至”，并询问顶部左下和右上空白来源。
+- 已将粉丝量筛选 HTML 改为下限输入框、滑块轨道、上限输入框同一行排列；下限和上限仍可手动编辑，并继续同步滑块、目标歌手下拉和图谱筛选。
+- 已删除粉丝量范围中的中间“至”和 `fans-range-separator` 样式，避免控件占用上下两行。
+- 顶部布局改为两列两行网格：左侧标题和数据库说明跨两行，右侧第一行为开关，右侧第二行为筛选、最小歌曲数和搜索框；上一版空白的原因是第二排整行右对齐，第一排右侧开关又被标题行高度撑开并底部对齐。
+- 已同步 README 和 AGENTS，记录顶部两列两行布局和粉丝量筛选单行布局要求。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证粉丝量筛选单行布局
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均使用 `topbar-title`、`grid-template-areas`、`fans-min-input`、`fans-slider-shell` 和 `fans-max-input`，且下限输入框、轨道、上限输入框顺序正确；同时确认不再包含 `fans-range-separator` 或中间“至”。
+- 浏览器入口验证通过本地预览打开 `site/index.html`，确认粉丝量组件中下限输入框、滑块轨道和上限输入框位于同一行，且中间“至”不存在。
+
+### 禁用 large 图无效开关
+- 用户询问 large 图中的“显示名字”和“粒子效果”开关是否无效，并要求如果无效就在 large 图中置灰、不可交互。
+- 复核 large 图绘图实现后确认：large 页面替换了标准图的自定义节点绘制和粒子绘制，不调用 `drawNode()`、`drawDirectionalParticles()`、`.nodeCanvasObject()` 或 `.linkCanvasObject()`，因此这两个开关在 large 图绘图区中确实没有效果。
+- 已在共享 HTML 模板中增加 large 专用参数，让 `build_large_graph_static` 生成页面时给“显示名字”和“粒子效果”输入框加 `disabled`，并给对应 label 加灰态 `switch-control-disabled` 样式。
+- 标准图、MVP 图和 demo 图仍保持这两个开关可交互。
+- 已同步 README 和 AGENTS，记录 large-graph 页面中“显示名字”和“粒子效果”开关置灰且不可交互。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物。
+
+### 验证 large 图无效开关禁用
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认 `site_large/index.html` 中 `label-toggle` 和 `particle-toggle` 均带 `disabled`，且包含 `switch-control-disabled` 灰态样式；同时确认 `site/`、`site_mvp/` 和 `site_demo/` 中这两个开关仍未禁用。
+- 浏览器入口验证通过本地预览打开 `site_large/index.html`，确认“显示名字”和“粒子效果”两个输入框 `disabled=true`，对应控件 class 为 `switch-control switch-control-disabled`，灰态颜色为 `rgb(152, 162, 179)`。
+
+### 调整隐藏叶节点定义
+- 用户要求“隐藏叶节点”的叶节点定义改为只跟另一个节点相连的节点，不应受“作词/作曲分开”开关影响。
+- 已将前端 `leafNodeIds()` 从统计当前显示边条数改为统计唯一邻居集合；同一对节点即使因为作词、作曲分开显示为多条边，只要唯一邻居只有 1 个，仍会被识别为叶节点。
+- 该逻辑继续在当前粉丝量、目标歌手、最小歌曲数等筛选后的图上执行，只改变叶节点判定方式，不改变其他筛选条件。
+- 已同步 README 和 AGENTS，将“隐藏叶节点”说明改为隐藏只连接另一个唯一节点的叶节点，并记录该判断不受作词/作曲是否分开影响。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML 页面产物；large 页面首次生成时再次遇到一次 Windows 写入 `site_large/assets/graph-data.js` 的临时异常，重试后成功。
+
+### 验证隐藏叶节点唯一定义
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认四个页面均包含 `const neighbors = new Map()`、`neighbors.get(source).add(target)`、`neighbors.get(target).add(source)` 和 `ids.size === 1`，且不再包含按 `degree === 1` 统计边条数的旧判断。
+
+### 核对当前完整流程和一键入口
+- 用户询问当前完整流程是什么，以及一键运行脚本会运行什么。
+- 已按项目规则复核 `AGENTS.md`、`develop_log.md` 顶部撰写规则、`music_metadata_graph/pipelines/run_full_pipeline.py`、`music_metadata_graph/pipelines/run_from_song_tabs.py`、`music_metadata_graph/pipelines/defaults.py` 和 `pyproject.toml`。
+- 当前完整一键入口为 `python -m music_metadata_graph.pipelines.run_full_pipeline` 或 console script `mr-run-full-pipeline`，默认数据库为 `data/music_metadata_graph.sqlite3`，默认标准网站输出为 `site/`，默认 large-graph 输出为 `site_large/`。
+- `run_full_pipeline` 的实际编排包含 19 个步骤，每步执行前后都有检查；任一 raw、CSV、SQLite 外键、过滤约束、网站资源或页面产物检查失败都会停止。
+- 另一个入口 `python -m music_metadata_graph.pipelines.run_from_song_tabs` 或 `mr-run-from-song-tabs` 固定从第 5 个编排步骤开始，适用于第 4 步主页歌曲 Tab raw 已有部分落盘后继续跑后续流程。
+
+### 实现显示名字文字透明度权重映射
+- 用户要求标准图开启“显示名字”时，名字文字透明度也按节点大小类似规则设置，最终视觉下限为 0.5、上限为 1。
+- 已在标准静态图模板中新增 `textNodeOpacity()`，复用当前节点视觉半径从 10 到 65 的权重区间，将文字透明度映射到 0.5 到 1。
+- 已调整 `drawTextNode()`，名字文字使用带 alpha 的 `rgba(...)` 绘制；非高亮节点在选中态下仍会降低可见性，但最低透明度保持 0.5。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的当前 HTML 页面产物；large-graph 页面不使用标准图名字绘制，但复用模板产物已同步。
+- 已更新 README 和 AGENTS，记录标准图“显示名字”时名字文字透明度按节点权重映射，视觉透明度范围为 0.5 到 1。
+
+### 验证显示名字文字透明度权重映射
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认标准图模板、`site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 页面均包含 `textNodeOpacity()`、0.5 下限计算和带 alpha 的文字 `rgba(...)`。
+- 行尾验证确认本轮触碰的 AGENTS、README、标准图模板、测试和四个页面 HTML 没有裸 LF，已统一为 CRLF。
+- 尝试使用浏览器自动化打开本地 `file://` 页面做页面级验证时被浏览器安全策略拦截；本轮没有继续绕过该限制，剩余风险是未取得实际浏览器截图验证。
+
+### 纠正显示名字透明度范围语义
+- 用户纠正“0.5 到 1”的范围只表示显示名字的默认基础透明度范围，不表示选中高亮淡化后的最终下限。
+- 已将 `drawTextNode()` 调整为先用 `textNodeOpacity()` 按节点权重得到 0.5 到 1 的基础透明度；当节点处于淡化状态时，直接乘以淡化系数 `0.65`，淡化后的显示透明度可以低于 0.5。
+- 已更新 README 和 AGENTS，将规则表述改为基础文字透明度默认范围为 0.5 到 1，选中高亮导致的淡化状态继续按淡化系数降低。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 页面产物。
+
+### 验证显示名字透明度范围语义纠正
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认标准图模板和四个当前页面均包含 `const opacity = dimmed ? textNodeOpacity(node) * 0.65 : textNodeOpacity(node);`，且测试断言不再允许 `Math.max(0.5, textNodeOpacity(node) * 0.65)` 这种淡化后夹下限逻辑。
+
+### 调整显示名字高亮节点不透明
+- 用户要求标准图开启“显示名字”时，选中或高亮的名字节点应像高亮边一样直接调为不透明。
+- 已调整 `drawTextNode()` 的透明度优先级：选中或高亮节点文字透明度为 `1`；未高亮节点继续使用基础透明度，淡化状态下继续乘以淡化系数。
+- 已更新 `tests/test_static_graph_build.py`，断言文字节点透明度表达式包含 `selected || highlighted ? 1`。
+- 已更新 README 和 AGENTS，记录显示名字时选中或高亮节点文字直接不透明，未高亮节点在淡化状态下继续按淡化系数降低。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 页面产物。
+
+### 验证显示名字高亮节点不透明
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py`、`build_large_graph_static.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证执行 `python -m unittest discover tests`，共 30 个测试全部通过。
+- 文件级验证确认标准图模板、四个当前页面、README 和 AGENTS 均包含选中或高亮节点文字不透明的规则。
+
+### 增加选中歌手详情视图控制
+- 用户要求选中歌手时在详情栏显示“视图”下拉菜单，默认“全部”，并提供“输入”和“输出”用于分别查看别人给选中歌手作词/作曲、选中歌手给别人作词/作曲的关系。
+- 用户要求选中两名及以上歌手时在详情栏增加“边关系”下拉菜单，默认“交集”，并可切换“并集”以高亮显示所有选中节点的相关边及相连节点。
+- 已在详情栏标题行加入 `detail-controls` 容器，并在选中节点时动态渲染“视图”下拉菜单；多选节点时额外渲染“边关系”下拉菜单。
+- 已将选中节点高亮逻辑抽为 `selectedNodeHighlightEdges()`：单选节点始终按相关边高亮；多选节点默认只高亮选中节点之间的关系，切换“并集”后高亮任一选中节点相关边及相连节点。
+- 已按边方向数据实现“输入/输出”过滤，其中图谱关系口径仍为“作词/作曲人 -> 演唱者”；详情栏的关系明细和支撑歌曲列表与当前视图、边关系模式保持一致。
+- 已同步 README 和 AGENTS，记录选中歌手详情栏的“视图”和“边关系”下拉菜单行为。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的当前 HTML 页面产物。
+
+### 验证选中歌手详情视图控制
+- 语法验证执行 `py_compile`，覆盖 `build_static_graph.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证第一次执行时，既有头像下载间隔测试因浮点边界出现 `0.014999999999...` 与 `0.015` 的精度差异失败，未做代码修改后立即重跑，全量 30 个测试全部通过。
+- 文件级验证确认 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 页面均包含 `detail-controls`、`selected-node-view`、`selected-edge-mode`、默认 `selectedNodeView: "all"`、默认 `selectedEdgeMode: "intersection"`、`selectedNodeHighlightEdges()` 和 `edgeConnectsOnlySelectedNodes()`。
+- 浏览器入口验证通过本地预览打开 `site/index.html`，确认页面标题为“音乐人合作关系图谱”，图谱 canvas 存在，详情栏控件容器存在，生成 HTML 中包含“视图”和“边关系”下拉菜单模板。

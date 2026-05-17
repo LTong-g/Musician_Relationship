@@ -27,6 +27,7 @@ build/
 data/
 archive/
 reports/
+site_assets/
 
 # Local databases and binary analysis outputs
 *.db

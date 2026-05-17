@@ -376,7 +376,7 @@ def resolve_targets(config: CollectConfig) -> tuple[SingerTarget, ...]:
                 if any(song_tab_dir(config, target).glob("page_*_size_*.json"))
             ]
             if not existing_targets:
-                raise FileNotFoundError("No step-3 target singer homepage song-tab raw JSON exists yet.")
+                raise FileNotFoundError("No step-4 target singer homepage song-tab raw JSON exists yet.")
             return tuple(existing_targets)
         return load_partial_targets(connection, config)
 
@@ -727,11 +727,11 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--db", type=Path, default=None)
 
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 2 and step 3 to define --all targets.")
+    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 and step 4 to define --all targets.")
 
     parser.add_argument("--force", action="store_true", help="Refetch and overwrite cached raw JSON files.")
 
-    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Collect album details only from singers selected by the current step-2 singer-list import rules.")
+    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Collect album details only from singers selected by the current step-3 singer-list import rules.")
     parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
     parser.add_argument("--mid", action="append", help="Singer mid whose song-tab raw JSON should be used. Can be repeated or comma-separated.")
 

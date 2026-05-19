@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import html
 import json
@@ -7,12 +6,12 @@ import zipfile
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
-
 from music_metadata_graph.run_log import run_with_log
 from typing import Any
 
-
-DEFAULT_SINGER_LIST_DIR = Path("data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all")
+DEFAULT_SINGER_LIST_DIR = Path(
+    "data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all"
+)
 DEFAULT_SONG_TAB_DIR = Path("data/raw/qqmusic/singer_homepage_song_tab")
 DEFAULT_SONG_ALBUM_DETAIL_DIR = Path("data/raw/qqmusic/song_album_detail")
 DEFAULT_OUTPUT = Path("docs/request_json_key_dictionary.xlsx")
@@ -41,10 +40,12 @@ def cell_xml(value: Any, row_index: int, col_index: int) -> str:
 def worksheet_xml(rows: list[list[Any]]) -> str:
     row_xml = []
     for row_index, row in enumerate(rows, 1):
-        cells = "".join(cell_xml(value, row_index, col_index) for col_index, value in enumerate(row, 1))
+        cells = "".join(
+            cell_xml(value, row_index, col_index) for col_index, value in enumerate(row, 1)
+        )
         row_xml.append(f'<row r="{row_index}">{cells}</row>')
     widths = (
-        '<cols>'
+        "<cols>"
         '<col min="1" max="1" width="24" customWidth="1"/>'
         '<col min="2" max="2" width="14" customWidth="1"/>'
         '<col min="3" max="3" width="22" customWidth="1"/>'
@@ -192,18 +193,92 @@ def build_singer_list_rows(raw_dir: Path) -> list[list[Any]]:
         header,
     ]
     fields = [
-        ("$", "根对象", "area", "当前请求的地区筛选 ID。-100 表示全部。", sample_page.get("area"), "请求条件回显，不是歌手属性。"),
-        ("$", "根对象", "sex", "当前请求的性别筛选 ID。-100 表示全部。", sample_page.get("sex"), "请求条件回显。"),
-        ("$", "根对象", "genre", "当前请求的流派筛选 ID。-100 表示全部。", sample_page.get("genre"), "请求条件回显。"),
-        ("$", "根对象", "index", "当前请求的首字母索引筛选 ID。-100 表示全部。", sample_page.get("index"), "请求条件回显。"),
-        ("$", "根对象", "code", "接口返回状态码。0 通常表示成功。", sample_page.get("code"), "用于判断请求是否成功。"),
-        ("$", "根对象", "total", "当前筛选条件下的歌手总数。", sample_page.get("total"), "本次完整列表为 6803。"),
-        ("$", "根对象", "singerlist", "当前页歌手列表。", f"第一页 {len(sample_page.get('singerlist') or [])} 条", "主要数据数组。"),
-        ("$", "根对象", "hotlist", "热门歌手列表。当前完整索引请求中为空数组。", sample_page.get("hotlist"), "暂不作为主数据来源。"),
-        ("$", "根对象", "tags", "筛选项字典，包含地区、性别、流派和索引选项。", "area/genre/index/sex", "可用于后续构建请求维度说明。"),
+        (
+            "$",
+            "根对象",
+            "area",
+            "当前请求的地区筛选 ID。-100 表示全部。",
+            sample_page.get("area"),
+            "请求条件回显，不是歌手属性。",
+        ),
+        (
+            "$",
+            "根对象",
+            "sex",
+            "当前请求的性别筛选 ID。-100 表示全部。",
+            sample_page.get("sex"),
+            "请求条件回显。",
+        ),
+        (
+            "$",
+            "根对象",
+            "genre",
+            "当前请求的流派筛选 ID。-100 表示全部。",
+            sample_page.get("genre"),
+            "请求条件回显。",
+        ),
+        (
+            "$",
+            "根对象",
+            "index",
+            "当前请求的首字母索引筛选 ID。-100 表示全部。",
+            sample_page.get("index"),
+            "请求条件回显。",
+        ),
+        (
+            "$",
+            "根对象",
+            "code",
+            "接口返回状态码。0 通常表示成功。",
+            sample_page.get("code"),
+            "用于判断请求是否成功。",
+        ),
+        (
+            "$",
+            "根对象",
+            "total",
+            "当前筛选条件下的歌手总数。",
+            sample_page.get("total"),
+            "本次完整列表为 6803。",
+        ),
+        (
+            "$",
+            "根对象",
+            "singerlist",
+            "当前页歌手列表。",
+            f"第一页 {len(sample_page.get('singerlist') or [])} 条",
+            "主要数据数组。",
+        ),
+        (
+            "$",
+            "根对象",
+            "hotlist",
+            "热门歌手列表。当前完整索引请求中为空数组。",
+            sample_page.get("hotlist"),
+            "暂不作为主数据来源。",
+        ),
+        (
+            "$",
+            "根对象",
+            "tags",
+            "筛选项字典，包含地区、性别、流派和索引选项。",
+            "area/genre/index/sex",
+            "可用于后续构建请求维度说明。",
+        ),
     ]
     for path, level, key, description, sample, note in fields:
-        rows.append([path, level, key, description, json_type(sample_page.get(key)), top_counts[key], sample, note])
+        rows.append(
+            [
+                path,
+                level,
+                key,
+                description,
+                json_type(sample_page.get(key)),
+                top_counts[key],
+                sample,
+                note,
+            ]
+        )
 
     singer_field_descriptions = {
         "id": ("QQ 音乐歌手数字 ID。", "可作为平台身份键之一。"),
@@ -225,7 +300,18 @@ def build_singer_list_rows(raw_dir: Path) -> list[list[Any]]:
     for key in sorted(singer_counts):
         description, note = singer_field_descriptions.get(key, ("接口返回字段，含义待确认。", ""))
         sample = sample_singer.get(key)
-        rows.append(["$.singerlist[]", "歌手行", key, description, json_type(sample), singer_counts[key], sample, note])
+        rows.append(
+            [
+                "$.singerlist[]",
+                "歌手行",
+                key,
+                description,
+                json_type(sample),
+                singer_counts[key],
+                sample,
+                note,
+            ]
+        )
 
     tag_descriptions = {
         "area": "地区筛选项",
@@ -238,16 +324,18 @@ def build_singer_list_rows(raw_dir: Path) -> list[list[Any]]:
         sample = items[0] if items else {}
         for key in ("id", "name"):
             description = f"{meaning}{' ID' if key == 'id' else '名称'}。"
-            rows.append([
-                f"$.tags.{group}[]",
-                "筛选项",
-                key,
-                description,
-                json_type(sample.get(key) if isinstance(sample, dict) else ""),
-                tag_item_counts[f"tags.{group}[].{key}"],
-                sample.get(key) if isinstance(sample, dict) else "",
-                "用于理解请求参数，不是歌手行字段。",
-            ])
+            rows.append(
+                [
+                    f"$.tags.{group}[]",
+                    "筛选项",
+                    key,
+                    description,
+                    json_type(sample.get(key) if isinstance(sample, dict) else ""),
+                    tag_item_counts[f"tags.{group}[].{key}"],
+                    sample.get(key) if isinstance(sample, dict) else "",
+                    "用于理解请求参数，不是歌手行字段。",
+                ]
+            )
     return rows
 
 
@@ -277,7 +365,9 @@ def build_song_tab_rows(raw_dir: Path) -> list[list[Any]]:
                     nested_counts.setdefault(f"{key}[]", Counter()).update(value[0].keys())
 
     sample_page = pages[0]
-    sample_song_tab = sample_page.get("SongTab") if isinstance(sample_page.get("SongTab"), dict) else {}
+    sample_song_tab = (
+        sample_page.get("SongTab") if isinstance(sample_page.get("SongTab"), dict) else {}
+    )
     sample_song = songs[0] if songs else {}
     header = ["JSON路径", "层级", "键名", "中文释义", "数据类型", "出现次数", "示例值", "备注"]
     rows: list[list[Any]] = [
@@ -311,7 +401,18 @@ def build_song_tab_rows(raw_dir: Path) -> list[list[Any]]:
     for key in sorted(top_counts):
         description, note = top_descriptions.get(key, ("接口返回顶层字段，含义待确认。", ""))
         sample = sample_page.get(key)
-        rows.append(["$", "根对象", key, description, json_type(sample), top_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$",
+                "根对象",
+                key,
+                description,
+                json_type(sample),
+                top_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     song_tab_descriptions = {
         "List": ("当前页歌曲列表。", "主要数据数组。"),
@@ -322,7 +423,18 @@ def build_song_tab_rows(raw_dir: Path) -> list[list[Any]]:
     for key in sorted(song_tab_counts):
         description, note = song_tab_descriptions.get(key, ("SongTab 内字段，含义待确认。", ""))
         sample = sample_song_tab.get(key)
-        rows.append(["$.SongTab", "歌曲Tab", key, description, json_type(sample), song_tab_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$.SongTab",
+                "歌曲Tab",
+                key,
+                description,
+                json_type(sample),
+                song_tab_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     song_descriptions = {
         "id": ("QQ 音乐歌曲数字 ID。", "歌曲身份键候选。"),
@@ -370,7 +482,18 @@ def build_song_tab_rows(raw_dir: Path) -> list[list[Any]]:
     for key in sorted(song_counts):
         description, note = song_descriptions.get(key, ("歌曲行字段，含义待确认。", ""))
         sample = sample_song.get(key)
-        rows.append(["$.SongTab.List[]", "歌曲行", key, description, json_type(sample), song_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$.SongTab.List[]",
+                "歌曲行",
+                key,
+                description,
+                json_type(sample),
+                song_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     nested_descriptions = {
         "album": {
@@ -450,16 +573,18 @@ def build_song_tab_rows(raw_dir: Path) -> list[list[Any]]:
             sample_parent = sample_nested.get(parent, {})
             sample = sample_parent.get(key) if isinstance(sample_parent, dict) else ""
             description = nested_descriptions.get(parent, {}).get(key, "嵌套字段，含义待确认。")
-            rows.append([
-                f"$.SongTab.List[].{parent}",
-                "嵌套字段",
-                key,
-                description,
-                json_type(sample),
-                nested_counts[parent][key],
-                compact_sample(sample),
-                "嵌套字段先记录结构，是否入库后续再定。",
-            ])
+            rows.append(
+                [
+                    f"$.SongTab.List[].{parent}",
+                    "嵌套字段",
+                    key,
+                    description,
+                    json_type(sample),
+                    nested_counts[parent][key],
+                    compact_sample(sample),
+                    "嵌套字段先记录结构，是否入库后续再定。",
+                ]
+            )
     return rows
 
 
@@ -495,18 +620,33 @@ def build_song_album_detail_rows(raw_dir: Path) -> list[list[Any]]:
                 legacy_singer_item_counts.update(item.keys())
 
     sample_page = payloads[0]
-    sample_basic_info = sample_page.get("basicInfo") if isinstance(sample_page.get("basicInfo"), dict) else {}
-    sample_company = sample_page.get("company") if isinstance(sample_page.get("company"), dict) else {}
+    sample_basic_info = (
+        sample_page.get("basicInfo") if isinstance(sample_page.get("basicInfo"), dict) else {}
+    )
+    sample_company = (
+        sample_page.get("company") if isinstance(sample_page.get("company"), dict) else {}
+    )
     sample_singer = sample_page.get("singer") if isinstance(sample_page.get("singer"), dict) else {}
-    sample_singer_item = (sample_singer.get("singerList") or [{}])[0] if isinstance(sample_singer, dict) else {}
-    sample_legacy_album = sample_page.get("album") if isinstance(sample_page.get("album"), dict) else {}
-    sample_legacy_singer_item = (sample_page.get("singers") or [{}])[0] if isinstance(sample_page.get("singers"), list) else {}
+    sample_singer_item = (
+        (sample_singer.get("singerList") or [{}])[0] if isinstance(sample_singer, dict) else {}
+    )
+    sample_legacy_album = (
+        sample_page.get("album") if isinstance(sample_page.get("album"), dict) else {}
+    )
+    sample_legacy_singer_item = (
+        (sample_page.get("singers") or [{}])[0]
+        if isinstance(sample_page.get("singers"), list)
+        else {}
+    )
     header = ["JSON路径", "层级", "键名", "中文释义", "数据类型", "出现次数", "示例值", "备注"]
     rows: list[list[Any]] = [
         ["请求名称", "qqmusic.album.get_detail"],
         ["原始目录", raw_dir.as_posix()],
         ["专辑详情文件数", len(files)],
-        ["来源说明", "先请求歌手主页歌曲 Tab，再按歌曲 album.mid 或非 0 album.id 去重请求专辑详情。"],
+        [
+            "来源说明",
+            "先请求歌手主页歌曲 Tab，再按歌曲 album.mid 或非 0 album.id 去重请求专辑详情。",
+        ],
         ["生成时间", datetime.now().isoformat(timespec="seconds")],
         [],
         header,
@@ -515,14 +655,34 @@ def build_song_album_detail_rows(raw_dir: Path) -> list[list[Any]]:
     top_descriptions = {
         "basicInfo": ("专辑基础信息对象。", "本轮专辑入库字段主要从这里取。"),
         "company": ("唱片公司或版权方信息对象。", "当前不作为专辑入库必需字段。"),
-        "singer": ("专辑署名歌手对象，内部包含 singerList。", "可用于派生 singerName 或后续专辑-歌手关系。"),
-        "album": ("兼容口径下的专辑基础信息对象。", "如未来接口返回旧口径，可作为 basicInfo 的结构参照。"),
-        "singers": ("兼容口径下的署名歌手列表。", "如未来接口返回旧口径，可作为 singer.singerList 的结构参照。"),
+        "singer": (
+            "专辑署名歌手对象，内部包含 singerList。",
+            "可用于派生 singerName 或后续专辑-歌手关系。",
+        ),
+        "album": (
+            "兼容口径下的专辑基础信息对象。",
+            "如未来接口返回旧口径，可作为 basicInfo 的结构参照。",
+        ),
+        "singers": (
+            "兼容口径下的署名歌手列表。",
+            "如未来接口返回旧口径，可作为 singer.singerList 的结构参照。",
+        ),
     }
     for key in sorted(top_counts):
         description, note = top_descriptions.get(key, ("接口返回顶层字段，含义待确认。", ""))
         sample = sample_page.get(key)
-        rows.append(["$", "根对象", key, description, json_type(sample), top_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$",
+                "根对象",
+                key,
+                description,
+                json_type(sample),
+                top_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     basic_info_descriptions = {
         "albumMid": ("QQ 音乐专辑 MID。", "后续专辑表主键候选。"),
@@ -542,7 +702,18 @@ def build_song_album_detail_rows(raw_dir: Path) -> list[list[Any]]:
     for key in sorted(basic_info_counts):
         description, note = basic_info_descriptions.get(key, ("专辑基础信息字段，含义待确认。", ""))
         sample = sample_basic_info.get(key)
-        rows.append(["$.basicInfo", "专辑基础信息", key, description, json_type(sample), basic_info_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$.basicInfo",
+                "专辑基础信息",
+                key,
+                description,
+                json_type(sample),
+                basic_info_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     company_descriptions = {
         "ID": "唱片公司或版权方数字 ID。",
@@ -555,15 +726,40 @@ def build_song_album_detail_rows(raw_dir: Path) -> list[list[Any]]:
     }
     for key in sorted(company_counts):
         sample = sample_company.get(key)
-        rows.append(["$.company", "公司信息", key, company_descriptions.get(key, "公司信息字段，含义待确认。"), json_type(sample), company_counts[key], compact_sample(sample), "当前不作为专辑入库必需字段。"])
+        rows.append(
+            [
+                "$.company",
+                "公司信息",
+                key,
+                company_descriptions.get(key, "公司信息字段，含义待确认。"),
+                json_type(sample),
+                company_counts[key],
+                compact_sample(sample),
+                "当前不作为专辑入库必需字段。",
+            ]
+        )
 
     singer_descriptions = {
-        "singerList": ("专辑署名歌手列表。", "详情接口没有旧列表中的单个 singerName 字段；需要时可由此派生署名文本。"),
+        "singerList": (
+            "专辑署名歌手列表。",
+            "详情接口没有旧列表中的单个 singerName 字段；需要时可由此派生署名文本。",
+        ),
     }
     for key in sorted(singer_counts):
         description, note = singer_descriptions.get(key, ("专辑署名歌手对象字段，含义待确认。", ""))
         sample = sample_singer.get(key)
-        rows.append(["$.singer", "署名歌手对象", key, description, json_type(sample), singer_counts[key], compact_sample(sample), note])
+        rows.append(
+            [
+                "$.singer",
+                "署名歌手对象",
+                key,
+                description,
+                json_type(sample),
+                singer_counts[key],
+                compact_sample(sample),
+                note,
+            ]
+        )
 
     singer_item_descriptions = {
         "id": "署名歌手 QQ 音乐数字 ID。",
@@ -576,14 +772,51 @@ def build_song_album_detail_rows(raw_dir: Path) -> list[list[Any]]:
     }
     for key in sorted(singer_item_counts):
         sample = sample_singer_item.get(key) if isinstance(sample_singer_item, dict) else ""
-        rows.append(["$.singer.singerList[]", "署名歌手行", key, singer_item_descriptions.get(key, "署名歌手行字段，含义待确认。"), json_type(sample), singer_item_counts[key], compact_sample(sample), "可用于后续构造 singerName 或专辑-歌手关系。"])
+        rows.append(
+            [
+                "$.singer.singerList[]",
+                "署名歌手行",
+                key,
+                singer_item_descriptions.get(key, "署名歌手行字段，含义待确认。"),
+                json_type(sample),
+                singer_item_counts[key],
+                compact_sample(sample),
+                "可用于后续构造 singerName 或专辑-歌手关系。",
+            ]
+        )
 
     for key in sorted(legacy_album_counts):
         sample = sample_legacy_album.get(key)
-        rows.append(["$.album", "兼容专辑信息", key, "兼容口径专辑字段，含义待确认。", json_type(sample), legacy_album_counts[key], compact_sample(sample), "当前样本如未出现则计数为 0；保留用于识别接口口径变化。"])
+        rows.append(
+            [
+                "$.album",
+                "兼容专辑信息",
+                key,
+                "兼容口径专辑字段，含义待确认。",
+                json_type(sample),
+                legacy_album_counts[key],
+                compact_sample(sample),
+                "当前样本如未出现则计数为 0；保留用于识别接口口径变化。",
+            ]
+        )
     for key in sorted(legacy_singer_item_counts):
-        sample = sample_legacy_singer_item.get(key) if isinstance(sample_legacy_singer_item, dict) else ""
-        rows.append(["$.singers[]", "兼容署名歌手行", key, "兼容口径署名歌手字段，含义待确认。", json_type(sample), legacy_singer_item_counts[key], compact_sample(sample), "当前样本如未出现则计数为 0；保留用于识别接口口径变化。"])
+        sample = (
+            sample_legacy_singer_item.get(key)
+            if isinstance(sample_legacy_singer_item, dict)
+            else ""
+        )
+        rows.append(
+            [
+                "$.singers[]",
+                "兼容署名歌手行",
+                key,
+                "兼容口径署名歌手字段，含义待确认。",
+                json_type(sample),
+                legacy_singer_item_counts[key],
+                compact_sample(sample),
+                "当前样本如未出现则计数为 0；保留用于识别接口口径变化。",
+            ]
+        )
     return rows
 
 
@@ -595,7 +828,9 @@ def compact_sample(value: Any) -> Any:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Write an XLSX dictionary for collected request JSON keys.")
+    parser = argparse.ArgumentParser(
+        description="Write an XLSX dictionary for collected request JSON keys."
+    )
     parser.add_argument("--singer-list-dir", type=Path, default=DEFAULT_SINGER_LIST_DIR)
     parser.add_argument("--song-tab-dir", type=Path, default=DEFAULT_SONG_TAB_DIR)
     parser.add_argument("--song-album-detail-dir", type=Path, default=DEFAULT_SONG_ALBUM_DETAIL_DIR)
@@ -620,4 +855,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -18,6 +18,9 @@ body {
   margin: 0;
 }
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(0, auto);
   grid-template-areas:
@@ -59,6 +62,61 @@ h2 {
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
+}
+.clear-filters-button {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.clear-filters-button:hover {
+  color: #172033;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.clear-filters-button:focus-visible {
+  outline: none;
+  color: #172033;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.drawing-toggle-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.drawing-clear-popover {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 168px;
+  padding: 9px;
+  border: 1px solid #c7ced9;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.16);
+}
+.drawing-clear-popover p {
+  margin-bottom: 8px;
+  color: #172033;
+  font-size: 13px;
+}
+.drawing-clear-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.drawing-clear-actions button {
+  min-height: 24px;
+  padding: 2px 9px;
+  cursor: pointer;
 }
 .toolbar-filter-row {
   grid-area: filters;
@@ -344,6 +402,9 @@ input {
   gap: 14px;
   align-items: stretch;
 }
+body.drawing-hidden .workspace {
+  display: none;
+}
 .graph-panel,
 .detail-panel,
 .data-section {
@@ -391,7 +452,7 @@ input {
 }
 .detail-panel {
   position: sticky;
-  top: 14px;
+  top: calc(var(--topbar-height, 0px) + 14px);
   padding: 12px;
   overflow: hidden;
   display: flex;
@@ -443,8 +504,14 @@ input {
 .data-section {
   margin-top: 14px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+body.drawing-hidden .data-section {
+  margin-top: 0;
 }
 .tabs {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -469,7 +536,8 @@ input {
   width: min(260px, 42vw);
 }
 #table-content {
-  height: 420px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 table {
@@ -531,6 +599,21 @@ td {
       <p id="dataset-scope">加载图谱数据...</p>
     </div>
     <div class="toolbar">
+      <button id="clear-filters" class="clear-filters-button" type="button">清除筛选</button>
+      <div class="drawing-toggle-shell">
+        <label class="switch-control">
+          隐藏绘图
+          <input id="drawing-toggle" type="checkbox" />
+          <span class="switch-track" aria-hidden="true"></span>
+        </label>
+        <div id="drawing-clear-popover" class="drawing-clear-popover" hidden>
+          <p>是否清空筛选？</p>
+          <div class="drawing-clear-actions">
+            <button id="drawing-clear-no" type="button">否</button>
+            <button id="drawing-clear-yes" type="button">是</button>
+          </div>
+        </div>
+      </div>
       <label class="switch-control">
         作词/作曲分开
         <input id="role-split-toggle" type="checkbox" />
@@ -637,11 +720,13 @@ const state = {
   selectedTargets: new Set(),
   targetMenuOpen: false,
   targetFilterSearch: "",
+  drawingClearPromptOpen: false,
   roleDisplay: "merged",
   showLabels: false,
   particlesEnabled: false,
   hideLeafNodes: true,
   onlyTargetNodes: false,
+  hideDrawing: false,
   fansMin: 5000000,
   fansMax: 5000000,
   minCount: 1,
@@ -917,11 +1002,11 @@ function undirectedPair(edge) {
 function edgePairId(edge) {
   return [nodeId(edge.source), nodeId(edge.target)].sort().join("--");
 }
-function mergeEdges(edges) {
+function mergeEdges(edges, roleDisplay = state.roleDisplay) {
   const merged = new Map();
   for (const edge of edges) {
     const pair = undirectedPair(edge);
-    const roleKey = state.roleDisplay === "split" ? edge.role : "合作";
+    const roleKey = roleDisplay === "split" ? edge.role : "合作";
     const key = `${pair}:${roleKey}`;
     const [source, target] = pair.split("--");
     const current = merged.get(key) || {
@@ -982,8 +1067,9 @@ function leafNodeIds(edges) {
   });
   return new Set([...neighbors.entries()].filter(([, ids]) => ids.size === 1).map(([id]) => id));
 }
-function buildGraph() {
-  const edges = mergeEdges(baseEdges());
+function buildGraph(options = {}) {
+  const roleDisplay = options.roleDisplay || state.roleDisplay;
+  const edges = mergeEdges(baseEdges(), roleDisplay);
   let graphEdges = edges;
   let nodes;
   if (state.onlyTargetNodes) {
@@ -1215,13 +1301,28 @@ function graphHeight() {
   const graphTop = $("graph")?.getBoundingClientRect().top || 0;
   return Math.max(430, Math.floor(window.innerHeight - graphTop - 16));
 }
-function syncDetailPanelHeight() {
+function syncPanelHeights() {
+  const topbar = document.querySelector(".topbar");
   const detailPanel = document.querySelector(".detail-panel");
+  const dataSection = document.querySelector(".data-section");
   const graphPanel = document.querySelector(".graph-panel");
-  if (!detailPanel || !graphPanel) return;
+  if (topbar) document.documentElement.style.setProperty("--topbar-height", `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
+  if (state.hideDrawing) {
+    if (dataSection) {
+      const top = dataSection.getBoundingClientRect().top || 0;
+      const height = Math.max(430, Math.floor(window.innerHeight - top - 16));
+      dataSection.style.height = `${height}px`;
+      dataSection.style.maxHeight = `${height}px`;
+    }
+    return;
+  }
+  if (!graphPanel) return;
   const panelHeight = graphPanel.offsetHeight || Math.round(graphPanel.getBoundingClientRect().height);
-  detailPanel.style.height = `${panelHeight}px`;
-  detailPanel.style.maxHeight = `${panelHeight}px`;
+  [detailPanel, dataSection].forEach((panel) => {
+    if (!panel) return;
+    panel.style.height = `${panelHeight}px`;
+    panel.style.maxHeight = `${panelHeight}px`;
+  });
 }
 function nodeDegreeMap(edges) {
   const degrees = new Map();
@@ -1556,8 +1657,8 @@ function renderGraph() {
   const api = setupGraph(container);
   configureForces(api);
   api.width(width).height(height);
-  syncDetailPanelHeight();
-  window.requestAnimationFrame(syncDetailPanelHeight);
+  syncPanelHeights();
+  window.requestAnimationFrame(syncPanelHeights);
   if (shouldFit) {
     api.graphData(graphPayload(graph.nodes, graph.edges));
   }
@@ -1570,7 +1671,7 @@ function renderGraph() {
   if (!graphResizeObserver) {
     graphResizeObserver = new ResizeObserver(() => {
       if (graphInstance) graphInstance.width(container.clientWidth || width).height(container.clientHeight || height);
-      syncDetailPanelHeight();
+      syncPanelHeights();
     });
     graphResizeObserver.observe(container);
   }
@@ -1588,14 +1689,22 @@ function findSelected() {
   }
   return graph.edges.find((edge) => edge.id === state.selected.id);
 }
+function songDisplayTitle(song) {
+  return song?.title || song?.name || "";
+}
+function albumDisplayTitle(song) {
+  return song?.album_title || song?.album || "";
+}
 function renderSongList(songs) {
   if (!songs.length) return `<div class="detail-card muted">暂无支撑歌曲。</div>`;
   return songs
     .slice(0, 60)
     .map(
       (song) =>
-        `<div class="detail-card"><strong>${escapeHtml(song.name)}</strong><p class="muted">${escapeHtml(
-          [song.target, song.role, song.album].filter(Boolean).join(" · "),
+        `<div class="detail-card"><strong>${escapeHtml(
+          [songDisplayTitle(song), song.role].filter(Boolean).join(" · "),
+        )}</strong><p class="muted">${escapeHtml(
+          [song.target, albumDisplayTitle(song)].filter(Boolean).join(" · "),
         )}</p></div>`,
     )
     .join("");
@@ -1727,10 +1836,12 @@ function renderDetail() {
   `;
 }
 function renderTable() {
+  const graph = buildGraph({ roleDisplay: "split" });
+  const visibleNodeIds = new Set(graph.nodes.map((node) => node.id));
   const selectedIds = selectedTableNodeIds();
   const tableSearch = state.tableSearch.toLowerCase();
   if (state.activeTab === "edges") {
-    const rows = buildGraph().edges.flatMap((edge) =>
+    const rows = graph.edges.flatMap((edge) =>
       (edge.directions || [])
         .filter((direction) => !selectedIds.size || selectedIds.has(direction.source) || selectedIds.has(direction.target))
         .map((direction) => ({
@@ -1741,21 +1852,21 @@ function renderTable() {
           songs: (edge.songs || [])
             .filter((song) => song.target_mid === String(direction.target).replace(/^artist:/, ""))
             .filter((song) => (direction.roles || []).includes(song.role))
-            .map((song) => song.name)
+            .map(songDisplayTitle)
             .join(" / "),
         })),
     ).filter((row) => matchesTableSearch(row, tableSearch, ["role", "source", "target", "count", "songs"]));
     renderRows(["职能", "来源音乐人", "目标音乐人", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
     return;
   }
-  const rows = filteredSongs()
+  const rows = filteredSongs(graph, visibleNodeIds)
     .filter((song) => !selectedIds.size || songHasAnyPerson(song, selectedIds))
     .map((song) => ({
-      name: song.name,
-      album: song.album,
-      lyricists: personNamesForTable(song.lyricists, selectedIds),
-      composers: personNamesForTable(song.composers, selectedIds),
-      singers: personNamesForTable(song.singers, selectedIds),
+      name: songDisplayTitle(song),
+      album: albumDisplayTitle(song),
+      lyricists: personNames(song.lyricists),
+      composers: personNames(song.composers),
+      singers: personNames(song.singers),
     }))
     .filter((song) => {
       if (!tableSearch) return true;
@@ -1763,17 +1874,22 @@ function renderTable() {
     });
   renderRows(["歌曲", "专辑", "作词", "作曲", "演唱"], rows, ["name", "album", "lyricists", "composers", "singers"]);
 }
-function filteredSongs() {
-  const ids = rawData.target_match_mode === "incident" ? activeTargetIds() : state.selectedTargets;
-  return rawData.songs.filter((song) => {
-    const singerMatched = (song.singers || []).some((person) => ids.has(`artist:${person.mid}`));
-    if (rawData.target_match_mode !== "incident") return singerMatched;
-    return (
-      singerMatched ||
-      (song.lyricists || []).some((person) => ids.has(`artist:${person.mid}`)) ||
-      (song.composers || []).some((person) => ids.has(`artist:${person.mid}`))
-    );
+function filteredSongs(graph, visibleNodeIds) {
+  const visibleSongMids = new Set();
+  graph.edges.forEach((edge) => {
+    (edge.songs || []).forEach((song) => {
+      const mid = String(song.mid || "");
+      if (mid) visibleSongMids.add(mid);
+    });
   });
+  rawData.songs.forEach((song) => {
+    const mid = String(song.mid || "");
+    if (!mid) return;
+    if ((song.singers || []).some((person) => visibleNodeIds.has(`artist:${person.mid}`))) {
+      visibleSongMids.add(mid);
+    }
+  });
+  return rawData.songs.filter((song) => visibleSongMids.has(String(song.mid || "")));
 }
 function selectedTableNodeIds() {
   if (state.selected?.type !== "node" && state.selected?.type !== "nodes") return new Set();
@@ -1783,10 +1899,6 @@ function songHasAnyPerson(song, selectedIds) {
   return ["singers", "lyricists", "composers"].some((key) =>
     (song[key] || []).some((person) => selectedIds.has(`artist:${person.mid}`)),
   );
-}
-function personNamesForTable(values, selectedIds) {
-  const people = selectedIds.size ? (values || []).filter((person) => selectedIds.has(`artist:${person.mid}`)) : values;
-  return personNames(people);
 }
 function matchesTableSearch(row, search, keys) {
   if (!search) return true;
@@ -1817,18 +1929,78 @@ function renderLegend() {
 }
 function renderHeader() {
   const summary = rawData.summary;
-  $("dataset-scope").textContent = `SQLite 静态图谱 · 数据库：${formatNumber(summary.songs)} 首歌曲 / ${formatNumber(summary.artists)} 位音乐人 · 生成于 ${rawData.generated_at}`;
+  $("dataset-scope").innerHTML = `${escapeHtml(`数据来源：QQ音乐 · 数据库：${formatNumber(summary.songs)} 首歌曲 / ${formatNumber(summary.artists)} 位音乐人`)}<br />${escapeHtml(`生成于 ${rawData.generated_at}`)}`;
+}
+function syncDrawingVisibility() {
+  document.body.classList.toggle("drawing-hidden", state.hideDrawing);
+}
+function renderDrawingOnlyChange() {
+  syncDrawingVisibility();
+  renderLegend();
+  if (!state.hideDrawing) {
+    renderGraph();
+    renderDetail();
+  } else {
+    syncPanelHeights();
+    window.requestAnimationFrame(syncPanelHeights);
+  }
+}
+function renderDrawingClearPopover() {
+  $("drawing-clear-popover").hidden = !state.drawingClearPromptOpen;
+}
+function syncToolbarControlStates() {
+  $("drawing-toggle").checked = state.hideDrawing;
+  $("role-split-toggle").checked = state.roleDisplay === "split";
+  $("label-toggle").checked = state.showLabels;
+  $("particle-toggle").checked = state.particlesEnabled;
+  $("hide-leaf-toggle").checked = state.hideLeafNodes;
+  $("target-only-toggle").checked = state.onlyTargetNodes;
+  $("min-count").value = String(state.minCount);
+}
+function targetIdsRaw() {
+  return targetItemsRaw().map((item) => item.id);
+}
+function resetFiltersToEmpty(options = {}) {
+  const preserveHideDrawing = Boolean(options.preserveHideDrawing);
+  const bounds = fansBounds();
+  setFansState(bounds.min, bounds.max);
+  state.selectedTargets = new Set(targetIdsRaw());
+  state.targetFilterSearch = "";
+  state.targetMenuOpen = false;
+  state.drawingClearPromptOpen = false;
+  state.hideLeafNodes = false;
+  state.onlyTargetNodes = false;
+  if (!preserveHideDrawing) state.hideDrawing = false;
+  state.roleDisplay = "merged";
+  state.showLabels = false;
+  state.particlesEnabled = false;
+  state.minCount = 1;
+  state.tableSearch = "";
+  clearSelectionHighlight();
+  $("target-filter-search").value = "";
+  $("table-search-input").value = "";
+  syncToolbarControlStates();
+  renderTargetCheckboxes();
+  renderTargetMenuState();
+  render();
 }
 function render() {
   renderHeader();
+  syncDrawingVisibility();
   renderLegend();
+  renderDrawingClearPopover();
   updateTargetDropdownLabel();
-  renderGraph();
-  renderDetail();
+  if (!state.hideDrawing) {
+    renderGraph();
+    renderDetail();
+  } else {
+    syncPanelHeights();
+    window.requestAnimationFrame(syncPanelHeights);
+  }
   renderTable();
 }
 function renderSelection() {
-  renderDetail();
+  if (!state.hideDrawing) renderDetail();
   renderTable();
 }
 function renderTargetMenuState() {
@@ -1885,6 +2057,13 @@ function initFansControls() {
   setFansInputBounds($("fans-max-range"), bounds, state.fansMax);
   renderFansRangeLabels();
 }
+function setFansState(minValue, maxValue) {
+  state.fansMin = minValue;
+  state.fansMax = maxValue;
+  $("fans-min-range").value = String(state.fansMin);
+  $("fans-max-range").value = String(state.fansMax);
+  renderFansRangeLabels();
+}
 function updateFansRange(changedInputId, value) {
   const bounds = fansBounds();
   const nextValue = Math.max(bounds.min, Math.min(bounds.max, Number(value || 0)));
@@ -1893,9 +2072,7 @@ function updateFansRange(changedInputId, value) {
   } else {
     state.fansMax = Math.max(nextValue, state.fansMin);
   }
-  $("fans-min-range").value = String(state.fansMin);
-  $("fans-max-range").value = String(state.fansMax);
-  renderFansRangeLabels();
+  setFansState(state.fansMin, state.fansMax);
   syncSelectedTargetsWithFansRange();
   renderTargetCheckboxes();
   updateTargetDropdownLabel();
@@ -1910,9 +2087,7 @@ function updateFansTextInput(changedInputId, value) {
     const nextValue = parseFansInputValue(value, bounds, state.fansMax);
     state.fansMax = Math.max(nextValue, state.fansMin);
   }
-  $("fans-min-range").value = String(state.fansMin);
-  $("fans-max-range").value = String(state.fansMax);
-  renderFansRangeLabels();
+  setFansState(state.fansMin, state.fansMax);
   syncSelectedTargetsWithFansRange();
   renderTargetCheckboxes();
   updateTargetDropdownLabel();
@@ -1951,10 +2126,21 @@ function bindControls() {
     state.targetMenuOpen = false;
     renderTargetMenuState();
   });
+  document.addEventListener("click", (event) => {
+    if (!state.drawingClearPromptOpen || event.target.closest(".drawing-toggle-shell")) return;
+    state.drawingClearPromptOpen = false;
+    renderDrawingClearPopover();
+  });
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || !state.targetMenuOpen) return;
-    state.targetMenuOpen = false;
-    renderTargetMenuState();
+    if (event.key !== "Escape") return;
+    if (state.targetMenuOpen) {
+      state.targetMenuOpen = false;
+      renderTargetMenuState();
+    }
+    if (state.drawingClearPromptOpen) {
+      state.drawingClearPromptOpen = false;
+      renderDrawingClearPopover();
+    }
   });
   $("target-select-all").addEventListener("click", () => {
     const nextTargets = new Set(state.selectedTargets);
@@ -1984,18 +2170,36 @@ function bindControls() {
   $("particle-toggle").checked = state.particlesEnabled;
   $("hide-leaf-toggle").checked = state.hideLeafNodes;
   $("target-only-toggle").checked = state.onlyTargetNodes;
+  $("drawing-toggle").checked = state.hideDrawing;
   $("role-split-toggle").checked = state.roleDisplay === "split";
+  $("clear-filters").addEventListener("click", () => resetFiltersToEmpty());
+  $("drawing-toggle").addEventListener("change", (event) => {
+    const nextHideDrawing = event.target.checked;
+    const shouldPrompt = nextHideDrawing && !state.hideDrawing;
+    state.hideDrawing = nextHideDrawing;
+    state.drawingClearPromptOpen = shouldPrompt;
+    renderDrawingClearPopover();
+    renderDrawingOnlyChange();
+  });
+  $("drawing-clear-no").addEventListener("click", () => {
+    state.drawingClearPromptOpen = false;
+    renderDrawingClearPopover();
+  });
+  $("drawing-clear-yes").addEventListener("click", () => {
+    state.drawingClearPromptOpen = false;
+    resetFiltersToEmpty({ preserveHideDrawing: true });
+  });
   $("role-split-toggle").addEventListener("change", (event) => {
     state.roleDisplay = event.target.checked ? "split" : "merged";
-    render();
+    renderDrawingOnlyChange();
   });
   $("label-toggle").addEventListener("change", (event) => {
     state.showLabels = event.target.checked;
-    render();
+    renderDrawingOnlyChange();
   });
   $("particle-toggle").addEventListener("change", (event) => {
     state.particlesEnabled = event.target.checked;
-    render();
+    renderDrawingOnlyChange();
   });
   $("hide-leaf-toggle").addEventListener("change", (event) => {
     state.hideLeafNodes = event.target.checked;
@@ -2027,7 +2231,8 @@ function bindControls() {
     });
   });
   window.addEventListener("resize", () => {
-    if (graphInstance) renderGraph();
+    if (graphInstance && !state.hideDrawing) renderGraph();
+    syncPanelHeights();
   });
 }
 bindControls();

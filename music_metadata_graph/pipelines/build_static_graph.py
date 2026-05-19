@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import json
 import shutil
@@ -9,8 +8,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
-from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH, MVP_SINGER_LIMIT
+from music_metadata_graph.pipelines.defaults import (
+    DEFAULT_DB_PATH,
+    DEFAULT_MVP_DB_PATH,
+    MVP_SINGER_LIMIT,
+)
 
 DEFAULT_OUTPUT_DIR = Path("site")
 DEFAULT_MVP_OUTPUT_DIR = Path("site_mvp")
@@ -43,17 +45,12 @@ def connect_database(path: Path) -> sqlite3.Connection:
 
 
 def fetch_summary(connection: sqlite3.Connection) -> dict[str, Any]:
-    role_counts = {
-        row["role"]: row["count"]
-        for row in connection.execute(
-            """
+    role_counts = {row["role"]: row["count"] for row in connection.execute("""
             SELECT role, COUNT(*) AS count
             FROM song_credit_artists
             GROUP BY role
             ORDER BY role
-            """
-        )
-    }
+            """)}
     return {
         "artists": scalar_count(connection, "artists"),
         "songs": scalar_count(connection, "songs"),
@@ -67,10 +64,13 @@ def scalar_count(connection: sqlite3.Connection, table: str) -> int:
     return int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
 
 
+def has_table_column(connection: sqlite3.Connection, table: str, column: str) -> bool:
+    return column in {row["name"] for row in connection.execute(f"PRAGMA table_info({table})")}
+
+
 def fetch_song_rows(connection: sqlite3.Connection) -> list[sqlite3.Row]:
-    return list(
-        connection.execute(
-            """
+    album_title_expr = "a.title" if has_table_column(connection, "albums", "title") else "a.name"
+    return list(connection.execute(f"""
             SELECT
                 s.mid AS song_mid,
                 s.id AS song_id,
@@ -79,25 +79,25 @@ def fetch_song_rows(connection: sqlite3.Connection) -> list[sqlite3.Row]:
                 s.language AS song_language,
                 a.mid AS album_mid,
                 a.name AS album_name,
+                {album_title_expr} AS album_title,
                 a.albumType AS album_type,
                 a.publishDate AS album_publish_date
             FROM songs s
             JOIN albums a ON a.mid = s.album_mid
             ORDER BY s.name, s.id, s.mid
-            """
-        )
-    )
+            """))
 
 
 def has_artist_column(connection: sqlite3.Connection, column: str) -> bool:
-    return column in {row["name"] for row in connection.execute("PRAGMA table_info(artists)")}
+    return has_table_column(connection, "artists", column)
 
 
-def fetch_people_by_song(connection: sqlite3.Connection, table: str, role: str | None = None) -> dict[str, list[dict[str, Any]]]:
+def fetch_people_by_song(
+    connection: sqlite3.Connection, table: str, role: str | None = None
+) -> dict[str, list[dict[str, Any]]]:
     fans_num_expr = "ar.fans_num" if has_artist_column(connection, "fans_num") else "NULL"
     if table == "song_singers":
-        rows = connection.execute(
-            f"""
+        rows = connection.execute(f"""
             SELECT
                 ss.song_mid,
                 ss.singer_order AS person_order,
@@ -108,8 +108,7 @@ def fetch_people_by_song(connection: sqlite3.Connection, table: str, role: str |
             FROM song_singers ss
             JOIN artists ar ON ar.mid = ss.singer_mid
             ORDER BY ss.song_mid, ss.singer_order
-            """
-        )
+            """)
     elif table == "song_credit_artists" and role:
         rows = connection.execute(
             f"""
@@ -167,7 +166,12 @@ def normalize_icon_url(value: str) -> str:
     return url
 
 
-def song_payload(row: sqlite3.Row, singers: list[dict[str, Any]], lyricists: list[dict[str, Any]], composers: list[dict[str, Any]]) -> dict[str, Any]:
+def song_payload(
+    row: sqlite3.Row,
+    singers: list[dict[str, Any]],
+    lyricists: list[dict[str, Any]],
+    composers: list[dict[str, Any]],
+) -> dict[str, Any]:
     return {
         "mid": row["song_mid"],
         "id": row["song_id"],
@@ -176,6 +180,7 @@ def song_payload(row: sqlite3.Row, singers: list[dict[str, Any]], lyricists: lis
         "language": row["song_language"],
         "album_mid": row["album_mid"],
         "album": row["album_name"],
+        "album_title": row["album_title"],
         "album_type": row["album_type"],
         "album_publish_date": row["album_publish_date"],
         "singers": [{"mid": item["mid"], "name": item["name"]} for item in singers],
@@ -184,13 +189,19 @@ def song_payload(row: sqlite3.Row, singers: list[dict[str, Any]], lyricists: lis
     }
 
 
-def fetch_demo_target_people(connection: sqlite3.Connection, limit: int = MVP_SINGER_LIMIT) -> list[dict[str, Any]]:
+def fetch_demo_target_people(
+    connection: sqlite3.Connection, limit: int = MVP_SINGER_LIMIT
+) -> list[dict[str, Any]]:
     required_columns = {"area_id", "fans_num"}
     available_columns = {row["name"] for row in connection.execute("PRAGMA table_info(artists)")}
     missing_columns = required_columns - available_columns
     if missing_columns:
-        raise ValueError(f"Demo graph requires artists columns: {', '.join(sorted(missing_columns))}")
-    order_columns = [column for column in ("raw_page", "raw_row_index") if column in available_columns]
+        raise ValueError(
+            f"Demo graph requires artists columns: {', '.join(sorted(missing_columns))}"
+        )
+    order_columns = [
+        column for column in ("raw_page", "raw_row_index") if column in available_columns
+    ]
     order_sql = ", ".join([*order_columns, "rowid"])
     icon_expr = "icon" if "icon" in available_columns else "''"
     rows = connection.execute(
@@ -247,7 +258,9 @@ def build_graph_data(connection: sqlite3.Connection, *, demo: bool = False) -> d
         song_items.append(payload)
         for singer in singers:
             node_id = f"artist:{singer['mid']}"
-            current = nodes.get(node_id) or artist_node(singer, is_target=not demo or str(singer["mid"]) in demo_target_mids)
+            current = nodes.get(node_id) or artist_node(
+                singer, is_target=not demo or str(singer["mid"]) in demo_target_mids
+            )
             current["is_target"] = not demo or str(singer["mid"]) in demo_target_mids
             current["sung_song_count"] = int(current.get("sung_song_count") or 0) + 1
             nodes[node_id] = current
@@ -255,21 +268,29 @@ def build_graph_data(connection: sqlite3.Connection, *, demo: bool = False) -> d
             for contributor in contributors:
                 source = f"artist:{contributor['mid']}"
                 nodes.setdefault(source, artist_node(contributor))
-                nodes[source]["credit_song_count"] = int(nodes[source].get("credit_song_count") or 0) + 1
+                nodes[source]["credit_song_count"] = (
+                    int(nodes[source].get("credit_song_count") or 0) + 1
+                )
                 role_count_key = "lyricist_song_count" if role == "作词" else "composer_song_count"
                 nodes[source][role_count_key] = int(nodes[source].get(role_count_key) or 0) + 1
                 for singer in singers:
                     target = f"artist:{singer['mid']}"
                     if source == target:
                         continue
-                    if demo and str(contributor["mid"]) not in demo_target_mids and str(singer["mid"]) not in demo_target_mids:
+                    if (
+                        demo
+                        and str(contributor["mid"]) not in demo_target_mids
+                        and str(singer["mid"]) not in demo_target_mids
+                    ):
                         continue
                     edge_songs[(source, target, role)].append(
                         {
                             "mid": payload["mid"],
                             "id": payload["id"],
                             "name": payload["name"],
+                            "title": payload["title"],
                             "album": payload["album"],
+                            "album_title": payload["album_title"],
                             "album_type": payload["album_type"],
                             "target": singer["name"],
                             "target_mid": singer["mid"],
@@ -300,7 +321,9 @@ def build_graph_data(connection: sqlite3.Connection, *, demo: bool = False) -> d
                     "name": person["name"],
                     "icon": normalize_icon_url(person.get("icon", "")),
                     "fans_num": person.get("fans_num"),
-                    "song_count": int(nodes.get(f"artist:{person['mid']}", {}).get("sung_song_count") or 0),
+                    "song_count": int(
+                        nodes.get(f"artist:{person['mid']}", {}).get("sung_song_count") or 0
+                    ),
                 }
                 for person in demo_targets
             ),
@@ -325,8 +348,14 @@ def build_graph_data(connection: sqlite3.Connection, *, demo: bool = False) -> d
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "summary": fetch_summary(connection),
-        "nodes": sorted((node for node_id, node in nodes.items() if node_id in used_node_ids), key=lambda item: item["name"]),
-        "edges": sorted(edges, key=lambda item: (-item["song_count"], item["role"], item["source"], item["target"])),
+        "nodes": sorted(
+            (node for node_id, node in nodes.items() if node_id in used_node_ids),
+            key=lambda item: item["name"],
+        ),
+        "edges": sorted(
+            edges,
+            key=lambda item: (-item["song_count"], item["role"], item["source"], item["target"]),
+        ),
         "songs": song_items,
         "targets": target_filter_items,
         "roles": list(ROLE_LABELS),
@@ -357,32 +386,45 @@ def html_document(
     default_role_split: bool = True,
     default_node_drag: bool = True,
     disable_label_particle_controls: bool = False,
+    disable_role_split_control: bool = False,
+    default_fans_min: int = 5_000_000,
 ) -> str:
     css = CSS if css is None else css
     js = JS if js is None else js
     js = js.replace("__DEFAULT_HIDE_LEAF_NODES__", "true" if default_hide_leaf_nodes else "false")
     js = js.replace("__DEFAULT_ROLE_DISPLAY__", "split" if default_role_split else "merged")
     js = js.replace("__DEFAULT_NODE_DRAG__", "true" if default_node_drag else "false")
+    js = js.replace("__DEFAULT_FANS_MIN__", str(max(0, int(default_fans_min))))
     data_json = safe_script_json(graph_data)
     vendor_json = safe_script_json(vendor_script)
     title_json = json.dumps(title, ensure_ascii=False)
     hide_leaf_checked = " checked" if default_hide_leaf_nodes else ""
     role_split_checked = " checked" if default_role_split else ""
+    role_split_disabled_attr = " disabled" if disable_role_split_control else ""
+    role_split_disabled_class = " switch-control-disabled" if disable_role_split_control else ""
     label_particle_disabled_attr = " disabled" if disable_label_particle_controls else ""
-    label_particle_disabled_class = " switch-control-disabled" if disable_label_particle_controls else ""
+    label_particle_disabled_class = (
+        " switch-control-disabled" if disable_label_particle_controls else ""
+    )
+    default_fans_min_value = max(0, int(default_fans_min))
+    default_fans_min_label = (
+        "500万" if default_fans_min_value == 5_000_000 else str(default_fans_min_value)
+    )
     if graph_data_src and vendor_src:
         bootstrap = f"""  <script src="{escape_attr(vendor_src)}"></script>
   <script>
     window.GRAPH_TITLE = {title_json};
   </script>
-  <script src="{escape_attr(graph_data_src)}"></script>"""
+  <script src="{escape_attr(graph_data_src)}"></script>
+  <script src="../site_assets/avatar_atlas_150/avatar-atlas-manifest.js"></script>"""
     else:
         bootstrap = f"""  <script>
     const vendorScript = {vendor_json};
     (0, eval)(vendorScript);
     window.GRAPH_TITLE = {title_json};
     window.GRAPH_DATA = {data_json};
-  </script>"""
+  </script>
+  <script src="../site_assets/avatar_atlas_150/avatar-atlas-manifest.js"></script>"""
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -398,9 +440,24 @@ def html_document(
       <p id="dataset-scope">加载图谱数据...</p>
     </div>
     <div class="toolbar">
-      <label class="switch-control">
+      <button id="clear-filters" class="clear-filters-button" type="button">清除筛选</button>
+      <div class="drawing-toggle-shell">
+        <label class="switch-control">
+          隐藏绘图
+          <input id="drawing-toggle" type="checkbox" />
+          <span class="switch-track" aria-hidden="true"></span>
+        </label>
+        <div id="drawing-clear-popover" class="drawing-clear-popover" hidden>
+          <p>是否清空筛选？</p>
+          <div class="drawing-clear-actions">
+            <button id="drawing-clear-no" type="button">否</button>
+            <button id="drawing-clear-yes" type="button">是</button>
+          </div>
+        </div>
+      </div>
+      <label class="switch-control{role_split_disabled_class}">
         作词/作曲分开
-        <input id="role-split-toggle" type="checkbox"{role_split_checked} />
+        <input id="role-split-toggle" type="checkbox"{role_split_checked}{role_split_disabled_attr} />
         <span class="switch-track" aria-hidden="true"></span>
       </label>
       <label class="switch-control{label_particle_disabled_class}">
@@ -428,9 +485,9 @@ def html_document(
       <div class="fans-filter">
         <span class="control-label">目标歌手粉丝</span>
         <div class="fans-range">
-          <input id="fans-min-input" class="fans-value-input fans-value-min" type="text" inputmode="numeric" aria-label="最低粉丝量" value="500万" />
+          <input id="fans-min-input" class="fans-value-input fans-value-min" type="text" inputmode="numeric" aria-label="最低粉丝量" value="{escape_attr(default_fans_min_label)}" />
           <div class="fans-slider-shell">
-            <input id="fans-min-range" type="range" min="0" max="5000000" step="10000" value="5000000" aria-label="最低粉丝量" />
+            <input id="fans-min-range" type="range" min="0" max="5000000" step="10000" value="{default_fans_min_value}" aria-label="最低粉丝量" />
             <input id="fans-max-range" type="range" min="0" max="5000000" step="10000" value="5000000" aria-label="最高粉丝量" />
           </div>
           <input id="fans-max-input" class="fans-value-input fans-value-max" type="text" inputmode="numeric" aria-label="最高粉丝量" value="不限" />
@@ -561,6 +618,8 @@ def write_visualization(config: BuildConfig) -> dict[str, Any]:
     else:
         with connect_database(config.db_path) as connection:
             graph_data = build_graph_data(connection, demo=config.demo)
+        for item in [*graph_data.get("nodes", []), *graph_data.get("targets", [])]:
+            item["icon"] = ""
         vendor_script = read_vendor_script(config.vendor_path)
         graph_data_src = None
         vendor_src = None
@@ -590,14 +649,30 @@ def write_visualization(config: BuildConfig) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build a static musician relationship graph HTML from SQLite.")
+    parser = argparse.ArgumentParser(
+        description="Build a static musician relationship graph HTML from SQLite."
+    )
     parser.add_argument("--db", type=Path, default=None, help="SQLite database path.")
     parser.add_argument("--output-dir", type=Path, default=None, help="Directory for index.html.")
     parser.add_argument("--title", default="音乐人合作关系图谱", help="HTML page title.")
-    parser.add_argument("--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path.")
-    parser.add_argument("--mvp", action="store_true", help="Use the MVP database and site_mvp output directory; default uses the full database and site output directory.")
-    parser.add_argument("--demo", action="store_true", help="Use the full database and site_demo output directory, seeded by the MVP 10 target artists plus their incident edges.")
-    parser.add_argument("--inline", action="store_true", help="Embed graph data and vendor runtime into index.html instead of loading site assets.")
+    parser.add_argument(
+        "--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path."
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="Use the MVP database and site_mvp output directory; default uses the full database and site output directory.",
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Use the full database and site_demo output directory, seeded by the MVP 10 target artists plus their incident edges.",
+    )
+    parser.add_argument(
+        "--inline",
+        action="store_true",
+        help="Embed graph data and vendor runtime into index.html instead of loading site assets.",
+    )
     return parser.parse_args()
 
 
@@ -606,7 +681,11 @@ def main() -> None:
     if args.mvp and args.demo:
         raise ValueError("--mvp and --demo cannot be used together.")
     db_path = args.db or (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
-    output_dir = args.output_dir or (DEFAULT_DEMO_OUTPUT_DIR if args.demo else DEFAULT_MVP_OUTPUT_DIR if args.mvp else DEFAULT_OUTPUT_DIR)
+    output_dir = args.output_dir or (
+        DEFAULT_DEMO_OUTPUT_DIR
+        if args.demo
+        else DEFAULT_MVP_OUTPUT_DIR if args.mvp else DEFAULT_OUTPUT_DIR
+    )
     result = write_visualization(
         BuildConfig(
             db_path=db_path,
@@ -621,6 +700,8 @@ def main() -> None:
         )
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
 CSS = r"""
 :root {
   color-scheme: light;
@@ -635,6 +716,9 @@ body {
   margin: 0;
 }
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(0, auto);
   grid-template-areas:
@@ -676,6 +760,61 @@ h2 {
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
+}
+.clear-filters-button {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.clear-filters-button:hover {
+  color: #172033;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.clear-filters-button:focus-visible {
+  outline: none;
+  color: #172033;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.drawing-toggle-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.drawing-clear-popover {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 168px;
+  padding: 9px;
+  border: 1px solid #c7ced9;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.16);
+}
+.drawing-clear-popover p {
+  margin-bottom: 8px;
+  color: #172033;
+  font-size: 13px;
+}
+.drawing-clear-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.drawing-clear-actions button {
+  min-height: 24px;
+  padding: 2px 9px;
+  cursor: pointer;
 }
 .toolbar-filter-row {
   grid-area: filters;
@@ -961,6 +1100,9 @@ input {
   gap: 14px;
   align-items: stretch;
 }
+body.drawing-hidden .workspace {
+  display: none;
+}
 .graph-panel,
 .detail-panel,
 .data-section {
@@ -1008,7 +1150,7 @@ input {
 }
 .detail-panel {
   position: sticky;
-  top: 14px;
+  top: calc(var(--topbar-height, 0px) + 14px);
   padding: 12px;
   overflow: hidden;
   display: flex;
@@ -1060,8 +1202,14 @@ input {
 .data-section {
   margin-top: 14px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+body.drawing-hidden .data-section {
+  margin-top: 0;
 }
 .tabs {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1086,7 +1234,8 @@ input {
   width: min(260px, 42vw);
 }
 #table-content {
-  height: 420px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 table {
@@ -1146,12 +1295,14 @@ const state = {
   selectedTargets: new Set(),
   targetMenuOpen: false,
   targetFilterSearch: "",
+  drawingClearPromptOpen: false,
   roleDisplay: "__DEFAULT_ROLE_DISPLAY__",
   showLabels: false,
   particlesEnabled: false,
   hideLeafNodes: __DEFAULT_HIDE_LEAF_NODES__,
   onlyTargetNodes: false,
-  fansMin: 5000000,
+  hideDrawing: false,
+  fansMin: __DEFAULT_FANS_MIN__,
   fansMax: 5000000,
   minCount: 1,
   tableSearch: "",
@@ -1168,9 +1319,113 @@ let currentGraph = { nodes: [], edges: [] };
 let currentEdgeWeightScale = { min: 1, max: 1 };
 const highlightNodes = new Set();
 const highlightLinks = new Set();
-const imageCache = new Map();
-const DEFAULT_FANS_MIN = 5000000;
+const AVATAR_ATLAS_BASE = "../site_assets/avatar_atlas_150/";
+const AVATAR_ATLAS_MANIFEST = `${AVATAR_ATLAS_BASE}avatar-atlas-manifest.json`;
+const avatarAtlasState = {
+  manifest: null,
+  images: new Map(),
+  loading: new Map(),
+  queue: [],
+  queued: new Set(),
+  activeLoads: 0,
+  prefetching: false,
+  renderQueued: false,
+};
+const DEFAULT_FANS_MIN = __DEFAULT_FANS_MIN__;
 const $ = (id) => document.getElementById(id);
+function avatarProfile() {
+  if (rawData.avatar_profile) return rawData.avatar_profile;
+  return (rawData.nodes || []).some((node) => node.avatar_key) ? "full" : "";
+}
+function loadAtlasImage(filename) {
+  if (!filename) return Promise.resolve(null);
+  if (avatarAtlasState.images.has(filename)) return Promise.resolve(avatarAtlasState.images.get(filename));
+  if (avatarAtlasState.loading.has(filename)) return avatarAtlasState.loading.get(filename);
+  const promise = new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      avatarAtlasState.images.set(filename, image);
+      avatarAtlasState.loading.delete(filename);
+      resolve(image);
+    };
+    image.onerror = () => {
+      avatarAtlasState.loading.delete(filename);
+      resolve(null);
+    };
+    image.src = `${AVATAR_ATLAS_BASE}${filename}`;
+  });
+  avatarAtlasState.loading.set(filename, promise);
+  return promise;
+}
+function maxAvatarAtlasConcurrency() {
+  return avatarProfile() === "full" ? 2 : 3;
+}
+function pumpAvatarAtlasQueue() {
+  const concurrency = maxAvatarAtlasConcurrency();
+  while (avatarAtlasState.activeLoads < concurrency && avatarAtlasState.queue.length) {
+    const filename = avatarAtlasState.queue.shift();
+    avatarAtlasState.queued.delete(filename);
+    if (!filename || avatarAtlasState.images.has(filename) || avatarAtlasState.loading.has(filename)) continue;
+    avatarAtlasState.activeLoads += 1;
+    loadAtlasImage(filename).then(() => {
+      avatarAtlasState.activeLoads -= 1;
+      requestAvatarAtlasRender();
+      pumpAvatarAtlasQueue();
+    });
+  }
+}
+function enqueueAtlasImage(filename) {
+  if (!filename) return;
+  if (avatarAtlasState.images.has(filename) || avatarAtlasState.loading.has(filename) || avatarAtlasState.queued.has(filename)) return;
+  avatarAtlasState.queued.add(filename);
+  avatarAtlasState.queue.push(filename);
+  pumpAvatarAtlasQueue();
+}
+function requestAvatarAtlasRender() {
+  if (avatarAtlasState.renderQueued) return;
+  avatarAtlasState.renderQueued = true;
+  window.requestAnimationFrame(() => {
+    avatarAtlasState.renderQueued = false;
+    if (!graphInstance) return;
+    if (typeof graphInstance.resumeAnimation === "function") graphInstance.resumeAnimation();
+  });
+}
+async function loadAvatarManifest() {
+  if (avatarAtlasState.manifest) return avatarAtlasState.manifest;
+  try {
+    if (window.AVATAR_ATLAS_MANIFEST_DATA) {
+      avatarAtlasState.manifest = window.AVATAR_ATLAS_MANIFEST_DATA;
+    } else {
+      const response = await fetch(AVATAR_ATLAS_MANIFEST);
+      if (!response.ok) return null;
+      avatarAtlasState.manifest = await response.json();
+    }
+    return avatarAtlasState.manifest;
+  } catch (error) {
+    avatarAtlasState.manifest = null;
+    return null;
+  }
+}
+function atlasFilesForCurrentProfile() {
+  const profileName = avatarProfile();
+  if (!profileName || !avatarAtlasState.manifest) return [];
+  const profile = avatarAtlasState.manifest.profiles?.[profileName] || {};
+  return profile.atlas_files || [];
+}
+function prefetchAvatarAtlases() {
+  if (avatarAtlasState.prefetching) return;
+  const files = atlasFilesForCurrentProfile().filter((filename) => !avatarAtlasState.images.has(filename));
+  if (!files.length) return;
+  avatarAtlasState.prefetching = true;
+  files.forEach(enqueueAtlasImage);
+  avatarAtlasState.prefetching = false;
+}
+async function initializeAvatarAtlases() {
+  const manifest = await loadAvatarManifest();
+  if (!manifest) return;
+  requestAvatarAtlasRender();
+  window.setTimeout(prefetchAvatarAtlases, 0);
+}
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("zh-CN");
 }
@@ -1322,11 +1577,11 @@ function undirectedPair(edge) {
 function edgePairId(edge) {
   return [nodeId(edge.source), nodeId(edge.target)].sort().join("--");
 }
-function mergeEdges(edges) {
+function mergeEdges(edges, roleDisplay = state.roleDisplay) {
   const merged = new Map();
   for (const edge of edges) {
     const pair = undirectedPair(edge);
-    const roleKey = state.roleDisplay === "split" ? edge.role : "合作";
+    const roleKey = roleDisplay === "split" ? edge.role : "合作";
     const key = `${pair}:${roleKey}`;
     const [source, target] = pair.split("--");
     const current = merged.get(key) || {
@@ -1387,8 +1642,9 @@ function leafNodeIds(edges) {
   });
   return new Set([...neighbors.entries()].filter(([, ids]) => ids.size === 1).map(([id]) => id));
 }
-function buildGraph() {
-  const edges = mergeEdges(baseEdges());
+function buildGraph(options = {}) {
+  const roleDisplay = options.roleDisplay || state.roleDisplay;
+  const edges = mergeEdges(baseEdges(), roleDisplay);
   let graphEdges = edges;
   let nodes;
   if (state.onlyTargetNodes) {
@@ -1620,13 +1876,28 @@ function graphHeight() {
   const graphTop = $("graph")?.getBoundingClientRect().top || 0;
   return Math.max(430, Math.floor(window.innerHeight - graphTop - 16));
 }
-function syncDetailPanelHeight() {
+function syncPanelHeights() {
+  const topbar = document.querySelector(".topbar");
   const detailPanel = document.querySelector(".detail-panel");
+  const dataSection = document.querySelector(".data-section");
   const graphPanel = document.querySelector(".graph-panel");
-  if (!detailPanel || !graphPanel) return;
+  if (topbar) document.documentElement.style.setProperty("--topbar-height", `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
+  if (state.hideDrawing) {
+    if (dataSection) {
+      const top = dataSection.getBoundingClientRect().top || 0;
+      const height = Math.max(430, Math.floor(window.innerHeight - top - 16));
+      dataSection.style.height = `${height}px`;
+      dataSection.style.maxHeight = `${height}px`;
+    }
+    return;
+  }
+  if (!graphPanel) return;
   const panelHeight = graphPanel.offsetHeight || Math.round(graphPanel.getBoundingClientRect().height);
-  detailPanel.style.height = `${panelHeight}px`;
-  detailPanel.style.maxHeight = `${panelHeight}px`;
+  [detailPanel, dataSection].forEach((panel) => {
+    if (!panel) return;
+    panel.style.height = `${panelHeight}px`;
+    panel.style.maxHeight = `${panelHeight}px`;
+  });
 }
 function nodeDegreeMap(edges) {
   const degrees = new Map();
@@ -1672,13 +1943,17 @@ function graphPayload(nodes, edges) {
     })),
   };
 }
-function getNodeImage(node) {
-  if (!node.icon) return null;
-  if (imageCache.has(node.icon)) return imageCache.get(node.icon);
-  const image = new Image();
-  image.src = node.icon;
-  imageCache.set(node.icon, image);
-  return image;
+function getNodeAvatar(node) {
+  const key = node.avatar_key;
+  if (!key || !avatarAtlasState.manifest) return null;
+  const item = avatarAtlasState.manifest.items?.[key];
+  if (!item) return null;
+  const image = avatarAtlasState.images.get(item.atlas);
+  if (!image) {
+    enqueueAtlasImage(item.atlas);
+    return null;
+  }
+  return { image, item };
 }
 function nodeRadius(node) {
   return Math.max(10, Math.min(65, node.val || 12));
@@ -1747,7 +2022,7 @@ function drawNode(node, ctx, globalScale) {
   const selected = state.selectedNodeIds.has(node.id);
   const highlighted = isHighlightedNode(node);
   const dimmed = hasActiveHighlight() && !highlighted;
-  const image = getNodeImage(node);
+  const avatar = getNodeAvatar(node);
   if (state.showLabels) {
     drawTextNode(node, ctx, globalScale, selected, highlighted, dimmed);
     return;
@@ -1758,10 +2033,20 @@ function drawNode(node, ctx, globalScale) {
   ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
   ctx.fillStyle = node.is_target ? "#11936f" : "#3b82f6";
   ctx.fill();
-  if (image?.complete && image.naturalWidth) {
+  if (avatar?.image?.complete && avatar.image.naturalWidth) {
     ctx.save();
     ctx.clip();
-    ctx.drawImage(image, node.x - radius, node.y - radius, radius * 2, radius * 2);
+    ctx.drawImage(
+      avatar.image,
+      avatar.item.x,
+      avatar.item.y,
+      avatar.item.w,
+      avatar.item.h,
+      node.x - radius,
+      node.y - radius,
+      radius * 2,
+      radius * 2
+    );
     ctx.restore();
   } else {
     ctx.fillStyle = "#ffffff";
@@ -1947,8 +2232,8 @@ function renderGraph() {
   const api = setupGraph(container);
   configureForces(api);
   api.width(width).height(height);
-  syncDetailPanelHeight();
-  window.requestAnimationFrame(syncDetailPanelHeight);
+  syncPanelHeights();
+  window.requestAnimationFrame(syncPanelHeights);
   if (shouldFit) {
     api.graphData(graphPayload(graph.nodes, graph.edges));
   }
@@ -1961,7 +2246,7 @@ function renderGraph() {
   if (!graphResizeObserver) {
     graphResizeObserver = new ResizeObserver(() => {
       if (graphInstance) graphInstance.width(container.clientWidth || width).height(container.clientHeight || height);
-      syncDetailPanelHeight();
+      syncPanelHeights();
     });
     graphResizeObserver.observe(container);
   }
@@ -1979,14 +2264,22 @@ function findSelected() {
   }
   return graph.edges.find((edge) => edge.id === state.selected.id);
 }
+function songDisplayTitle(song) {
+  return song?.title || song?.name || "";
+}
+function albumDisplayTitle(song) {
+  return song?.album_title || song?.album || "";
+}
 function renderSongList(songs) {
   if (!songs.length) return `<div class="detail-card muted">暂无支撑歌曲。</div>`;
   return songs
     .slice(0, 60)
     .map(
       (song) =>
-        `<div class="detail-card"><strong>${escapeHtml(song.name)}</strong><p class="muted">${escapeHtml(
-          [song.target, song.role, song.album].filter(Boolean).join(" · "),
+        `<div class="detail-card"><strong>${escapeHtml(
+          [songDisplayTitle(song), song.role].filter(Boolean).join(" · "),
+        )}</strong><p class="muted">${escapeHtml(
+          [song.target, albumDisplayTitle(song)].filter(Boolean).join(" · "),
         )}</p></div>`,
     )
     .join("");
@@ -2118,10 +2411,12 @@ function renderDetail() {
   `;
 }
 function renderTable() {
+  const graph = buildGraph({ roleDisplay: "split" });
+  const visibleNodeIds = new Set(graph.nodes.map((node) => node.id));
   const selectedIds = selectedTableNodeIds();
   const tableSearch = state.tableSearch.toLowerCase();
   if (state.activeTab === "edges") {
-    const rows = buildGraph().edges.flatMap((edge) =>
+    const rows = graph.edges.flatMap((edge) =>
       (edge.directions || [])
         .filter((direction) => !selectedIds.size || selectedIds.has(direction.source) || selectedIds.has(direction.target))
         .map((direction) => ({
@@ -2132,21 +2427,21 @@ function renderTable() {
           songs: (edge.songs || [])
             .filter((song) => song.target_mid === String(direction.target).replace(/^artist:/, ""))
             .filter((song) => (direction.roles || []).includes(song.role))
-            .map((song) => song.name)
+            .map(songDisplayTitle)
             .join(" / "),
         })),
     ).filter((row) => matchesTableSearch(row, tableSearch, ["role", "source", "target", "count", "songs"]));
     renderRows(["职能", "来源音乐人", "目标音乐人", "歌曲数", "支撑歌曲"], rows, ["role", "source", "target", "count", "songs"]);
     return;
   }
-  const rows = filteredSongs()
+  const rows = filteredSongs(graph, visibleNodeIds)
     .filter((song) => !selectedIds.size || songHasAnyPerson(song, selectedIds))
     .map((song) => ({
-      name: song.name,
-      album: song.album,
-      lyricists: personNamesForTable(song.lyricists, selectedIds),
-      composers: personNamesForTable(song.composers, selectedIds),
-      singers: personNamesForTable(song.singers, selectedIds),
+      name: songDisplayTitle(song),
+      album: albumDisplayTitle(song),
+      lyricists: personNames(song.lyricists),
+      composers: personNames(song.composers),
+      singers: personNames(song.singers),
     }))
     .filter((song) => {
       if (!tableSearch) return true;
@@ -2154,17 +2449,22 @@ function renderTable() {
     });
   renderRows(["歌曲", "专辑", "作词", "作曲", "演唱"], rows, ["name", "album", "lyricists", "composers", "singers"]);
 }
-function filteredSongs() {
-  const ids = rawData.target_match_mode === "incident" ? activeTargetIds() : state.selectedTargets;
-  return rawData.songs.filter((song) => {
-    const singerMatched = (song.singers || []).some((person) => ids.has(`artist:${person.mid}`));
-    if (rawData.target_match_mode !== "incident") return singerMatched;
-    return (
-      singerMatched ||
-      (song.lyricists || []).some((person) => ids.has(`artist:${person.mid}`)) ||
-      (song.composers || []).some((person) => ids.has(`artist:${person.mid}`))
-    );
+function filteredSongs(graph, visibleNodeIds) {
+  const visibleSongMids = new Set();
+  graph.edges.forEach((edge) => {
+    (edge.songs || []).forEach((song) => {
+      const mid = String(song.mid || "");
+      if (mid) visibleSongMids.add(mid);
+    });
   });
+  rawData.songs.forEach((song) => {
+    const mid = String(song.mid || "");
+    if (!mid) return;
+    if ((song.singers || []).some((person) => visibleNodeIds.has(`artist:${person.mid}`))) {
+      visibleSongMids.add(mid);
+    }
+  });
+  return rawData.songs.filter((song) => visibleSongMids.has(String(song.mid || "")));
 }
 function selectedTableNodeIds() {
   if (state.selected?.type !== "node" && state.selected?.type !== "nodes") return new Set();
@@ -2174,10 +2474,6 @@ function songHasAnyPerson(song, selectedIds) {
   return ["singers", "lyricists", "composers"].some((key) =>
     (song[key] || []).some((person) => selectedIds.has(`artist:${person.mid}`)),
   );
-}
-function personNamesForTable(values, selectedIds) {
-  const people = selectedIds.size ? (values || []).filter((person) => selectedIds.has(`artist:${person.mid}`)) : values;
-  return personNames(people);
 }
 function matchesTableSearch(row, search, keys) {
   if (!search) return true;
@@ -2208,18 +2504,78 @@ function renderLegend() {
 }
 function renderHeader() {
   const summary = rawData.summary;
-  $("dataset-scope").textContent = `SQLite 静态图谱 · 数据库：${formatNumber(summary.songs)} 首歌曲 / ${formatNumber(summary.artists)} 位音乐人 · 生成于 ${rawData.generated_at}`;
+  $("dataset-scope").innerHTML = `${escapeHtml(`数据来源：QQ音乐 · 数据库：${formatNumber(summary.songs)} 首歌曲 / ${formatNumber(summary.artists)} 位音乐人`)}<br />${escapeHtml(`生成于 ${rawData.generated_at}`)}`;
+}
+function syncDrawingVisibility() {
+  document.body.classList.toggle("drawing-hidden", state.hideDrawing);
+}
+function renderDrawingOnlyChange() {
+  syncDrawingVisibility();
+  renderLegend();
+  if (!state.hideDrawing) {
+    renderGraph();
+    renderDetail();
+  } else {
+    syncPanelHeights();
+    window.requestAnimationFrame(syncPanelHeights);
+  }
+}
+function renderDrawingClearPopover() {
+  $("drawing-clear-popover").hidden = !state.drawingClearPromptOpen;
+}
+function syncToolbarControlStates() {
+  $("drawing-toggle").checked = state.hideDrawing;
+  $("role-split-toggle").checked = state.roleDisplay === "split";
+  $("label-toggle").checked = state.showLabels;
+  $("particle-toggle").checked = state.particlesEnabled;
+  $("hide-leaf-toggle").checked = state.hideLeafNodes;
+  $("target-only-toggle").checked = state.onlyTargetNodes;
+  $("min-count").value = String(state.minCount);
+}
+function targetIdsRaw() {
+  return targetItemsRaw().map((item) => item.id);
+}
+function resetFiltersToEmpty(options = {}) {
+  const preserveHideDrawing = Boolean(options.preserveHideDrawing);
+  const bounds = fansBounds();
+  setFansState(bounds.min, bounds.max);
+  state.selectedTargets = new Set(targetIdsRaw());
+  state.targetFilterSearch = "";
+  state.targetMenuOpen = false;
+  state.drawingClearPromptOpen = false;
+  state.hideLeafNodes = false;
+  state.onlyTargetNodes = false;
+  if (!preserveHideDrawing) state.hideDrawing = false;
+  state.roleDisplay = "merged";
+  state.showLabels = false;
+  state.particlesEnabled = false;
+  state.minCount = 1;
+  state.tableSearch = "";
+  clearSelectionHighlight();
+  $("target-filter-search").value = "";
+  $("table-search-input").value = "";
+  syncToolbarControlStates();
+  renderTargetCheckboxes();
+  renderTargetMenuState();
+  render();
 }
 function render() {
   renderHeader();
+  syncDrawingVisibility();
   renderLegend();
+  renderDrawingClearPopover();
   updateTargetDropdownLabel();
-  renderGraph();
-  renderDetail();
+  if (!state.hideDrawing) {
+    renderGraph();
+    renderDetail();
+  } else {
+    syncPanelHeights();
+    window.requestAnimationFrame(syncPanelHeights);
+  }
   renderTable();
 }
 function renderSelection() {
-  renderDetail();
+  if (!state.hideDrawing) renderDetail();
   renderTable();
 }
 function renderTargetMenuState() {
@@ -2276,6 +2632,13 @@ function initFansControls() {
   setFansInputBounds($("fans-max-range"), bounds, state.fansMax);
   renderFansRangeLabels();
 }
+function setFansState(minValue, maxValue) {
+  state.fansMin = minValue;
+  state.fansMax = maxValue;
+  $("fans-min-range").value = String(state.fansMin);
+  $("fans-max-range").value = String(state.fansMax);
+  renderFansRangeLabels();
+}
 function updateFansRange(changedInputId, value) {
   const bounds = fansBounds();
   const nextValue = Math.max(bounds.min, Math.min(bounds.max, Number(value || 0)));
@@ -2284,9 +2647,7 @@ function updateFansRange(changedInputId, value) {
   } else {
     state.fansMax = Math.max(nextValue, state.fansMin);
   }
-  $("fans-min-range").value = String(state.fansMin);
-  $("fans-max-range").value = String(state.fansMax);
-  renderFansRangeLabels();
+  setFansState(state.fansMin, state.fansMax);
   syncSelectedTargetsWithFansRange();
   renderTargetCheckboxes();
   updateTargetDropdownLabel();
@@ -2301,9 +2662,7 @@ function updateFansTextInput(changedInputId, value) {
     const nextValue = parseFansInputValue(value, bounds, state.fansMax);
     state.fansMax = Math.max(nextValue, state.fansMin);
   }
-  $("fans-min-range").value = String(state.fansMin);
-  $("fans-max-range").value = String(state.fansMax);
-  renderFansRangeLabels();
+  setFansState(state.fansMin, state.fansMax);
   syncSelectedTargetsWithFansRange();
   renderTargetCheckboxes();
   updateTargetDropdownLabel();
@@ -2342,10 +2701,21 @@ function bindControls() {
     state.targetMenuOpen = false;
     renderTargetMenuState();
   });
+  document.addEventListener("click", (event) => {
+    if (!state.drawingClearPromptOpen || event.target.closest(".drawing-toggle-shell")) return;
+    state.drawingClearPromptOpen = false;
+    renderDrawingClearPopover();
+  });
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || !state.targetMenuOpen) return;
-    state.targetMenuOpen = false;
-    renderTargetMenuState();
+    if (event.key !== "Escape") return;
+    if (state.targetMenuOpen) {
+      state.targetMenuOpen = false;
+      renderTargetMenuState();
+    }
+    if (state.drawingClearPromptOpen) {
+      state.drawingClearPromptOpen = false;
+      renderDrawingClearPopover();
+    }
   });
   $("target-select-all").addEventListener("click", () => {
     const nextTargets = new Set(state.selectedTargets);
@@ -2375,18 +2745,36 @@ function bindControls() {
   $("particle-toggle").checked = state.particlesEnabled;
   $("hide-leaf-toggle").checked = state.hideLeafNodes;
   $("target-only-toggle").checked = state.onlyTargetNodes;
+  $("drawing-toggle").checked = state.hideDrawing;
   $("role-split-toggle").checked = state.roleDisplay === "split";
+  $("clear-filters").addEventListener("click", () => resetFiltersToEmpty());
+  $("drawing-toggle").addEventListener("change", (event) => {
+    const nextHideDrawing = event.target.checked;
+    const shouldPrompt = nextHideDrawing && !state.hideDrawing;
+    state.hideDrawing = nextHideDrawing;
+    state.drawingClearPromptOpen = shouldPrompt;
+    renderDrawingClearPopover();
+    renderDrawingOnlyChange();
+  });
+  $("drawing-clear-no").addEventListener("click", () => {
+    state.drawingClearPromptOpen = false;
+    renderDrawingClearPopover();
+  });
+  $("drawing-clear-yes").addEventListener("click", () => {
+    state.drawingClearPromptOpen = false;
+    resetFiltersToEmpty({ preserveHideDrawing: true });
+  });
   $("role-split-toggle").addEventListener("change", (event) => {
     state.roleDisplay = event.target.checked ? "split" : "merged";
-    render();
+    renderDrawingOnlyChange();
   });
   $("label-toggle").addEventListener("change", (event) => {
     state.showLabels = event.target.checked;
-    render();
+    renderDrawingOnlyChange();
   });
   $("particle-toggle").addEventListener("change", (event) => {
     state.particlesEnabled = event.target.checked;
-    render();
+    renderDrawingOnlyChange();
   });
   $("hide-leaf-toggle").addEventListener("change", (event) => {
     state.hideLeafNodes = event.target.checked;
@@ -2418,11 +2806,13 @@ function bindControls() {
     });
   });
   window.addEventListener("resize", () => {
-    if (graphInstance) renderGraph();
+    if (graphInstance && !state.hideDrawing) renderGraph();
+    syncPanelHeights();
   });
 }
 bindControls();
 render();
+initializeAvatarAtlases();
 """
 if __name__ == "__main__":
     main()

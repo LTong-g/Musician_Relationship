@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import asyncio
 import hashlib
@@ -13,7 +12,7 @@ from typing import Any
 from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
-
+from music_metadata_graph.pipelines.avatar_assets import avatar_key
 from music_metadata_graph.pipelines.build_static_graph import (
     DEFAULT_DEMO_OUTPUT_DIR,
     DEFAULT_MVP_OUTPUT_DIR,
@@ -29,10 +28,10 @@ from music_metadata_graph.pipelines.build_static_graph import (
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH
 from music_metadata_graph.run_log import run_with_log
 
-
 DEFAULT_AVATAR_DIR_NAME = "avatars"
 DEFAULT_MANIFEST_NAME = "avatar-manifest.json"
-DEFAULT_AVATAR_CACHE_DIR = Path("site_assets")
+DEFAULT_AVATAR_CACHE_DIR = Path("data/raw/qqmusic/avatar_cache")
+DEFAULT_LEGACY_AVATAR_CACHE_DIR = Path("site_assets")
 DEFAULT_REQUEST_DELAY_SECONDS = 1.0
 DEFAULT_TIMEOUT_SECONDS = 10.0
 
@@ -95,7 +94,49 @@ def load_manifest(path: Path) -> dict[str, Any]:
 
 def save_manifest(path: Path, manifest: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
+    path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n"
+    )
+
+
+def migrate_legacy_avatar_cache_if_needed(
+    avatar_cache_dir: Path, legacy_avatar_cache_dir: Path = DEFAULT_LEGACY_AVATAR_CACHE_DIR
+) -> dict[str, Any]:
+    if avatar_cache_dir != DEFAULT_AVATAR_CACHE_DIR:
+        return {"migrated": False, "reason": "custom cache directory"}
+    target_manifest = manifest_path(avatar_cache_dir)
+    legacy_manifest = manifest_path(legacy_avatar_cache_dir)
+    if target_manifest.exists():
+        return {"migrated": False, "reason": "target manifest already exists"}
+    if avatar_cache_dir == legacy_avatar_cache_dir or not legacy_manifest.exists():
+        return {"migrated": False, "reason": "legacy manifest not available"}
+    payload = load_manifest(legacy_manifest)
+    copied = 0
+    missing = 0
+    rewritten: dict[str, Any] = {"avatars": {}}
+    for url, record in (payload.get("avatars") or {}).items():
+        local_path = str((record or {}).get("local_path") or "")
+        if not local_path:
+            rewritten["avatars"][url] = record
+            continue
+        source = legacy_avatar_cache_dir / local_path
+        if not source.exists():
+            missing += 1
+            rewritten["avatars"][url] = record
+            continue
+        target = avatar_cache_dir / local_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        copied += 1
+        rewritten["avatars"][url] = {**record, "local_path": local_path}
+    save_manifest(target_manifest, rewritten)
+    return {
+        "migrated": True,
+        "source": legacy_avatar_cache_dir.as_posix(),
+        "target": avatar_cache_dir.as_posix(),
+        "copied": copied,
+        "missing": missing,
+    }
 
 
 def cache_avatar_relpath(avatar_cache_dir: Path, path: Path) -> str:
@@ -209,7 +250,9 @@ def record_avatar_download_result(
     else:
         avatars[job.url] = {"status": "failed", "local_path": "", "error": result.detail}
         counters["failed"] += 1
-        print_avatar_progress(job.index, job.total, job.url, "failed", saved=job.path, reason=result.detail)
+        print_avatar_progress(
+            job.index, job.total, job.url, "failed", saved=job.path, reason=result.detail
+        )
     save_manifest(manifest_file, manifest)
 
 
@@ -227,9 +270,13 @@ async def drain_completed_downloads(
         if timeout is not None and timeout > 0:
             await asyncio.sleep(timeout)
         return pending
-    done, remaining = await asyncio.wait(pending, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
+    done, remaining = await asyncio.wait(
+        pending, timeout=timeout, return_when=asyncio.FIRST_COMPLETED
+    )
     for task in done:
-        record_avatar_download_result(task.result(), manifest, avatars, config, manifest_file, counters)
+        record_avatar_download_result(
+            task.result(), manifest, avatars, config, manifest_file, counters
+        )
     return set(remaining)
 
 
@@ -278,7 +325,10 @@ async def wait_for_all_downloads(
         )
 
 
-async def prepare_avatar_cache_async(graph_data: dict[str, Any], config: PrepareAssetsConfig) -> dict[str, Any]:
+async def prepare_avatar_cache_async(
+    graph_data: dict[str, Any], config: PrepareAssetsConfig
+) -> dict[str, Any]:
+    migrate_legacy_avatar_cache_if_needed(config.avatar_cache_dir)
     manifest_file = manifest_path(config.avatar_cache_dir)
     manifest = load_manifest(manifest_file)
     avatars: dict[str, Any] = manifest.setdefault("avatars", {})
@@ -292,16 +342,31 @@ async def prepare_avatar_cache_async(graph_data: dict[str, Any], config: Prepare
     for index, url in enumerate(urls, start=1):
         record = avatars.get(url) or {}
         local_path_value = str(record.get("local_path") or "")
-        if local_path_value and (config.avatar_cache_dir / local_path_value).exists() and record.get("status") == "ok":
+        if (
+            local_path_value
+            and (config.avatar_cache_dir / local_path_value).exists()
+            and record.get("status") == "ok"
+        ):
             counters["reused"] += 1
-            print_avatar_progress(index, len(urls), url, "cache_hit", saved=config.avatar_cache_dir / local_path_value)
+            print_avatar_progress(
+                index, len(urls), url, "cache_hit", saved=config.avatar_cache_dir / local_path_value
+            )
             continue
         if not config.download_avatars:
-            avatars[url] = {"status": "skipped", "local_path": "", "error": "avatar download disabled"}
+            avatars[url] = {
+                "status": "skipped",
+                "local_path": "",
+                "error": "avatar download disabled",
+            }
             counters["skipped"] += 1
-            print_avatar_progress(index, len(urls), url, "skipped", reason="avatar_download_disabled")
+            print_avatar_progress(
+                index, len(urls), url, "skipped", reason="avatar_download_disabled"
+            )
             continue
-        if config.max_avatar_downloads is not None and scheduled_downloads >= config.max_avatar_downloads:
+        if (
+            config.max_avatar_downloads is not None
+            and scheduled_downloads >= config.max_avatar_downloads
+        ):
             counters["skipped"] += 1
             print_avatar_progress(index, len(urls), url, "skipped", reason="download_limit")
             continue
@@ -347,7 +412,34 @@ def prepare_avatar_cache(graph_data: dict[str, Any], config: PrepareAssetsConfig
     return asyncio.run(prepare_avatar_cache_async(graph_data, config))
 
 
-def rewrite_icons_to_local(graph_data: dict[str, Any], output_dir: Path, avatar_cache_dir: Path) -> dict[str, Any]:
+def rewrite_icons_to_avatar_keys(
+    graph_data: dict[str, Any], avatar_cache_dir: Path
+) -> dict[str, Any]:
+    manifest = load_manifest(manifest_path(avatar_cache_dir))
+    avatars = manifest.get("avatars") or {}
+
+    def key_for_icon(value: Any) -> str:
+        url = str(value or "").strip()
+        if not url:
+            return ""
+        record = avatars.get(url) or {}
+        if record.get("status") == "ok" and record.get("local_path"):
+            return avatar_key(url)
+        return ""
+
+    for node in graph_data.get("nodes", []):
+        node["avatar_key"] = key_for_icon(node.get("icon"))
+        node["icon"] = ""
+    for target in graph_data.get("targets", []):
+        target["avatar_key"] = key_for_icon(target.get("icon"))
+        target["icon"] = ""
+    return graph_data
+
+
+def rewrite_icons_to_local(
+    graph_data: dict[str, Any], output_dir: Path, avatar_cache_dir: Path
+) -> dict[str, Any]:
+    """Compatibility wrapper for older tests and one-off scripts."""
     manifest = load_manifest(manifest_path(avatar_cache_dir))
     avatars = manifest.get("avatars") or {}
 
@@ -373,7 +465,9 @@ def copy_vendor(config: PrepareAssetsConfig) -> Path:
     if config.vendor_path.exists():
         shutil.copy2(config.vendor_path, vendor_output)
     else:
-        vendor_output.write_text(read_vendor_script(config.vendor_path), encoding="utf-8", newline="\n")
+        vendor_output.write_text(
+            read_vendor_script(config.vendor_path), encoding="utf-8", newline="\n"
+        )
     license_path = config.vendor_path.with_name("force-graph.LICENSE")
     if license_path.exists():
         shutil.copy2(license_path, vendor_output.with_name("force-graph.LICENSE"))
@@ -387,7 +481,16 @@ def prepare_assets(config: PrepareAssetsConfig) -> dict[str, Any]:
     config.output_dir.mkdir(parents=True, exist_ok=True)
     vendor_output = copy_vendor(config)
     avatar_result = prepare_avatar_cache(graph_data, config)
-    graph_data = rewrite_icons_to_local(graph_data, config.output_dir, config.avatar_cache_dir)
+    graph_data = rewrite_icons_to_avatar_keys(graph_data, config.avatar_cache_dir)
+    graph_data["avatar_profile"] = (
+        "demo"
+        if config.demo
+        else (
+            "mvp"
+            if config.db_path == DEFAULT_MVP_DB_PATH or config.output_dir == DEFAULT_MVP_OUTPUT_DIR
+            else "full"
+        )
+    )
     graph_output = graph_asset_path(config.output_dir)
     graph_output.parent.mkdir(parents=True, exist_ok=True)
     graph_output.write_text(graph_data_script(graph_data), encoding="utf-8", newline="\n")
@@ -410,14 +513,46 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare static graph site assets from SQLite.")
     parser.add_argument("--db", type=Path, default=None, help="SQLite database path.")
     parser.add_argument("--output-dir", type=Path, default=None, help="Site directory.")
-    parser.add_argument("--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path.")
-    parser.add_argument("--avatar-cache-dir", type=Path, default=DEFAULT_AVATAR_CACHE_DIR, help="Shared avatar cache directory.")
-    parser.add_argument("--mvp", action="store_true", help="Use the MVP database and site_mvp output directory.")
-    parser.add_argument("--demo", action="store_true", help="Use the full database and site_demo output directory, seeded by the MVP 10 target artists plus their incident edges.")
-    parser.add_argument("--skip-avatar-download", action="store_true", help="Do not download avatars; write graph data with empty local avatar paths.")
-    parser.add_argument("--max-avatar-downloads", type=int, default=None, help="Maximum number of new avatars to download in this run.")
-    parser.add_argument("--request-delay", type=float, default=DEFAULT_REQUEST_DELAY_SECONDS, help="Minimum interval between starting avatar requests, in seconds.")
-    parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_SECONDS, help="Per-avatar request timeout, in seconds.")
+    parser.add_argument(
+        "--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path."
+    )
+    parser.add_argument(
+        "--avatar-cache-dir",
+        type=Path,
+        default=DEFAULT_AVATAR_CACHE_DIR,
+        help="Raw avatar cache directory.",
+    )
+    parser.add_argument(
+        "--mvp", action="store_true", help="Use the MVP database and site_mvp output directory."
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Use the full database and site_demo output directory, seeded by the MVP 10 target artists plus their incident edges.",
+    )
+    parser.add_argument(
+        "--skip-avatar-download",
+        action="store_true",
+        help="Do not download avatars; write graph data with empty local avatar paths.",
+    )
+    parser.add_argument(
+        "--max-avatar-downloads",
+        type=int,
+        default=None,
+        help="Maximum number of new avatars to download in this run.",
+    )
+    parser.add_argument(
+        "--request-delay",
+        type=float,
+        default=DEFAULT_REQUEST_DELAY_SECONDS,
+        help="Minimum interval between starting avatar requests, in seconds.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help="Per-avatar request timeout, in seconds.",
+    )
     return parser.parse_args()
 
 
@@ -427,7 +562,11 @@ def _main() -> None:
     if args.mvp and args.demo:
         raise ValueError("--mvp and --demo cannot be used together.")
     db_path = args.db or (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
-    output_dir = args.output_dir or (DEFAULT_DEMO_OUTPUT_DIR if args.demo else DEFAULT_MVP_OUTPUT_DIR if args.mvp else DEFAULT_OUTPUT_DIR)
+    output_dir = args.output_dir or (
+        DEFAULT_DEMO_OUTPUT_DIR
+        if args.demo
+        else DEFAULT_MVP_OUTPUT_DIR if args.mvp else DEFAULT_OUTPUT_DIR
+    )
     result = prepare_assets(
         PrepareAssetsConfig(
             db_path=db_path,

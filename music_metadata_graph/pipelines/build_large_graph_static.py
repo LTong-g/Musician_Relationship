@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import argparse
 import json
 from pathlib import Path
 from typing import Any
-
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH
 from music_metadata_graph.pipelines.build_static_graph import (
     CSS,
@@ -19,7 +17,6 @@ from music_metadata_graph.pipelines.build_static_graph import (
     read_vendor_script,
     vendor_asset_path,
 )
-
 
 DEFAULT_OUTPUT_DIR = Path("site_large")
 
@@ -44,7 +41,6 @@ function graphPayload(nodes, edges) {
   };
 }
 """
-
 
 LARGE_GRAPH_SETUP_GRAPH = r"""
 function setupGraph(container) {
@@ -87,13 +83,11 @@ function setupGraph(container) {
 }
 """
 
-
 LARGE_GRAPH_CONFIGURE_FORCES = r"""
 function configureForces(api) {
   return api;
 }
 """
-
 
 LARGE_GRAPH_RENDER_GRAPH = r"""
 function renderGraph() {
@@ -147,10 +141,7 @@ def make_large_graph_js(base_js: str = JS) -> str:
 
 
 LARGE_GRAPH_JS = make_large_graph_js()
-LARGE_GRAPH_CSS = (
-    CSS
-    + r"""
-
+LARGE_GRAPH_CSS = CSS + r"""
 #graph {
   background: #ffffff;
 }
@@ -159,7 +150,6 @@ LARGE_GRAPH_CSS = (
   display: block;
 }
 """
-)
 
 
 def large_graph_html_document(title: str, graph_data: dict[str, Any], vendor_script: str) -> str:
@@ -169,7 +159,10 @@ def large_graph_html_document(title: str, graph_data: dict[str, Any], vendor_scr
         vendor_script,
         css=LARGE_GRAPH_CSS,
         js=LARGE_GRAPH_JS,
+        default_role_split=False,
+        disable_role_split_control=True,
         disable_label_particle_controls=True,
+        default_fans_min=0,
     )
 
 
@@ -182,7 +175,10 @@ def large_graph_html_document_from_assets(title: str) -> str:
         js=LARGE_GRAPH_JS,
         graph_data_src="assets/graph-data.js",
         vendor_src="assets/vendor/force-graph.min.js",
+        default_role_split=False,
+        disable_role_split_control=True,
         disable_label_particle_controls=True,
+        default_fans_min=0,
     )
 
 
@@ -203,7 +199,9 @@ def write_visualization(config: BuildConfig) -> dict[str, Any]:
     vendor_output.parent.mkdir(parents=True, exist_ok=True)
     vendor_output.write_text(vendor_script, encoding="utf-8", newline="\n")
     output_path = config.output_dir / "index.html"
-    output_path.write_text(large_graph_html_document_from_assets(config.title), encoding="utf-8", newline="\n")
+    output_path.write_text(
+        large_graph_html_document_from_assets(config.title), encoding="utf-8", newline="\n"
+    )
     return {
         "output": output_path.as_posix(),
         "db": config.db_path.as_posix(),
@@ -217,11 +215,17 @@ def write_visualization(config: BuildConfig) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build a static page whose drawing area mirrors force-graph example/large-graph.")
+    parser = argparse.ArgumentParser(
+        description="Build a static page whose drawing area mirrors force-graph example/large-graph."
+    )
     parser.add_argument("--db", type=Path, default=None, help="SQLite database path.")
     parser.add_argument("--output-dir", type=Path, default=None, help="Directory for index.html.")
-    parser.add_argument("--title", default="音乐人合作关系图谱 Large Graph", help="HTML page title.")
-    parser.add_argument("--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path.")
+    parser.add_argument(
+        "--title", default="音乐人合作关系图谱 Large Graph", help="HTML page title."
+    )
+    parser.add_argument(
+        "--vendor", type=Path, default=DEFAULT_VENDOR_PATH, help="Local force-graph runtime path."
+    )
     return parser.parse_args()
 
 

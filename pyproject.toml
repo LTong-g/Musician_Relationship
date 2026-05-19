@@ -14,6 +14,8 @@ dependencies = [
 
     "pydantic",
 
+    "Pillow",
+
     "pypinyin",
 
 ]
@@ -48,5 +50,6 @@ mr-filter-songs-language = "music_metadata_graph.pipelines.filter_songs_by_langu
 mr-run-full-pipeline = "music_metadata_graph.pipelines.run_full_pipeline:main"
 mr-run-from-song-tabs = "music_metadata_graph.pipelines.run_from_song_tabs:main"
 mr-prepare-static-graph-assets = "music_metadata_graph.pipelines.prepare_static_graph_assets:main"
+mr-build-avatar-atlas = "music_metadata_graph.pipelines.build_avatar_atlas:main"
 mr-build-static-graph = "music_metadata_graph.pipelines.build_static_graph:main"
 mr-build-large-graph-static = "music_metadata_graph.pipelines.build_large_graph_static:main"

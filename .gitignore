@@ -27,7 +27,11 @@ build/
 data/
 archive/
 reports/
-site_assets/
+site_temp_csv_fullrun/
+site_large_temp_csv_fullrun/
+site_assets/*
+!site_assets/avatar_atlas_150/
+!site_assets/avatar_atlas_150/**
 
 # Local databases and binary analysis outputs
 *.db
@@ -44,3 +48,4 @@ logs/
 *.temp
 .DS_Store
 Thumbs.db
+scripts/probe_missing_similar_artists_33.py

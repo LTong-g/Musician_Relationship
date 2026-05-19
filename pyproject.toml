@@ -59,6 +59,7 @@ mr-prepare-static-graph-assets = "music_metadata_graph.pipelines.prepare_static_
 mr-build-avatar-atlas = "music_metadata_graph.pipelines.build_avatar_atlas:main"
 mr-build-static-graph = "music_metadata_graph.pipelines.build_static_graph:main"
 mr-build-large-graph-static = "music_metadata_graph.pipelines.build_large_graph_static:main"
+mr-collect-jay-similar-singers = "music_metadata_graph.tools.collect_jay_chou_similar_singers:main"
 
 [tool.black]
 line-length = 100

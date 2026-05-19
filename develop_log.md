@@ -32,2882 +32,190 @@ Read this file as UTF-8.
 
 ## 2026-05-11
 
-### 初始化 AGENTS 项目协作文档
-- 根据当前项目目标，将 `AGENTS.md` 从通用模板补充为音乐人合作关系图谱项目规则。
-- 明确项目定位为面向个人技术研究和学习的音乐平台元数据采集、标准化、图谱分析和可视化工具。
-- 明确第一阶段数据源优先级：QQ 音乐非官方接口作为主源，网易云音乐作为补充和交叉校验，酷我、酷狗作为缺失字段兜底来源。
-- 明确推荐运行环境为独立 Conda 环境 `music-graph` 和 Python 3.12，不使用 base 环境承载项目依赖。
-- 明确项目边界：不做音乐播放或下载工具，不提交大量抓取数据、歌词、头像、cookie、token 或账号信息到仓库。
-- 补充内部数据模型原则、来源可追溯、身份消歧、请求策略、缓存与仓库、凭据管理、开源表述和 adapter 验证门槛。
-
-### 安装项目指定 Conda 环境依赖
-- 按用户要求未向 base 环境或 Python 虚拟环境安装依赖，使用项目指定 Conda 环境执行依赖安装。
-- 安装了第一阶段数据采集、标准化、分析和可视化所需依赖：`qqmusic-api-python`、`pandas`、`pydantic`、`httpx`、`tenacity`、`python-dotenv`、`duckdb`、`networkx`、`pyvis`。
-- 初次直接使用指定解释器安装时，因沙箱网络权限和环境目录写入权限受限失败，未完成依赖安装。
-- 随后通过指定 Conda 环境执行 pip 安装并显式禁用 user site 安装，避免依赖落入 base 或用户级 site-packages。
-- 验证对象为目标 Conda 环境的 pip 路径、`qqmusic-api-python` 安装位置和关键依赖导入能力。
-- 验证结果显示 pip 和 `qqmusic-api-python` 均位于项目指定 Conda 环境的 `Lib/site-packages`，关键包 `qqmusic_api`、`pandas`、`pydantic`、`httpx`、`duckdb`、`networkx`、`pyvis` 可正常导入。
-
-### 纠正依赖安装后漏记开发日志
-- 用户指出依赖安装完成后没有记录开发日志，并询问 `AGENTS.md` 是否规定记录时机。
-- 复核 `AGENTS.md` 后确认项目规则要求每次实质性分析、方案、实现、验证、事故或阶段回顾后按 `develop_log.md` 顶部规则追加开发日志。
-- 复核 `develop_log.md` 后确认日志规则要求环境异常、协作规则纠正和验证结果需要记录事实、影响范围和修复方式。
-- 已将依赖安装、验证结果和本次漏记纠正追加到当天开发日志。
-
-### 设计音乐人关系图谱初版方案
-- 用户要求设计初版方案，当前仓库除协作说明和开发日志外尚未建立源码、配置、样例数据或用户文档。
-- 需求理解为先完成一个可本地运行、可验证、范围受控的最小闭环，而不是一次性抓取大量平台数据或建设完整产品。
-- 目标效果为用户可以通过命令输入少量固定 QQ 音乐歌曲或歌手样例，生成标准化的歌曲、音乐人、职能关系边和来源记录，并输出一个本地 HTML 关系图页面。
-- 用户验收路径为查看命令执行结果、样例输出文件、关系边明细和 HTML 图谱页面，确认节点包含音乐人姓名和可用头像 URL，边能区分演唱、作词、作曲等职能。
-- 实现方案分为项目骨架、标准模型、QQ 音乐 adapter、采集缓存、持久化、图谱构建、HTML 可视化、样例命令和测试验证几个部分。
-- 数据边界保持在元数据范围内，不采集音频文件，不实现播放或下载，不提交大量原始缓存、数据库、头像文件、cookie、token 或账号信息。
-- 风险边界包括非官方接口稳定性、作词作曲字段可能缺失或只能从非结构化文本解析、同名音乐人消歧不完整、头像链接可能失效、初版图谱规模不适合大批量数据。
-- 本轮不做范围为不做 GUI 应用、Web 后端、多平台完整聚合、自动化大规模抓取、复杂身份合并、歌词全文分析、社区发现算法和商业级数据服务。
-
-### 调整初版方案为网页化打开体验
-- 用户补充希望初版尽量不要依赖命令启动，而是包装成可直接使用的形式。
-- 用户提出关系边需要两个开关：一个控制有向边或无向边，一个控制是否区分作词、作曲等职能类型。
-- 用户对有向边的设想是能够表现 A 给 B 作词曲与 B 给 A 作词曲的方向差异，但具体视觉表达仍需设计。
-- 用户询问能否做成带前后端的网页，并实现从 GitHub 打开就是网页，而不是必须克隆仓库、配置环境后运行。
-- 已识别方案边界：GitHub Pages 可以承载静态前端和静态 JSON 数据，但不能直接承载常驻 Python 后端；如果需要真实后端采集能力，需要额外部署服务或使用 GitHub Actions 预生成静态数据。
-- 调整后的目标效果为优先建设一个 GitHub Pages 可打开的静态网页初版，内置少量样例数据、关系边开关和图谱交互；采集与数据更新先作为离线生成流程或后续部署后端处理。
-- 风险边界包括浏览器端直接调用第三方非官方接口可能遇到跨域、稳定性、限流和凭据问题，初版不应把 cookie、token 或账号态放入前端。
-- 本轮不做范围调整为不承诺 GitHub Pages 同时提供后端采集服务，不做浏览器端绕过平台限制，不做需要私密凭据的在线采集。
-
-### 收敛第一阶段为无服务器静态网页计划
-- 用户明确没有服务器，因此第一阶段不做任何需要常驻后端服务的设计。
-- 第一阶段边界收敛为 GitHub Pages 静态网页加静态 JSON 数据，网页打开即可查看和交互，不要求访问者克隆仓库或配置 Python 环境。
-- 数据采集和标准化仍作为开发者本地或后续 GitHub Actions 离线生成流程，不作为网页实时功能。
-- 第一阶段计划需要进一步拆分为数据样例、图谱数据协议、静态前端、关系边模式、GitHub Pages 发布、离线数据生成工具和验证验收几个独立步骤。
-- 已确认初版关键交互仍为两个开关：有向边或无向边、区分职能或合并职能。
-
-### 根据真实 QQ 音乐 API 调整第一阶段计划
-- 用户纠正不希望先按手写样例拆分前两步，而是直接用 API 开发，通过小请求查看真实数据后再设计初版。
-- 使用项目指定 Conda 环境检查 `qqmusic-api-python`，确认可用入口包括 `Client().search.search_by_type()`、`Client().song.get_detail()` 和 `Client().song.get_producer()`。
-- 初次在沙箱内执行真实接口请求时因网络权限受限失败，随后按权限规则申请放行后完成小范围请求。
-- 搜索接口返回 `SearchByTypeResponse`，包含歌曲、歌手、专辑等字段；歌曲结果包含 `id`、`mid`、`title`、`singer`、`album`、`time_public` 等可用于建立歌曲和演唱者基础信息。
-- 歌曲详情接口返回 `GetSongDetailResponse`，包含发行公司、流派、语言、发行时间、简介和 `track` 明细，可作为歌曲元数据补充。
-- 制作人员接口返回 `GetProducerResponse`，其中 `data` 按“演唱、作词、作曲、编曲、制作人”等职能分组，每个 producer 包含姓名、头像 URL、`singer_mid` 和职能类型，适合作为关系边的主要来源。
-- 已发现搜索关键词可能返回与预期不一致的第一结果，因此第一阶段不能默认取搜索第一条，需要提供结果确认或按明确歌曲 `mid/id` 采集。
-- 已发现部分歌曲调用制作人员接口时可能因为上游字段为空触发模型校验异常，adapter 需要把该类情况记录为制作人员缺失或接口解析失败，而不是中断整个流程。
-- 第一阶段计划调整为 API 探针、QQ 音乐 adapter、标准化导出、静态网页图谱和 GitHub Pages 发布，不再以手写样例数据作为前置核心步骤。
-
-### 纠正 QQ 音乐搜索结果判断
-- 用户追问“搜索不能默认取第一条”的含义，并询问如何发现第一条不符合预期以及如果用 ID 采集如何知道歌曲 ID。
-- 复核后确认前一次异常搜索结果并非 QQ 音乐按“稻香”真实返回错误，而是通过 PowerShell 管道执行临时 Python 脚本时中文关键词被传成问号，导致请求关键词失真。
-- 使用 Unicode 转义重新请求“稻香”和“周杰伦 稻香”，结果显示第一条均为周杰伦《稻香》，其中歌曲 `id` 为 `449205`、`mid` 为 `003aAYrm3GE0Ac`。
-- 已纠正方案判断：初版可以支持按歌名搜索采集，但产品流程不应完全静默依赖第一条；更合适的方式是在搜索结果页展示候选歌曲，让用户确认后系统自动使用对应 `id/mid` 继续采集。
-- 仍保留风险事实：搜索结果中可能出现童声版、Demo、Live、翻唱、Remix 等同名版本，因此当关键词不够精确或需要避免版本误选时，需要展示歌名、歌手、专辑、发行时间和 `id/mid` 供确认。
-- 事故原因是临时验证脚本的输入编码不可靠，后续涉及中文关键词的验证应使用 UTF-8 文件、Unicode 转义或确认输出中的 `repr(keyword)`，避免把本地编码问题误判为平台接口行为。
-
-### 纠正第一阶段数据获取主流程
-- 用户指出搜索单首歌只是数据获取的一步，不应设计成网页里的主要流程。
-- 用户明确期望的数据生产流程是先获取音乐人列表，再对每个音乐人获取单曲，过滤 Live 版本，去重后对每个单曲获取作词、作曲人，最终得到 `{歌名，音乐人，作词，作曲，其他必要信息}` 形式的数据。
-- 复核 `qqmusic-api-python` 接口后确认 `SingerApi.get_songs_list(mid)` 可按音乐人获取歌曲列表，`SongApi.get_producer(value)` 可按歌曲 `id/mid` 获取演唱、作词、作曲、编曲、制作人等职能分组。
-- 第一阶段主流程调整为“种子音乐人列表 -> 歌手单曲列表 -> Live/版本过滤 -> 歌曲去重 -> 制作人员抓取 -> 标准行数据 -> 静态图谱 JSON -> GitHub Pages 网页”。
-- 搜索接口在第一阶段降级为辅助能力：用于把用户给出的音乐人姓名解析成候选音乐人 `mid`，或在必要时人工查找缺失歌曲，不作为网页交互入口。
-- 网页职责收敛为读取已生成数据并进行关系图展示、筛选和边模式切换，不承担在线搜索和在线采集。
-
-### 调整冷启动来源为 QQ 音乐榜单
-- 用户指出第一步仍不成立，因为一开始不知道任何 QQ 音乐中的音乐人或歌曲 `id/mid`。
-- 用户建议通过获取排行榜的形式先取得一批音乐人。
-- 复核 `qqmusic-api-python` 后确认 `TopApi.get_category()` 可获取榜单分类，`TopApi.get_detail(top_id, num, page)` 可获取具体榜单歌曲。
-- 小范围请求榜单分类显示榜单项包含前几首歌曲，并提供歌曲 `id`、歌曲名、`singer_name`、`singer_mid`、专辑 `album_mid` 和封面 URL。
-- 小范围请求热歌榜详情显示 `songs` 列表包含完整歌曲 `id/mid`、歌名、演唱者列表、专辑信息、发行时间等字段，可作为无已知 ID 状态下的冷启动入口。
-- 第一阶段主流程进一步调整为“榜单分类/榜单详情 -> 榜单歌曲 -> 榜单音乐人 -> 音乐人单曲列表 -> 过滤与去重 -> 制作人员抓取 -> 标准行数据 -> 图谱 JSON -> 静态网页”。
-- 初版可以默认选择少数榜单作为冷启动来源，例如热歌榜、新歌榜或飙升榜，并限制每个榜单、每个音乐人的采集数量，避免大规模请求。
-
-### 纠正冷启动来源为歌手列表
-- 用户指出需要的是歌手榜单，不是歌曲榜单；第一步应该先获取一批音乐人，而不是从歌曲获得音乐人。
-- 复核 `qqmusic-api-python` 后确认 `SingerApi.get_singer_list()` 和 `SingerApi.get_singer_list_index()` 可直接获取歌手列表。
-- 歌手列表接口支持按地区、性别、流派和首字母索引过滤，相关枚举包括 `AreaType`、`SexType`、`GenreType` 和 `IndexType`。
-- 小范围请求 `get_singer_list()` 显示返回 `hotlist` 和 `singerlist`，其中热门歌手包含周杰伦、林俊杰、陈奕迅等，以及 `id`、`mid`、姓名、别名、拼音、关注数等字段。
-- 小范围请求 `get_singer_list_index()` 显示返回分页歌手列表、总数和头像 URL，样例中每个歌手包含 `singer_pic`，更适合作为初版音乐人节点头像来源。
-- 第一阶段主流程修正为“歌手列表/热门歌手 -> 音乐人 -> 音乐人单曲列表 -> 过滤与去重 -> 制作人员抓取 -> 标准行数据 -> 图谱 JSON -> 静态网页”。
-- 歌曲榜单接口可保留为后续补充热门歌曲覆盖的辅助来源，但不作为第一阶段冷启动主入口。
-
-### 实现热门歌手单曲采集脚本
-- 用户要求开始写代码，先实现获取前 50 个热门歌手、每个歌手获取全部单曲、过滤 Live、Demo、Remix 等版本，并停在这里查看保存的数据形态。
-- 新增 `.gitignore`，排除 `data/raw/`、`data/processed/`、`.env`、`__pycache__` 和 `*.pyc`，避免提交原始接口缓存和生成数据。
-- 新增 `pyproject.toml`，记录项目包名、Python 版本要求和当前脚本依赖。
-- 新增 `musician_relationship/collect_singer_songs.py`，实现从 `SingerApi.get_singer_list_index()` 获取热门歌手、按歌手 `mid` 分页调用 `SingerApi.get_songs_list()` 获取单曲、版本过滤、按 `song_mid/song_id` 去重，并输出 JSON 与 CSV。
-- 采集脚本默认参数为前 50 个歌手、每页 30 首歌、不限制歌手分页页数；提供 `--max-pages-per-singer` 用于小样本验证。
-- 原始响应缓存保存到 `data/raw/qqmusic/`，处理后结果保存到 `data/processed/`，包括 `singers.json`、`songs_all.json`、`songs_kept.json`、`songs_filtered.json`、对应 CSV 和 `singer_song_snapshot.json`。
-- 初次小样本验证发现 QQ 音乐歌手单曲接口即使传入 `page_size=20` 仍返回 30 首，已将默认页大小改为 30，并在缓存文件名中加入 page size，避免分页 offset 与缓存混用风险。
-- 初次过滤验证发现专辑名 `Live For Today` 会被简单 `Live` 关键词误判为现场版本，已调整过滤逻辑：歌名、标题和副标题检查 `Live/Demo/Remix` 等关键词，专辑名只检查“演唱会、现场、巡回、concert”等更明确关键词。
-- 根据用户偏好，新增和修改的文本文件已统一为 CRLF 行尾。
-
-### 验证热门歌手单曲采集脚本
-- 语法验证对象为 `musician_relationship/collect_singer_songs.py`，执行方式为项目指定 Conda 解释器运行 `py_compile`，结果未报语法错误。
-- 小样本接口验证对象为前 3 个热门歌手且每个歌手仅取 1 页，执行命令为 `python -m musician_relationship.collect_singer_songs --singer-limit 3 --page-size 30 --max-pages-per-singer 1 --processed-dir data/processed_smoke`。
-- 小样本采集结果显示获取到周杰伦、林俊杰、陈奕迅 3 位歌手，每位歌手第一页返回 30 首单曲，共 90 条歌曲行，去重后仍为 90 条。
-- 修正过滤逻辑后，小样本结果为保留 90 条、过滤 0 条；观察到样本第一页没有明显 Live、Demo、Remix 标题版本，因此该结果符合当前样本。
-- 离线过滤规则验证显示 `晴天 (Live)` 返回 `title_version_keyword:Live`，`稻香 Demo` 返回 `title_version_keyword:Demo`，专辑名 `Live For Today` 不再误过滤，专辑名包含“演唱会”时返回 `album_version_keyword:演唱会`。
-- 保存数据抽查显示 `songs_kept.json` 中每首歌包含 `id`、`mid`、歌名、标题、专辑、发行时间、演唱者列表、来源歌手、过滤状态和过滤原因，可作为下一步获取作词作曲信息的输入。
-- 当前未执行前 50 个歌手的全量单曲采集；根据小样本返回的总数，热门歌手全量单曲可能产生较多分页请求，适合在确认当前数据形态后再执行。
-- `git status --short` 因本机 Git safe.directory 所有权检查失败未能执行，未进行提交相关操作。
-
-### 检查初步过滤后歌曲重名情况
-- 用户要求检查初步过滤后的歌曲是否仍有重名或近似重名。
-- 检查对象为最新小样本输出 `data/processed_smoke/songs_kept.json`，该文件包含前 3 个热门歌手各 1 页采集后保留的 90 首歌曲。
-- 检查方式包括按原始标题精确分组、按去空白和常见分隔符后的标题分组、按去括号和 Live、Demo、Remix 等版本词后的标题分组，以及相似度阈值 0.92 的模糊标题两两比较。
-- 检查结果显示当前 90 首小样本中没有精确重名组、没有基础规范化重名组、没有去版本词后的近似重名组，也没有相似度大于等于 0.92 的标题对。
-- 额外扫描版本关键词残留发现 2 条歌曲的专辑名包含 `Live For Today`：陈奕迅《十面埋伏》和《岁月如歌》；当前规则没有过滤它们，因为该专辑名不是现场版本含义，符合前一次误过滤修正。
-- 当前结论只覆盖小样本，不代表前 50 个热门歌手全量单曲；全量采集后需要再次执行同类检查。
-
-### 采集周杰伦全量单曲并观察过滤结果
-- 用户要求跑一个歌手的全部单曲，指定周杰伦，并查看初步筛除结果。
-- 执行命令为 `python -m musician_relationship.collect_singer_songs --singer-limit 1 --page-size 30 --processed-dir data/processed_jay`，因热门歌手列表第一位为周杰伦，该命令只采集周杰伦。
-- 采集结果显示周杰伦单曲接口共返回 1012 条歌曲行，分页 34 页，其中前 33 页每页 30 条，第 34 页 22 条。
-- 去重后仍为 1012 条；当前过滤规则保留 410 条、过滤 602 条。
-- 过滤原因分布为：`title_version_keyword:Live` 239 条，`title_version_keyword:版伴奏` 173 条，`title_version_keyword:演唱会` 65 条，`title_version_keyword:伴奏` 51 条，`title_version_keyword:现场` 31 条，`title_version_keyword:纯音乐` 16 条，`title_version_keyword:Demo` 11 条，`title_version_keyword:Remix` 8 条，`title_version_keyword:片段` 7 条，`album_version_keyword:巡回` 1 条。
-- 抽查过滤样例显示大量过滤项为标题包含 `(Live)` 的现场版本，以及 `KTV版伴奏`、`原版伴奏`、`升调版伴奏` 等伴奏版本，符合当前过滤目标。
-- 发现一条可能误杀：周杰伦《周大侠》标题不是 Live 版本，但因专辑名 `2007世界巡回演唱会` 命中 `album_version_keyword:巡回` 被过滤；后续应考虑去掉专辑名中的“巡回”触发，仅保留更明确的“演唱会、现场、concert”等专辑级过滤词。
-- 本次运行输出保存到 `data/processed_jay/`，包括全量歌曲、保留歌曲、过滤歌曲和摘要快照。
-
-### 生成并修正周杰伦过滤清单报告
-- 用户要求列出完整过滤样例，因此基于 `data/processed_jay/songs_filtered.json` 生成 Markdown 报告 `data/processed_jay/songs_filtered_report.md`。
-- 报告按过滤原因分组列出 602 条过滤歌曲，字段包括歌名、标题、歌手、专辑、`song_id` 和 `song_mid`。
-- 用户指出报告中出现大量问号，复核确认报告文件中的中文标题和表头被写成问号，但歌曲数据字段本身仍保持中文，原始 JSON 未损坏。
-- 事故原因是通过 PowerShell here-string 传入临时 Python 脚本时，脚本中的中文常量被当前控制台编码替换为问号。
-- 已使用 Unicode 码点生成中文标题和表头，重新写入 `songs_filtered_report.md`，复核结果显示报告中问号数量为 0。
-- 后续涉及临时 Python 脚本中的中文常量时，应使用 UTF-8 源文件、Unicode 转义或码点生成，避免通过 PowerShell here-string 直接写中文。
-
-### 调整歌曲过滤顺序和专辑过滤规则
-- 用户要求修改流程：先进行初过滤，再去重；关键词过滤前先根据专辑过滤，去掉专辑为空的歌曲；关键词中去掉“巡回”。
-- 已修改 `musician_relationship/collect_singer_songs.py`：每首歌先生成紧凑记录，再按空专辑过滤，然后按版本关键词过滤，最后只对保留候选执行去重。
-- 已从专辑级版本关键词中移除“巡回”，避免《周大侠》因专辑名 `2007世界巡回演唱会` 被误过滤。
-- `songs_all.json` 现在保存过滤前全量行，`songs_kept.json` 保存先过滤再去重后的保留结果，`songs_filtered.json` 保存过滤掉的行。
-- 摘要计数字段新增 `songs_after_filter_before_dedupe`，用于区分过滤后、去重前的数据规模。
-- 语法验证对象为采集脚本，执行 `py_compile` 未报错。
-- 离线过滤检查确认空专辑返回 `empty_album`，标题包含 `Live` 返回标题版本过滤原因，`周大侠` 专辑名含“巡回”不再触发版本过滤。
-
-### 复跑周杰伦全量单曲新过滤流程
-- 使用新流程复跑周杰伦全量单曲，输出目录为 `data/processed_jay_refiltered/`。
-- 采集仍读取周杰伦 1012 条歌曲行，因原始响应缓存已存在，本次复跑主要验证处理流程变化。
-- 新流程结果显示过滤前 1012 条，过滤后去重前 250 条，去重后保留 250 条，过滤 762 条。
-- 过滤原因分布为：`empty_album` 591 条，`title_version_keyword:Live` 161 条，`title_version_keyword:Demo` 3 条，`title_version_keyword:Remix` 3 条，`title_version_keyword:现场` 2 条，`title_version_keyword:伴奏` 2 条。
-- 抽查确认《周大侠》在新流程中保留，`filter_reason` 为 `null`。
-- 已生成新的完整过滤报告 `data/processed_jay_refiltered/songs_filtered_report.md`，报告问号数量复核为 0。
-
-### 调整关键词过滤优先级
-- 用户指出关键词过滤规则没有固定顺序，名称中包含多个关键词的歌曲会按合并正则的匹配位置返回过滤原因，而不是按预期关键词顺序返回。
-- 已将版本关键词过滤改为显式按 `TITLE_VERSION_KEYWORDS` 列表顺序检查，确保过滤原因由规则优先级决定。
-- 用户进一步指出 `版伴奏` 不需要单独作为原因，普通 `伴奏` 可以覆盖，因此已删除 `版伴奏` 和 `伴奏版` 专门关键词。
-- 关键词过滤现在只检查歌名、标题和副标题，不再检查专辑名；专辑名过滤仅用于前置的空专辑过滤。
-- 语法验证对象为采集脚本，执行 `py_compile` 未报错。
-- 离线验证显示“演唱会现场 Live 伴奏”按优先级返回 `title_version_keyword:live`，`KTV版伴奏` 和普通伴奏标题均返回 `title_version_keyword:伴奏`，仅专辑名含“巡回演唱会”的《周大侠》不再触发关键词过滤。
-- 使用新规则复跑周杰伦处理结果到 `data/processed_jay_priority_filter/`，结果仍为过滤前 1012 条、过滤后去重前 250 条、去重后保留 250 条、过滤 762 条。
-- 新过滤原因分布为：`empty_album` 591 条，`title_version_keyword:live` 161 条，`title_version_keyword:demo` 3 条，`title_version_keyword:remix` 3 条，`title_version_keyword:现场` 2 条，`title_version_keyword:伴奏` 2 条。
-- 抽查确认《周大侠》仍被保留，已生成新报告 `data/processed_jay_priority_filter/songs_filtered_report.md`，报告问号数量为 0。
-
-### 评估以专辑为主的采集流程
-- 用户提出当前通过歌手歌曲列表采集后仍有较多噪声，询问是否可以改为先取歌手专辑列表，再按专辑取歌曲，以减少空专辑和非官方噪声。
-- 复核 `SongApi.get_other_version(value)` 的真实返回后确认，该接口返回的是与目标歌曲相关的其他版本列表，返回类型为 `GetOtherVersionResponse`，字段为 `data`，其中元素是 `Song` 对象。
-- 实际样例显示 `get_other_version('003aAPj81VWrbL')` 返回 `富士山下` 的其他版本，如 `富士山下 (深情版)`、`富士山下 (纯净女声版)`、`富士山下 (Live)` 等，说明该接口更适合做版本识别和版本补充，而不是原唱真值字段。
-- 复核 `SingerApi.get_album_list(mid)` 后确认歌手专辑列表返回 `SingerAlbumListResponse`，字段包括 `singer_mid`、`total` 和 `album_list`；周杰伦样例返回 43 个专辑/单曲/演唱会/EP 等条目，并带有 `album_type`、`time_public`、`singer_name`。
-- 复核 `AlbumApi.get_song(album_id_or_mid)` 后确认专辑歌曲列表返回 `GetAlbumSongResponse`，字段包括 `album_mid`、`total_num` 和 `song_list`，可直接按专辑取歌，无需再依赖歌手歌曲列表中的空专辑条目。
-- 评估结果认为：以“歌手 -> 专辑 -> 专辑歌曲”作为主流程是可行的，并且理论上能减少 `empty_album` 这类噪声，因为专辑歌曲天然带专辑上下文。
-- 同时保留风险：歌手专辑列表本身会包含录音室专辑、EP、Single、演唱会、原声带、合辑等多种类型，需要在专辑层做白名单或黑名单筛选，否则仍会引入现场、合辑和翻唱条目。
-- 另一个风险是单曲、合作曲和跨歌手参与曲可能不会完全被专辑主流程覆盖，后续可能仍需要把歌手歌曲列表或搜索接口作为补充源，而不是完全删除。
-
-### 修正保留歌曲 Markdown 表格报告
-- 用户要求查看过滤后保留歌曲的全量 Markdown 清单，并指出生成的 Markdown 表格多次渲染失败且出现问号。
-- 复核发现第一次失败原因是报告表格行之间被写入空行，Markdown 渲染器将表格拆断；后续又发现 Windows 文本模式写入 `\r\n` 时被二次转换为 `\r\n\r\n`，继续产生空行。
-- 复核还发现 `Six Degrees (Slowed|Reverb)` 等字段中包含未转义竖线，会导致 Markdown 表格列数错乱。
-- 已将 `data/processed_jay_priority_filter/songs_kept_alpha_report.md` 重新生成为单表格式，并对所有单元格内容中的 `|` 执行转义。
-- 为避免 PowerShell 临时脚本中文常量再次被本机编码污染，报告标题和列名改为 ASCII，中文只来自 JSON 数据本身。
-- 验证结果显示新版报告问号数量为 0，并且所有表格行的未转义竖线数量符合 7 列表格结构。
-
-### 修正保留歌曲拼音排序报告
-- 用户指出此前“首字母通排”并未真正按拼音排序，只是按英文、数字、Unicode 中文顺序排列，导致中文歌曲没有和英文按拼音混排。
-- 复核确认当前环境未安装 `pypinyin`，因此此前无法进行真实拼音排序。
-- 已将 `pypinyin` 加入 `pyproject.toml` 依赖，并安装到项目指定 Conda 环境。
-- 使用 `pypinyin.lazy_pinyin()` 为歌曲标题生成无声调拼音排序键，重新生成 `data/processed_jay_priority_filter/songs_kept_pinyin_report.md`。
-- 报告列包含 `Initial`、`Sort key`、`Song`、`Title`、`Release`、`Source singers`、`Album`、`song_id` 和 `song_mid`，用于检查排序依据。
-- 已将同样内容同步覆盖到 `data/processed_jay_priority_filter/songs_kept_alpha_report.md`，避免继续打开旧错误报告。
-- 验证结果显示两个报告的问号数量均为 0，粗略表格竖线检查均未发现异常行。
-
-### 再次修正拼音排序报告表格渲染
-- 用户指出拼音排序 Markdown 报告仍然渲染失败，并要求生成后先检查。
-- 复核确认此前检查只覆盖问号和竖线列数，遗漏了 Markdown 表格前必须与前置段落或列表分隔的结构条件。
-- 已重新生成 `songs_kept_pinyin_report.md` 和 `songs_kept_alpha_report.md`，将元信息从列表项改为普通段落，并在表格前保留空行。
-- 已使用 CRLF 字节写入文件，避免 Windows 文本模式把换行二次转换为额外空行。
-- 新增结构验证：确认表格前一行为空行、表格分隔行有效、表格内部无空行、表头和 250 条数据行列数一致。
-- 验证结果显示问号数量为 0，表格起始行为第 7 行，表格行数为 252 行，结构验证错误列表为空。
-
-### 分析包含式近似去重规则
-- 用户提出需要增加去重规则：先模糊匹配重复歌曲，例如歌名 B 是 A 加前缀或后缀，保留原版 A。
-- 使用当前 `data/processed_jay_priority_filter/songs_kept.json` 对保留的 250 首歌曲做包含式近似重复分析。
-- 直接按“短标题规范化后是长标题子串”的规则只发现 3 组候选：`月光` 与 `天台的月光`、`天台` 与 `天台的月光`、`小雨写立可白Ⅰ` 与 `小雨写立可白Ⅱ`。
-- 这些候选均不适合直接按“保留短标题、删除长标题”处理：`月光` 和 `天台的月光` 是不同歌曲，`天台` 和 `天台的月光` 也是不同歌曲，`小雨写立可白Ⅰ/Ⅱ` 是不同分段曲目。
-- 结论是不能使用裸包含关系作为自动去重条件；需要只在多出来的前缀或后缀属于明确版本词、修饰词或括号附加信息时才自动合并。
-- 推荐规则方向为：先做标准化标题，再识别括号内容、版本词、feat/with、remaster、radio edit、伴奏、live、demo、remix 等可丢弃修饰；对于普通中文词组前后缀不自动删除，只标记为人工复核候选。
-
-### 调整去重方向为版本去重和专辑归属验证
-- 用户指出实际需要去重的样例包括《发如雪》与《发如雪 (醇享版)》、《轨迹》与《轨迹 (醇享版)》、《Six Degrees》与 Instrumental/Slowed/Reverb/Sped Up 版本、《你听得到》与《你听得到 (Inst.)》等。
-- 用户同时指出《土耳其进行曲》和《- 夜访巴赫曲》虽然出现在周杰伦歌曲列表中，但从专辑和上下文看明显不属于周杰伦，需要考虑通过专辑进一步验证是否属于目标音乐人。
-- 抽查样例的专辑详情后确认，`AlbumApi.get_detail(album_mid)` 可取得专辑歌手、专辑类型、唱片公司、语种、简介等字段，可用于辅助判断专辑归属。
-- 样例显示《十一月的萧邦》《寻找周杰伦》《Six Degrees》《叶惠美》等保留项的专辑歌手包含目标音乐人周杰伦；而《醇享好声音》的专辑歌手为 `2018中国好声音`，《Six Degrees (Remix)` 的专辑歌手仅为派伟俊，《最脍炙人口的古典音乐100首》的专辑歌手为古典音乐，《华语乐坛混剪集》的专辑歌手为飞天猫，《音乐情书6》的专辑歌手为华语群星，均不包含周杰伦。
-- 结论是下一步去重不应只按标题包含关系处理，而应新增“专辑详情缓存 + 专辑归属验证 + 版本后缀去重”三类规则。
-- 自动剔除的高置信规则应优先覆盖：目标歌曲存在同名原版且当前标题或专辑标题带 `醇享版`、`Instrumental`、`Inst.`、`Slowed`、`Reverb`、`Sped Up`、`Remix` 等版本词；以及专辑歌手不包含目标音乐人且专辑为群星、纯音乐、混剪、古典或来源公司为空的明显非目标专辑。
-- 对原声带、合辑、合作单曲等边界情况不应直接用“专辑歌手不含目标音乐人”一刀切删除，应先标记为 `review_album_owner_mismatch`，避免误删真实参与作品。
-
-### 验证专辑归属和版本去重规则
-- 用户要求按新思路进行验证，并在验证前删除不再有用的旧产物。
-- 已删除被 `data/processed_jay_priority_filter/` 取代的旧输出目录 `data/processed_smoke/`、`data/processed_jay/`、`data/processed_jay_refiltered/`，以及当前验证会替代的旧 Markdown 报告；保留当前验证输入 `songs_all/kept/filtered` 和原始缓存。
-- 新增 `musician_relationship/validate_album_ownership.py`，作为独立后处理阶段读取初过滤后的 `songs_kept.json`，低频请求并缓存 `AlbumApi.get_detail(album_mid)` 到 `data/raw/qqmusic/albums/`，再输出专辑验证后的 kept/rejected/review 数据。
-- 初版强规则过度依赖 `华语群星`、`群星` 和空公司，抽查发现会把《天台》原声带、《千山万水》《屋顶》等可能真实参与作品自动剔除，因此已收紧规则：`华语群星`、`群星`、空公司单独出现仅进入 review，不再自动剔除。
-- 当前自动剔除规则集中在高置信场景：存在同名原版且标题或专辑标题带版本词；专辑歌手为古典音乐、飞天猫、2018中国好声音等强非目标来源；专辑标题或简介命中混剪、醇享、remix；专辑语种为纯音乐。
-- 使用周杰伦初过滤保留的 250 首歌曲进行真实验证，共检查 59 张专辑；最终保留 214 首、自动剔除 9 首、待复核 27 首。
-- 自动剔除清单命中用户指出的样例：《轨迹 (醇享版)》、《发如雪 (醇享版)》、《Six Degrees (Sped Up)》、《Six Degrees (Slowed|Reverb)》、《Six Degrees (Instrumental)》、《你听得到 (Inst.)》、《土耳其进行曲》、《- 夜访巴赫曲》，另有《Nunchucks》因纯音乐原声带进入自动剔除。
-- 原版《发如雪》《轨迹》《你听得到》《Six Degrees》均在验证后保留。
-- 待复核清单包含《布拉格广场》《屋顶》《不该》《千山万水》《天台的月光》《天台》《阿爸》《双节棍》等专辑歌手不含周杰伦但不能自动判定为噪声的边界项。
-- 输出目录为 `data/processed_jay_album_validated/`，包含 `album_validation_snapshot.json`、`songs_kept_album_validated.json/csv`、`songs_rejected_album_validated.json/csv/md`、`songs_review_album_validated.json/csv/md` 和全量验证结果。
-- 验证执行 `py_compile` 通过；真实专辑详情请求首次因沙箱网络权限被拒，按规则申请网络权限后完成请求，后续复跑使用本地专辑缓存。
-- 已检查 rejected/review Markdown 报告，问号数量为 0，表格列数检查无异常。
-
-### 复盘格式和编码问题并补充协作约束
-- 用户指出近期开发中反复出现 Markdown 表格渲染失败、中文问号或乱码、本地文件链接被破坏等格式问题，要求反思并在必要时补充 `AGENTS.md` 约束。
-- 复盘认为主要原因不是单点 Bug，而是输出产物缺少统一验收门槛：曾使用 PowerShell 临时脚本处理中文常量导致编码污染；Windows 文本换行被二次转换导致 Markdown 表格断裂；表格单元格中的 `|` 未转义导致列数错乱；对 Markdown 表格只做局部检查，遗漏表格前空行和整体结构；最终回复中的 Windows 反斜杠路径被 Markdown 渲染破坏。
-- 另一个流程问题是过早把“报告已可用”“链接可打开”等结论告诉用户，但没有先按用户实际入口回读文件、检查链接格式和表格结构。
-- 已在 `AGENTS.md` 的用户长期偏好中增加本地文件链接规则：必须提供可点击 Markdown 链接，Windows 链接目标使用正斜杠绝对路径，不使用反斜杠。
-- 已在 `AGENTS.md` 的项目补充规则中增加中文与编码、Markdown 报告生成、临时脚本约束和报告链接验收规则。
-- 后续涉及中文报告或数据清单时，必须显式 UTF-8 读写，回读检查无替换字符，校验 Markdown 表格列数和结构，确认文件存在且大小非零，再向用户提供链接。
-
-### 跑通薛之谦全量验证
-- 用户要求再跑一个薛之谦全量，用于验证当前 pipeline。
-- 为避免伪造热门榜输入，已给 `collect_singer_songs.py` 增加 `--target-singer-mid` 和 `--target-singer-name` 参数，可直接按指定 singer mid 采集单个歌手，仍复用原有分页采集、初过滤、去重和输出逻辑。
-- 使用小请求确认薛之谦 singer mid 为 `002J4UUk29y8BY`，接口返回总数 528，首页包含《演员》《其实》《天外来物》《认真的雪》等歌曲。
-- 使用 `collect_singer_songs.py` 全量采集薛之谦歌曲到 `data/processed_xue_priority_filter/`，结果为原始歌曲行 528 条，初过滤后去重前 133 条，去重后保留 133 条，过滤 395 条。
-- 初过滤原因分布为：`empty_album` 243 条，`title_version_keyword:live` 142 条，`title_version_keyword:伴奏` 5 条，`title_version_keyword:demo` 4 条，`title_version_keyword:现场` 1 条。
-- 使用 `validate_album_ownership.py` 对 133 首初过滤保留歌曲做专辑归属验证，检查 33 张专辑，输出到 `data/processed_xue_album_validated/`；结果为保留 127 首，自动剔除 0 首，待复核 6 首。
-- 待复核歌曲包括《重返十七岁 (新版)》《刚刚好 (DJ 改编版)》《守候 (2020重唱版)》《我的show》《绅士 (DJ版)》《认真的雪 (Single Version)》，主要原因是专辑歌手不含薛之谦或专辑为华语群星/空公司等弱异常。
-- 抽查保留结果发现当前规则仍有版本去重缺口：`DJ版`、`DJ 改编版`、`吉他版`、`Single Version`、`新版`、`重唱版` 尚未纳入高置信版本词；《方圆几里》和《方圆几里 (吉他版)》仍同时保留。
-- 抽查还发现同名不同专辑重复保留候选：《我们爱过就好》同时出现在《几个薛之谦》和单曲《我们爱过就好》，《马戏小丑》同时出现在《你过得好吗》和《未完成的歌》；这类不应简单按标题删除，需要后续按发行日期、专辑类型、专辑归属和 song mid 关系做候选复核。
-- rejected/review Markdown 报告已回读检查，UTF-8 可读，无 U+FFFD 替换字符，表格列数检查无异常。
-
-### 增加热门歌手身份 registry
-- 用户提出应先把热门歌手跑一个全量并存储下来，作为歌手相关基础信息，主要用于保存 id 和名字等相对稳定字段。
-- 评估后认为该方向合理，但需要区分稳定身份字段和会变化的榜单快照：QQ 音乐 singer id / mid 可作为相对稳定身份键，歌手名、头像、热度榜位置和是否在热门列表中仍可能变化。
-- 新增 `musician_relationship/collect_hot_singer_registry.py`，按 `SingerApi.get_singer_list_index(area=ALL, sex=ALL, genre=ALL, index=ALL)` 分页采集热门歌手列表，原始响应缓存到 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`。
-- 脚本输出两个语义不同的产物：`singer_registry.json/csv` 作为当前可用歌手身份表，`hot_singer_discovery_snapshot.json` 作为本次热门榜发现快照。
-- 脚本支持 `--max-pages` 做 smoke test，完整运行时默认不限制页数，按接口 `total` 和分页数量停止。
-- 已先执行一页 smoke test，确认第一页返回 80 个歌手，接口总量为 6803；随后完整跑完 86 页，最后一页 3 个歌手，共得到 6803 个唯一 singer mid。
-- 完整输出目录为 `data/processed_hot_singers/`，包含 `singer_registry.json`、`singer_registry.csv` 和 `hot_singer_discovery_snapshot.json`。
-- 回读验证显示三个输出文件 UTF-8 可读，无 U+FFFD 替换字符；唯一 singer mid 数量为 6803，与总行数一致。
-- 抽查确认 registry 中包含周杰伦 `0025NhlN2yWrP4`，发现排名第 1；包含薛之谦 `002J4UUk29y8BY`，发现排名第 4。
-- 已删除临时 smoke 输出目录 `data/processed_hot_singers_smoke/`，保留原始请求缓存和正式 processed 输出。
-
-### 生成薛之谦 pipeline 全量报告
-- 用户要求查看薛之谦全量验证过程，包括每一步筛除内容、筛除理由和留下内容。
-- 新增 `musician_relationship/write_singer_pipeline_report.py`，用于把指定歌手的一次 pipeline 运行整理成 Markdown 报告，避免继续用临时脚本拼接表格。
-- 报告输入为 `data/processed_xue_priority_filter/` 和 `data/processed_xue_album_validated/`，输出到 `data/processed_xue_pipeline_report/`。
-- 生成的报告包括：`00_summary.md` 汇总计数和原因分布；`01_initial_filtered.md` 初过滤剔除的 395 条歌曲及理由；`02_initial_kept.md` 初过滤后留下的 133 条歌曲；`03_album_review.md` 专辑验证后需要复核的 6 条；`04_album_rejected.md` 专辑验证自动剔除的 0 条；`05_final_kept.md` 最终保留的 127 条。
-- 首次报告校验发现 `00_summary.md` 含多个不同列数的 Markdown 表格，旧校验器把后续两列表误判为列数错误；已修正为按连续表格块分别校验。
-- 已执行 `py_compile` 验证报告脚本，通过。
-- 已独立回读检查 6 个 Markdown 文件，UTF-8 可读，无 U+FFFD 替换字符，所有表格块列数一致。
-
-### 跑通林俊杰全量验证
-- 用户要求再验证一个林俊杰全量。
-- 从 `data/processed_hot_singers/singer_registry.json` 查询确认林俊杰 singer mid 为 `001BLpXF2DyJe2`，热门发现排名第 2。
-- 使用 `collect_singer_songs.py` 全量采集林俊杰歌曲到 `data/processed_jj_priority_filter/`；首次命令为规避 PowerShell 中文编码传入了 Unicode 转义，导致 source singer name 显示为字面量转义字符串，随后为 CLI 文本参数增加 `unicode_escape` 解码并用缓存重跑，输出中的歌手名恢复为正常中文。
-- 林俊杰全量采集结果为原始歌曲行 1013 条，初过滤后保留 288 条，过滤 725 条。
-- 初过滤原因分布为：`empty_album` 572 条，`title_version_keyword:live` 133 条，`title_version_keyword:remix` 11 条，`title_version_keyword:演唱会` 3 条，`title_version_keyword:伴奏` 3 条，`title_version_keyword:demo` 2 条，`title_version_keyword:纯音乐` 1 条。
-- 使用 `validate_album_ownership.py` 对 288 首初过滤保留歌曲做专辑归属验证，检查 94 张专辑，输出到 `data/processed_jj_album_validated/`；结果为保留 258 首，自动剔除 1 首，待复核 29 首。
-- 自动剔除项为《钢琴曲 可惜没有如果（林俊杰）》，专辑《钢琴曲 可惜没有如果（林俊杰）-山水眩月》，原因包含专辑语种纯音乐和空公司。
-- review 列表包含《被风吹过的夏天》《黑暗骑士》《抢玫瑰》《小说》《御龙三国志》《期待你的爱》《小酒窝 (粤语)》《Wild Child (Radio Edit)》等，主要是专辑歌手不含林俊杰、群星专辑或空公司等弱异常。
-- 抽查最终保留结果发现版本词和重复规则仍有明显缺口：`Jazz Version`、`私享版`、`晚安版`、`JJ20版`、`粤语`、`Album Version`、`Radio Edit` 等尚未统一处理。
-- 同名重复候选包括《伟大的渺小》与 Jazz Version、《修炼爱情》与 Jazz Version/私享版、《只要有你的地方》与晚安版、《江南》与粤语版、《那些你很冒险的梦》与 JJ20 版，以及《小酒窝》《爱与希望》等精选/自选辑重复。
-- 已使用 `write_singer_pipeline_report.py` 生成林俊杰全流程报告到 `data/processed_jj_pipeline_report/`，包含 summary、初过滤剔除、初过滤保留、专辑复核、专辑剔除和最终保留 6 个 Markdown 文件。
-- 已独立回读检查 6 个 Markdown 文件，UTF-8 可读，无 U+FFFD 替换字符，所有表格块列数一致。
-
-### 修正 pipeline 报告排序
-- 用户指出过程文档没有按歌曲首字母排列，不利于人工查歌。
-- 复核确认 `write_singer_pipeline_report.py` 此前按 pipeline 原始输出顺序写表，仅便于追溯处理顺序，不适合作为人工检查清单。
-- 已给报告脚本增加基于 `pypinyin.lazy_pinyin()` 的排序键，所有歌曲明细表按歌名拼音/英文混排，并在表格中新增 `Sort key` 列展示排序依据。
-- 已重新生成薛之谦和林俊杰的 pipeline 报告：`data/processed_xue_pipeline_report/` 与 `data/processed_jj_pipeline_report/`。
-- 抽查确认薛之谦最终保留表从 `AI`、`爱不走`、`爱的期限` 等开始；林俊杰最终保留表从 `2infinity And Beyond`、`After The Rain`、`爱不会绝迹` 等开始，符合拼音/英文混排预期。
-- 已独立回读检查两个目录下共 12 个 Markdown 文件，UTF-8 可读，无 U+FFFD 替换字符，所有表格块列数一致。
-
-### 评估 name/title 相等的原版过滤规则
-- 用户提出流程可继续改进：在空专辑过滤前增加 `song` 和 `title` 必须一样才认为可能是原版，否则直接剔除。
-- 使用周杰伦、薛之谦、林俊杰三组现有全量数据做离线评估，比较 `name` 与 `title` 规范化后是否一致。
-- 周杰伦原始 1012 条中 `name/title` 不一致 685 条；当前最终保留 214 条中仍有 3 条不一致：《Secret (加长快板)》《菊花台 (周杰伦钢琴演奏)》《Secret (慢板)》。
-- 薛之谦原始 528 条中不一致 376 条；当前最终保留 127 条中仍有 1 条不一致：《方圆几里 (吉他版)》。
-- 林俊杰原始 1013 条中不一致 672 条；当前最终保留 258 条中仍有 18 条不一致，包括《江南 (粤语)》《Despacito 缓缓 (Mandarin Version)》《Stay With You (英文版)》《那些你很冒险的梦 (JJ20版)》《只要有你的地方 (晚安版)》《修炼爱情 (Jazz Version)》《伟大的渺小 (Jazz Version)》以及 iTunes Session/口白/私享版等。
-- 评估结论：若第一阶段目标是尽量保留原版歌曲，`name/title` 相等是很强的早期过滤信号，能提前剔除大量版本、语言版、演奏版、Session 和口白类条目。
-- 风险边界：该规则不能替代专辑归属验证；`name/title` 相等的翻唱、合辑、非目标专辑仍可能混入；同时它会剔除部分官方语言版、影视主题曲标注版或特别版，如果后续想研究所有正式发行版本，需要把这些放入 review 或另存版本表，而不是彻底丢弃。
-
-### 将 name/title 不一致过滤加到最前面
-- 用户确认按改进方案执行，把 `name/title` 必须一致的规则加到最前面。
-- 已在 `collect_singer_songs.py` 增加 `name_title_filter_reason()`，对 `name` 和 `title` 执行 Unicode NFKC、忽略大小写、合并空格后比较；不一致时过滤原因记为 `name_title_mismatch`。
-- 过滤顺序已调整为：`name_title_mismatch` -> `empty_album` -> 标题版本关键词。
-- 使用缓存重跑周杰伦、薛之谦、林俊杰三组初过滤、专辑验证和 pipeline 报告。
-- 周杰伦结果：原始 1012 条，初过滤保留 240 条，过滤 772 条；专辑验证后最终保留 211 条，自动剔除 3 条，复核 26 条。初过滤原因分布为 `name_title_mismatch` 685 条，`empty_album` 86 条，`title_version_keyword:现场` 1 条。
-- 薛之谦结果：原始 528 条，初过滤保留 127 条，过滤 401 条；专辑验证后最终保留 126 条，自动剔除 0 条，复核 1 条。初过滤原因分布为 `name_title_mismatch` 376 条，`empty_album` 25 条。
-- 林俊杰结果：原始 1013 条，初过滤保留 266 条，过滤 747 条；专辑验证后最终保留 240 条，自动剔除 1 条，复核 25 条。初过滤原因分布为 `name_title_mismatch` 672 条，`empty_album` 70 条，`title_version_keyword:演唱会` 3 条，`title_version_keyword:live` 1 条，`title_version_keyword:纯音乐` 1 条。
-- 由于新规则位于最前面，许多原先会被标记为 live/remix/demo/伴奏的歌曲现在统一归因为 `name_title_mismatch`，这是预期行为，反映当前流程优先判定“非原版候选”。
-- 已重新生成 `data/processed_jay_pipeline_report/`、`data/processed_xue_pipeline_report/`、`data/processed_jj_pipeline_report/`。
-- 已回读检查三个目录共 18 个 Markdown 文件，UTF-8 可读，无 U+FFFD 替换字符，所有表格块列数一致。
-
-### 清理实验产物并整理正式开发结构
-- 用户确认当前流程基本可行，要求清理实验性数据和文档，并将流程、代码、目录结构调整为更正式的开发版本。
-- 已删除本地实验数据目录 `data/` 和 Python 编译缓存 `__pycache__`，仓库回到只保留源码和文档的状态；后续数据由 pipeline 命令在本地重新生成。
-- 已新增 `musician_relationship/pipelines/` 作为正式 pipeline 源码目录，并将热门歌手 registry、单歌手歌曲采集、专辑归属验证、pipeline 报告生成四个脚本移入该目录。
-- 为兼容旧命令，`musician_relationship/collect_hot_singer_registry.py`、`collect_singer_songs.py`、`validate_album_ownership.py`、`write_singer_pipeline_report.py` 保留为只调用正式 pipeline `main()` 的薄包装。
-- 已更新默认输出目录：歌手身份表为 `data/processed/singer_registry/qqmusic_hot/`；单歌手歌曲采集默认为 `data/processed/`，建议按歌手显式传入 `data/processed/singer_songs/<singer_slug>/`；专辑验证默认为 `data/processed/album_validated/`；报告默认为 `data/processed/reports/singer_pipeline/`。
-- 已在 `pyproject.toml` 增加命令入口：`mr-collect-hot-singers`、`mr-collect-singer-songs`、`mr-validate-albums`、`mr-write-pipeline-report`。
-- 已新增 `README.md`，说明项目定位、正式目录结构、四步 pipeline、推荐命令和数据边界。
-- 已更新 `AGENTS.md` 项目补充规则，记录正式源码目录、数据目录边界和推荐 pipeline 输出路径。
-- 已执行正式目录结构 smoke test：使用薛之谦第一页歌曲输出到 `data/processed/smoke/singer_songs/xuezhiqian`，采集 30 行、初过滤保留 28 行、过滤 2 行；验证后已删除 smoke 产物和 raw 缓存。
-- 已对全部 Python 文件执行 `py_compile`，通过。
-
-### 补全歌曲制作人员采集流程
-- 用户要求继续使用周杰伦全量做后续开发验证；当前歌曲列表已经可用，下一步需要在流程中补上对歌曲信息或制作人员信息的请求，以取得作词和作曲。
-- 目标效果为运行单歌手歌曲采集 pipeline 后，`songs_kept.json` 和 `songs_kept.csv` 中每首保留歌曲都能看到作词、作曲等制作人员字段；上游缺失或接口异常时记录状态，不中断整批。
-- 已修改 `musician_relationship/pipelines/collect_singer_songs.py`，在初过滤和去重后默认调用 `SongApi.get_producer`，并将结果写入每首歌曲的 `credits` 字段。
-- `credits` 中保留按 QQ 音乐返回分组整理的 `groups`，并展开 `lyricists`、`composers`、`arrangers`、`producers` 等常用字段；CSV 也同步新增这些列和 `credit_status`。
-- 新增 `--skip-producers` 用于只生成歌曲列表，新增 `--max-producer-songs` 用于小样本调试制作人员请求数量。
-- 初次真实全量验证发现 `qqmusic-api-python` 在上游 `Lst=null` 时会抛出模型校验异常；已将制作人员请求改为缓存原始响应并由 pipeline 宽松解析，`Lst=null` 统一记录为 `missing_producer_list`。
-- 已更新 `README.md`，说明单歌手歌曲采集会默认补全制作人员信息、输出字段含义和调试参数。
-
-### 验证周杰伦全量制作人员采集
-- 验证对象为周杰伦 singer mid `0025NhlN2yWrP4` 的全量歌曲采集和制作人员补全，输出目录为 `data/processed/singer_songs/zhoujielun/`。
-- 先执行 smoke test：限制歌曲页为 1 页、制作人员请求为 3 首，确认《晴天》《搁浅》《那天下雨了》均返回 `status=ok`，且作词、作曲字段非空。
-- 全量验证共读取周杰伦歌曲接口 1012 条，按当前初过滤规则保留并去重 240 条，过滤 772 条。
-- 对 240 条保留歌曲均发起或复用制作人员请求，结果为 `ok` 230 条、`missing_producer_list` 10 条。
-- 抽查 `songs_kept.json` 中《晴天》显示 `credits.groups` 包含“演唱、作词、作曲、编曲、制作人”等分组，展开字段中 `lyricists=["周杰伦"]`、`composers=["周杰伦"]`。
-- 10 条 `missing_producer_list` 代表上游响应没有制作人员列表，不再作为批处理失败处理；这些歌曲仍保留在输出中，供后续专辑验证或人工复核。
-- 已执行全部 Python 文件 `py_compile`，未报语法错误。
-- 已回读周杰伦 `singer_song_snapshot.json`、`songs_kept.json` 和 `songs_kept.csv`，确认 `songs_kept` 数量与 snapshot 一致，CSV 含 `lyricists`、`composers`、`arrangers`、`producers`、`credit_status` 列，且存在作词作曲非空样例。
-- 已对修改后的 `README.md` 和 `collect_singer_songs.py` 执行 UTF-8 读取、无 U+FFFD 检查，并按用户偏好统一写回 CRLF 行尾。
-
-### 验证薛之谦和林俊杰全量制作人员采集
-- 用户要求继续全量验证薛之谦和林俊杰，用于确认歌曲制作人员补全流程在更多歌手上的稳定性。
-- 验证对象为薛之谦 singer mid `002J4UUk29y8BY` 和林俊杰 singer mid `001BLpXF2DyJe2` 的单歌手全量歌曲采集、初过滤、去重和制作人员补全。
-- 薛之谦输出目录为 `data/processed/singer_songs/xuezhiqian/`；原始歌曲行 528 条，初过滤后去重保留 127 条，过滤 401 条，制作人员请求 127 条。
-- 薛之谦制作人员状态为 `ok` 124 条、`missing_producer_list` 3 条；非 `ok` 歌曲为《未完成的歌》《我们爱过就好》《我的show》。
-- 林俊杰输出目录为 `data/processed/singer_songs/linjunjie/`；原始歌曲行 1013 条，初过滤后去重保留 266 条，过滤 747 条，制作人员请求 266 条。
-- 林俊杰制作人员状态为 `ok` 248 条、`missing_producer_list` 18 条；非 `ok` 歌曲包括《达尔文》《恨幸福来过》《那女孩对我说》《想见你想见你想见你》《At Least I Had You》《Checkmate》《抢玫瑰》《Lose Control》《御龙三国志》《钢琴曲 可惜没有如果（林俊杰）》等。
-- 林俊杰 `ok` 歌曲中存在序曲、纯音乐或器乐类条目只有作曲没有作词，因此作词和作曲同时非空的数量为 232 条；这属于字段覆盖差异，不等同于请求失败。
-- 已回读两个歌手的 `singer_song_snapshot.json`、`songs_kept.json` 和 `songs_kept.csv`，确认 `songs_kept` 数量与 snapshot、CSV 行数一致，CSV 含 `lyricists`、`composers`、`arrangers`、`producers`、`credit_status` 列。
-- 已对 `collect_singer_songs.py` 执行 `py_compile`，未报语法错误。
-
-### 增加可视化前制作人员完整性过滤
-- 用户指出可视化利用之前还需要删除缺作词或缺作曲的条目。
-- 已将制作人员完整性过滤加到 `collect_singer_songs.py` 的制作人员补全之后：默认 `songs_kept` 只保留 `credits.status=ok` 且 `lyricists`、`composers` 都非空的歌曲。
-- 被剔除的歌曲不会丢失，单独输出到 `songs_credit_incomplete.json/csv`，并写入 `credit_filter_reason` 和 `visualization_ready` 字段，便于回看是 `missing_lyricists`、`missing_composers` 还是 `credit_status:missing_producer_list`。
-- 新增 `--keep-incomplete-credits` 参数，用于调试时保留缺作词或缺作曲条目在 `songs_kept` 中。
-- 已更新 `README.md`，说明 `songs_kept` 默认作为图谱和可视化可直接消费的数据，缺作词或缺作曲条目进入 `songs_credit_incomplete`。
-- 使用缓存重跑周杰伦，初过滤后 240 条，因制作人员不完整剔除 30 条，最终 `songs_kept` 210 条；剔除原因包括 `missing_lyricists` 20 条和 `credit_status:missing_producer_list` 10 条。
-- 使用缓存重跑薛之谦，初过滤后 127 条，因制作人员不完整剔除 3 条，最终 `songs_kept` 124 条；剔除原因均为 `credit_status:missing_producer_list`。
-- 重跑林俊杰原输出目录时，写入 `songs_kept.csv` 遇到 Windows 文件占用导致 `PermissionError`，推测该 CSV 被本机程序打开；为完成验证，改用 `data/processed/singer_songs/linjunjie_credit_filtered/` 作为备用输出目录。
-- 林俊杰备用输出验证结果为初过滤后 266 条，因制作人员不完整剔除 34 条，最终 `songs_kept` 232 条；剔除原因包括 `credit_status:missing_producer_list` 18 条、`missing_lyricists` 15 条和 `missing_composers` 1 条。
-- 已回读周杰伦、薛之谦和林俊杰备用输出的 `singer_song_snapshot.json`、`songs_kept.json/csv`、`songs_credit_incomplete.json/csv`，确认 `songs_kept` 全部满足作词和作曲非空，`songs_credit_incomplete` 全部带有剔除原因。
-- 已对 `collect_singer_songs.py` 执行 `py_compile`，未报语法错误。
-
-### 合并林俊杰正式输出和备用输出
-- 用户要求把此前因 CSV 文件占用导致未完整更新的林俊杰正式输出和备用输出合并，只保留一个有效的新目录。
-- 已将备用目录 `data/processed/singer_songs/linjunjie_credit_filtered/` 合并回正式目录 `data/processed/singer_songs/linjunjie/`，并删除备用目录。
-- 初次合并后发现 PowerShell 通配复制没有把备用目录中的 `songs_credit_incomplete.csv` 带回正式目录，且正式目录部分 CSV 仍是旧状态。
-- 为避免重新请求接口，已基于正式目录中的新 JSON 重新生成 `songs_all.csv`、`songs_filtered.csv`、`songs_kept.csv` 和 `songs_credit_incomplete.csv`。
-- 回读验证显示正式林俊杰目录中 `songs_kept.json/csv` 均为 232 条，`songs_credit_incomplete.json/csv` 均为 34 条；`songs_kept` 全部满足作词和作曲非空，`songs_credit_incomplete` 全部带有剔除原因。
-- 已确认备用目录 `data/processed/singer_songs/linjunjie_credit_filtered/` 不再存在。
-
-### 重命名源码包并移除旧薄包装入口
-- 用户指出源码包目录 `musician_relationship/` 与仓库根目录 `Musician_Relationship/` 语义接近，且包根部有四个薄包装脚本、`pipelines/` 下又有四个正式实现，容易造成目录和入口混淆。
-- 已将正式 Python 包目录从 `musician_relationship/` 重命名为 `music_metadata_graph/`，使源码包名更贴近“音乐元数据图谱”职责。
-- 已删除包根部四个旧薄包装脚本，只保留 `music_metadata_graph/pipelines/` 下的正式 pipeline 实现。
-- 已更新 `pyproject.toml` 中四个脚本入口，使其指向 `music_metadata_graph.pipelines.*`。
-- 已更新 `README.md` 中的目录结构和 `python -m` 示例命令，统一使用 `python -m music_metadata_graph.pipelines.<module>`。
-- 已更新 `AGENTS.md` 的项目补充规则，明确主动开发落在 `music_metadata_graph/pipelines/`，不再保留包根同名薄包装入口。
-- 已清理移动目录后残留的 `__pycache__`，避免旧薄包装 `.pyc` 继续混淆目录结构。
-- 验证对象为新包目录下全部 Python 文件，执行 `py_compile` 未报语法错误。
-- 验证新入口 `python -m music_metadata_graph.pipelines.collect_singer_songs --help` 和 `python -m music_metadata_graph.pipelines.collect_hot_singer_registry --help`，均能正常输出帮助信息。
-
-### 构思静态网页可视化设计
-- 用户要求开始构思网页如何设计，当前阶段尚未进入前端代码实现。
-- 目标效果初步收敛为一个 GitHub Pages 可打开的静态数据分析网页，读取本地 pipeline 生成并提交的静态 JSON 数据，不在浏览器中实时请求 QQ 音乐接口。
-- 网页首页不做营销落地页，而是直接进入图谱分析工作台，首屏展示数据集选择、核心计数、关系图和可追溯歌曲明细入口。
-- 关系图设计方向为音乐人节点优先使用头像或头像 URL，边表示“作词/作曲/编曲/制作人等贡献者 -> 演唱者/目标音乐人”的合作关系；可切换有向/无向、区分职能/合并职能。
-- 页面需要同时提供图谱视图和表格视图：图谱用于看合作网络，表格用于核查每条边来自哪些歌曲、哪些字段和哪次 pipeline 输出。
-- 初步交互包括歌手/数据集选择、角色筛选、只看外部合作/包含自作自唱、最小合作次数过滤、搜索音乐人、点击节点查看参与歌曲和职能分布、点击边查看支撑歌曲列表。
-- 数据输入应使用经过制作人员完整性过滤后的 `songs_kept.json`，不直接消费缺作词或缺作曲的 `songs_credit_incomplete`；后者可作为质量报告入口展示，但不参与图谱。
-- 风险边界包括头像 URL 可能失效、节点过多导致静态浏览器图谱性能下降、同名音乐人消歧仍依赖 singer mid、部分歌曲只含作词作曲但缺头像或 singer mid。
-- 本轮不做实时采集、账号态能力、歌词全文展示、音频播放下载、复杂社区发现算法和多平台融合。
-
-### 调整网页设计以支持不完整数据
-- 用户指出网页应支持不完整数据；即使当前只有周杰伦、薛之谦、林俊杰三个歌手的数据，也应该能可视化。
-- 用户指出这三个数据集都是歌手维度，彼此之间可能没有或很少作词作曲关系，网页不能因此显示为空或显得不可用。
-- 已调整设计理解：网页第一版不能只依赖“歌手之间互相作词作曲”的强关系图，而应支持以单个歌手曲库、歌曲、贡献者和职能为中心的多视图可视化。
-- 目标效果应包含稀疏网络的有效展示：即使不同目标歌手之间没有边，也能展示每个目标歌手的曲库规模、作词/作曲贡献者分布、自作比例、外部合作者列表和歌曲级支撑明细。
-- 图谱视图应允许孤立目标歌手节点存在，并用“目标歌手 -> 歌曲 -> 贡献者”或“贡献者 -> 目标歌手”的投影视图切换，避免单一投影造成边太少。
-- 数据质量和覆盖范围需要在页面中明确展示，例如当前数据集包含哪些目标歌手、各自歌曲数、缺作词作曲剔除数、关系边数和跨目标歌手合作数。
-
-### 明确空边图谱也要显示孤立节点
-- 用户纠正网页在没有边时不应只显示文字说明，而应显示孤立节点。
-- 已调整图谱渲染规则：任意图谱模式下，只要当前数据范围内存在节点，就应绘制节点；边为空时显示孤立节点布局，而不是把图谱区域替换为文字。
-- 文案只作为辅助状态说明，例如说明当前筛选条件下没有连边；主视觉仍保留节点，体现数据存在但当前关系投影稀疏。
-- 对跨目标歌手交集等容易稀疏的视图，应至少显示当前目标歌手节点；如模式允许，也显示候选贡献者节点，避免用户误以为数据未加载。
-
-### 实现静态网页图谱工作台初版
-- 用户要求开始实现网页，当前目标为先做 GitHub Pages 可打开的静态网页，不引入前端构建依赖。
-- 新增 `music_metadata_graph/pipelines/export_web_dataset.py`，从 `data/processed/singer_songs/<slug>/songs_kept.json` 和质量数据导出网页可消费的静态 JSON。
-- 新增 `web/index.html`、`web/styles.css` 和 `web/app.js`，实现静态图谱工作台初版。
-- 网页支持数据集切换、图谱模式切换、边职能区分或合并、有向或无向显示、最小歌曲数过滤、搜索、节点/边详情、歌曲明细表、关系明细表和数据质量表。
-- 图谱模式包括“歌手中心图”“歌曲桥接图”“跨歌手交集”；当筛选后没有边时，图谱区域仍保留孤立节点显示，并在辅助说明中提示暂无连边。
-- 已在 `pyproject.toml` 增加 `mr-export-web-dataset` 脚本入口。
-- 已更新 `README.md`，说明 `web/` 目录、静态数据导出命令和 `web/index.html` 入口。
-- 使用当前三位歌手正式输出导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json`、`linjunjie.json`；导出汇总为 3 个数据集、566 首可视化歌曲、67 首制作人员不完整隔离条目、186 个唯一节点、9 个跨目标歌手贡献者。
-- 已对网页数据 JSON 执行 UTF-8 读取和 JSON 解析检查，四个数据文件均可解析。
-- 已对新导出脚本和全部 pipeline Python 文件执行 `py_compile`，未报语法错误。
-- 已启动本地静态预览服务，入口为 `http://127.0.0.1:8765/`；验证 `/`、`/styles.css`、`/app.js` 和四个 `/data/*.json` 资源均返回 HTTP 200。
-- 当前未进行浏览器截图级交互验证；原因是本轮可用工具中没有暴露浏览器插件的 Node REPL 执行入口。已用本地 HTTP 资源验证和静态检查替代。
-
-### 纠正网页数据集与目标歌手语义
-- 用户指出当前网页把一个歌手显示成一个数据集不合理；正确语义应为 QQ 音乐是数据集，周杰伦、薛之谦、林俊杰等只是当前 QQ 音乐数据集下已覆盖的目标歌手范围。
-- 用户指出“只能合并分开”等选项命名含糊，且切换到跨歌手交互后其他选项看起来失效，页面布局和交互体验较差。
-- 已调整目标效果：网页顶部固定展示“QQ 音乐”作为数据集，目标歌手作为筛选范围；页面应支持全部目标歌手合并查看，也支持单个目标歌手查看。
-- 已将 `export_web_dataset.py` 导出的 `catalog.json` 从旧的 `datasets` 结构调整为 `source_dataset` 与 `targets`，并在共同合作者数据中写入每个目标歌手下的角色、歌曲数和支撑歌曲，避免跨歌手视图只能显示空泛连线。
-- 已重写 `web/app.js` 的前端状态：使用 `currentTarget` 表示目标歌手范围，保留“全部目标歌手”聚合视图；“共同合作者”视图在单个目标歌手范围下显示该歌手与其他目标歌手共享的合作者。
-- 已将“边模式”改名为“职能显示”，选项改为“作词/作曲分开”和“合并为合作次数”；“图谱模式”改为“视图”，选项改为“贡献者网络”“歌曲桥接图”“共同合作者”。
-- 已调整 `web/index.html` 和 `web/styles.css`：顶部只把 QQ 音乐作为数据集标识，目标歌手、视图、职能显示、连线方向、最小歌曲数作为操作控件；页面主体增加数据源说明和范围说明。
-- 已更新 `README.md`，说明网页中的数据集指 QQ 音乐元数据集，歌手是当前数据集下的覆盖范围，不是独立数据集。
-- 已重新导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json`、`linjunjie.json`；导出汇总为 3 位目标歌手、566 首可视化歌曲、67 首制作人员不完整隔离条目、186 个唯一节点、9 个共同合作者。
-- 已按用户偏好将本轮修改和生成的文本文件统一为 CRLF 行尾。
-
-### 验证网页语义与静态资源
-- 验证对象为 `music_metadata_graph/pipelines/export_web_dataset.py`，执行项目指定 Conda Python 的 `py_compile`，未报语法错误。
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为新版 `web/data/catalog.json`，执行 Node JSON 解析与协议检查，确认存在 `source_dataset.name=QQ 音乐`、`targets` 数量为 3、旧的顶层 `datasets` 键不再存在，且共同合作者条目包含目标歌手明细和正数歌曲数。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/`、`/styles.css`、`/app.js` 和 `/data/catalog.json` 均返回 HTTP 200。
-- 验证对象为页面 HTML 控件 ID，检查 `source-name`、`source-description`、`target-select`、`view-mode`、`role-display`、`direction-mode`、`min-count`、`search-input`、`graph`、`detail-content`、`table-content` 均存在。
-- 旧控件和旧状态搜索显示前端不再使用 `dataset-select`、`edge-mode`、`currentSlug`；`app.js` 中保留 `state.catalog?.datasets` 仅作为旧 `catalog.json` 兼容分支。
-- 当前未完成浏览器截图级交互验证；原因是会话未暴露浏览器插件要求的 Node REPL 执行工具，且本地 Node 环境未安装 Playwright 包。已使用 HTTP 资源检查、语法检查和数据协议检查作为替代。
-- `git status --short` 因本机 Git safe.directory 所有权检查失败未能执行，无法在本轮通过 Git 输出复核完整改动清单。
-
-### 改善网页图谱节点布局和有向边表达
-- 用户指出当前图谱节点位置没有设计调整，导致边重叠在一起看不清关系；有向边也没有明确方向体现。
-- 已定位原因：原实现按节点类型统一放圆环，贡献者到同一个目标歌手的边大量向中心收束；边使用直线连到节点圆心，箭头被目标节点覆盖。
-- 已修改 `web/app.js` 的图谱布局：贡献者网络按目标歌手分簇，单目标歌手时围绕目标节点分多圈，多目标歌手时把只关联单个目标的贡献者放到对应目标附近，把共同贡献者放在目标之间的上方。
-- 已为共同合作者视图增加上下分层布局：共同合作者位于上层，目标歌手位于下层，减少交叉和节点遮挡。
-- 已为歌曲桥接图增加左中右分层布局：贡献者、歌曲、目标歌手分列展示，避免所有歌曲节点与目标节点挤在同一个圆环。
-- 已增加轻量节点避让计算，针对贡献者网络和共同合作者视图减少节点之间的近距离重叠；歌曲桥接图保持固定分层，避免大量歌曲节点被力导向打乱。
-- 已将边从 SVG `<line>` 改为 `<path>` 二次曲线，按同一 source-target 组合和职能类型错开曲率，降低作词/作曲等平行边重叠。
-- 已将有向边端点从节点圆心缩短到节点外侧，并把箭头 marker 放到曲线末端，使箭头不再被目标节点遮挡。
-- 已更新 `web/styles.css`，增强边线宽度、圆角、标签描边和选中态，提升重叠场景下的辨识度。
-- 已按用户偏好将修改后的 `web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证图谱布局渲染改动
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/`、`/styles.css`、`/app.js` 均返回 HTTP 200。
-- 静态搜索确认 `web/app.js` 已使用 `edgeCurve`、`layoutNodes` 和 `relaxPositions`，并保留 `marker-end="url(#arrow)"`；旧的图谱边 `<line>` 生成逻辑已不再存在。
-- 当前仍未完成浏览器截图级视觉验证；原因同前，会话未暴露浏览器插件要求的 Node REPL 执行工具，且本地 Node 环境未安装 Playwright 包。
-
-### 修正图谱节点继续重叠问题
-- 用户反馈调整后节点仍然重叠在一起。
-- 已进一步定位问题：上一版仍使用固定高度 SVG 画布，并依赖轻量力导向做局部避让；在节点数较多时，固定画布和全量文字标签会把节点和标签继续压在一起。
-- 已将 `web/app.js` 的布局策略改为确定性网格占位，不再依赖力导向把节点临时推开。
-- 贡献者网络的单目标歌手视图改为目标歌手固定在右侧，贡献者按连接权重排序后排入左侧多列网格，避免围绕中心点叠圈。
-- 多目标贡献者网络中，各目标歌手对应贡献者进入各自网格区域，共同贡献者放在下方共享区域。
-- 歌曲桥接图中，贡献者、歌曲、目标歌手继续分列，但歌曲节点间距扩大并按目标歌手分区排列。
-- 共同合作者视图中，共同合作者从单行排列改为上方多列网格，目标歌手保持下方分布。
-- 已新增按当前节点数量计算 SVG 高度的逻辑，图谱画布会随节点规模在合理范围内增高，避免把大量节点挤进固定 560px 高度。
-- 已新增节点标签显示规则：目标歌手、搜索命中、选中节点和高连接节点显示常驻标签；低权重普通节点默认只显示圆点，点击或搜索时再显示名称，减少文字重叠造成的不可读。
-- 已更新 `web/styles.css`，将图谱最小高度调整为 640px，并为节点增加可点击指针提示。
-- 已删除已禁用的轻量力导向函数，避免后续维护误以为仍在使用力布局。
-- 已按用户偏好将 `web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证节点网格布局改动
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/`、`/styles.css`、`/app.js` 均返回 HTTP 200。
-- 静态搜索确认 `web/app.js` 已使用 `graphHeightFor`、`distributeGrid` 和 `shouldShowNodeLabel`，并确认旧的 `relaxPositions` 不再存在。
-- 当前仍未完成浏览器截图级视觉验证；原因同前，会话未暴露浏览器插件要求的 Node REPL 执行工具，且本地 Node 环境未安装 Playwright 包。
-
-### 纠正图谱网格布局方向错误
-- 用户指出上一版虽然减少了重叠，但节点固定在指定位置且像军训一样整齐排列，布局更糟糕，不符合关系图谱的自然表达。
-- 已确认上一版为了避免重叠使用确定性网格占位，解决了重叠但牺牲了关系图应有的有机分布，这是方向错误。
-- 已移除 `web/app.js` 中的网格式 `distributeGrid`、`layoutArtistGraph`、`layoutSongGraph` 和 `layoutBridgeGraph` 逻辑。
-- 已新增基于稳定随机种子的初始布局，节点初始位置围绕图谱中心自然散开，同一数据在刷新后仍保持稳定。
-- 已新增 `forceDirectedLayout`，通过节点排斥、边拉力、碰撞距离和边界约束计算最终位置，使关联强的节点自然靠近，弱关联节点自然散开。
-- 已将原先固定目标歌手坐标改为软锚点：不同视图只给目标歌手、歌曲、贡献者提供轻微方向引导，不再把节点钉死在某个位置。
-- 已保留按节点数量扩展 SVG 高度和低权重节点隐藏常驻标签的策略，用于减少文字遮挡，但不再把节点排成规整网格。
-- 已收紧标签显示阈值：贡献者网络中默认只显示目标歌手和高连接节点标签；歌曲桥接图默认隐藏歌曲标签，点击或搜索时再展示具体名称。
-- 已按用户偏好将 `web/app.js` 统一为 CRLF 行尾。
-
-### 验证力导向图谱布局改动
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 静态搜索确认 `web/app.js` 已使用 `initialPositions`、`anchorForNode` 和 `forceDirectedLayout`，旧网格布局函数名不再出现。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/app.js` 返回 HTTP 200。
-- 当前仍未完成浏览器截图级视觉验证；原因同前，会话未暴露浏览器插件要求的 Node REPL 执行工具，且本地 Node 环境未安装 Playwright 包。
-
-### 增加网页资源版本号以排查刷新无变化
-- 用户反馈刷新网页后布局没有变化。
-- 已检查当前 `web/index.html`，发现仍以裸路径引用 `styles.css` 和 `app.js`，浏览器可能继续使用缓存的旧静态资源。
-- 已将 CSS 和 JS 引用改为 `styles.css?v=20260511-force-layout` 与 `app.js?v=20260511-force-layout`，用于强制浏览器重新请求当前版本资源。
-- 已在 `web/app.js` 增加布局版本标记 `force-layout-20260511`，并显示在图谱说明行中，便于确认浏览器实际加载的是新版布局代码。
-- 已按用户偏好将 `web/index.html` 和 `web/app.js` 统一为 CRLF 行尾。
-
-### 验证版本化静态资源
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=force-layout`，确认返回 HTML 中包含 `app.js?v=20260511-force-layout` 和 `styles.css?v=20260511-force-layout`。
-- 验证对象为版本化脚本资源，访问 `http://127.0.0.1:8765/app.js?v=20260511-force-layout`，确认返回内容包含 `force-layout-20260511`。
-- 再次验证 `/index.html?check=2`、`/styles.css?v=20260511-force-layout`、`/app.js?v=20260511-force-layout` 均返回 HTTP 200。
-
-### 删除歌曲桥接图视图
-- 用户指出“歌曲桥接图”概念不清，且因歌曲节点过多导致全部叠在一起看不清，要求删除该视图。
-- 已从 `web/index.html` 的视图下拉中移除“歌曲桥接图”选项，页面仅保留“贡献者网络”和“共同合作者”两个图谱视图。
-- 已从 `web/app.js` 删除 `buildSongGraph` 以及 `viewMode === "song"` 的构图入口，图谱不再生成歌曲节点。
-- 已删除歌曲节点相关布局、半径、样式分支和 CSS `.song-node` 样式。
-- 底部“歌曲明细”表和边/节点详情中的支撑歌曲列表继续保留，因为它们用于核查关系来源，不再作为图谱节点展示。
-- 已将静态资源版本号更新为 `20260511-no-song-view`，并将图谱说明中的布局版本标记更新为 `no-song-view-20260511`，避免浏览器继续缓存上一版脚本。
-- 已按用户偏好将 `web/index.html`、`web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证删除歌曲桥接图
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 静态搜索确认 `web/index.html`、`web/app.js` 和 `web/styles.css` 中不再出现“歌曲桥接图”、`buildSongGraph`、`viewMode === "song"`、`type === "song"`、`song_nodes` 或 `.song-node`。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=no-song-view-2`，确认返回 HTML 不含“歌曲桥接图”，且包含 `app.js?v=20260511-no-song-view` 和 `styles.css?v=20260511-no-song-view`。
-- 验证对象为版本化脚本资源，访问 `http://127.0.0.1:8765/app.js?v=20260511-no-song-view`，确认返回内容不含歌曲图构图分支，且包含 `no-song-view-20260511`。
-
-### 将贡献者网络改为默认概览图
-- 用户提供截图指出，即使只显示周杰伦的贡献者网络也已经非常混乱；显示三个目标歌手时更加不可读，未来增加更多歌手必然无法扩展。
-- 已确认主要问题不是单纯节点布局，而是信息密度过载：所有 1 首歌长尾关系和所有边标签同时绘制，导致目标歌手周围形成密集边束和标签堆叠。
-- 已将 `web/index.html` 中“最小歌曲数”默认值从 1 调整为 2，使默认图谱不再显示只支撑 1 首歌的低权重边。
-- 已在 `web/app.js` 增加 `reduceGraphForOverview()`，贡献者网络默认按每个目标歌手保留高权重贡献者，上限为每个目标歌手 36 个贡献者；搜索时不应用该截断，便于查找特定节点。
-- 已将常驻边标签改为仅在选中边时显示，避免大量“作词 · 1”“作曲 · 1”标签覆盖目标歌手周围区域。
-- 已提高普通贡献者常驻标签阈值，仅目标歌手、高连接贡献者、搜索命中或选中节点显示名称。
-- 图谱说明文字已改为提示“默认显示高权重关系，完整数据见关系明细”，明确图谱是概览，不是全量明细投影。
-- 已将静态资源版本号更新为 `20260511-overview-filter`，并将布局版本标记更新为 `overview-filter-20260511`，避免浏览器继续缓存旧脚本。
-- 已按用户偏好将 `web/index.html` 和 `web/app.js` 统一为 CRLF 行尾。
-
-### 验证贡献者网络概览过滤
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=overview-filter`，确认返回 HTML 包含 `app.js?v=20260511-overview-filter` 且最小歌曲数默认值为 2。
-- 验证对象为版本化脚本资源，访问 `http://127.0.0.1:8765/app.js?v=20260511-overview-filter`，确认返回内容包含 `overview-filter-20260511`、`reduceGraphForOverview` 和 `maxVisibleContributors`。
-
-### 调整贡献者网络边线视觉
-- 用户提供截图指出过滤后节点数量可控，但连线仍然非常不自然。
-- 已定位主要视觉问题：边曲率偏移过大，导致多条边呈扇形强弯；有向箭头默认全部显示并堆在目标歌手节点周围，形成一圈灰色箭头。
-- 已减小 `edgeCurve()` 的平行边偏移和职能偏移，使默认连线更接近柔和弧线，而不是大幅弯曲到一侧。
-- 已将有向箭头改为仅在选中边时显示；默认图谱只显示关系线，避免目标歌手周围出现箭头堆叠。
-- 已保留选中边标签，点击边后仍能看到职能、歌曲数和方向，右侧详情继续展示支撑歌曲。
-- 已降低默认边线宽度和透明度，选中边再加粗突出。
-- 图谱说明文字改为提示“选中边查看方向和歌曲”，避免误以为默认隐藏方向后方向信息丢失。
-- 已将静态资源版本号更新为 `20260511-soft-edge`，并将布局版本标记更新为 `soft-edge-20260511`。
-- 已按用户偏好将 `web/index.html`、`web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证边线视觉调整
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=soft-edge`，确认返回 HTML 包含 `app.js?v=20260511-soft-edge` 和 `styles.css?v=20260511-soft-edge`。
-- 验证对象为版本化脚本资源，访问 `http://127.0.0.1:8765/app.js?v=20260511-soft-edge`，确认返回内容包含 `soft-edge-20260511`，且有向箭头 marker 逻辑需要选中边才启用。
-
-### 调研成熟网络图可视化框架
-- 用户指出当前网络图呈现和交互体验仍然很差，并询问是否有成熟框架可替代当前手写 SVG 网络图。
-- 已确认当前网页图谱问题不应继续靠手写布局微调解决；更合理的方向是用成熟图可视化引擎接管布局、缩放、拖拽、选中、高亮、碰撞和边渲染。
-- 已在 GitHub 和项目官网调研 `Cytoscape.js`、`sigma.js`、`AntV G6`、`force-graph`、`vis-network`、`cosmos.gl`、`Graphin` 等方案。
-- 目标效果为保留当前静态 GitHub Pages 打开方式和现有 JSON 数据来源，将图谱区域替换为成熟网络图组件；用户应能自然缩放、拖拽节点、点击节点或边查看右侧详情，并通过搜索或筛选聚焦局部关系。
-- 实现方案倾向先做一个最小替换原型：不重建整个前端工程，只替换 `web/app.js` 中图谱渲染层，保留顶部筛选、右侧详情和底部明细表。
-- 初步判断 `force-graph` 最适合快速验证：支持静态 script 标签引入、Canvas 渲染、d3-force 布局、缩放平移、节点拖拽、节点与边 hover/click、方向边、曲线边、图片节点和碰撞检测示例，迁移成本最低。
-- `vis-network` 也适合快速替换，API 简单并支持图片节点、自动布局和聚类，但视觉风格较老，后续精细化交互可能不如 `force-graph` 和 `G6`。
-- `AntV G6` 和 `Cytoscape.js` 更适合长期做完整图分析工作台，布局、插件和交互能力更强，但集成复杂度高于 `force-graph`。
-- `sigma.js` 和 `cosmos.gl` 更偏大规模 WebGL 图浏览；当前数据规模尚未达到必须使用它们的程度，且头像节点、边方向和业务交互需要额外定制。
-- 风险边界包括 CDN 依赖或本地 vendor 依赖管理、Canvas/WebGL 可访问性弱于 SVG、头像跨域加载失败、移动端性能和浏览器兼容性。
-- 本轮不做代码替换，仅完成候选框架调研和迁移建议；后续若进入实现，需先做 `force-graph` 原型并进行浏览器实际交互验证。
-
-### 生成 force-graph 中文 API 整理文档
-- 用户要求先详细分析 `force-graph` 的能力，并将完整 API 文档整理到项目根目录，翻译成中文、使用 UTF-8 编码并合理分段，便于先理解可控范围再做设计。
-- 已新增根目录文档 `force-graph-api-zh.md`，内容按“是什么、怎么接入、节点控制、边控制、布局、交互、视图控制、示例说明、适合本项目的用法”分段整理。
-- 文档面向设计阶段使用，重点说明节点可用头像、颜色、文字和自定义绘制，边可用颜色、虚线、曲率、箭头和粒子流动，且可通过回调控制点击、悬停、聚焦和过滤。
-- 文档中同时整理了官方示例的用途划分，帮助后续选择最合适的接入方式而不是直接照搬某个 sample。
-- 本轮未修改现有网页实现，仅新增说明文档和本日志记录。
-
-### 正式安装 force-graph 并核对包内文档
-- 用户明确要求不再保留临时克隆仓库，改为正式安装库，并确认安装后库内是否自带 API 文档；若没有，再补英文文档供后续参考。
-- 已在项目根目录执行正式安装，`package.json` 生成并记录了 `force-graph` 依赖，版本为 `^1.51.4`，并生成了 `package-lock.json`。
-- 已确认 `node_modules/force-graph` 内包含 `README.md` 和 `dist/force-graph.d.ts`，说明库本身已经自带英文 API 说明与类型声明。
-- 已确认安装结果可通过 `npm ls force-graph --depth=0` 直接看到本项目已依赖 `force-graph@1.51.4`。
-- 由于库内文档已经存在，本轮未额外补写英文 API 文档，仅保留此前的中文整理文档供设计阶段阅读。
-
-### 更新 AGENTS 依赖与文档约定
-- 用户要求把依赖库使用情况和 API 文档约定记入 `AGENTS.md`，以便后续开发遵循统一规则。
-- 已在项目补充规则中加入 `force-graph` 正式依赖约定，明确网页图谱优先围绕该库实现，不再依赖临时克隆仓库作为长期来源。
-- 已在项目补充规则中加入 `force-graph` 文档使用约定，明确优先阅读 `node_modules/force-graph/README.md` 和 `dist/force-graph.d.ts` 作为英文 API 依据。
-- 已明确本地中文整理文档只能作为设计阶段参考，不替代库本体文档。
-
-### 重写 force-graph 中文文档为可控项速查表
-- 用户要求将此前的 force-graph 中文文档重写为只记录可控制项的速查表，删除介绍、安装和分析内容。
-- 已将根目录文档 `force-graph-api-zh.md` 重写为按“数据输入、容器布局、节点样式、边样式、力导向与布局、交互、视图控制、工具方法”分段的单行速查表。
-- 已按用户要求把说明和函数名放在同一行，避免出现“说明一行、函数名下一行”的排版。
-- 新版文档不再包含库介绍、安装说明、示例分析和使用判断，仅保留后续设计时需要的可控入口名称。
-
-### 将网页图谱渲染替换为 force-graph
-- 用户要求把当前绘图换成新安装的库，理解为将网页图谱区域从手写 SVG 布局和绘制替换为项目根目录正式安装的 `force-graph`。
-- 已按项目规则读取 `node_modules/force-graph/README.md` 和 `node_modules/force-graph/dist/force-graph.d.ts`，确认可用能力包括 Canvas 渲染、节点自绘、边曲率、方向箭头、方向粒子、缩放平移、节点拖拽、节点/边点击和 d3 force 参数调整。
-- 已将 `web/index.html` 的图谱容器从 `<svg>` 改为 `<div>`，并引入本地静态脚本 `web/vendor/force-graph.min.js`，避免静态网页依赖 CDN 或直接依赖发布时可能缺失的 `node_modules` 路径。
-- 已在 `web/app.js` 保留原有数据构图、筛选、搜索、右侧详情和底部表格逻辑，仅替换 `renderGraph()` 的渲染层。
-- 已删除上一版手写 SVG 的布局、曲线边、marker 箭头和节点/边 DOM 拼接逻辑，改为 `new ForceGraph(container)` 接收 `{ nodes, links }` 数据。
-- 新图谱支持 Canvas 缩放、平移、节点拖拽、点击节点聚焦、点击节点或边更新右侧详情；有向模式下选中边显示方向箭头和方向粒子。
-- 节点自绘继续优先使用音乐人头像，头像不可用时使用目标歌手蓝色、普通贡献者绿色的圆形节点兜底。
-- 已配置边颜色、边宽、边曲率、连接距离、斥力和冷却参数，作词/作曲在分开显示模式下使用不同曲率和颜色，合并模式使用灰色合作边。
-- 已更新 `web/styles.css`，删除旧 SVG 节点和边样式，保留图谱区域网格背景并增加 Canvas 拖拽光标。
-- 已更新 `README.md`，说明静态网页图谱区域已使用本地 `force-graph` 脚本，支持缩放、平移、拖拽、点击详情和选中边方向表达。
-- 已按用户偏好将修改后的 `README.md`、`web/index.html`、`web/app.js` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证 force-graph 图谱替换
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `README.md`、`web/index.html`、`web/app.js` 和 `web/styles.css` 的行尾，执行字节扫描确认不存在 LF-only 行尾。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=force-graph-final`、`/styles.css?v=20260511-force-graph`、`/app.js?v=20260511-force-graph`、`/vendor/force-graph.min.js` 和 `/data/catalog.json`，均返回 HTTP 200。
-- 验证对象为网页入口和样例数据协议，执行 Node 脚本确认 `web/index.html` 引入 `vendor/force-graph.min.js`，`web/app.js` 包含 `new ForceGraph(container)`，样例目标歌手周杰伦数据包含 31 个节点、34 条边且边端点有效。
-- 已确认 `web/vendor/force-graph.min.js` 文件存在且大小非零，来源为项目根目录安装的 `node_modules/force-graph/dist/force-graph.min.js`。
-- 未完成浏览器截图级交互验证；原因是当前会话未暴露 Browser 插件所需的 Node 执行入口，本地项目也未安装 Playwright 或 Puppeteer，且系统命令未发现可直接调用的 Chrome/Edge 可执行入口。
-- 替代检查已覆盖静态入口、脚本语法、资源加载和数据适配；剩余风险是实际浏览器中的 Canvas 视觉效果、头像加载和拖拽/点击体验仍需人工打开页面或后续补充浏览器自动化验证。
-
-### 修正目标歌手重复节点和特殊中心节点
-- 用户提供截图指出周杰伦不应和另一个周杰伦相连，并明确图谱中不应存在中间节点和其他节点的区别，所有节点都应该一样。
-- 已定位原因：旧数据导出脚本为每个目标歌手生成独立 `target:<slug>` 节点，同时制作人员列表中又会生成同名 `artist:*` 节点；自作词或自作曲关系因此被画成“周杰伦 -> 周杰伦”的两节点连线。
-- 已修改 `music_metadata_graph/pipelines/export_web_dataset.py`，目标歌手节点改用普通 artist 身份键，优先使用平台 mid 生成 `artist:<mid>`，不再生成 `target:*` 节点。
-- 已修改导出逻辑：当制作人员姓名或 mid 与目标歌手一致时，计入 `self_lyricist_songs` 或 `self_composer_songs` 统计，但不再生成自环可视化边。
-- 已修改 `web/app.js`，增加旧数据兼容映射：若静态 JSON 仍含旧 `target:*` 节点，前端会把它折叠到同名或同 mid 的 artist 节点，并过滤 source 与 target 相同的边。
-- 已取消目标歌手的视觉特殊待遇，所有音乐人节点统一使用相同半径、相同颜色、相同标签规则和相同力导向参数；`is_target` 仅保留为范围和统计字段，不参与节点视觉表达。
-- 已重新导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json`，三位目标歌手均不再产生独立 target 节点。
-- 已更新 `web/index.html` 资源版本号为 `20260511-equal-artist-nodes`，避免浏览器继续使用旧缓存。
-- 已更新 `README.md`，说明图谱中所有音乐人节点按同一视觉规则绘制，目标歌手不会作为特殊中心节点或独立重复节点出现。
-- 已按用户偏好将修改后的 `README.md`、`music_metadata_graph/pipelines/export_web_dataset.py`、`web/index.html`、`web/app.js` 和重新导出的静态 JSON 统一为 CRLF 行尾。
-
-### 验证目标歌手节点统一修复
-- 验证对象为 `music_metadata_graph/pipelines/export_web_dataset.py`，执行项目指定 Conda Python 的 `py_compile`，未报语法错误。
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为重新导出的三个目标歌手静态数据，执行 Node 断言确认 `zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json` 均不存在 `type=target` 或 `target:*` 节点，均不存在自环边，且目标歌手姓名节点数量均为 1。
-- 验证对象为周杰伦图谱数据，确认周杰伦唯一节点为 `artist:0025NhlN2yWrP4`，节点类型为 `artist`，有 32 条其他贡献者指向该节点的边，且自环边数量为 0。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=equal-artist-nodes`、`/styles.css?v=20260511-equal-artist-nodes`、`/app.js?v=20260511-equal-artist-nodes` 和 `/data/zhoujielun.json`，均返回 HTTP 200。
-- 验证对象为修改文件行尾，执行字节扫描确认 `README.md`、导出脚本、网页入口、网页脚本、样式和三个静态 JSON 均不存在 LF-only 行尾。
-- 静态搜索确认 `web/app.js` 中仍保留 `is_target` 兼容和范围保留逻辑，但不再用于节点颜色、半径、标签显示或力参数；`#2458c7` 仅用于选中描边和页签按钮，不再用于目标节点填充色。
-- 当前仍未完成浏览器截图级视觉验证；原因同前，当前会话缺少可用浏览器自动化执行入口。替代检查已确认数据层和前端逻辑层不会再生成两个周杰伦节点或目标歌手特殊视觉分支。
-
-### 更新 Node 依赖提交边界
-- 提交前检查发现 `node_modules/` 作为本地安装目录出现在未跟踪文件中，不应作为仓库源码提交。
-- 已将 `node_modules/` 加入 `.gitignore`，提交边界保留 `package.json`、`package-lock.json` 和 `web/vendor/force-graph.min.js`，用于记录依赖来源并保证静态网页可直接加载本地 vendor 脚本。
-- 本次边界调整不改变网页功能，只影响 Git 提交范围和后续工作区状态。
-
-### 记录提交后新增工作区改动处理规则
-- 用户新增提交后工作区检查规则：提交后若发现工作区多出了刚刚没有的改动，不需要继续处理，只需要报告。
-- 已明确该类改动通常视为刚刚新做的后续改动，与刚刚提交的内容无关。
-- 已将该规则同步到 `AGENTS.md` 的提交规则中，后续提交后复核若出现新改动，默认只报告剩余改动，不继续处理或追加提交，除非用户明确要求。
-
-### 修正关系支撑歌曲数筛选默认值和文案
-- 用户指出网页控件“最小歌曲数”表述不清，且默认值应为 1 而不是 2。
-- 已将 `web/index.html` 中控件文案改为“关系至少支撑歌曲数”，明确该输入筛选的是每条关系边背后的支撑歌曲数量。
-- 已将 `web/index.html` 输入框默认值和 `web/app.js` 中 `state.minCount` 默认值统一改为 1，默认图谱不再隐藏只由 1 首歌曲支撑的关系边。
-- 已更新 `web/index.html` 的前端脚本版本号，降低浏览器缓存旧脚本导致默认值仍为 2 的风险。
-
-### 压缩网页顶部说明和统计卡片高度
-- 用户提供截图指出顶部“当前数据源 / 范围切换”和统计卡片两行高度过高，导致图谱位置太靠下。
-- 目标效果为在不改变数据、筛选逻辑和图谱绘制逻辑的前提下，压缩顶部两行信息卡占用的首屏高度，让图谱区域更早出现。
-- 已修改 `web/styles.css`：页面主体间距从 14px 收紧为 10px，数据源说明卡最小高度从 58px 降为 44px，统计卡最小高度从 70px 降为 54px，并同步减小卡片内边距、行距和卡片间距。
-- 已修改 `web/index.html` 的样式资源版本号为 `20260511-compact-top-cards`，降低浏览器继续加载旧 CSS 缓存的风险。
-- 已按用户偏好将 `web/index.html` 和 `web/styles.css` 统一为 CRLF 行尾。
-
-### 验证顶部卡片高度压缩
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但用该检查确认页面现有脚本仍可解析。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=compact-top-cards` 返回 HTTP 200，且 HTML 包含 `styles.css?v=20260511-compact-top-cards`。
-- 验证对象为版本化样式资源，访问 `http://127.0.0.1:8765/styles.css?v=20260511-compact-top-cards` 返回 HTTP 200，且内容包含新的 `min-height: 44px`、`min-height: 54px` 和 `padding: 10px 14px 14px`。
-- 验证对象为修改文件行尾，执行字节扫描确认 `web/index.html` 和 `web/styles.css` 均不存在 LF-only 行尾。
-- 当前仍未完成浏览器截图级视觉验证；原因是当前会话没有暴露 Browser 插件所需的 Node 执行工具。替代检查已确认静态入口和样式资源加载到新版本，实际视觉位置仍需在浏览器中刷新页面查看。
+### 压缩记录：项目初始化与第一阶段目标收敛
+- 本段压缩原第 33-1400 行中前两版开发日志，保留需求理解、实现决策、验证结果、事故和归档边界；删除重复的单点 UI 微调、临时报告修正和中间产物流水账。
+- 项目初始化时，`AGENTS.md` 被补充为音乐人合作关系图谱项目协作规则，明确项目围绕音乐平台元数据采集、标准化、图谱分析和本地可视化，不做播放、下载、绕过平台限制或商业化服务。
+- 运行环境确定为项目指定 Conda Python；第一阶段依赖包括 `qqmusic-api-python`、`pandas`、`pydantic`、`httpx`、`tenacity`、`python-dotenv`、`duckdb`、`networkx`、`pyvis` 和后续新增的 `pypinyin`。
+- 初始产品目标从“命令行生成样例图谱”调整为“GitHub Pages 可打开的静态网页 + 本地离线采集生成静态数据”，网页只负责查看和交互，不在浏览器中实时请求 QQ 音乐接口。
+- 用户多次纠正后，第一阶段数据获取主流程收敛为先获取音乐人列表，再获取歌手歌曲，过滤版本和噪声，补充作词/作曲等制作人员，最后生成可视化数据和网页。
+- 搜索接口被降级为辅助能力，仅用于用户只给姓名时解析候选歌手或歌曲；不作为正式采集主路径。
+- 一次中文搜索验证曾因 PowerShell 管道传参导致中文关键词变成问号，误判为 QQ 音乐搜索第一条不可靠；后续规则调整为涉及中文常量、报告和判断时优先使用明确 UTF-8 的 Python 工具或仓库脚本。
+
+### 压缩记录：第一版端到端歌曲采集与过滤流程
+- 第一版实现了热门歌手身份表采集、单歌手歌曲采集、版本过滤、专辑归属验证、制作人员请求、报告生成和网页数据导出等端到端流程。
+- 歌手冷启动先从 `qqmusic.singer.get_singer_list_index` 获取歌手列表，记录歌手 `id/mid/name/other_name/spell/singer_pic` 等基础身份信息。
+- 早期歌曲来源使用 `qqmusic.singer.get_songs_list`；后续复核发现该接口更像宽泛歌手标记索引，可能返回非主页官方语义的歌曲，因此切换到 `qqmusic.singer.get_tab_detail(mid, TabType.SONG)` 的主页歌曲 Tab。
+- 周杰伦、薛之谦、林俊杰等全量样本验证显示，主页歌曲 Tab 与旧 `GetSingerSongList` 对周杰伦当前返回集合完全一致，因此异常歌曲问题不能只靠换接口解决，仍需要业务过滤和专辑验证。
+- 歌曲初筛规则逐步收敛为：先判断 `name/title` 是否一致，再过滤空专辑，再按标题版本词过滤，之后对保留候选去重。
+- 版本词和过滤顺序经过多轮修正，删除了容易误杀的专辑名“巡回”等触发条件，避免《周大侠》这类歌曲因专辑名被错误过滤。
+- 通过周杰伦、薛之谦、林俊杰全量样本验证，`name/title` 不一致成为识别 Live、伴奏、语言版、演奏版、Session、口白和特别版的重要早期信号。
+- 专辑归属验证使用 `album.get_detail` 请求专辑详情，结合专辑署名歌手、专辑类型、发行公司、语言、简介和版本词判断 kept/rejected/review。
+- 对《发如雪 (醇享版)》《轨迹 (醇享版)》《Six Degrees》的 Instrumental/Slowed/Reverb/Sped Up 版本、《你听得到 (Inst.)》《土耳其进行曲》《- 夜访巴赫曲》等样例，验证了版本去重和强非目标专辑剔除规则。
+- 对原声带、合辑、合作单曲、综艺首发、现场类作品等边界情况，第一版结论是不应简单按专辑歌手不含目标歌手或 Live/节目关键词一刀切删除，应保留 review 或后续证据链。
+- 歌曲制作人员补全使用 `qqmusic.song.get_producer(song_mid 或 song_id)`，按“演唱、作词、作曲、编曲、制作人”等分组提取字段；上游返回 `Lst=null` 时记录为 `missing_producer_list`，不再中断批处理。
+- 可视化前新增制作人员完整性过滤：默认 `songs_kept` 只保留 `credits.status=ok` 且作词、作曲均非空的歌曲；缺作词、缺作曲或制作人员列表缺失的歌曲写入隔离文件供调试。
+- 周杰伦、薛之谦、林俊杰全量制作人员验证确认多数保留歌曲可取得作词作曲，但林俊杰样本中存在纯音乐、序曲或器乐类歌曲只有作曲没有作词，属于字段覆盖差异而非请求失败。
+- 第一版报告生成曾多次出现 Markdown 表格空行、竖线未转义、中文问号、Windows 链接不可点击等问题；后续补充规则要求报告必须 UTF-8 回读、无 U+FFFD、表格列数和结构可校验，本地文件链接必须使用正斜杠绝对路径 Markdown 链接。
+
+### 压缩记录：第一版静态网页与 force-graph 可视化
+- 第一版网页从手写 SVG 图谱工作台开始，目标是静态 GitHub Pages 可打开，读取本地导出的 JSON，不提供在线采集。
+- 网页语义被用户纠正为“QQ 音乐是数据集，周杰伦、薛之谦、林俊杰等是目标歌手筛选范围”，不是一个歌手一个数据集。
+- 页面需要在图谱边稀疏时仍显示节点，不能因为没有边就只显示文字；目标歌手节点不能作为特殊中心节点或与同名普通节点重复出现。
+- 手写 SVG 版本曾尝试网格布局、力导向布局、曲线边、箭头、标签阈值和概览过滤，但实际体验仍存在节点重叠、连线混乱、布局不自然和交互弱的问题。
+- 经过框架调研，选择安装并接入 `force-graph`，本地 vendor 脚本复制到网页目录，保留静态页面打开方式且避免 CDN 依赖。
+- `force-graph` 版本支持 Canvas 缩放、平移、拖拽、点击节点或边更新右侧详情、选中边方向表达、边粒子和头像节点兜底。
+- 后续调整包括：目标歌手多选下拉、全选/反选、候选搜索、顶部状态栏压缩、控件原生风格、图谱自适应高度、右侧详情栏内部滚动、有向模式以慢速粒子表达方向。
+- 用户反馈目标歌手不应出现“周杰伦连到另一个周杰伦”，因此导出脚本改为目标歌手节点也使用普通 artist 身份键，过滤自环边，`is_target` 只作为范围和统计字段，不参与视觉特殊化。
+- 网页数据范围被纠正为只展示作词和作曲齐全的 `songs_kept`；隔离条目和数据质量页签从网页中移除，仅保留为本地调试产物。
+- 第一版网页的主要剩余风险是缺少浏览器截图级自动化验证；当时多次只能用 `node --check`、HTTP 资源检查、JSON 协议检查和静态断言替代。
+
+### 压缩记录：第一版归档前的工程整理和规则沉淀
+- 源码包从 `musician_relationship/` 重命名为 `music_metadata_graph/`，正式实现集中到 `music_metadata_graph/pipelines/`，删除包根部旧薄包装脚本。
+- `pyproject.toml` 曾暴露旧流程命令入口，包括热门歌手、单歌手歌曲、专辑验证、报告和网页导出；后续归档时这些入口被删除。
+- `.gitignore` 多次整理，明确 `data/`、`archive/`、`reports/`、`node_modules/` 等本地数据、归档、报告和依赖目录不提交；源码、脚本、README、AGENTS、开发日志和项目配置不被忽略。
+- 旧端到端流程的数据和缓存最终移动到 `archive/legacy_pipeline_2026-05-12/`，包括 `data/processed/singer_songs/`、`data/processed/validation/legacy/`、`data/raw/qqmusic/singer_songs/`、`data/raw/qqmusic/song_producers/` 和 `data/raw/qqmusic/album_probe/`。
+- 旧端到端流程代码移动到 `archive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/`，包括旧 `collect_singer_songs.py`、`validate_album_ownership.py`、`write_singer_pipeline_report.py` 和 `export_web_dataset.py`。
+- 旧静态网页目录 `web/` 整体移动到 `archive/legacy_pipeline_2026-05-12/web/`，包括旧页面、样式、脚本、静态数据和本地 vendor 文件。
+- 归档清单 `archive/legacy_pipeline_2026-05-12/manifest.txt` 记录旧流程数据、代码和网页的来源、移动状态、目录数、文件数和归档位置。
+- README、AGENTS 和目录报告同步说明旧流程只作为历史参考，当前正式流程不得再从这些归档目录读取，也不得把旧流程代码、网页或数据写回当前正式目录。
 
 ## 2026-05-12
 
-### 将目标歌手选择框改为勾选框
-- 用户要求把网页顶部“目标歌手”选择框改成勾选框，并提供全选和反选功能。
-- 已修改 `web/index.html`，将原 `select#target-select` 替换为目标歌手勾选列表、全选按钮和反选按钮。
-- 已修改 `web/app.js`，将目标歌手筛选状态从单个 `currentTarget` 改为 `currentTargets` 集合，默认选中全部目标歌手；图谱、统计、详情和表格按当前勾选集合过滤。
-- 已修改共同合作者范围逻辑：单个目标歌手时仍显示与其他目标歌手共享的合作者；多个非全量目标歌手时按勾选范围内的目标歌手计算。
-- 已修改 `web/styles.css`，补充目标歌手勾选框、全选/反选按钮和滚动列表样式。
+### 压缩记录：第二版高可信分支和补充分支的形成
+- 第一版归档后，第二版目标转向重新整理歌曲输入来源，围绕高可信歌曲子集和补充分支建立更清晰的验证数据流。
+- 高可信分支以歌手专辑列表和专辑歌曲为主：请求 `singer.get_album_list`，按专辑类型保留 `Single`、`EP`、`录音室专辑`，再对保留专辑请求 `album.get_song`，最后按歌曲 `singer[].mid` 是否包含目标歌手过滤。
+- 四位开发样本为周杰伦、薛之谦、林俊杰、汪苏泷；四位样本高可信分支完整采集后，按专辑歌曲请求得到 1475 行，目标歌手匹配后 1062 行，后续同名去重后 828 行。
+- 高可信流程曾在外层执行工具等待约 245 秒后超时，但复核发现四位歌手原始缓存、单人结果和汇总结果已完整落盘，没有观察到接口封禁、连续空响应或鉴权失败证据。
+- 高可信 CSV 列名规则被纠正为非辅助列只能使用 QQ 音乐接口原始顶层键，项目新增列统一使用 `aux_` 前缀，`confidence` 等自造普通列被移除。
+- 用户进一步纠正 CSV 只是人工查看版，正式流程不应默认保留 CSV；脚本新增 `--write-csv`，正式 JSON 输出和验证 CSV 目录分离，CSV 不得写入正式输出目录内部。
+- 补充分支来自主页歌曲 Tab 全集，初始思路是全集减去高可信子集，后经多轮纠正统一命名为“补充分支”，不得再称为“全集分支”或“主页分支”。
+- 补充分支最终阶段性流程为：filter1 空专辑过滤；filter2 专辑 id/mid 非空过滤；请求并缓存 `album.get_detail` 专辑详情；filter3 只保留 `Single`、`EP`、`录音室专辑`；filter4 去重；filter5 减去高可信子集已有歌名。
+- 补充分支有效验证结果为：候选 3492 行，filter1 后 1856 行，filter2 后 1816 行，专辑详情补充后 1816 行，filter3 后 1126 行，filter4 后 954 行，filter5 后 128 行。
+- 补充分支专辑详情缓存写入 `data/raw/qqmusic/supplement_album_details/`；重跑时 1816 行专辑详情补充全部为 `cache_hit`，说明已缓存专辑不会重复请求。
+- 两个分支的去重规则最终统一为先按歌曲 `mid/id` 去重，再按原始 `name` 同名去重；同名不同专辑类型优先级为 `录音室专辑 > EP > Single > 较小 song id`。
+- 两个分支都要求每一步同时输出保留行和被过滤行，验证阶段不得只保留最终结果；过滤原因、步骤、分支、目标歌手和来源记录必须可追溯。
 
-### 记录目标歌手勾选框修改未验证
-- 用户明确要求修改后不需要验证，因此本次未运行构建、脚本语法检查、浏览器预览或自动化测试。
-- 已进行代码定位和差异查看以控制改动范围，但未将其作为功能验证结果。
-- 剩余风险是实际浏览器中的顶部控件布局、勾选交互和图谱刷新效果仍需用户打开网页后确认。
-
-### 纠正目标歌手筛选控件形态
-- 用户指出上一版把目标歌手勾选框直接铺在工具栏中不符合预期，正确目标是保留下拉菜单筛选形态，为后续全量歌手列表做准备。
-- 已修改 `web/index.html`，将目标歌手控件改为下拉按钮，默认只显示当前选择摘要；展开后显示全选、反选和歌手勾选列表。
-- 已修改 `web/app.js`，增加目标歌手下拉菜单的展开、收起、外部点击关闭和 Escape 关闭逻辑，并保持多选筛选集合不变。
-- 已修改 `web/styles.css`，将目标歌手勾选列表改为绝对定位下拉面板，限制面板高度并允许滚动，以兼容后续更多目标歌手。
-- 用户仍要求本次修改后不需要验证，因此未运行构建、脚本语法检查、浏览器预览或自动化测试。
-
-### 调整目标歌手下拉列表排序和列数
-- 用户要求目标歌手下拉菜单中的勾选项改为单列，并按热门排行榜排序。
-- 已修改 `web/styles.css`，将目标歌手下拉菜单内的勾选列表从双列改为单列。
-- 已修改 `web/app.js`，目标歌手列表渲染、全选、反选和筛选范围统一通过排序后的 catalog 目标列表生成，排序优先使用 `hot_rank`、`discovery_rank` 或 `hot_discovery_rank` 字段。
-- 已修改 `web/data/catalog.json`，为当前三位目标歌手补充 `hot_rank` 字段，以支持当前页面按热门榜顺序显示。
-- 已修改 `music_metadata_graph/pipelines/export_web_dataset.py`，默认导出参数包含当前三位歌手的热门榜顺序，并兼容 `slug=name=mid=directory=hot_rank` 输入格式，避免重新导出后排名字段丢失。
-- 用户前序已要求这组 UI 修改不需要验证，因此本次未运行构建、脚本语法检查、浏览器预览或自动化测试。
-
-### 调整顶部说明和统计卡为单行布局
-- 用户提供截图要求将顶部两行卡片中的文字改成一行，并将两行卡片改成一行。
-- 已修改 `web/styles.css`：页面主体改为两列网格，左侧承载“当前数据源 / 范围切换”说明卡，右侧承载 6 个统计指标卡；图谱工作区和数据表继续跨全宽显示。
-- 已修改说明卡内部布局为横向排列，标题与说明文字在同一行显示，长说明使用省略号避免撑破容器。
-- 已修改统计指标卡内部布局为横向排列，指标名称和数值在同一行显示，6 个统计卡在桌面宽度下保持同一行。
-- 已更新 `web/index.html` 的 CSS 资源版本号为 `20260512-single-row-cards`，降低浏览器继续加载旧样式缓存的风险。
-
-### 验证顶部卡片单行布局修改
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但确认现有页面脚本仍可解析。
-- 验证对象为 `web/index.html` 和 `web/styles.css`，执行静态断言确认 HTML 已引用 `styles.css?v=20260512-single-row-cards`，样式中包含页面两列网格、说明卡横向布局、指标卡横向布局和图谱区域跨全宽规则。
-- 验证对象为 `web/index.html`、`web/styles.css` 和 `develop_log.md` 的行尾，已按用户偏好统一为 CRLF。
-- 当前未完成浏览器截图级视觉验证；原因是当前会话未暴露 Browser 插件可调用工具。替代检查已确认入口资源版本和关键布局规则已生效，实际首屏视觉仍需在浏览器刷新页面确认。
-
-### 修正顶部单行布局横向溢出
-- 用户提供截图指出上一版顶部布局不合理，右侧统计卡被挤出视口，属于单行压缩过度导致的横向溢出。
-- 已修改 `web/styles.css`：页面顶部主网格从固定比例两列改为“说明区域弹性 + 指标区域自适应内容宽度”，避免指标区域在桌面宽度下继续被压缩或溢出。
-- 已将 6 个统计卡改为紧凑固定范围列，指标标题禁止拆行，卡片高度进一步压缩为 44px。
-- 已新增 1320px 响应式断点：可用宽度不足时说明卡和统计卡自动回到上下两行，优先保证不横向溢出。
-- 已更新 `web/index.html` 的 CSS 资源版本号为 `20260512-balanced-top-cards`，降低浏览器缓存旧布局的风险。
-
-### 验证顶部布局溢出修正
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但确认页面脚本仍可解析。
-- 验证对象为 `web/index.html` 和 `web/styles.css`，执行静态断言确认 HTML 已引用 `styles.css?v=20260512-balanced-top-cards`，样式中包含弹性说明列、紧凑 6 列指标卡、1320px 响应式断点和标题不换行规则。
-- 验证对象为 `web/index.html`、`web/styles.css` 和 `develop_log.md` 的行尾，字节扫描确认 LF-only 数量均为 0。
-- 当前仍未完成浏览器截图级视觉验证；剩余风险是实际浏览器中不同缩放比例下的卡片宽度观感，需要用户刷新页面后确认。
-
-### 将顶部信息区改为状态栏
-- 用户再次提供截图指出上一版虽然未截断，但 8 个独立卡片横向排列仍然视觉割裂、比例不合理。
-- 已修改 `web/index.html`：将“当前数据源 / 范围切换”和统计指标共同包入 `top-summary-bar`，从结构上改为一条顶部状态栏。
-- 已修改 `web/styles.css`：左侧说明区保留两段信息但去掉独立卡片外框，仅用竖线分隔；右侧统计指标去掉独立卡片边框，改为轻量数值组。
-- 状态栏桌面布局为左侧说明弹性展开、右侧指标按内容宽度靠右显示；1320px 以下自动拆成上下两行，1050px 以下统计指标改为三列网格，620px 以下改为两列网格。
-- 已更新 `web/index.html` 的 CSS 资源版本号为 `20260512-top-status-bar`，降低浏览器缓存旧布局的风险。
-
-### 验证顶部状态栏修改
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但确认页面脚本仍可解析。
-- 验证对象为 `web/index.html` 和 `web/styles.css`，执行静态断言确认 HTML 包含 `top-summary-bar`，并引用 `styles.css?v=20260512-top-status-bar`。
-- 验证对象为 `web/styles.css`，执行静态断言确认存在状态栏容器、左侧弹性说明列、右侧 flex 指标组、轻量指标项和分隔线样式。
-- 当前仍未完成浏览器截图级视觉验证；剩余风险是实际浏览器中状态栏的字重、间距和换行断点仍需人工刷新页面确认。
-
-### 定位连线方向可见性不足
-- 用户反馈网页中“连线方向”控件看不出明显区别。
-- 已定位当前 `web/app.js` 的实现：有向模式下只有选中某条边时才显示方向箭头和流动粒子，未选中状态下普通边和无向模式视觉差异很弱。
-- 当前数据边本身仍有方向语义，表示贡献者到目标歌手的关系，例如“作词/作曲人 -> 演唱该歌曲的目标歌手”；切换为无向主要是弱化方向，只把两人视为存在合作关系。
-- 已识别用户体验缺口：如果用户不点击边，几乎无法感知“有向/无向”的区别；后续应考虑在有向模式下默认显示更轻量的箭头、在说明文案中明确方向含义，或将控件改名为“显示贡献方向”。
-
-### 改为有向模式默认显示方向粒子
-- 用户明确有向模式不应只在选中边时显示方向，且不需要箭头，方向由流动粒子表达。
-- 已修改 `web/app.js`：`linkDirectionalArrowLength` 固定为 `0`，不再显示箭头；`linkDirectionalParticles` 在有向模式下对所有边返回 `1`，在无向模式下返回 `0`。
-- 已修改 `web/index.html`，将脚本资源版本号更新为 `20260512-directed-particles`，降低浏览器继续加载旧脚本缓存的风险。
-- 已修改 `README.md`，说明有向模式下所有边直接显示流动粒子，粒子流动方向表示贡献关系方向，不额外显示箭头。
-
-### 验证有向粒子显示修改
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `web/index.html`，执行静态断言确认入口已引用 `app.js?v=20260512-directed-particles`。
-- 验证对象为 `web/app.js`，执行静态断言确认箭头长度固定为 `0`，方向粒子只由 `state.directionMode === "directed"` 控制，不再依赖 `selectedEdgeId()`。
-- 验证对象为 `README.md`，执行静态断言确认文档已包含“流动粒子”和“不额外显示箭头”的说明。
-- 当前未完成浏览器截图级视觉验证；剩余风险是不同边数和缩放比例下粒子密度的观感需要在浏览器中刷新页面确认。
-
-### 纠正网页数据展示范围为完整作词作曲歌曲
-- 用户指出网页使用数据有问题，应该只使用作词和作曲信息齐全的数据，因此不需要显示隔离条目或数据质量信息。
-- 已复核现有采集流程，确认 `collect_singer_songs.py` 默认已经把缺作词或缺作曲歌曲从 `songs_kept` 剔除，网页数据问题主要来自导出脚本和页面仍展示 `songs_credit_incomplete` 的统计与质量页签。
-- 已修改 `music_metadata_graph/pipelines/export_web_dataset.py`，网页静态 JSON 只从 `songs_kept.json` 导出图谱、歌曲明细、summary 和 catalog，不再读取或输出 `songs_credit_incomplete.json`、`credit_incomplete` 或 `quality` 字段。
-- 已修改 `web/app.js`，顶部范围说明、统计条和表格渲染不再显示“制作人员不完整条目已隔离”“隔离条目”或数据质量表。
-- 已修改 `web/index.html`，移除“数据质量”页签，并更新 CSS/JS 资源版本号为 `20260512-complete-credits-only`。
-- 已更新 `README.md`，说明网页只使用 `songs_kept` 中作词和作曲都齐全的歌曲；缺作词或缺作曲文件仅作为本地调试输出。
-- 已重新导出 `web/data/catalog.json`、`zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json`；导出汇总为 3 位目标歌手、566 首作词作曲齐全歌曲、183 个唯一节点和 9 个共同合作者。
-- 本轮不改变采集端保留本地调试文件的行为，不删除 `songs_credit_incomplete.json/csv` 输出能力。
-
-### 验证完整作词作曲网页数据导出
-- 验证对象为 `music_metadata_graph/pipelines/export_web_dataset.py`，执行项目指定 Conda Python 的 `py_compile`，未报语法错误。
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `web/data/*.json`，重新导出后扫描确认网页静态数据不再包含 `quality` 或 `credit_incomplete` 字段。
-- 验证对象为网页歌曲明细数据，执行 Python 断言检查 `web/data/zhoujielun.json`、`xuezhiqian.json` 和 `linjunjie.json` 的 566 首歌曲，结果显示缺作词或缺作曲歌曲数量为 0。
-- 静态搜索确认 `web/app.js`、`web/index.html` 和导出脚本中不再包含“隔离”“数据质量”“制作人员不完整”等网页展示逻辑；README 中仅保留本地调试输出说明。
-- 已按用户偏好将本轮修改的 Python、JavaScript、HTML、Markdown 和重新导出的 JSON 文件统一为 CRLF 行尾。
-- 当前未完成浏览器截图级视觉验证；剩余风险是用户浏览器缓存旧资源时可能仍看到旧页签，已通过更新入口资源版本号降低该风险。
-
-### 降低有向边粒子动画速度
-- 用户反馈网页图谱中的粒子动画太快。
-- 已定位粒子动画由 `web/app.js` 中 `force-graph` 的有向边粒子配置控制，当前有向模式下每条边显示 1 个流动粒子。
-- 已修改 `web/app.js`：新增 `directedParticleSpeed = 0.003`，并通过 `linkDirectionalParticleSpeed(directedParticleSpeed)` 显式设置粒子速度，约为 `force-graph` 默认值的三成。
-- 已更新图谱说明中的布局版本标记为 `slow-particles-20260512`，便于刷新页面后确认加载到新脚本。
-- 已修改 `web/index.html`，将脚本资源版本号更新为 `20260512-slow-particles`，降低浏览器继续加载旧脚本缓存的风险。
-- 本轮不改动有向/无向切换逻辑、不改动粒子数量、不改动数据导出和静态 JSON。
-
-### 验证有向边粒子速度调整
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `web/app.js`，执行静态断言确认存在 `slow-particles-20260512`、`directedParticleSpeed = 0.003` 和 `linkDirectionalParticleSpeed(directedParticleSpeed)`。
-- 验证对象为 `web/index.html`，执行静态断言确认入口已引用 `app.js?v=20260512-slow-particles`。
-- 当前未完成浏览器截图级视觉验证；剩余风险是粒子速度主观观感仍需在浏览器刷新页面后确认。
-
-### 将顶部右侧控制面板改为单行
-- 用户提供截图要求把顶部栏右半部分控制面板改成单行，目标效果为“数据集、目标歌手、视图、职能显示、连线方向、关系至少支撑歌曲数”在桌面宽度下同一水平行对齐。
-- 已修改 `web/styles.css`：顶部栏改为垂直居中，右侧 `.toolbar` 在桌面端使用不换行横向布局，控件标签和输入控件从上下两行改为左右同排。
-- 已为目标歌手下拉、视图、职能显示、连线方向和最小歌曲数设置稳定宽度或弹性约束，避免单行后控件互相挤压。
-- 已保留 1280px、1050px 和 620px 响应式断点：宽度不足时允许换行或改为单列，避免移动端横向溢出。
-- 已修改 `web/index.html` 的 CSS 资源版本号为 `20260512-single-line-toolbar`，降低浏览器继续加载旧样式缓存的风险。
-- 本轮不改变目标歌手筛选逻辑、视图切换逻辑、图谱绘制逻辑和静态数据。
-
-### 验证顶部右侧控制面板单行修改
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误；本次未修改脚本逻辑，但确认页面现有脚本仍可解析。
-- 验证对象为 `web/index.html` 和 `web/styles.css`，执行静态断言确认入口已引用 `styles.css?v=20260512-single-line-toolbar`，样式中包含工具栏不换行、控件行内 flex、桌面断点和目标歌手下拉弹性约束。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=single-line-toolbar`、`/styles.css?v=20260512-single-line-toolbar`、`/app.js?v=20260512-slow-particles` 和 `/data/catalog.json`，均返回 HTTP 200。
-- 当前未完成浏览器截图级视觉验证；原因是当前会话没有暴露 Browser 插件所需的 Node 执行工具。替代检查已确认入口资源和关键布局规则已生效，实际视觉仍需在浏览器刷新页面后确认。
-
-### 压缩顶部筛选控件并移除重复状态栏
-- 用户指出顶部筛选控件仍过宽、过高，数据集框无实际操作价值，下一行状态卡大量重复信息。
-- 已修改 `web/index.html`：移除顶部“数据集”框和主体第一行状态卡，只保留标题范围说明、图谱区、详情区和数据表。
-- 已将“职能显示”的合并选项文案从“合并为合作次数”改为“不区分职能”，避免误解为双向合作关系被合并。
-- 已将“连线方向”下拉改为“粒子效果”开关，开关只控制边上的流动粒子是否显示，不再展示有向/无向下拉。
-- 已将“关系至少支撑歌曲数”改为“显示阈值”，并缩短数值输入框宽度。
-- 已修改 `web/styles.css`：降低 select、input、button 的高度和内边距，缩短目标歌手、视图、职能显示和阈值控件宽度，让控件高度更接近文字高度。
-- 已修改 `web/app.js`：移除已删除状态卡相关 DOM 写入，并把粒子显示逻辑从 `directionMode` 改为 `particlesEnabled`。
-
-### 修正目标歌手筛选菜单并自适应图谱高度
-- 用户指出目标歌手筛选菜单样式和宽度仍不同于普通下拉，并要求增加搜索栏筛选候选项。
-- 已修改 `web/index.html`：在目标歌手下拉面板顶部增加 `target-filter-search` 搜索输入框。
-- 已修改 `web/app.js`：新增 `targetFilterSearch` 状态，搜索目标歌手时只过滤下拉候选项，不改变当前勾选集合；未匹配时显示“没有匹配的目标歌手”。
-- 已修改 `web/styles.css`：目标歌手下拉按钮宽度固定为 150px，下拉面板与按钮同宽并右对齐，搜索框、全选/反选按钮和勾选项使用同一套紧凑控件样式。
-- 已将图谱高度从按节点数量估算改为按当前视口计算：使用图谱容器顶部到 `window.innerHeight` 的剩余高度，让打开页面时图谱区域贴近屏幕底部，不再把页面撑得过高。
-- 已增加窗口 resize 时重新渲染图谱，保证浏览器高度变化后画布高度同步调整。
-- 已更新 `web/index.html` 的 CSS/JS 资源版本号为 `20260512-filter-search-fit-graph`，降低浏览器继续加载旧资源缓存的风险。
-
-### 验证筛选菜单和图谱高度修改
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `web/index.html`、`web/styles.css` 和 `web/app.js`，执行静态断言确认入口引用 `20260512-filter-search-fit-graph` 版本资源，目标歌手搜索输入、搜索状态、视口高度计算、resize 监听、目标歌手下拉统一宽度和旧状态卡移除均已存在。
-- 静态搜索确认 `source-pill`、`top-summary-bar`、`summary-strip`、`source-description`、`source-name`、`direction-mode`、`directionMode`、`关系至少支撑歌曲数`、`合并为合作次数`、`连线方向` 等旧结构或文案不再出现在网页 HTML、CSS 和 JS 中。
-- 验证对象为本地静态预览服务，访问 `http://127.0.0.1:8765/index.html?check=filter-search-fit-graph`、`/styles.css?v=20260512-filter-search-fit-graph`、`/app.js?v=20260512-filter-search-fit-graph` 和 `/data/catalog.json`，均返回 HTTP 200。
-- 当前未完成浏览器截图级视觉验证；原因是当前会话没有暴露 Browser 插件所需的 Node 执行工具。替代检查已确认入口资源、核心 DOM、脚本逻辑和样式规则已生效，实际像素级视觉仍需在浏览器刷新页面后确认。
-
-### 统一筛选控件为原生风格并限制详情栏高度
-- 用户指出目标歌手筛选按钮仍与普通下拉不同，并补充“同意成原生样式，非必要不要自己实现样式”。
-- 已保留原生 `select` 默认外观，不使用 `appearance: none` 或自绘 select 箭头；目标歌手因需要多选和搜索仍使用按钮加弹层，但只补回简单文本下拉符号，避免复杂自绘样式。
-- 已调整目标歌手按钮和面板宽度，使其更接近当前顶部控件的原生尺寸和视觉节奏。
-- 用户指出详情栏会被内容撑开，应该跟绘图区高度一样并在内部滚动。
-- 已修改 `web/app.js`：图谱渲染时同步设置 `.detail-panel` 高度为图谱画布高度加图谱标题栏高度。
-- 已修改 `web/styles.css`：详情栏外层隐藏溢出，`detail-content` 内部滚动，避免歌曲列表继续撑长页面。
-- 已更新 `web/index.html` 的 CSS/JS 资源版本号为 `20260512-unified-controls-detail-height`，降低浏览器继续加载旧资源缓存的风险。
-
-### 验证原生风格控件和详情栏高度限制
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 验证对象为 `web/index.html`、`web/styles.css` 和 `web/app.js`，执行静态断言确认入口引用 `20260512-unified-controls-detail-height` 版本资源，目标歌手按钮保留文本下拉符号，详情栏高度同步逻辑和详情内容内部滚动样式均已存在。
-- 静态搜索确认网页 HTML、CSS 和 JS 中没有 `appearance`、`webkit-appearance`、`moz-appearance`、`select-wrapper` 或 `custom-arrow` 等自定义原生下拉外观的规则。
-- 当前未完成浏览器截图级视觉验证；原因是当前会话没有暴露 Browser 插件所需的 Node 执行工具。替代检查已确认不会覆盖原生 select 箭头，并且详情栏已有固定高度与内部滚动规则。
-
-### 取消目标歌手按钮独立箭头区域
-- 用户再次截图指出目标歌手控件仍与普通下拉不同，问题集中在右侧独立箭头区域。
-- 已移除 `web/index.html` 中目标歌手按钮内单独的箭头 `span`，不再形成独立右侧小格。
-- 已修改 `web/app.js`，将下拉符号并入 `target-dropdown-label` 文本末尾，避免目标歌手按钮内部布局不同于普通控件。
-- 已修改 `web/styles.css`，取消目标歌手按钮的 flex 分散布局，按钮文字左对齐，保留浏览器 button 的基础外观。
-- 已更新 `web/index.html` 的 CSS/JS 资源版本号为 `20260512-target-native-button`，降低浏览器继续加载旧按钮样式缓存的风险。
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 静态断言确认目标歌手按钮中独立箭头节点已移除，标签文本末尾包含下拉符号，按钮文字左对齐规则已存在。
-
-### 使用原生下拉作为目标歌手筛选视觉层
-- 用户提出可在目标歌手位置放置原生下拉菜单作为视觉层，再用透明按钮覆盖处理点击，以兼顾原生外观和多选搜索面板。
-- 已修改 `web/index.html`：在目标歌手控件中新增 `select#target-visual-select` 作为只读视觉层，并保留透明覆盖按钮打开多选面板。
-- 已修改 `web/styles.css`：目标歌手视觉层使用原生 `select`，覆盖按钮绝对定位在其上方，背景和文字透明，不再自绘下拉控件外观。
-- 已修改 `web/app.js`：当前目标歌手摘要同步写入 `target-visual-select` 的唯一 option，并为透明按钮设置 `aria-label`，避免可访问名称丢失。
-- 已更新 `web/index.html` 的 CSS/JS 资源版本号为 `20260512-native-select-overlay`，降低浏览器继续加载旧按钮样式缓存的风险。
-- 验证对象为 `web/app.js`，执行 `node --check`，未报 JavaScript 语法错误。
-- 静态断言确认原生视觉 select、透明覆盖按钮、视觉文本同步、覆盖按钮可访问标签和新版资源号均已存在。
-
-### 澄清 QQ 音乐歌手到歌曲数据流程
-- 用户质疑当前数据流程是否只能通过音乐人名字搜索歌曲，并对照 QQ 音乐软件中“先搜索音乐人，再进入音乐人页查看歌曲”的路径提出疑问。
-- 复核当前实现后确认，项目正式采集流程并不是“音乐人名字搜索歌曲”，而是先通过 `qqmusic.singer.get_singer_list_index` 建立歌手身份表，取得歌手 `mid`、姓名、头像等身份信息。
-- 单歌手采集脚本在有 `target_singer_mid` 时直接使用该 `mid`，没有 `target_singer_mid` 时使用热门歌手列表接口取得候选歌手；随后通过 `qqmusic.singer.get_songs_list(singer_mid)` 按歌手 `mid` 分页获取歌曲列表。
-- 歌曲制作人员补全继续使用 `qqmusic.song.get_producer(song_mid 或 song_id)`，因此完整主路径是“歌手身份 -> 歌手歌曲列表 -> 歌曲制作人员”，而不是“歌手名搜索歌曲”。
-- 搜索接口在当前方案中的合理定位是辅助解析入口，例如用户只给出歌手名字时先搜索或候选确认出 QQ 音乐歌手 `mid`；它不应作为主采集路径，也不应直接用名字搜索歌曲替代歌手歌曲列表。
-- 当前剩余缺口是用户侧入口和文档表达仍可能让人误以为需要手工知道 `mid` 或通过名字搜歌；后续若继续优化，应增加“按歌手名搜索并确认歌手身份”的小工具或页面入口，再把确认出的 `mid` 交给现有采集流程。
-
-### 定位歌手歌曲接口返回非主页官方歌曲的原因
-- 用户指出如果流程等价于 QQ 音乐客户端歌手主页歌曲页，不应返回 `安徽卫视非常静距离杰伦部分`、`土耳其进行曲` 这类明显不属于周杰伦官方歌曲的条目。
-- 复核 `qqmusic-api-python` 源码后确认，当前 `collect_singer_songs.py` 使用的 `client.singer.get_songs_list(mid)` 实际请求 `musichall.song_list_server.GetSingerSongList`，参数为 `singerMid`、`order`、`number`、`begin`。
-- 本地原始缓存 `data/raw/qqmusic/singer_songs/0025NhlN2yWrP4/page_0031_size_30.json` 中确实包含用户指出的两个异常条目，且原始 `songInfo.singer[0].mid` 均为周杰伦 `0025NhlN2yWrP4`；因此这些条目不是项目后处理混入，而是旧接口原始响应曾经直接返回。
-- 缓存中的 `土耳其进行曲` 专辑为 `最脍炙人口的古典音乐100首`，`安徽卫视非常静距离杰伦部分` 专辑为空，二者说明旧接口更像“按歌手标记聚合的宽泛歌曲索引”，不等价于客户端歌手主页经过产品规则筛选后的官方歌曲列表。
-- 进一步检查库中另一个接口 `client.singer.get_tab_detail(mid, TabType.SONG)`，该接口请求 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail`，`TabID` 为 `song_sing`，从命名、参数和响应字段上更接近客户端歌手主页的“歌曲”Tab。
-- 联网验证周杰伦主页 `song_sing` Tab 共翻页 34 页、检查 1012 首歌，未命中 `安徽卫视非常静距离` 或 `土耳其进行曲`。
-- 联网重新扫描旧 `GetSingerSongList` 接口当前 1012 首结果时，也未命中这两个具体异常项；这说明本地缓存还叠加了平台数据已变化或旧缓存过期问题，但不改变旧缓存证据：历史采集时该接口确实返回过非主页官方歌曲。
-- 当前结论是采集主流程不应继续把 `GetSingerSongList` 当作“客户端歌手主页官方歌曲列表”的等价来源；后续应优先切换到 `GetHomepageTabDetail + song_sing` 作为歌手主页歌曲来源，并将旧接口降级为补充或对照来源。
-
-### 切换单歌手歌曲采集源到主页歌曲 Tab
-- 用户要求开始切换采集源，并先采集周杰伦、薛之谦、林俊杰三位歌手的新接口全量数据，以 CSV 展示并按歌曲首字母排序，中文按拼音排序，英文中文混排。
-- 已修改 `music_metadata_graph/pipelines/collect_singer_songs.py`：单歌手歌曲采集从 `client.singer.get_songs_list(mid)` 切换为 `client.singer.get_tab_detail(mid, TabType.SONG)`，并使用 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail` 的 `SongTab.List` 作为歌曲来源。
-- 新增 `SONG_SOURCE = qqmusic.singer.get_tab_detail.song_sing` 并写入每首歌曲的 `song_source` 字段，便于后续追溯采集源。
-- 新接口原始缓存目录改为 `data/raw/qqmusic/singer_homepage_song_tab/<singer_mid>/`，避免与旧 `GetSingerSongList` 缓存混用。
-- 新增 `sort_key` 字段，使用 `pypinyin.lazy_pinyin` 对歌曲名生成排序键；所有歌曲 CSV 输出按 `sort_key`、发行时间和歌曲 id/mid 排序。
-- README 已同步说明默认主采集源为歌手主页歌曲 Tab，旧 `GetSingerSongList` 只作为补充或对照来源，不再作为默认主采集源。
-- 本轮未执行逐首制作人员补全；三位歌手全量采集使用 `--skip-producers`，目的是先检查新接口歌曲列表本身的数据形态，避免把上千次制作人员请求混入采集源切换验证。
-
-### 验证主页歌曲 Tab 全量采集结果
-- 语法验证对象为 `music_metadata_graph/pipelines/collect_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
-- Smoke 验证对象为周杰伦主页歌曲 Tab 第 1 页，采集 30 条歌曲，初过滤后保留 26 条、过滤 4 条，并对前 3 首请求制作人员，3 首均返回 `ok`，作词和作曲字段均非空。
-- 全量采集周杰伦：主页歌曲 Tab 返回 1012 行，初过滤后保留 240 行，过滤 772 行，输出到 `data/processed/singer_songs_homepage/zhoujielun/`。
-- 全量采集薛之谦：主页歌曲 Tab 返回 528 行，初过滤后保留 127 行，过滤 401 行，输出到 `data/processed/singer_songs_homepage/xuezhiqian/`。
-- 全量采集林俊杰：主页歌曲 Tab 返回 1013 行，初过滤后保留 266 行，过滤 747 行，输出到 `data/processed/singer_songs_homepage/linjunjie/`。
-- 已生成三位歌手合并 CSV `data/processed/singer_songs_homepage/three_singers_songs_all_sorted.csv`，共 2553 行，按歌手和拼音排序键排序，便于按歌手查看新接口全量返回。
-- 已生成三位歌手全局混排 CSV `data/processed/singer_songs_homepage/three_singers_songs_all_global_sorted.csv`，共 2553 行，不按歌手分组，直接按歌曲拼音/英文排序键混排。
-- 验证对象为每位歌手的 `songs_all.csv`、`songs_kept.csv`、`songs_filtered.csv` 和合并 CSV，检查结果显示文件均存在且非空、UTF-8 可读、包含 `sort_key` 和 `song_source` 字段。
-- 新接口全量结果中仍出现用户点名的异常项：`安徽卫视非常静距离杰伦部分` 被 `name_title_mismatch` 过滤，`土耳其进行曲` 仍进入 `songs_kept`；因此接口切换降低了来源语义风险，但不能单独解决“官方歌曲”定义，后续需要继续增强专辑归属、空专辑、古典合集和非原创/非主唱条目的过滤或验证规则。
-
-### 对比周杰伦两个歌手歌曲接口全量结果
-- 用户质疑 `songs_all` 是否混入旧数据，并指出新结果中仍包含 `安徽卫视非常静距离杰伦部分`，要求分别全量请求两个接口对比差异。
-- 已绕开现有缓存，实时全量请求周杰伦旧接口 `musichall.song_list_server.GetSingerSongList` 和主页歌曲 Tab 接口 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageTabDetail`，两者均按 30 条分页完整请求 34 页。
-- 对比结果显示旧接口返回 1012 行、主页歌曲 Tab 返回 1012 行；按歌曲 `mid/id` 建立唯一 key 后，旧接口唯一 key 为 1012 个，主页歌曲 Tab 唯一 key 为 1012 个，两者交集为 1012 个，旧接口独有 0 个，主页 Tab 独有 0 个。
-- 因此 `songs_all` 中出现 `安徽卫视非常静距离杰伦部分` 不是旧数据混入，而是主页歌曲 Tab 接口实时返回的原始全量数据本身包含该条目。
-- 两个接口的主要差异不是歌曲集合，而是分页排序位置不同：例如 `土耳其进行曲` 在旧接口第 31 页第 9 行，在主页 Tab 第 5 页第 7 行；`安徽卫视非常静距离杰伦部分` 在旧接口第 31 页第 14 行，在主页 Tab 第 20 页第 5 行。
-- 已生成对比输出目录 `data/processed/interface_compare/zhoujielun/`，其中包括两个接口全量 CSV、两个独有集合 CSV、共有歌曲位置对比 CSV 和 `summary.json`。
-- 当前结论修正为：切换到主页歌曲 Tab 不能解决异常条目问题，因为两个接口当前返回的周杰伦歌曲集合完全一致；后续应把重点转向业务过滤规则和“官方歌曲”判定，而不是继续寻找这两个接口之间的数据集合差异。
-
-### 梳理可用于歌曲和专辑请求的 QQ 音乐接口
-- 用户要求继续查找是否还有其他接口可能有用，并先列出能用来请求歌曲或专辑的所有接口并分析。
-- 本轮依据本地已安装的 `qqmusic-api-python` 源码梳理，重点查看 `modules/song.py`、`modules/album.py`、`modules/singer.py`、`modules/search.py`、`modules/top.py`、`modules/songlist.py`、`modules/recommend.py` 以及对应模型文件。
-- 可直接返回目标歌手歌曲集合的接口包括 `singer.get_songs_list(mid)` 和 `singer.get_tab_detail(mid, TabType.SONG)`；前一轮已验证二者对周杰伦当前返回集合完全一致，不能单独解决异常条目问题。
-- 歌手主页 Tab 还支持 `COMPOSER`、`LYRICIST`、`PRODUCER`、`ARRANGER`、`MUSICIAN` 等角色型歌曲 Tab；这些接口可能用于补充“该歌手参与创作/制作的歌曲”，但不能直接当作“该歌手演唱的官方歌曲”来源。
-- 专辑相关接口包括 `singer.get_album_list(mid)`、`singer.get_tab_detail(mid, TabType.ALBUM)`、`album.get_detail(album_id/mid)` 和 `album.get_song(album_id/mid)`；其中专辑详情的专辑署名歌手、专辑类型、发行公司、发行日期和专辑歌曲列表对判定官方歌曲最有用。
-- 歌曲相关接口包括 `song.query_song(ids/mids)`、`song.get_detail(id/mid)`、`song.get_other_version(id/mid)`、`song.get_producer(id/mid)`、`song.get_labels(songid)`、`song.get_similar_song(songid)`、`song.get_sheet(mid)`、`song.get_fav_num(song_ids)`；其中歌曲详情、制作人员、其他版本和标签对过滤规则有辅助价值，推荐/相似/收藏数不适合作为官方归属依据。
-- 搜索接口包括 `search.search_by_type(keyword, SearchType.SONG/ALBUM/SINGER)` 和 `search.general_search(keyword)`；搜索专辑结果模型包含 `album_type`，注释指出通常 `1` 代表正规专辑，可作为候选专辑筛选或交叉验证，但搜索接口不适合做全量主采集。
-- 排行榜、新歌推荐、歌单详情等接口能返回歌曲列表，但来源语义是榜单、推荐或用户歌单，不适合判定某个歌手的官方作品，只适合发现样本或交叉热度信息。
-- 当前分析结论是：后续最有价值的路线不是再换一个单一歌曲列表接口，而是以歌手专辑列表和专辑详情/专辑歌曲列表作为官方作品验证主链路，再用歌曲详情、制作人员、其他版本和标签作为辅助证据。
-
-### 探查汪苏泷歌手专辑列表返回形态
-- 用户指出部分歌手作品首发语境可能就是综艺或 Live，例如“我是唱作人”，不能简单按 Live 或节目专辑一刀切过滤，并要求先用汪苏泷请求全量歌手专辑列表。
-- 使用汪苏泷 QQ 音乐歌手 `mid=001z2JmX09LLgL` 请求 `client.singer.get_album_list(mid)`，按每页 30 条完整请求 4 页，接口返回总数 117，实际落盘 117 条。
-- 输出目录为 `data/processed/album_probe/wangsulong/`，包含 `wangsulong_singer_album_list.csv`、`wangsulong_singer_album_list.json` 和 `summary.json`；原始缓存保存到 `data/raw/qqmusic/album_probe/wangsulong/singer_album_list/`。
-- 专辑类型分布为：`Single` 77 条、`录音室专辑` 33 条、`演唱会` 5 条、`EP` 1 条、`人声音频` 1 条。
-- 歌手专辑列表中包含普通录音室专辑、单曲、影视原声带、多人合集、演唱会、品牌活动/现场类专辑和人声音频；例如 `爱你 影视原声带`、`风起洛阳 影视原声带`、`登陆星球2016演唱会`、`就让这大雨全都落下 (Live)`、`雀巢咖啡1+2唤醒大咖秀 郁可唯汪苏泷专场`。
-- 当前汪苏泷歌手专辑列表未检索到专辑名包含 `我是唱作人` 的条目；这说明综艺首发作品不一定会通过歌手专辑列表以节目名专辑形式出现，后续还需要结合歌曲列表、专辑详情、搜索专辑和歌曲制作人员验证。
-- 本轮发现 `album_type=演唱会` 的条目可能既包含个人演唱会，也包含活动现场或合作现场；因此不能简单把 `演唱会` 或 `Live` 全部判为噪声，需要看目标歌手是否为专辑署名歌手、歌曲是否为该歌手演唱、制作人员是否匹配，以及是否属于明确节目/现场首发作品。
-
-### 采集三位歌手全量专辑列表
-- 用户要求继续用周杰伦、薛之谦、林俊杰请求全量歌手专辑列表查看结果。
-- 使用 `client.singer.get_album_list(mid)` 分别请求三位歌手，每页 30 条，输出到 `data/processed/album_probe/three_singers/`，原始缓存写入 `data/raw/qqmusic/album_probe/three_singers/`。
-- 周杰伦专辑列表返回 43 条，类型分布为 `录音室专辑` 18、`Single` 16、`演唱会` 7、`EP` 2；专辑署名包含目标歌手的数量为 43，多歌手专辑 4。
-- 薛之谦专辑列表返回 32 条，类型分布为 `Single` 17、`录音室专辑` 14、`演唱会` 1；专辑署名包含目标歌手的数量为 32，多歌手专辑 4。
-- 林俊杰专辑列表返回 76 条，类型分布为 `Single` 48、`录音室专辑` 18、`EP` 5、`演唱会` 5；专辑署名包含目标歌手的数量为 76，多歌手专辑 20。
-- 三位歌手的歌手专辑列表均未命中 `声生不息`、`歌手`、`我是唱作人`、`综艺` 等关键词；这进一步说明歌手专辑列表适合作为高可信个人/署名专辑来源，但不能覆盖音乐综艺节目专辑。
-- 已生成每位歌手的 `singer_album_list.csv/json`、`summary.json` 和合并表 `three_singers_album_list.csv`；验证确认文件存在、大小非零、UTF-8 可读，合并表共 151 行。
-
-### 核对四位歌手高可信歌曲子集采集状态
-- 用户反馈采集过程中程序卡死并重启电脑，要求检查周杰伦、薛之谦、林俊杰、汪苏泷四位歌手的高可信歌曲子集是否请求完整。
-- 检查 `data/processed/high_confidence_singer_songs/summary.json`，汇总结果存在，生成时间为 `2026-05-12T18:21:32.562260+00:00`，记录歌手数 4、去重后高可信歌曲总数 1062。
-- 周杰伦结果完整：歌手专辑列表 43 条，按 `Single`、`EP`、`录音室专辑` 保留 36 张专辑，原始专辑歌曲缓存目录 36 个，高可信歌曲 CSV 225 行。
-- 薛之谦结果完整：歌手专辑列表 32 条，按规则保留 31 张专辑，原始专辑歌曲缓存目录 31 个，高可信歌曲 CSV 154 行。
-- 林俊杰结果完整：歌手专辑列表 76 条，按规则保留 71 张专辑，原始专辑歌曲缓存目录 71 个，高可信歌曲 CSV 321 行。
-- 汪苏泷结果完整：歌手专辑列表 117 条，按规则保留 111 张专辑，原始专辑歌曲缓存目录 111 个，高可信歌曲 CSV 362 行。
-- 四位歌手单人 `songs_high_confidence.csv/json`、`album_song_rows_kept_before_dedupe.csv/json`、`album_song_rows_rejected.csv/json`、`albums_included.csv/json`、`albums_excluded.csv/json` 和 `summary.json` 均存在且非空。
-- 汇总 CSV `four_singers_high_confidence_songs.csv` 存在且非空，行数为 1062，等于四位歌手单人高可信歌曲数之和，说明汇总未缺歌手、未出现汇总行数缺口。
-
-### 分析高可信采集超时原因
-- 首次高可信歌曲子集采集命令在外层执行工具等待约 245 秒后返回超时状态，属于本地执行工具的等待上限触发；该状态本身不是 QQ 音乐接口返回的封禁、限流或鉴权失败证据。
-- 本轮采集需要请求四位歌手的专辑列表和 249 张保留专辑的歌曲列表，且脚本使用低频请求策略，因此运行时间超过 4 分钟属于可解释范围。
-- 电脑重启前已经落盘四位歌手的原始缓存、单人结果和汇总结果；当前没有残留 Python 采集进程。
-- 当前未发现接口封禁证据：没有观察到 HTTP 鉴权失败、封禁提示、连续空响应或脚本异常退出留下的半成品结果；相反，四位歌手的专辑数、原始缓存目录数、单人 CSV 行数和汇总 CSV 行数都能对齐。
-- 剩余风险是脚本当前缺少结构化运行日志，无法精确复盘每个接口请求的耗时和最后一个成功请求；后续若继续扩展采集，建议增加每页/每专辑请求耗时、重试次数和异常摘要日志。
-
-### 规范高可信歌曲 CSV 列名来源
-- 用户指出整理 CSV 时不应增加或修改接口键名，列名只能是请求得到的键名或明确的辅助键，并质疑 `confidence` 不是有用的辅助键。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：歌曲 CSV 的非辅助列改为 QQ 音乐 `album.get_song` 歌曲响应顶层键，例如 `id`、`type`、`mid`、`name`、`title`、`subtitle`、`singer`、`album`、`time_public`、`file`、`pay`、`action` 等。
-- 已修改专辑 CSV 的非辅助列为 QQ 音乐 `singer.get_album_list` 专辑响应顶层键，例如 `albumMid`、`albumName`、`albumTranName`、`publishDate`、`totalNum`、`albumType`、`pmid`、`albumID`、`singerName`、`tags`。
-- 所有项目流程新增列统一改为 `aux_` 前缀，例如 `aux_target_singer`、`aux_target_singer_mid`、`aux_sort_key`、`aux_include_album`、`aux_album_filter_reason`、`aux_target_singer_match`、`aux_source`。
-- 已移除 `confidence` 列；当前高可信含义由输出目录、脚本规则、summary 规则和辅助筛选列表达，不再作为 CSV 普通列写出。
-- 已使用本地原始缓存重新生成四位歌手单人 CSV、专辑 CSV、拒绝行 CSV 和四位歌手汇总 CSV，未重新请求外部接口。
-- 验证对象为 `collect_high_confidence_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
-- 验证对象为四位歌手 `songs_high_confidence.csv`、`albums_included.csv` 和汇总 `four_singers_high_confidence_songs.csv`，检查确认不存在 `confidence` 列；非 `aux_` 列均属于对应接口原始顶层键；单人行数仍为周杰伦 225、薛之谦 154、林俊杰 321、汪苏泷 362，汇总 1062 行且等于单人行数之和。
-
-### 澄清高可信歌曲子集与原采集流程关系
-- 用户询问当前是否只得到高可信歌曲列表子集，后续流程是否仍存在，以及原来的流程是否保留。
-- 复核 `pyproject.toml` 脚本入口后确认，原有入口 `mr-collect-hot-singers`、`mr-collect-singer-songs`、`mr-validate-albums`、`mr-write-pipeline-report`、`mr-export-web-dataset` 仍保留；新增入口为 `mr-collect-high-confidence-songs`。
-- 复核源码后确认，`collect_high_confidence_singer_songs.py` 当前只负责从歌手专辑列表和专辑歌曲列表生成高可信歌曲子集，不请求 `song.get_producer`，也不直接生成作词、作曲、图谱边或网页数据。
-- 原流程 `collect_singer_songs.py` 仍保留歌手主页歌曲 Tab 全量采集、初过滤、去重、制作人员补全和作词作曲完整性过滤能力，输出 `songs_kept.json/csv`、`songs_credit_incomplete.json/csv` 等。
-- 原后处理 `validate_album_ownership.py`、`write_singer_pipeline_report.py` 和 `export_web_dataset.py` 仍按原数据结构读取 `songs_kept.json` 或专辑验证结果；当前尚未改成直接消费高可信子集。
-- 当前明确状态是高可信子集已经作为新的候选入口完成，但还没有接入制作人员补全、关系边生成、网页导出等下游阶段；后续需要决定是把高可信子集作为主输入替换旧歌曲入口，还是与原全量入口并行并在下游合并。
-
-### 展开当前数据流程的逐步细节
-- 用户要求不要把步骤合并成“初过滤”“报告”“去重”等概括词，而是把流程中每一步具体做什么完整展开。
-- 已复核 `collect_hot_singer_registry.py`、`collect_singer_songs.py`、`collect_high_confidence_singer_songs.py`、`validate_album_ownership.py`、`write_singer_pipeline_report.py` 和 `export_web_dataset.py` 的实际逻辑。
-- 原歌手歌曲流程的具体步骤包括：可选请求热门歌手列表或手动使用目标歌手 `mid`；请求歌手主页歌曲 Tab；把原始歌曲压缩为项目行结构；按 `name` 与 `title` 是否一致、专辑是否为空、标题是否包含版本词依次标记过滤原因；对未过滤歌曲按 `mid/id/歌名+歌手` 去重；请求制作人员接口；展开演唱、作词、作曲、编曲、制作人；按制作人员请求状态、作词是否为空、作曲是否为空决定是否进入可视化候选；写出全量、过滤、保留、制作人员不完整和快照文件。
-- 专辑归属验证流程的具体步骤包括：读取原流程 `songs_kept.json`；收集唯一 `album_mid`；请求专辑详情；构造非版本歌曲基础标题集合；识别歌曲或专辑标题中的版本词；判断专辑署名歌手是否匹配目标歌手；检查专辑歌手、专辑标题、语言、发行公司、简介等可疑信号；按版本重复、强专辑归属不匹配、弱专辑归属不匹配输出 kept、rejected 或 review。
-- 报告流程的具体步骤包括：读取原始全量歌曲、原始过滤歌曲、原始保留歌曲、专辑验证保留、专辑验证拒绝和专辑验证待复核数据；统计各类原因；按拼音/英文排序；分别写出汇总、原始过滤、原始保留、专辑待复核、专辑拒绝和最终保留 Markdown 表；生成后逐个校验 Markdown 表格列数和 UTF-8 可读性。
-- 网页导出流程的具体步骤包括：读取每个目标歌手目录下的 `songs_kept.json` 和快照；为目标歌手创建 artist 节点；为每首歌创建 song 节点记录；从 `credits.groups` 中只取“作词”和“作曲”；为词曲作者创建 artist 节点；把非目标词曲作者指向目标歌手生成边；统计角色、贡献者、跨目标贡献者；写出单歌手 JSON 和总 catalog。
-- 高可信专辑子集流程的具体步骤包括：请求指定歌手专辑列表；按 `albumType` 只保留 `Single`、`EP`、`录音室专辑`；对每张保留专辑请求专辑歌曲；检查歌曲 `singer[].mid` 是否包含目标歌手 `mid`；不匹配的写入 rejected 行；匹配的写入保留行；按歌曲 `mid/id` 去重；按辅助拼音排序键排序；写出单人和四人汇总 CSV/JSON、保留专辑、排除专辑、专辑歌曲保留前行和拒绝行。
-- 当前结论仍是：原流程是端到端网页图谱流程但入口召回偏宽；高可信流程是更可靠的歌曲入口但尚未接入制作人员补全、专辑验证、报告和网页导出。
-
-### 纠正高可信流程正式边界和 CSV 定位
-- 用户纠正：高可信流程正式目标应使用全部歌手，当前四位歌手只是测试流程；CSV 应与 JSON 内容一致，只是方便查看的版本；正式流程不应包含 CSV。
-- 已修改 `collect_high_confidence_singer_songs.py`：默认不再内置四位歌手作为正式输入，而是读取 `data/processed/singer_registry/qqmusic_hot/singer_registry.json` 中的全部歌手。
-- 已新增 `--test-four-singers` 参数，用于显式运行周杰伦、薛之谦、林俊杰、汪苏泷四位测试样本；`--singer slug=name=mid` 仍保留为手动测试入口；`--max-singers` 用于 registry smoke test。
-- 已新增 `--write-csv` 参数；默认正式输出只写 JSON，只有显式传入该参数时才生成 CSV 查看文件。
-- 汇总正式 JSON 文件名从带四人语义的 `four_singers_high_confidence_songs.json` 调整为通用的 `singers_high_confidence_songs.json`；CSV 查看文件同名但扩展名为 `.csv`。
-- CSV 生成逻辑改为从同一批 JSON 行动态生成列，嵌套字段序列化为 JSON 字符串，避免 CSV 与 JSON 使用两套字段结构。
-- README 已同步说明高可信流程的前置条件是先生成歌手身份表；正式流程默认读取全部歌手；四位歌手和 CSV 都是调试或查看参数，不是正式流程边界。
-- 验证对象为 `collect_high_confidence_singer_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，未报语法错误。
-- 使用已有原始缓存执行 `--test-four-singers` 且不加 `--write-csv` 输出到临时目录，结果为 4 位测试歌手、1062 首高可信歌曲、26 个 JSON 文件、0 个 CSV 文件，确认默认不写 CSV。
-- 使用已有原始缓存执行 `--test-four-singers --write-csv` 输出到临时目录，结果汇总 JSON 和汇总 CSV 均为 1062 行，确认 CSV 是同一批 JSON 行的查看版。
-- 当前工作区没有默认路径下的 `singer_registry.json`，因此正式全部歌手流程需要先运行歌手身份表采集，或通过 `--registry` 指向已有身份表文件。
-
-### 生成四位歌手全集减高可信子集差集
-- 用户要求用原流程接口请求周杰伦、薛之谦、林俊杰、汪苏泷四位歌手的全量歌曲，不做任何过滤，并从全集中减去高可信子集生成差集 CSV。
-- 检查本地结果后确认，周杰伦、薛之谦、林俊杰的主页歌曲 Tab 全量 `songs_all.json/csv` 已存在于 `data/processed/singer_songs_homepage/`。
-- 汪苏泷此前没有主页歌曲 Tab 全量缓存；首次补请求因沙箱网络权限触发 `WinError 5` 连接失败，未观察到 QQ 音乐接口封禁或限流响应；随后按权限规则联网重跑成功。
-- 已使用原流程接口 `singer.get_tab_detail(mid, TabType.SONG)` 补采汪苏泷主页歌曲 Tab 全量数据，输出到 `data/processed/singer_songs_homepage/wangsulong/`；本次使用 `--skip-producers`，未请求制作人员，也未使用过滤后的结果。
-- 汪苏泷主页歌曲 Tab 全量返回 939 行，写入 `songs_all.json/csv`；脚本同时按旧逻辑生成了 `songs_kept` 和 `songs_filtered`，但本次差集只读取 `songs_all.json`。
-- 差集计算读取四位歌手的全集 `songs_all.json` 和高可信 `songs_high_confidence.json`，按歌曲 `mid` 优先、其次 `id`、最后 `规范化歌名+歌手` 建立 key。
-- 差集规则为：全集中的每一行只要其 key 不在高可信 key 集中，就写入 `full_minus_high_confidence`；因此差集保留全集中的原始剩余行，不会先对全集去重。
-- 已生成输出目录 `data/processed/high_confidence_diff/`，包含四位歌手单独 CSV/JSON、四位汇总 CSV/JSON 和 `summary.json`。
-- 差集结果为：周杰伦全集 1012 行、高可信 225 行、差集 792 行；薛之谦全集 528 行、高可信 154 行、差集 399 行；林俊杰全集 1013 行、高可信 321 行、差集 746 行；汪苏泷全集 939 行、高可信 362 行、差集 627 行。
-- 四位歌手汇总全集 3492 行、高可信 1062 行、差集 2564 行；差集数量不等于全集行数直接减高可信行数，因为全集保留未去重原始行，而高可信集合是去重后的 key 集。
-- 验证对象为四位单独差集 CSV 和汇总差集 CSV，回读确认行数分别为 792、399、746、627 和 2564，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
-
-### 重算全集去重后差集
-- 用户指出全集也应该先按同一规则去重后再作为全集参与集合运算，而不是直接保留所有请求结果。
-- 已按与高可信子集一致的歌曲 key 规则重算差集：优先使用 `mid`，没有 `mid` 时使用 `id`，再缺失时使用 `规范化歌名+歌手标识`。
-- 新输出目录为 `data/processed/high_confidence_diff_deduped_full/`，其中四位歌手单独差集文件名为 `songs_deduped_full_minus_high_confidence.csv/json`，汇总文件名为 `four_singers_deduped_full_minus_high_confidence.csv/json`。
-- 本次重算结果显示四位歌手的主页歌曲 Tab 全集 `songs_all.json` 中按该 key 规则没有重复 key：全集去重前 3492 行，去重后仍为 3492 行，移除重复 0 行。
-- 因全集本身没有重复 key，重算后的差集行数与上一版一致：周杰伦 792、薛之谦 399、林俊杰 746、汪苏泷 627，汇总 2564。
-- 新差集 CSV 增加 `aux_song_key`、`aux_duplicate_count_in_full` 和 `aux_duplicate_sources_json`，用于说明全集去重依据和每个 key 在全集中的原始来源行数。
-- 验证对象为四位单独新差集 CSV 和汇总新差集 CSV，回读确认行数分别为 792、399、746、627 和 2564，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
-
-### 按歌名键重算补充候选差集
-- 用户要求调整作差使用的键，不再用 `mid` 和 `id`，而是直接用歌名；全集和高可信集合内部去重规则保持不变。
-- 已生成新输出目录 `data/processed/high_confidence_diff_name_key/`，保留原有按 `mid/id` 作差结果不覆盖。
-- 新差集计算流程为：全集先按原去重规则去重；高可信子集保持现有去重结果；作差时把两边歌曲名规范化后作为 `aux_diff_name_key`，全集中歌名 key 不在高可信歌名 key 集中的歌曲进入差集。
-- 本次四位歌手全集按原去重规则仍无重复 key：去重前 3492 行，去重后 3492 行。
-- 高可信子集 1062 行对应 828 个规范化歌名 key，说明在歌名层面存在同名不同版本或不同 id 的合并。
-- 按歌名 key 作差后结果为：周杰伦 300 行、薛之谦 167 行、林俊杰 333 行、汪苏泷 467 行，汇总 1267 行。
-- 新 CSV 保留 `aux_song_key` 作为原去重 key，同时新增 `aux_diff_name_key` 记录本次作差使用的歌名 key。
-- 验证对象为四位单独新差集 CSV 和汇总新差集 CSV，回读确认行数分别为 300、167、333、467 和 1267，文件存在且非空，UTF-8 可读且无 U+FFFD 替换字符。
-
-### 对齐补充候选差集 CSV 与高可信子集列结构
-- 用户指出差集 CSV 列名应该与高可信子集保持一致，而不是沿用原流程整理字段。
-- 已使用主页歌曲 Tab 原始缓存 `data/raw/qqmusic/singer_homepage_song_tab/<mid>/page_*.json` 重新生成按歌名作差的差集，而不是从原流程整理后的 `songs_all.json` 导出。
-- 新输出目录为 `data/processed/high_confidence_diff_name_key_raw_schema/`，保留上一版整理字段差集不覆盖。
-- 新差集 CSV 的非辅助列使用 QQ 音乐歌曲原始顶层键，列顺序与高可信 CSV 前置原始列一致，例如 `id`、`type`、`mid`、`name`、`title`、`subtitle`、`singer`、`album`、`mv`、`interval`、`isonly`、`language` 等。
-- 新差集 CSV 的项目新增字段统一使用 `aux_` 前缀，包括 `aux_target_singer`、`aux_target_singer_mid`、`aux_sort_key`、`aux_song_key`、`aux_diff_name_key`、`aux_set_relation`、`aux_duplicate_count_in_full`、`aux_duplicate_sources` 和 `aux_source`。
-- 按歌名作差的结果行数保持不变：周杰伦 300、薛之谦 167、林俊杰 333、汪苏泷 467，汇总 1267。
-- 验证对象为新汇总差集 CSV 和四位单独差集 CSV，回读确认非 `aux_` 列均属于 QQ 音乐歌曲原始顶层键；汇总 CSV 前 12 列与高可信 CSV 前 12 列一致；文件 UTF-8 可读且无 U+FFFD 替换字符。
-
-### 清理高可信差集旧输出目录
-- 用户要求清理没用的旧目录。
-- 已保留当前仍在使用的高可信源 JSON 目录 `data/processed/high_confidence_singer_songs/`、高可信 CSV 查看目录 `data/processed/high_confidence_singer_songs_csv_check/` 和最新差集目录 `data/processed/high_confidence_diff_name_key_raw_schema/`。
-- 已删除中间验证目录 `data/processed/high_confidence_diff/`、`data/processed/high_confidence_diff_deduped_full/`、`data/processed/high_confidence_diff_name_key/` 和 `data/processed/high_confidence_singer_songs_json_only_check/`。
-- 删除前校验了解析后的目标路径均位于当前工作区内；未删除 `data/raw/` 原始缓存。
-- 清理后复核确认 `data/processed/high_confidence_singer_songs_csv_check/singers_high_confidence_songs.csv` 和 `data/processed/high_confidence_diff_name_key_raw_schema/four_singers_deduped_full_minus_high_confidence_by_name.csv` 仍存在且非空。
-
-### 进一步清理 processed 探查和临时目录
-- 用户指出 `data/processed` 中仍有很多目录，质疑它们是否都有用。
-- 复核后确认上次清理过于保守：`album_probe`、`interface_compare`、`smoke` 是阶段性探查或验证产物；`high_confidence_singer_songs_csv_check` 是临时 CSV 查看目录；`high_confidence_singer_songs` 中旧命名 `four_singers_high_confidence_songs.*` 也已经被新命名 `singers_high_confidence_songs.*` 取代。
-- 已先使用已有缓存将高可信 CSV 查看版重新生成回正式目录 `data/processed/high_confidence_singer_songs/`，确保删除临时 CSV 查看目录后仍保留当前高可信 CSV。
-- 已删除 `data/processed/album_probe/`、`data/processed/interface_compare/`、`data/processed/smoke/`、`data/processed/high_confidence_singer_songs_csv_check/`。
-- 已删除 `data/processed/high_confidence_singer_songs/four_singers_high_confidence_songs.csv` 和 `four_singers_high_confidence_songs.json`，保留通用命名的 `singers_high_confidence_songs.csv/json`。
-- 已删除 `data/processed/singer_songs_homepage/three_singers_songs_all_sorted.csv` 和 `three_singers_songs_all_global_sorted.csv`，保留四位歌手各自目录下的主页歌曲 Tab 全集。
-- 当前 `data/processed` 只保留 4 个目录：`high_confidence_singer_songs/`、`high_confidence_diff_name_key_raw_schema/`、`singer_songs_homepage/` 和 `singer_songs/`。
-- 保留 `singer_songs_homepage/` 是因为它是当前全集分支来源；保留 `singer_songs/` 是因为当前网页导出脚本和已生成网页数据仍引用原端到端流程目录。
-- 复核确认当前高可信汇总 `singers_high_confidence_songs.csv/json`、最新差集汇总 `four_singers_deduped_full_minus_high_confidence_by_name.csv/json` 以及四位歌手主页全集 `songs_all.json` 均存在且非空。
-
-### 纠正正式流程目录和验证 CSV 目录混放
-- 用户指出目录结构仍不清晰，正式流程目录和测试验证目录混在一起，正式流程目录中不应该保留 CSV。
-- 已将正式流程目录中的 CSV 全部迁移到验证视图目录：高可信子集 CSV 移到 `data/processed/validation/four_singers/csv_views/high_confidence_singer_songs/`；补充候选差集 CSV 移到 `data/processed/validation/four_singers/csv_views/supplement_candidates_by_name/`；主页全集 CSV 移到 `data/processed/validation/four_singers/csv_views/homepage_full_singer_songs/`；旧端到端流程 CSV 移到 `data/processed/validation/legacy/csv_views/singer_songs/`。
-- 已将临时命名目录 `data/processed/high_confidence_diff_name_key_raw_schema/` 改名为 `data/processed/high_confidence_supplement_candidates/`，使其对应新流程的“高可信以外补充候选”分支。
-- 已修正补充候选 `summary.json`：输出路径改为新正式 JSON 目录，CSV 只作为 `csv_view` 指向验证目录，并修复此前临时脚本编码导致的歌手名 `???`。
-- 已修改 `collect_high_confidence_singer_songs.py`：`--write-csv` 生成的 CSV 默认写入验证目录；四位歌手测试模式默认写入 `data/processed/validation/four_singers/csv_views/high_confidence_singer_songs/`；新增校验禁止把 `--csv-output-dir` 放在正式 `--output-dir` 内。
-- 已同步 README 和 `AGENTS.md`：正式流程输出目录只保留 JSON、摘要和后续正式数据库/图谱产物；CSV 只作为人工查看或测试验证视图，统一写入 `data/processed/validation/.../csv_views/`。
-- 验证对象为 `data/processed` 目录结构、`collect_high_confidence_singer_songs.py` 语法和 CSV 目录防护逻辑。
-- 验证结果显示：`data/processed` 中位于 `data/processed/validation/` 之外的 CSV 数量为 0；验证目录中保留 54 个 CSV；脚本 `py_compile` 无语法错误；当 `--csv-output-dir` 位于正式输出目录内时会抛出明确 `ValueError`。
-- 本次调整没有删除 `data/raw/` 原始缓存；重新执行四位歌手高可信测试时使用已有缓存，结果仍为 4 位歌手、1062 首高可信歌曲。
-
-### 生成 data 目录完整树清单
-- 用户要求列出 `data` 目录完整树到最子一级文件，并说明每类目录和文件的用途。
-- 已统计当前 `data` 目录共有 328 个子目录、1243 个文件，其中 `data/raw/` 包含 283 个目录和 1115 个文件，`data/processed/` 包含 43 个目录和 128 个文件。
-- 已生成 `reports/data_directory_tree_2026-05-12.md`，报告包含顶层计数、文件扩展名计数、主要路径用途说明、常见文件名含义说明、原始缓存路径提示和完整 ASCII 目录树。
-- 报告说明了 `data/raw/qqmusic/album_probe/` 为旧专辑探查缓存，`data/raw/qqmusic/high_confidence_singer_songs/` 为高可信分支原始缓存，`data/raw/qqmusic/singer_homepage_song_tab/` 为当前全集分支原始缓存，`data/raw/qqmusic/song_producers/` 为旧端到端制作人员缓存。
-- 报告说明了 `data/processed/high_confidence_singer_songs/` 和 `data/processed/high_confidence_supplement_candidates/` 为正式 JSON 输出目录，`data/processed/validation/.../csv_views/` 为人工查看 CSV 目录。
-- 验证对象为生成的 Markdown 报告，已回读确认文件大小非零、UTF-8 可读且没有 U+FFFD 替换字符；因完整树包含 1243 个叶子文件，最终向用户提供报告链接和摘要而不直接在对话中粘贴全文。
-
-### 纠正 data 目录报告粒度和中文写入方式
-- 用户要求报告不要具体到最后一级文件，改为目录级别说明，并要求报告使用中文 UTF-8。
-- 已重写 reports/data_directory_tree_2026-05-12.md：完整树不再逐个列出 .json 或 .csv 叶子文件，只列目录层级，并在目录后标注该目录本级直接包含的文件类型和数量。
-- 已将报告内容改为中文，保留总目录数、总文件数、CSV 位置检查、顶层目录统计、文件类型统计、主要目录用途和常见文件名/模式含义。
-- 首次重写时通过 PowerShell here-string 承载中文常量，导致中文或中文冒号被写成问号；已按用户纠正改为只用 Python 按 UTF-8 读写中文内容，PowerShell 仅作为启动 Python 的外壳且不承载中文正文。
-- 验证对象为重写后的报告文件，使用 Python 读取 UTF-8 内容确认问号数量为 0、U+FFFD 替换字符数量为 0、目录树中逐个列出的 .json/.csv 叶子文件行数为 0，文件大小非零。
-
-### 剥离旧端到端流程数据
-- 用户要求把旧流程的所有东西从当前目录剥离，放到别的地方，避免混入正式流程。
-- 已将旧端到端流程数据和缓存整体移动到 archive/legacy_pipeline_2026-05-12/，并生成 manifest.txt 记录来源、移动状态、目录数、文件数和目标位置。
-- 已移动的旧流程内容包括：data/processed/singer_songs/、data/processed/validation/legacy/、data/raw/qqmusic/singer_songs/、data/raw/qqmusic/song_producers/ 和 data/raw/qqmusic/album_probe/。
-- 当前 data/raw/qqmusic/ 只保留 high_confidence_singer_songs/ 和 singer_homepage_song_tab/；当前 data/processed/ 只保留 high_confidence_singer_songs/、high_confidence_supplement_candidates/、singer_songs_homepage/ 和 validation/。
-- 已修改 collect_singer_songs.py，使主页全集候选流程默认只写 JSON；CSV 只有显式 --write-csv 时才写入 --csv-output-dir 指定的 validation 目录，并禁止 CSV 输出目录位于正式 --processed-dir 内。
-- 已同步 README 和 AGENTS.md，说明旧流程数据归档位置、当前主页全集候选目录、正式目录不放 CSV 的规则，以及旧网页导出路径需要读取 archive 中的旧输入。
-- 已新增 scripts/write_data_directory_report.py，用 Python UTF-8 生成中文 data 目录报告，避免通过 PowerShell 承载中文正文。
-- 已重新生成 reports/data_directory_tree_2026-05-12.md，报告显示当前 data 下共有 303 个子目录、483 个文件；旧流程归档包含 30 个子目录、761 个文件；当前 data 中 CSV 总数为 42 个且全部位于 data/processed/validation/ 下。
-- 验证对象包括目录移动结果、CSV 位置、报告编码和脚本语法；验证结果显示旧流程候选目录在 data 下均不存在，归档目标均存在；py_compile 无语法错误；报告中问号数量为 0、U+FFFD 替换字符数量为 0、逐个列出的 .json/.csv 叶子文件行数为 0。
-
-### 剥离旧端到端流程代码和旧网页
-- 用户指出旧流程代码和网页也应该全部剥离，不应继续混在当前正式流程里。
-- 已将旧端到端流程代码移动到 archive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/，包括旧 collect_singer_songs.py、validate_album_ownership.py、write_singer_pipeline_report.py 和 export_web_dataset.py。
-- 已将旧静态网页目录 web/ 整体移动到 archive/legacy_pipeline_2026-05-12/web/，包括旧页面、样式、脚本、静态数据和本地 vendor 文件。
-- 已更新 archive/legacy_pipeline_2026-05-12/manifest.txt，追加记录旧代码和旧网页的来源、移动状态、目录数、文件数和归档位置。
-- 已从 pyproject.toml 删除旧流程脚本入口，只保留 mr-collect-hot-singers 和 mr-collect-high-confidence-songs。
-- 已同步 README 和 AGENTS.md，说明旧流程代码、旧网页、旧数据和旧缓存都位于 archive，当前正式流程不再从这些目录读取，也不再向当前正式目录写入旧流程内容。
-- 已更新 scripts/write_data_directory_report.py 和重新生成 reports/data_directory_tree_2026-05-12.md，报告显示旧流程归档现在包含 36 个子目录、773 个文件。
-- 验证对象包括当前源码目录、旧网页目录、脚本入口、归档目录、报告编码和剩余正式 pipeline 语法；验证结果显示当前 music_metadata_graph/pipelines/ 仅剩 collect_hot_singer_registry.py 与 collect_high_confidence_singer_songs.py 两个正式采集脚本，当前根目录不再存在 web/，旧流程入口不再出现在 pyproject.toml，旧代码和旧网页在 archive 中存在，py_compile 无语法错误。
-
-### 将四位测试 JSON 从正式目录移入 validation
-- 用户指出 data/processed 中除验证目录外的三个目录仍包含周杰伦、薛之谦、林俊杰、汪苏泷等四位测试歌手数据，导致正式流程目录不干净。
-- 复核后确认 data/processed/high_confidence_singer_songs/、data/processed/high_confidence_supplement_candidates/ 和 data/processed/singer_songs_homepage/ 中保存的都是四位测试样本 JSON，而不是全量正式流程结果。
-- 已将这三类四位样本 JSON 整体移入 data/processed/validation/four_singers/json_outputs/：高可信子集移入 high_confidence_singer_songs/，主页全集移入 homepage_full_singer_songs/，补充候选差集移入 supplement_candidates_by_name/。
-- 当前 data/processed 顶层只剩 validation/；四位歌手样本 JSON 和 CSV 均位于 data/processed/validation/four_singers/ 下，不再混入正式输出目录。
-- 已同步 README、AGENTS.md 和 scripts/write_data_directory_report.py，说明正式输出目录只是未来全量正式运行的目标位置，当前四位样本属于 validation 数据。
-- 已重新生成 reports/data_directory_tree_2026-05-12.md，报告显示当前 data/processed/ 只保留验证数据；四位歌手样本 JSON 和 CSV 均在 data/processed/validation/four_singers/ 下。
-- 验证结果显示：data/processed 顶层目录仅有 validation；validation 外不存在包含 zhoujielun、xuezhiqian、linjunjie、wangsulong 或 four_singers 的样本路径；四位样本 JSON 输出共 57 个文件，CSV 查看版共 42 个文件；报告无问号、无 U+FFFD，且不逐个列出 .json/.csv 叶子文件。
-
-### 重新整理 gitignore
-- 用户要求重新整理 .gitignore，以匹配当前正式流程、验证数据和旧流程归档边界。
-- 已将 .gitignore 重写为分组规则：本地环境和密钥、Python 缓存和工具产物、虚拟环境、Node 依赖和构建产物、本地数据和生成物、本地数据库/二进制分析输出、日志和临时文件。
-- 当前忽略 data/、archive/、reports/ 和 node_modules/，确保验证数据、旧流程归档、生成报告和本地依赖不进入 Git；源码、脚本、README、AGENTS、开发日志和项目配置不被忽略。
-- 已按项目偏好确认 .gitignore 使用 CRLF，且没有双回车换行。
-- 尝试使用 git check-ignore 和 git status --ignored 验证时，Git 因仓库 owner 与当前用户 SID 不一致报 dubious ownership，未修改全局 safe.directory 配置。
-- 替代验证使用 Python 检查规则覆盖：data/processed/...、archive/...、reports/...、node_modules/... 会被规则忽略；README.md、AGENTS.md、develop_log.md、pyproject.toml、正式 pipeline 脚本和 scripts/write_data_directory_report.py 不会被当前规则忽略。
-
-### 补齐全集过滤步骤的移除视图
-- 用户明确验证测试阶段每一步过滤除了查看留下的行，也必须查看被过滤掉的行。
-- 已新增 `scripts/write_homepage_filter_validation_views.py`，用于从主页全集原始缓存和高可信子集生成全集分支第一步过滤的验证视图。
-- 该脚本为每个歌手输出三类 JSON/CSV：`songs_after_high_confidence_name_filter`（留下）、`songs_removed_by_high_confidence_name_filter`（因歌名命中高可信子集被过滤掉）、`songs_removed_as_duplicate_before_high_confidence_name_filter`（进入该过滤前去重移除）。
-- 已重跑四位样本：全集 3492 行，去重移除 0 行，按高可信歌名过滤留下 1267 行、移除 2225 行；四个歌手各自计数均满足 `songs_all = kept + removed + duplicates`。
-- 已同步 README、AGENTS.md 和 scripts/write_data_directory_report.py，记录验证阶段每一步过滤都要同时输出保留行和过滤掉的行，并写明 `aux_filter_reason` 或分支已有原因字段。
-
-### 统一全集分支 CSV 列结构
-- 用户要求所有 CSV 列名都必须符合新规定结构，重新生成全集分支。
-- 已修改 `scripts/write_homepage_filter_validation_views.py`，使 `songs_all.json/csv` 也从主页歌曲 Tab 原始缓存重建为 QQ 音乐原始歌曲顶层键加 `aux_` 辅助键结构，不再保留旧流程扁平字段如 `album_name`、`singer_names`、`lyricists`、`composers`。
-- 已修正空 CSV 写出逻辑：即使某一步过滤移除 0 行，也写出标准表头，避免空文件没有列名。
-- 已重跑四位样本全集分支，当前 `songs_all`、`songs_after_high_confidence_name_filter`、`songs_removed_by_high_confidence_name_filter`、`songs_removed_as_duplicate_before_high_confidence_name_filter` 均使用统一列结构。
-- 验证结果显示当前四位样本下 41 个 CSV 均只包含接口原始顶层键或 `aux_` 辅助键；高可信分支 21 个表格 JSON 与 CSV 一一对应，全集分支 20 个表格 JSON 与 CSV 一一对应；全集计数仍闭合。
-
-### 补齐高可信分支专辑歌曲全集和去重移除视图
-- 用户指出高可信分支每个歌手只有保留和剔除结果，缺少专辑请求到的全集歌曲列表。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：请求保留专辑歌曲后先写出 `album_song_rows_all_before_artist_filter`，再按目标歌手 mid 分成 `album_song_rows_kept_before_dedupe` 和 `album_song_rows_rejected`。
-- 已补充高可信歌曲去重移除视图 `album_song_rows_removed_as_duplicate`，并为歌曲过滤/去重步骤写入 `aux_filter_step`、`aux_filter_result`、`aux_filter_reason`。
-- 已重跑四位样本高可信分支：专辑歌曲全集 1475 行，目标歌手过滤保留 1062 行、移除 413 行；去重移除 0 行，最终高可信 1062 行。
-- 验证结果显示每个歌手均满足 `album_song_rows_all_before_artist_filter = album_song_rows_kept_before_dedupe + album_song_rows_rejected`，且 `album_song_rows_kept_before_dedupe = songs_high_confidence + album_song_rows_removed_as_duplicate`；当前高可信分支 29 个表格 JSON 与 29 个 CSV 一一对应，全部 CSV 列名符合接口原始顶层键或 `aux_` 辅助键规则。
-
-### 移除跨歌手合并验证表
-- 用户指出全集分支存在每个 CSV 的四人合并表，而高可信分支没有对应合并表，流程不统一；要求统一为不需要合并汇总。
-- 已修改 `scripts/write_homepage_filter_validation_views.py`，不再生成 `four_singers_*` 合并 JSON/CSV；只保留每个歌手自己的全集、过滤保留、过滤移除和去重移除文件。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`，不再生成 `singers_high_confidence_songs.json/csv`，总 `summary.json` 只保留汇总计数，不再指向跨歌手表格产物。
-- 已删除当前验证目录中已有的 `four_singers_*` 和 `singers_high_confidence_songs.*` 合并表，并重跑高可信分支与全集分支验证输出。
-- 验证结果显示当前不存在跨歌手合并表；高可信分支每个歌手 7 个表格 JSON/CSV，全集分支每个歌手 4 个表格 JSON/CSV，两个分支 JSON/CSV 一一对应；当前 44 个 CSV 均符合接口原始顶层键或 `aux_` 辅助键规则。
-
-## 2026-05-14
-
-### 修正第九步后临时 CSV 为一歌一行
-- 用户指出第九步之后的临时 CSV 不应按一首歌的一个歌手展开，而应按一首歌一行，多歌手合并成嵌套字段。
-- 已覆盖导出 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`。
-- 新 CSV 每行对应一首 `songs` 记录，普通列包含歌曲字段和专辑字段；多歌手信息合并到 `singers_json` 字段，字段值为 JSON 数组，每个数组元素同时包含 `song_singers` 关系字段和 `singers` 歌手字段。
-- 验证结果：CSV 文件存在且非零，大小 1270025 字节；共 983 行、19 列；`singers_json` 可正常解析；当前数据库 `songs` 为 983 首、`song_singers` 为 1442 条；`PRAGMA foreign_key_check` 无结果。
-
-### 简化第九步后临时 CSV 歌手嵌套字段
-- 用户指出 `singers_json` 不需要完整关系表和歌手表字段，只需要歌手 `mid` 和 `name`。
-- 已覆盖导出 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`，保持一首歌一行，普通歌曲和专辑列不变。
-- 新 `singers_json` 为 JSON 数组，每个歌手对象只包含 `mid` 和 `name` 两个键；额外保留 `singer_count` 方便快速查看歌手数量。
-- 验证结果：CSV 共 983 行、19 列，大小 355454 字节；首行 `singers_json` 可解析且所有歌手对象键集合均为 `mid/name`；数据库仍为 `songs` 983 首、`song_singers` 1442 条，`PRAGMA foreign_key_check` 无结果。
-
-### 精简第九步后临时 CSV 展示列
-- 用户指出第九步之后临时 CSV 中不需要 `song_album_mid`、歌曲 raw 追溯字段、专辑 mid/id/raw 追溯字段等列。
-- 已在用户关闭占用文件后覆盖导出 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`。
-- 当前临时 CSV 只保留 10 列：`song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`singer_count`、`singers_json`。
-- `singers_json` 继续保持 JSON 数组，每个歌手对象只包含 `mid` 和 `name`。
-- 验证结果：CSV 共 983 行、10 列，大小 176858 字节；`singers_json` 可正常解析且所有歌手对象键集合均为 `mid/name`；数据库仍为 `songs` 983 首、`song_singers` 1442 条，`PRAGMA foreign_key_check` 无结果。
-
-### 统一所有歌曲 CSV 导出列
-- 用户要求所有导出 CSV 都只需要 `song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`singer_count`、`singers_json` 这 10 列。
-- 已修改 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`，第七步入库失败 CSV 也按统一 10 列输出；`singers_json` 只包含歌手 `mid` 和 `name`。
-- 已修改 `music_metadata_graph/pipelines/filter_imported_songs.py`，第八步过滤 CSV、第九步过滤 CSV 和第九步后临时查看 CSV 均按统一 10 列输出；脚本层面保留过滤判断所需内部字段，但不写入 CSV。
-- 已更新 `README.md` 和 `AGENTS.md`，记录歌曲相关导出 CSV 的统一列规则，并移除旧的“拒绝 CSV 额外输出拒绝原因和 raw 追溯字段”要求。
-- 已重新运行四位歌手第七步入库和第八、第九步过滤，重新生成四个 CSV：`song_import_rejections.csv` 1670 行，`songs_removed_by_step8_album_type.csv` 685 行，`songs_removed_by_step9_same_singer_name_dedupe.csv` 141 行，`songs_after_step9_same_singer_name_dedupe.csv` 983 行。
-- 验证结果：两个脚本均通过 `py_compile`；四个 CSV 表头均严格等于统一 10 列；四个 CSV 的 `singers_json` 首行均可解析且歌手对象只包含 `mid/name`；数据库最终为 `songs` 983 首、`song_singers` 1442 条，`PRAGMA foreign_key_check` 无结果，同名且同歌手重复组为 0。
+### 压缩记录：第二版目录、CSV 和验证产物治理
+- 第二版中，用户多次指出正式流程目录、验证目录、CSV 查看版和临时探查目录混在一起，要求重新划分边界。
+- `data/processed/validation/four_singers/` 成为四位样本验证目录，按 `json_outputs/` 和 `csv_views/` 区分结构化验证输出与人工查看 CSV。
+- 高可信分支验证输出移动到 `data/processed/validation/four_singers/json_outputs/high_confidence_singer_songs/` 和 `csv_views/high_confidence_singer_songs/`。
+- 补充分支验证输出移动到 `data/processed/validation/four_singers/json_outputs/supplement_singer_songs/` 和 `csv_views/supplement_singer_songs/`。
+- 正式流程目录不应保留四位样本 JSON 或 CSV；四位样本被认定为 validation 数据，不是全量正式结果。
+- 目录报告脚本 `scripts/write_data_directory_report.py` 改为使用 Python UTF-8 生成中文报告，避免 PowerShell here-string 写中文导致问号乱码。
+- `reports/data_directory_tree_2026-05-12.md` 被多次重写，从逐个列出叶子 JSON/CSV 文件调整为目录级别说明，并标注目录本级直接包含的文件类型和数量。
+- 旧中间目录如 `album_probe`、`interface_compare`、`smoke`、临时 CSV check 目录和旧命名合并表被清理；清理前均检查目标路径位于当前工作区内。
+- 跨歌手合并验证表被移除，两个分支统一只保留每个歌手自己的 JSON/CSV 验证文件，summary 只保留汇总计数，不再指向跨歌手表格产物。
+- 歌曲相关 CSV 展示列在后续阶段被统一为固定列规则：歌曲基础字段、专辑字段、`singer_count` 和只包含 `mid/name` 的 `singers_json`；该规则后来沉淀进 AGENTS。
 
 ## 2026-05-13
 
-### 人工核查全集分支剩余歌曲目标歌手覆盖
-- 用户要求手动检查主页全集分支在过滤掉高可信子集已有歌曲后，剩余歌曲的歌手列表是否每一首都包含对应目标歌手，并明确 Python 检查只能作为临时人工核查，不能作为正式流程。
-- 核查对象为四位样本歌手的 `songs_after_high_confidence_name_filter.json`：周杰伦、薛之谦、林俊杰、汪苏泷。
-- 核查方式为临时只读 Python 脚本读取 `high_confidence_name_filter_summary.json` 中记录的目标歌手 `mid` 和剩余歌曲 JSON，逐行检查歌曲 `singer` 或 `singers` 列表是否包含目标歌手 `mid`，缺失时再用目标歌手姓名兜底判断；该脚本未写入仓库文件，也未纳入正式 pipeline。
-- 验证结果显示周杰伦剩余 300 首、薛之谦剩余 167 首、林俊杰剩余 333 首、汪苏泷剩余 467 首均包含对应目标歌手。
-- 四位样本合计核查 1267 条剩余歌曲，目标歌手缺失数为 0。
-
-### 在主页全集分支追加空专辑过滤
-- 用户纠正前一轮理解，明确空专辑过滤不是插入到第一步前面，而是接在现有“减去高可信歌名”之后继续过滤。
-- 当前目标仅涉及主页全集分支的验证流水线，不改高可信子集分支和旧端到端流程。
-- 实现方案是让 `scripts/write_homepage_filter_validation_views.py` 在 `songs_after_high_confidence_name_filter` 之后再执行一层空专辑过滤，按 `album.name/title/subtitle` 为空判定 `empty_album`，并分别输出保留行和移除行。
-- 新增输出为 `songs_after_empty_album_filter.json/csv` 和 `songs_removed_by_empty_album_filter.json/csv`；现有第一步输出保持不变。
-- 风险边界是空专辑判定依赖主页歌曲 `album` 对象是否存在且是否含有效名称字段；如果上游缓存的空值形态变化，规则可能需要再收敛。
-- 本轮不做范围是：不把空专辑规则同步到高可信子集分支，不改正式 JSON 目录结构，不删除既有第一步输出。
-
-### 分析歌曲反查专辑校验链路
-- 用户询问当前高可信分支是否可以反过来验证：先用一首歌请求它所属专辑，再检查该专辑是否存在于目标歌手的专辑列表中。
-- 复核当前高可信分支实现后确认正式流程为 `qqmusic.singer.get_album_list` 获取歌手专辑列表，再用 `qqmusic.album.get_song` 获取专辑歌曲，最后按歌曲 `singer[].mid` 是否包含目标歌手过滤。
-- 检查本地 `qqmusic-api-python` 暴露接口后确认可用候选链路包括 `song.get_detail(song_id_or_mid)`、`album.get_detail(album_id_or_mid)`、`album.get_song(album_id_or_mid)` 和 `singer.get_album_list(singer_mid)`。
-- 使用已知歌曲样例进行小范围真实请求验证，观察到 `song.get_detail` 返回的歌曲详情中包含 `album.id`、`album.mid`、`album.name`、`album.title` 和 `album.pmid`，可作为“歌曲 -> 所属专辑”的结构化依据。
-- 同一验证中继续请求 `album.get_detail(album_mid)`，观察到专辑详情可返回 `albumID`、`albumMid` 和 `albumName`；请求 `singer.get_album_list(target_mid)` 可返回 `albumList`，其中包含 `albumID`、`albumMid`、`albumName`、`albumType` 和 `singerName`。
-- 形成结论：可以设计反向验证规则，优先用歌曲详情里的 `album.mid` 或 `album.id` 与目标歌手专辑列表中的 `albumMid` 或 `albumID` 做精确匹配；专辑名只能作为人工排查或弱兜底，不应作为高可信自动合并依据。
-- 风险边界为 `singer.get_album_list` 当前样例中未返回可靠的 `singerMid`，因此“专辑属于目标歌手”的判断应以目标歌手接口返回的专辑集合为准；部分歌曲可能属于合辑、影视原声、群星专辑或平台拆分版本，反向验证不宜直接替代现有专辑正向采集流程。
-
-### 统一高可信分支与主页分支的 filter 命名
-- 用户进一步明确，两个分支的验证产物命名都应统一为 `songs_after_filter1/2/3_xxx` 与 `songs_removed_by/as_filter1/2/3_xxx`，不再出现 `before` 之类容易误解的命名。
-- 已将高可信分支的验证产物命名统一到 `songs_after_filter1_album_fetch.json/csv`、`songs_after_filter2_target_singer_match.json/csv`、`songs_after_filter3_dedupe.json/csv`、`songs_removed_by_filter2_target_singer_match.json/csv`、`songs_removed_as_filter3_dedupe.json/csv`，并同步清理旧名残留。
-- 已将主页全集验证分支统一到 `songs_after_filter1_dedupe.json/csv`、`songs_removed_as_filter1_dedupe.json/csv`、`songs_after_filter2_high_confidence_name_exclusion.json/csv`、`songs_removed_by_filter2_high_confidence_name_exclusion.json/csv`、`songs_after_filter3_empty_album_exclusion.json/csv`、`songs_removed_by_filter3_empty_album_exclusion.json/csv`，同时把 summary 和目录报告中的旧命名改为对应的新格式。
-- 已同步 `README.md`、`scripts/write_data_directory_report.py` 和主页验证脚本中的读取路径与说明文字，避免文档继续引用 `before`、`high_confidence_name_filter` 或其他旧术语。
-- 风险边界是此次只做命名统一，不改高可信分支的过滤逻辑和主页分支的过滤顺序；主页分支仍然是先去重，再减去高可信歌名，最后过滤空专辑。
-
-### 核对两个歌曲输入分支过滤口径
-- 用户询问当前两个分支各过滤几次，以及分别如何过滤。
-- 已复核 `README.md`、`music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py` 和 `scripts/write_homepage_filter_validation_views.py`。
-- 当前结论为：高可信歌曲子集分支有 3 个歌曲层面的 filter 产物，另有专辑层面的 albumType 纳入/排除；主页全集分支有 3 个歌曲层面的 filter 产物。
-- 高可信歌曲子集分支的歌曲层面顺序为：filter1 请求已纳入专辑的歌曲全集；filter2 只保留 `song.singer[].mid` 包含目标歌手 `mid` 的行；filter3 按歌曲 `mid` 优先、其次 `id` 去重。
-- 主页全集分支的歌曲层面顺序为：filter1 按歌曲 key 去重；filter2 按规范化歌名减去高可信子集已有歌名；filter3 过滤空专辑行。
-
-### 纠正高可信分支取数步骤命名
-- 用户指出高可信分支中的 `songs_all` 已经表达已纳入专辑请求到的歌曲全集，`songs_after_filter1_album_fetch` 与其重复，而且请求页不是过滤步骤。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：不再生成 `songs_after_filter1_album_fetch`；高可信歌曲层面 filter1 改为目标歌手匹配，输出 `songs_after_filter1_target_singer_match` 与 `songs_removed_by_filter1_target_singer_match`；filter2 改为去重，输出 `songs_after_filter2_dedupe` 与 `songs_removed_as_filter2_dedupe`。
-- 已修改 `scripts/write_homepage_filter_validation_views.py`，主页全集分支读取高可信最终集合时改用 `songs_after_filter2_dedupe.json`，并将原因字段从旧的 `filter3_dedupe` 表述改为 `song_name_exists_in_high_confidence_dedupe`。
-- 已同步 `README.md`、`scripts/write_data_directory_report.py` 和 `AGENTS.md`，说明高可信 `songs_all` 是取数全集而不是过滤步骤，主页全集分支顺序为去重、减去高可信歌名、过滤空专辑。
-- 验证对象为高可信 pipeline、主页全集验证脚本、目录报告脚本和四位样本验证输出；执行 `py_compile` 未报语法错误。
-- 已重跑四位样本高可信 JSON/CSV 验证目录，结果为 `songs_all` 1475 行、filter1 目标歌手匹配保留 1062 行、filter1 移除 413 行、filter2 去重保留 1062 行、filter2 移除 0 行。
-- 已重跑主页全集验证脚本，确认其能读取新的高可信最终集合文件；结果为全集 3492 行、filter1 去重后 3492 行、filter2 减高可信后 1267 行、filter3 空专辑过滤后 564 行。
-
-### 统一移除产物命名并补充高可信同名去重
-- 用户要求移除产物命名统一使用 `removed_by`，不再使用 `removed_as`；同时要求高可信分支 filter2 在 `mid/id` 去重后，对同名但 `mid/id` 不同的歌曲优先保留录音室专辑版本，其次保留 EP 版本。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：高可信 filter2 先按歌曲 key 去重，再按规范化歌名二次去重；同名候选按 `aux_source_albumType` 优先级选择，`录音室专辑` 优先于 `EP`，其他类型排在后面。
-- 高可信 filter2 移除产物改名为 `songs_removed_by_filter2_dedupe.json/csv`；移除原因区分 `duplicate_song_key_in_songs_after_filter1_target_singer_match` 与 `duplicate_song_name_prefer_recording_album_then_ep`。
-- 已修改 `scripts/write_homepage_filter_validation_views.py`：主页全集 filter1 移除产物改为 `songs_removed_by_filter1_dedupe.json/csv`，并删除旧 `high_confidence_name_filter_summary.json` 以避免历史 `removed_as` 路径残留。
-- 已同步 `README.md` 和 `scripts/write_data_directory_report.py`，说明新的移除产物命名和高可信 filter2 的同名专辑类型优先规则。
-- 验证对象为高可信 pipeline、主页全集验证脚本、目录报告脚本和四位样本验证输出；执行 `py_compile` 未报语法错误。
-- 已重跑四位样本高可信验证目录，结果为 `songs_all` 1475 行、filter1 保留 1062 行、filter1 移除 413 行、filter2 最终保留 828 行、filter2 移除 234 行。
-- 已重跑主页全集验证目录，结果为全集 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 减高可信后 1267 行、filter3 空专辑过滤后 564 行。
-- 已检查当前源码、README、AGENTS 和四位样本验证输出目录中不再存在 `removed_as` 或 `songs_removed_as` 字符串。
-
-### 统一第二歌曲输入分支命名为补充分支
-- 用户纠正命名规范：高可信分支之外的另一个歌曲输入分支统一叫“补充分支”，不得再称为“全集分支”“主页分支”或其他名称。
-- 已在 `AGENTS.md` 的用户长期偏好中记录该命名规则，并把项目补充规则中的输出目标改为 `data/processed/supplement_singer_songs/`。
-- 已同步 `README.md`，将四位样本歌手相关说明统一改为补充分支，并将验证输出路径说明改为 `data/processed/validation/four_singers/json_outputs/supplement_singer_songs/` 和 `data/processed/validation/four_singers/csv_views/supplement_singer_songs/`。
-- 已将验证脚本从 `scripts/write_homepage_filter_validation_views.py` 改名为 `scripts/write_supplement_filter_validation_views.py`，脚本后续生成目录改为 `supplement_singer_songs`，并将输出数据中的 `aux_filter_step`、`aux_set_relation` 和 summary `step/branch` 改为 supplement 语义。
-- 已同步 `scripts/write_data_directory_report.py`，使目录报告中的主要目录和常见文件说明统一称为补充分支。
-- 已重跑补充分支验证脚本，结果为补充候选 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 减高可信后 1267 行、filter2 移除 2225 行、filter3 空专辑过滤后 564 行、filter3 移除 703 行。
-- 已重跑目录报告 `reports/data_directory_tree_2026-05-12.md`，报告可用 UTF-8 回读，文件大小非零，无 U+FFFD 替换字符，也无问号乱码。
-- 验证对象为 `scripts/write_data_directory_report.py` 和 `scripts/write_supplement_filter_validation_views.py`，执行 `py_compile` 未报语法错误；搜索 README、AGENTS、scripts、pyproject 和正式源码，除“不得称为”的规范句外未发现旧分支名称残留。
-- 本轮未删除旧本地验证目录；如需清理旧目录，需要用户明确确认删除范围。
-
-### 记录 PowerShell 中文处理偏好
-- 用户新增长期偏好：由于 PowerShell 对中文不友好，必要时采用 Python 工具而不是 PowerShell。
-- 已将该偏好写入 `AGENTS.md` 用户长期偏好，明确涉及中文常量、中文文件内容、Markdown 表格、报告生成或中文输出判断时，优先使用明确 UTF-8 配置的 Python 工具或仓库脚本。
-- 本次仅同步协作规则和开发日志，未修改业务代码。
-
-### 调换补充分支 filter2 与 filter3 顺序
-- 用户要求把补充分支的过滤 2 和过滤 3 换顺序。
-- 目标效果调整为：补充分支仍先执行 filter1 去重；filter2 改为过滤空专辑；filter3 改为在空专辑过滤后的剩余集合中减去高可信子集已有歌名。
-- 已修改 `scripts/write_supplement_filter_validation_views.py`，将 filter2 输出改为 `songs_after_filter2_empty_album_exclusion.json/csv` 与 `songs_removed_by_filter2_empty_album_exclusion.json/csv`，将 filter3 输出改为 `songs_after_filter3_high_confidence_name_exclusion.json/csv` 与 `songs_removed_by_filter3_high_confidence_name_exclusion.json/csv`。
-- 已同步 `README.md`、`AGENTS.md` 和 `scripts/write_data_directory_report.py` 中对补充分支过滤顺序与常见产物名的说明。
-- 已重跑补充分支四位样本验证脚本，结果为补充候选 3492 行、filter1 去重后 3492 行、filter1 移除 0 行、filter2 空专辑过滤后 1856 行、filter2 移除 1636 行、filter3 减高可信歌名后 564 行、filter3 移除 1292 行。
-- 验证对象为 `scripts/write_supplement_filter_validation_views.py` 和 `scripts/write_data_directory_report.py`，执行 `py_compile` 未报语法错误。
-- 已检查补充分支 JSON/CSV 验证目录，当前只保留新顺序对应的 filter 文件名，不再残留旧的 filter2 高可信歌名过滤或 filter3 空专辑过滤产物名。
-
-### 临时探查周杰伦补充分支专辑详情
-- 用户要求手动尝试查询周杰伦补充分支 filter3 后结果的每首歌专辑信息，并写出 `tmp` 开头临时 CSV，不写入正式流程。
-- 已新增临时脚本 `tmp_probe_jay_supplement_album_details.py`，读取 `data/processed/validation/four_singers/json_outputs/supplement_singer_songs/zhoujielun/songs_after_filter3_high_confidence_name_exclusion.json`，按歌曲自带的 `album.mid` 或 `album.id` 请求 `client.album.get_detail()`。
-- 首次沙箱内请求 QQ 音乐接口失败，失败原因为本地网络访问被拒绝；随后按权限规则放行网络后重跑成功。
-- 已生成临时 CSV `tmp_jay_supplement_filter3_album_details.csv`，共 88 行歌曲；其中 84 行成功取得专辑详情，4 行因原歌曲缺少专辑 mid/id 未请求。
-- 专辑详情接口返回结构包含 `album`、`company` 和 `singers`，其中 `album.album_type` 可用于观察专辑类型；本次临时样本中专辑类型分布为：`现场专辑` 51 行、`录音室专辑` 24 行、`Single` 7 行、`人声音频` 2 行。
-- 本次输出和缓存均为临时核查资产：`tmp_jay_supplement_filter3_album_details.csv`、`tmp_probe_jay_supplement_album_details.py` 和 `tmp_qqmusic_album_detail_cache/`，未接入正式 pipeline 或验证目录规则。
-
-### 仅调整补充分支 filter1 与 filter2 脚本顺序
-- 用户要求把补充分支 filter1 和 filter2 换顺序，并明确只更新脚本、不跑生成流程。
-- 已修改 `scripts/write_supplement_filter_validation_views.py`：filter1 改为空专辑过滤，输出 `songs_after_filter1_empty_album_exclusion` 与 `songs_removed_by_filter1_empty_album_exclusion`；filter2 改为对 filter1 保留结果按歌曲 key 去重，输出 `songs_after_filter2_dedupe` 与 `songs_removed_by_filter2_dedupe`；filter3 仍为减去高可信子集已有歌名。
-- 已同步脚本内 summary 的 `step`、`description`、`filter_rules`、计数字段和输出路径字段。
-- 本次按用户要求未执行 `scripts/write_supplement_filter_validation_views.py`，因此现有 JSON/CSV 验证产物尚未更新到新命名和新顺序。
-- 验证对象仅为脚本语法和静态命名检查：执行 `py_compile` 未报语法错误；搜索脚本未发现旧的补充分支 filter1 去重或 filter2 空专辑命名残留。
-
-### 接入补充分支专辑详情与专辑类型过滤脚本
-- 用户要求删除前一轮临时产物，并把临时专辑详情探针接入正式补充分支脚本；同时要求只改脚本、不跑验证。
-- 已删除临时脚本 `tmp_probe_jay_supplement_album_details.py`、临时缓存目录 `tmp_qqmusic_album_detail_cache/` 和临时 CSV `tmp_jay_supplement_filter3_album_details.csv`；临时 CSV 初次删除时被进程占用，随后重试删除成功。
-- 已修改 `scripts/write_supplement_filter_validation_views.py`，将补充分支改为 5 个过滤步骤：filter1 过滤空专辑；filter2 移除专辑 id/mid 为空的行；随后请求 `client.album.get_detail()` 补充专辑详情并缓存到 `data/raw/qqmusic/supplement_album_details/`；filter3 只保留专辑类型为 `Single`、`EP`、`录音室专辑` 的行；filter4 去重；filter5 减去高可信子集已有歌名。
-- 新增输出命名包括 `songs_after_filter2_album_identity`、`songs_removed_by_filter2_album_identity`、`songs_after_album_detail_enrich`、`songs_after_filter3_album_type`、`songs_removed_by_filter3_album_type`、`songs_after_filter4_dedupe`、`songs_removed_by_filter4_dedupe`、`songs_after_filter5_high_confidence_name_exclusion` 和 `songs_removed_by_filter5_high_confidence_name_exclusion`。
-- 已将专辑详情字段写入 `aux_` 辅助列，包括请求 key/status、专辑 id/mid/name/type、专辑歌手、语言、流派、发行时间、简介和缓存文件路径。
-- 本次按用户要求未执行 `scripts/write_supplement_filter_validation_views.py`，因此未请求新专辑详情、未写入新正式缓存，也未更新补充分支 JSON/CSV 验证产物。
-- 验证对象仅为脚本语法和静态命名检查：执行 `py_compile` 未报语法错误；搜索脚本确认旧补充分支 filter2 去重、filter3 高可信命名不再作为补充分支产物残留。
-
-### 统一两个分支同名去重规则
-- 用户要求高可信分支和补充分支都改为：先按歌曲 `id/mid` 去重；不再按歌名加歌手键去重；再只按原始 `name` 去重，不使用 `title`；同 `name` 不同专辑类型时按 `录音室专辑`、`EP`、`Single` 顺序保留；如果同 `name` 且同专辑类型仍有多条，保留数值 `id` 更小的歌曲。
-- 已修改 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`：`song_key()` 不再使用 `name + singer` 兜底；`song_name_key()` 只读取原始 `name`；同名去重优先级加入 `Single`，并在专辑类型优先级后按数值歌曲 `id` 升序选择。
-- 已修改高可信分支重复原因和辅助字段，补充记录同名组选中歌曲的数值 `id`，并将同名移除原因更新为包含 `录音室专辑 -> EP -> Single -> 最小 id` 的选择规则。
-- 已修改 `scripts/write_supplement_filter_validation_views.py`：补充分支 filter4 先按歌曲 `mid/id` 去重，再只按原始 `name` 去重；同名优先级使用补充专辑详情中的 `aux_album_detail_type`，并以数值歌曲 `id` 作为最终 tie-breaker。
-- 已同步 `README.md` 和 `scripts/write_data_directory_report.py`，说明两个分支共享的新去重口径以及补充分支当前 5 步过滤流程。
-- 本次未运行高可信分支或补充分支生成流程，未更新 JSON/CSV 验证产物，也未请求新的专辑详情接口。
-- 验证对象为 `music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py`、`scripts/write_supplement_filter_validation_views.py` 和 `scripts/write_data_directory_report.py`，执行 `py_compile` 未报语法错误；静态搜索未发现旧的 `name + singer` 去重说明或补充分支旧 filter1/filter2/filter3 产物说明残留。
-
-### 重跑四位样本歌曲输入全流程
-- 用户要求现在跑一次全流程；本次按当前阶段上下文执行四位样本验证链路：先跑高可信分支，再跑补充分支。
-- 已运行高可信分支命令：`python -m music_metadata_graph.pipelines.collect_high_confidence_singer_songs --test-four-singers --write-csv --output-dir data/processed/validation/four_singers/json_outputs/high_confidence_singer_songs --csv-output-dir data/processed/validation/four_singers/csv_views/high_confidence_singer_songs`。
-- 高可信分支验证结果为：`songs_all` 1475 行，filter1 目标歌手匹配后 1062 行、移除 413 行，filter2 去重后 828 行、移除 234 行。
-- 已运行补充分支脚本 `scripts/write_supplement_filter_validation_views.py`；首次沙箱内执行时专辑详情请求被本机网络权限拒绝，导致专辑类型缺失并使 filter3 全部移除，该结果被识别为无效中间结果。
-- 随后按权限规则放行网络后重跑补充分支脚本，成功请求并缓存专辑详情到 `data/raw/qqmusic/supplement_album_details/`，当前缓存文件数为 654。
-- 补充分支有效验证结果为：`songs_all` 3492 行；filter1 空专辑过滤后 1856 行、移除 1636 行；filter2 专辑 id/mid 非空过滤后 1816 行、移除 40 行；专辑详情补充后 1816 行；filter3 专辑类型过滤后 1126 行、移除 690 行；filter4 去重后 954 行、移除 172 行；filter5 减高可信歌名后 128 行、移除 826 行。
-- 按歌手拆分的补充分支最终保留数为：周杰伦 29 行、薛之谦 8 行、林俊杰 26 行、汪苏泷 65 行。
-- filter3 后保留行的专辑类型分布为：`录音室专辑` 863 行、`Single` 219 行、`EP` 44 行。
-- 已重跑目录报告脚本 `scripts/write_data_directory_report.py`，更新 `reports/data_directory_tree_2026-05-12.md`；报告文件可用 UTF-8 回读，大小非零，无 U+FFFD 替换字符，也无问号乱码。
-- 验证对象为高可信分支 summary、补充分支 summary、四位歌手每步 JSON 计数、专辑详情缓存数量、目录报告和三个脚本语法；观察结果显示每一步保留数与移除数加和关系成立，`py_compile` 未报语法错误。
-
-### 移除补充分支 CSV 中的专辑简介字段并重跑全流程
-- 用户要求补充分支 CSV 不写入 `aux_album_detail_desc`，并询问补充分支过滤过程中为何需要请求、是否只请求一次并缓存。
-- 已修改 `scripts/write_supplement_filter_validation_views.py`：JSON 仍保留 `aux_album_detail_desc` 便于回看，CSV 查看版使用独立字段列表并禁止追加额外字段，因此不再输出 `aux_album_detail_desc` 列。
-- 请求机制说明：补充分支在 filter2 后需要用歌曲自带的 `album.mid` 或 `album.id` 请求 `client.album.get_detail()`，以取得 `album.album_type` 等专辑详情供 filter3 专辑类型过滤；脚本先查 `data/raw/qqmusic/supplement_album_details/<album_mid_or_id>.json`，缓存存在则读取本地文件，只有缓存不存在才请求接口。
-- 已按用户要求重跑四位样本全流程：高可信分支计数保持为 `songs_all` 1475 行、filter1 后 1062 行、filter2 后 828 行；补充分支计数保持为 `songs_all` 3492 行、filter1 后 1856 行、filter2 后 1816 行、专辑详情补充后 1816 行、filter3 后 1126 行、filter4 后 954 行、filter5 后 128 行。
-- 重跑补充分支时，专辑详情补充的 1816 行请求状态全部为 `cache_hit`，说明本次没有重复请求已缓存专辑详情接口。
-- 已检查 `data/processed/validation/four_singers/csv_views/supplement_singer_songs/` 下 48 个 CSV，均不包含 `aux_album_detail_desc` 列。
-- 已重跑目录报告 `reports/data_directory_tree_2026-05-12.md`，并执行脚本语法检查；`py_compile` 未报语法错误。
-
-### 分析从 JSON 文件切换到数据库管理数据
-- 用户提出当前处理数据仍依赖 JSON 文件，操作不方便，要求先分析切换到数据库管理数据的可行性、注意事项、前后操作对应关系和潜在遗漏点。
-- 复核当前正式源码后确认，现有正式处理入口主要是 `collect_hot_singer_registry.py`、`collect_high_confidence_singer_songs.py` 和 `scripts/write_supplement_filter_validation_views.py`；它们把原始接口缓存、正式处理产物、验证产物和摘要都写为 JSON，CSV 只作为人工查看版。
-- 可行性结论是适合切换，但不应一次性把所有 JSON 都替换为数据库：原始接口响应缓存继续保留为 JSON 更利于复现和隔离第三方接口变化；处理后的结构化数据、过滤步骤、摘要和图谱查询数据适合写入 SQLite 或 DuckDB。
-- 当前项目以本地个人分析、批处理、可视化导出为主，没有多用户并发写入需求；SQLite 更适合作为第一阶段持久化数据库，DuckDB 更适合作为后续分析查询或批量导出引擎。
-- 推荐目标效果是用户运行采集或验证脚本后，数据进入本地数据库文件，用户可以按歌手、歌曲、专辑、分支、过滤步骤、过滤原因、作词人、作曲人等字段查询，而不需要手动打开多个目录下的 JSON 文件。
-- 迁移方案应分阶段落地：先建立数据库 schema 和只读导入器，把现有四位样本 JSON 导入数据库并与原 JSON 计数对账；再让高可信分支和补充分支直接写入数据库；最后再从数据库导出网页静态 JSON 和人工 CSV 视图。
-- 操作对应关系需要保留当前语义：`singer_registry.json` 对应 `artists` 与 `artist_snapshots`；高可信分支的 `songs_all`、`songs_after_filter1_target_singer_match`、`songs_after_filter2_dedupe` 等对应同一批歌曲在 `pipeline_rows` 或 `song_pipeline_states` 中的阶段状态；补充分支的 filter1 到 filter5 对应按 `branch`、`step`、`result` 和 `reason` 查询。
-- 数据库设计需要特别保留审计能力：每一步过滤都必须能同时查询保留行和被过滤行，不能只保留最终结果；每条行还需要保留来源接口、原始缓存路径、目标歌手、分支、步骤、原因字段和必要原始 JSON 片段。
-- 风险边界包括 schema 过早定死、嵌套字段扁平化丢信息、同名音乐人或同名歌曲误合并、数据库文件被误提交、Windows 文件占用导致写入失败、迁移后网页仍需要静态 JSON 发布、以及历史 JSON 与新数据库并存期间可能出现双写不一致。
-- 本轮不做代码实现、不迁移数据、不删除现有 JSON/CSV 产物，也不改变原始接口缓存策略；后续如果进入实现，应先补充数据库依赖声明、schema 文档、导入验证脚本和对账命令。
-
-### 纠正数据库切换方案为采集即入库
-- 用户指出前一版方案仍保留“采集后生成 JSON，再从 JSON 清洗”的思路有问题，因为当前痛点正是 JSON 清洗不方便。
-- 已调整方案判断：后续数据库化不应把数据库只作为 JSON 之后的最终存储或导入目标，而应改为采集阶段直接写入数据库，后续清洗、过滤、去重、补充分支减高可信子集、摘要统计和人工查看导出都围绕数据库表或视图执行。
-- 调整后的操作边界是：接口响应返回后应在同一次采集运行中写入数据库的原始记录表和规范化 staging 表；JSON 文件不再作为正式清洗输入，只可作为可选调试导出或过渡期只读对账材料。
-- 数据库内需要保留当前验证要求：每一步过滤必须能查询保留行和被过滤行，并保留 `aux_filter_reason` 或等价原因字段；因此数据库 schema 需要支持 pipeline run、branch、step、result、reason、target singer 和 source record 追溯。
-- 后续实现优先级应从“现有 JSON 导入器”调整为“新采集写入路径 + 四位样本小范围重采集入库 + 与旧 JSON 计数对账”；旧 JSON 导入器只作为迁移历史样本的辅助工具，不应成为新正式流程主路径。
-
-### 设计数据库 UML 初稿
-- 用户确认可以同时保存原生 JSON 并写入数据库，用原始 JSON 保留接口响应，但后续正式清洗应在数据库内完成。
-- 用户要求设计数据库结构，包括应设计几个类、每个类主键和属性，并用 Mermaid Live Editor 可用的 UML 模型代码表达。
-- 初稿设计按职责分为五组：原始响应与运行记录、采集 staging 表、流程过滤状态表、最终标准实体表、导出与摘要表。
-- 关键设计约束是 `SourceRecord` 负责关联本地原生 JSON 缓存与数据库记录；`PipelineRun` 负责标识一次采集或清洗运行；`PipelineSongRow` 负责保留每个分支每一步的保留行和被过滤行，避免丢失验证审计能力。
-- 主键策略初稿为内部主键使用 UUID 或自增整数均可，但逻辑唯一性必须依赖平台身份键，例如 `source_platform + source_artist_mid`、`source_platform + source_song_mid/id` 和 `source_platform + source_album_mid/id`；最终实体通过 identity 表承载多平台 ID，避免同名音乐人或同名歌曲误合并。
-- 本轮只形成 UML 设计初稿，未创建数据库文件、未修改 pipeline 代码，也未迁移或重采集数据。
-
-### 纠正数据库 UML 初稿过度复杂
-- 用户指出前一版 Mermaid UML 中出现过多难以理解的内部类，并追问图中下方的类是什么。
-- 已确认前一版 UML 把 staging、pipeline row、统计表和身份映射表等内部实现细节直接暴露在第一视图中，导致模型表达不清晰。
-- 调整后的表达方式应先给核心概念模型：`SourceRecord`、`Run`、`Artist`、`Album`、`Song`、`SongArtist`、`Credit`、`SongFilterState`，只在实现细节中再解释 staging 表和统计表。
-- 后续 Mermaid 设计应优先服务用户理解和数据库落地，不应把所有可选内部表一次性画进主图。
-
-### 明确原生 JSON 与数据库的边界
-- 用户指出如果外部已经保留原生 JSON 文件，数据库就不应该再包含完整 JSON，否则外部 JSON 缓存和数据库原始载荷会重复。
-- 已调整数据库边界：原生接口响应只保存在 `data/raw/` 的 JSON 文件中；数据库只保存 `raw_json_path`、请求参数、接口名、抓取状态、时间戳、来源记录 ID 和从原始响应抽取出的结构化字段。
-- 数据库内不再设计 `raw_json`、`raw_payload_json`、`row_snapshot_json` 这类完整 JSON 载荷字段；如需调试，应通过 `source_record_id` 或 `raw_json_path` 回到外部原生 JSON 文件。
-- 仍可在数据库中保留少量非原始载荷的结构化辅助字段，例如规范化歌名、过滤原因、去重 key 和计数字段；这些字段服务查询和清洗，不替代原生 JSON。
+### 压缩记录：第二版数据库化方向分析
+- 用户指出当前处理仍依赖 JSON 文件，操作不方便，要求分析切换到数据库管理数据的可行性和边界。
+- 早期分析认为可以先把现有 JSON 导入数据库再处理；用户纠正后，方案调整为采集阶段直接写入数据库，后续清洗、过滤、去重、关系边生成和查询都围绕数据库进行。
+- 原生接口响应仍保存为 `data/raw/` JSON 文件，作为原始证据和可复现缓存；数据库不重复保存完整原生 JSON。
+- 数据库只保存 `raw_json_path`、接口名、请求参数、抓取时间、状态、来源记录 ID 和抽取出的结构化字段；需要回看原始响应时通过路径回到 `data/raw/`。
+- 初版数据库 UML 曾包含过多 staging、pipeline row、统计和身份映射内部表，被用户指出过度复杂；后续表达收敛为先说明核心概念：`SourceRecord`、`Run`、`Artist`、`Album`、`Song`、`SongArtist`、`Credit`、`SongFilterState`。
+- 数据库化必须保留验证审计能力：每一步过滤都能查询保留行和被过滤行，且保留分支、步骤、结果、原因、目标歌手和来源记录追溯。
+- SQLite 被判断为更适合当前本地个人分析和批处理阶段；DuckDB 可作为后续分析查询或批量导出补充。
+- 本阶段只完成方向分析和 UML 边界纠正，未创建正式数据库文件，未改造采集脚本直接入库，也未删除既有 raw、JSON 或 CSV 验证产物。
 
 ### 归档当前流程和本地数据准备重新设计
-- 用户要求把当前流程全部归档，包括 raw 数据，以便重新设计请求顺序和存储。
-- 已创建新归档目录 `archive/redesign_reset_2026-05-13/`，用于保存重新设计前的当前流程资产。
-- 已归档当前正式采集代码 `music_metadata_graph/pipelines/` 到 `archive/redesign_reset_2026-05-13/code/music_metadata_graph/pipelines/`，包括热门歌手身份表采集和高可信歌曲子集采集脚本。
-- 已归档当前辅助脚本 `scripts/` 到 `archive/redesign_reset_2026-05-13/code/scripts/`，包括补充分支验证视图脚本和数据目录报告脚本。
-- 已归档当前本地数据目录 `data/` 到 `archive/redesign_reset_2026-05-13/data/`，其中 `data/raw/` 包含旧 QQ 音乐原始接口缓存，`data/processed/` 包含旧四位歌手验证 JSON/CSV 产物。
-- 已归档当前生成报告 `reports/`、旧网页依赖配置 `package.json` 与 `package-lock.json`、旧 force-graph 本地参考文档和当时存在的 Python 缓存。
+- 用户要求把第二版当前流程全部归档，包括 raw 数据，以便重新设计请求顺序和存储。
+- 已创建 `archive/redesign_reset_2026-05-13/`，归档当时的正式采集代码 `music_metadata_graph/pipelines/`、辅助脚本 `scripts/`、本地 `data/`、`reports/`、旧网页依赖配置、force-graph 参考文档和 Python 缓存。
 - 初次直接移动 `data/` 时 Windows 返回访问拒绝；随后改为复制到归档目录、核对文件数与字节数一致后再删除当前目录，避免半归档或数据丢失。
-- 归档资产统计为文件 1227 个、目录 308 个、字节数 177694935；其中 `data/raw/` 为 1039 个文件、23178855 字节，`data/processed/` 为 167 个文件、154147976 字节；新增归档清单后归档目录实际文件数为 1228 个。
-- 已新增 `archive/redesign_reset_2026-05-13/manifest.md`，记录归档范围、内容、统计和后续使用边界。
-- 已将当前根目录重新收敛为源码骨架：保留 `music_metadata_graph/__init__.py` 和空的 `music_metadata_graph/pipelines/__init__.py`，不再保留活跃采集脚本、`scripts/`、`data/` 或 `reports/`。
-- 已更新 `README.md`，说明项目进入请求顺序与数据库存储重新设计阶段，旧流程和数据已归档，新的正式流程尚未实现。
-- 已更新 `pyproject.toml`，移除已归档脚本对应的 `mr-collect-hot-singers` 和 `mr-collect-high-confidence-songs` 命令入口，避免误运行旧流程。
-- 已更新 `AGENTS.md` 项目补充规则，明确 `archive/redesign_reset_2026-05-13/` 和 `archive/legacy_pipeline_2026-05-12/` 只作为历史参考，不得作为当前正式流程继续运行或写回当前正式目录。
-- 验证对象包括 README、AGENTS、develop_log、pyproject、归档清单编码与行尾、包骨架语法、pyproject 解析、当前根目录和归档统计；结果显示相关文本 UTF-8 可读、无 U+FFFD、无裸 LF，包骨架 `py_compile` 无报错，当前根目录不再存在 `data/`、`reports/` 或 `scripts/`。
-- Git 状态复核因 Windows 仓库 owner 与当前用户 SID 不一致被 Git 判定为 dubious ownership 而失败，本次未修改全局 `safe.directory` 配置。
+- 归档统计为文件 1227 个、目录 308 个、字节数 177694935；新增 `archive/redesign_reset_2026-05-13/manifest.md` 后归档目录实际文件数为 1228 个。
+- 当前根目录重新收敛为源码骨架，移除已归档脚本入口，README 和 AGENTS 明确 `archive/redesign_reset_2026-05-13/` 与 `archive/legacy_pipeline_2026-05-12/` 只作为历史参考，不得作为当前正式流程继续运行或写回当前正式目录。
+- 验证确认归档清单、文本编码、包骨架语法、pyproject 解析和归档统计可用；Git 状态复核因 Windows dubious ownership 失败，本次未修改全局 `safe.directory` 配置。
 
-### 记录重新设计阶段先讨论关键未决问题
-- 用户要求现在开始重新设计流程，并明确如果设计过程中存在用户没想清楚或没考虑周到的地方，AI 应停止设计并先与用户讨论，不应为了推进而设计一个糟糕方案。
-- 已将该要求写入 `AGENTS.md` 用户长期偏好：重新设计请求顺序、存储结构、数据模型或流程边界时，如果存在关键目标、输入、输出、验收或风险未明确，AI 应先停止设计并与用户讨论，不得用未经确认的假设继续设计。
-- 本次因此不直接给完整新流程，而是先梳理需要确认的关键设计问题。
+### 重新设计启动和完整歌手列表 raw
+- 用户要求重新设计一步一步来，并明确如果关键目标、输入、输出、验收或风险未明确，AI 应先停止设计并与用户讨论；该规则已写入 AGENTS 用户长期偏好。
+- 第一步确认仍从 QQ 音乐完整歌手列表开始，先保存原生 JSON，不入库，以便检查字段键后再决定数据库设计；归档中未找到可复用的 `singer_list_index`、`singer_registry` 或 `hot_singer` 原生缓存。
+- 新增 `collect_singer_list_raw.py` 和命令入口 `mr-collect-singer-list-raw`，请求 `qqmusic.singer.get_singer_list_index` 全量分页并保存到 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`。
+- 完整采集保存 86 页原生 JSON，合计 6803 条歌手行，接口 `total` 也为 6803；顶层键包括 `area/code/genre/hotlist/index/sex/singerlist/tags/total`，`singerlist[]` 包含 `id/mid/name/title/type/uin/pmid/area_id/country_id/country/other_name/spell/trend/concern_num/singer_pic` 等字段。
+- 为请求 JSON 字段检查新增 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，生成 `docs/request_json_key_dictionary.xlsx`；初始 sheet `01_singer_list_index` 记录完整歌手列表 JSON 的键、出现次数、示例值和中文释义。
 
-### 准备完整歌手列表原生 JSON
-- 用户要求重新设计一步一步来，第一步仍从请求完整歌手列表开始，并要求如果归档数据中已有这一步数据可以重新拿回来。
-- 复核 `archive/redesign_reset_2026-05-13/` 和 `archive/legacy_pipeline_2026-05-12/` 后，未发现 `singer_list_index`、`singer_registry` 或 `hot_singer` 对应的原生 JSON 缓存，因此本次需要重新请求接口。
-- 用户随后明确先不要入库，只把 JSON 准备好，以便查看有哪些键后再决定数据库设计。
-- 已新增 `music_metadata_graph/pipelines/collect_singer_list_raw.py`，只请求 `qqmusic.singer.get_singer_list_index` 的完整分页并保存原生 JSON，不写数据库，不写 `data/processed/`。
-- 已在 `pyproject.toml` 新增命令入口 `mr-collect-singer-list-raw`，对应当前已确认的 raw-only 第一步。
-- 首次在沙箱内请求第一页因网络访问权限被拒绝失败；随后按权限规则放行网络后成功请求并保存第一页。
-- 已运行完整歌手列表采集，输出目录为 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`；共保存 86 页原生 JSON，合计 6803 条歌手行，接口 `total` 也为 6803。
-- 已只读检查字段键：顶层 JSON 键为 `area`、`code`、`genre`、`hotlist`、`index`、`sex`、`singerlist`、`tags`、`total`；`singerlist` 单行字段为 `id`、`mid`、`name`、`title`、`type`、`uin`、`pmid`、`area_id`、`country_id`、`country`、`other_name`、`spell`、`trend`、`concern_num`、`singer_pic`。
-- 已更新 `README.md` 和 `AGENTS.md`，说明当前重新设计第一步只保存完整歌手列表原生 JSON，用于字段检查和后续数据库结构讨论。
-- 本轮未设计数据库表、未入库、未生成 processed 产物。
+### 歌手表入库和主键边界
+- 用户确认当前阶段只使用 QQ 音乐数据源，不再按多平台合并设计；歌手表使用 QQ 音乐 `mid` 作为主键，早期曾短暂保留数字 `id` 唯一字段，后续又按新规则移除数字 `id` 入库。
+- 新增 `import_singer_list_to_db.py` 和命令入口 `mr-import-singer-list-db`，从完整歌手列表 raw JSON 导入 SQLite；初始 `singers` 表导入 6803 行。
+- 后续为歌手表补充 `raw_json_path`、`raw_page`、`raw_row_index` 追溯字段；再根据当前数据库规则调整为 `artists` 表，并逐步收敛字段为 `mid/name/area_id/fans_num/fans_source/fans_raw_json_path/other_name/icon/spell/raw_json_path/raw_page/raw_row_index`。
+- 早期关于 `pmid`、数字 `id` 和多平台身份字段的设计已被后续规则推翻；当前有效规则以 AGENTS 中 `artists.mid` 主键、QQ 音乐单数据源、不保存数字 `id` 为准。
 
-### 生成请求 JSON 字段字典 xlsx
-- 用户要求新建一个 xlsx 文档，记录每一步请求的 JSON 中包含的键和对应中文释义，每个 sheet 记录一种 JSON。
-- 当前只存在重新设计第一步 `qqmusic.singer.get_singer_list_index` 的完整歌手列表原生 JSON，因此本次 xlsx 先创建一个 sheet：`01_singer_list_index`。
-- 本机 Conda 环境未安装 `openpyxl` 或 `xlsxwriter`，因此未引入新依赖，改用 Python 标准库按 xlsx Open XML 结构生成工作簿。
-- 已新增工具脚本 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，用于从当前 raw JSON 生成 `docs/request_json_key_dictionary.xlsx`。
-- 已生成 `docs/request_json_key_dictionary.xlsx`，记录完整歌手列表请求 JSON 的顶层键、`singerlist[]` 字段、`tags` 筛选项字段、字段出现次数、示例值和中文释义。
-- 验证对象为 xlsx 文件结构和生成工具脚本；检查结果显示 xlsx 文件存在且非零，工作簿包含 sheet `01_singer_list_index`，sheet XML 中包含 `中文释义` 和 `singer_pic`，工具脚本 `py_compile` 无报错。
+### 主页歌曲 Tab raw 恢复和请求脚本
+- 用户确认开发阶段仍只用周杰伦、薛之谦、林俊杰、汪苏泷四位歌手验证结构；正式流程后续再面向当前入库规则选中的全部目标歌手。
+- 复核 `archive/redesign_reset_2026-05-13/data/raw/qqmusic/singer_homepage_song_tab/` 后，恢复四位歌手主页歌曲 Tab raw JSON 到当前 `data/raw/qqmusic/singer_homepage_song_tab/`，共 118 个 JSON 文件、14564795 字节。
+- 四位 raw 行数为周杰伦 1012、薛之谦 528、林俊杰 1013、汪苏泷 939，合计 3492 行；字段字典 xlsx 增加第二个 sheet 记录歌曲 Tab JSON 结构。
+- 用户指出恢复归档 raw 不等于已有请求脚本，因此补充独立主页歌曲 Tab 请求脚本 `collect_singer_homepage_song_tab_raw.py` 和命令入口，默认按低频、缓存优先、可恢复方式保存原生 JSON。
+- 后续第四步确认正式流程只对第三步按当前规则入库选中的歌手请求主页歌曲接口；不得因为歌曲歌手或制作人后续补入 `artists` 就自动扩大第四步请求范围。
 
-### 确认 QQ 音乐单数据源和歌手主键
-- 用户确认当前项目只使用 QQ 音乐数据源，不再按多平台合并设计数据库结构。
-- 用户确认歌手表使用 QQ 音乐 `mid` 作为主键，QQ 音乐数字 `id` 作为唯一字段，不额外引入内部 `artist_id`。
-- 当前歌手入库字段范围先收敛为 `mid`、`id`、`name`、`other_name`、`pmid`、`singer_pic`、`spell`。
-- 已将该约束写入 `AGENTS.md` 项目补充规则，作为后续数据库设计和实现依据。
+### 歌曲、专辑和数据库职责边界迭代
+- 早期曾设计歌曲完整表与完备表分层，并试验导入 `song_rows_complete`、`songs_complete` 和 `song_singers_complete`；用户随后纠正数据库职责边界，要求当前只保存满足完备约束的唯一歌曲实体，不保留中间完整歌曲表作为正式表。
+- 试验性歌曲完整表入库实现已删除；当前有效歌曲规则为 `songs.mid` 主键、`id` 唯一、`mid/id/name/title/language/album_mid` 非空、`album_mid` 外键到 `albums.mid`、演唱者列表非空且每个 `singer_mid` 外键到 `artists.mid`。
+- 早期曾建立歌手专辑列表 raw 请求和专辑列表入库流程；后续用户纠正专辑来源和时机，确认专辑不再来自歌手专辑列表，而是从歌曲 raw 的 `album.mid` 或非 0 `album.id` 去重后请求 `qqmusic.album.get_detail`。
+- 旧歌手专辑列表 raw、旧专辑表导出和旧专辑入库实现移动到 `archive/album_source_retiming_2026-05-13/`；当前正式流程不得再把 `data/raw/qqmusic/singer_album_list/` 作为专辑来源。
+- 歌曲派生专辑详情流程改为写入 `data/raw/qqmusic/song_album_detail/`，`albums` 表从 `basicInfo` 抽取 `mid/id/name/albumType/publishDate` 和 raw 追溯字段；缺少必需字段的专辑写入拒绝 CSV。
+- 关于允许专辑发行日期为空的设计曾被提出，随后被推翻；当前规则仍要求 `publishDate` 非空，不满足完备约束的专辑不得写入 `albums`。
 
-### 导入完整歌手列表到 SQLite
-- 用户要求把刚刚请求下来的完整歌手数据入数据库。
-- 入库前只读检查 6803 条 raw 歌手行，确认 `mid` 缺失数为 0、`id` 缺失数为 0、重复 `mid` 数为 0、重复 `id` 数为 0，满足当前主键和唯一约束。
-- 已新增 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，从完整歌手列表 raw JSON 导入 SQLite。
-- 已在 `pyproject.toml` 新增命令入口 `mr-import-singer-list-db`。
-- 已创建数据库 `data/music_metadata_graph.sqlite3`，当前只包含 `singers` 表。
-- `singers` 表 schema 为：`mid TEXT PRIMARY KEY`、`id INTEGER NOT NULL UNIQUE`、`name TEXT NOT NULL`、`other_name TEXT NOT NULL DEFAULT ''`、`pmid TEXT NOT NULL DEFAULT ''`、`singer_pic TEXT NOT NULL DEFAULT ''`、`spell TEXT NOT NULL DEFAULT ''`。
-- 导入结果为 raw 行数 6803、导入行数 6803、数据库 `singers` 表行数 6803。
-- 抽查数据库前三行对应周杰伦、林俊杰、陈奕迅，字段值与 raw JSON 中的 `mid`、`id`、`name`、`other_name`、`singer_pic` 和 `spell` 对应。
-- 验证对象为导入脚本语法、`pyproject.toml` 命令入口、SQLite schema、行数和样例查询；除一次验证查询命令因 PowerShell 引号写错导致 SyntaxError 外，重新查询后观察结果符合预期。
+### 歌曲歌手补全和完备歌曲入库
+- 第五步确认在请求歌曲后、请求专辑前，扫描歌曲 `singer[].mid`，对不在 `artists` 表中的非空歌手 MID 请求 `qqmusic.singer.get_info`，保存 raw JSON 到 `data/raw/qqmusic/singer_info/` 并补入 `artists`。
+- 对 `get_info` 做过单 MID 和批量边界验证；结论是可用 `Client.gather()` 合包请求，但必须按批渐进落盘，失败时降级单个请求并保留已成功结果。
+- 缺失演唱者 MID 前置补全规则后续扩展为：先查当前 `artists` 表，姓名唯一命中则直接使用；未命中才读取或请求 `quick_search` raw；名字包含 `/` 时按片段拆分处理，不再按整体名字检索。
+- 四位样本曾用韩红和《飞云之下》验证补歌手逻辑是否能覆盖合作歌手；完备歌曲入库后导出 `song_import_rejections.csv` 记录不满足约束的唯一歌曲。
+- 入库后新增专辑类型过滤、同名同歌手去重和临时 CSV 导出；第九步后 CSV 逐步收敛为一首歌一行，`singers_json` 只保留歌手 `mid/name`，歌曲相关 CSV 列规则写入 AGENTS。
 
-### 恢复四位歌手主页歌曲 Tab raw JSON 并更新字段字典
-- 用户提出第二步应直接请求歌手全量歌曲作为全量源数据，避免先请求不完整集合再反复补齐。
-- 用户明确正式流程当然是请求全部歌手的全部歌曲，但当前只是构建流程，开发阶段只用指定四位歌手：周杰伦、薛之谦、林俊杰、汪苏泷。
-- 用户确认全量接口使用主页歌曲接口，并要求如果归档中已有请求数据就直接拿回来用；本轮先不入库，只确认请求到的 JSON 结构，并在 xlsx 中新增第二个 sheet 记录歌曲 JSON 键结构。
-- 复核 `archive/redesign_reset_2026-05-13/data/raw/qqmusic/singer_homepage_song_tab/` 后确认归档中已有四位歌手主页歌曲 Tab raw JSON：周杰伦 `0025NhlN2yWrP4`、薛之谦 `002J4UUk29y8BY`、林俊杰 `001BLpXF2DyJe2`、汪苏泷 `001z2JmX09LLgL`。
-- 已将归档中的 `singer_homepage_song_tab` raw JSON 复制回当前 `data/raw/qqmusic/singer_homepage_song_tab/`，复制后核对文件数和字节数一致：118 个 JSON 文件，14564795 字节。
-- 当前四位歌手 raw 行数为：周杰伦 34 页 1012 行，薛之谦 18 页 528 行，林俊杰 34 页 1013 行，汪苏泷 32 页 939 行，合计 118 页 3492 行。
-- 已只读分析主页歌曲 Tab JSON 结构：顶层键包括 `AlbumTab`、`ArtistWorksTab`、`CalendarTab`、`DiscTab`、`HasMore`、`IntroductionTab`、`MomentTab`、`NeedShowTab`、`Order`、`PersonalTab`、`PutaoProductTab`、`ShowTab`、`SongTab`、`TabID`、`TabList`、`VideoTab`；`SongTab` 键包括 `IsShowQLIcon`、`List`、`SearchText`、`SongTagInfoList`。
-- 已分析 `SongTab.List[]` 歌曲行结构，四位样本 3492 行均包含 42 个顶层字段，包括 `id`、`mid`、`name`、`title`、`subtitle`、`singer`、`album`、`interval`、`time_public`、`file`、`pay`、`action` 等。
-- 已扩展 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，支持一个 xlsx 写多个 sheet，并新增 `02_singer_song_tab` sheet。
-- 已重新生成 `docs/request_json_key_dictionary.xlsx`，当前包含 `01_singer_list_index` 和 `02_singer_song_tab` 两个 sheet；第二个 sheet 记录主页歌曲 Tab 顶层键、`SongTab` 字段、`SongTab.List[]` 歌曲字段和常见嵌套字段。
-- 验证对象为恢复后的 raw JSON、xlsx 工作簿和字段字典生成脚本；结果显示四位歌手页数和行数符合归档统计，xlsx 文件包含两个 sheet，第二个 sheet XML 包含 `SongTab`、`album`、`singer` 和 `time_public`，脚本 `py_compile` 无报错。
-- 本轮未请求网络、未入库、未设计歌曲表。
-
-### 建立独立主页歌曲 Tab 请求脚本
-- 用户确认上一轮只是使用归档数据，因此没有建立主页歌曲请求脚本，并要求把脚本补上。
-- 用户要求主页歌曲请求脚本不要和第一步完整歌手列表请求脚本混在一起。
-- 用户要求歌曲请求脚本支持正式全量请求，以及指定 `id` 列表、`mid` 列表、歌手名列表三种部分请求。
-- 用户要求部分请求时必须先验证每一个目标歌手都存在于数据库 `singers` 表；只要任意一个不存在，就不应该开始请求。
-- 用户确认刚刚从归档恢复的四位歌手主页歌曲 raw JSON 可以视为指定四个人的部分请求结果。
-- 已新增独立脚本 `music_metadata_graph/pipelines/collect_singer_song_tab_raw.py`，使用 `client.singer.get_tab_detail(singer_mid, TabType.SONG, num=30, page=page)` 请求主页歌曲 Tab，并将原生 JSON 写入 `data/raw/qqmusic/singer_homepage_song_tab/<mid>/page_XXXX_size_30.json`。
-- 已在 `pyproject.toml` 新增命令入口 `mr-collect-singer-song-tab-raw`。
-- 脚本支持 `--all` 全量请求数据库中所有歌手，也支持 `--mid`、`--id`、`--name` 三种部分请求参数；参数可重复，也支持逗号分隔。
-- 部分请求解析阶段会查询 `data/music_metadata_graph.sqlite3` 的 `singers` 表；若任意目标不存在，脚本抛出错误并停止，不进入请求循环。
-- 已用四位歌手歌手名执行部分请求验证，所有 118 页均为 `cache_hit`，合计 3492 行，未发起新网络请求。
-- 已分别用 `--mid 0025NhlN2yWrP4` 和 `--id 4558` 加 `--max-pages-per-singer 1` 验证部分请求参数，均命中周杰伦第一页缓存。
-- 已用不存在的 `--mid not_exists_mid` 验证失败路径，脚本在目标解析阶段报错 `Singer targets not found in database`，未开始请求循环。
-- 验证对象为新脚本语法、四位歌手缓存请求、`mid`/`id` 参数请求和不存在目标失败路径；观察结果符合“先验证数据库目标，再请求或读取缓存”的设计。
-
-### 为歌手表补充 raw JSON 追溯字段
-- 用户确认当前数据库只有 `singers` 表，并询问是否需要额外保存 JSON 路径。
-- 已形成判断：歌手表不应保存完整原生 JSON，但应保存轻量追溯字段，便于定位回 `data/raw/` 中的原始分页文件和行号。
-- 已修改 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，为导入行补充 `raw_json_path`、`raw_page` 和 `raw_row_index`。
-- 已为 `singers` 表增加迁移逻辑：如果旧表缺少 `raw_json_path`、`raw_page` 或 `raw_row_index`，导入脚本会自动 `ALTER TABLE` 补列。
-- 已重跑 `python -m music_metadata_graph.pipelines.import_singer_list_to_db`，数据库仍为 6803 行。
-- 当前 `singers` 表字段为 `mid`、`id`、`name`、`other_name`、`pmid`、`singer_pic`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`。
-- 验证结果显示 6803 行均有非空 raw 追溯信息，前三行分别定位到 `page_0001_size_80.json` 的第 1、2、3 行。
-- 本次未新增其他数据库表。
-
-### 确认歌曲表不记录来源主页关系
-- 用户指出判断歌曲 `mid` 是否能作主键时，关键不是同一 `mid` 是否出现在多个歌手主页，而是同一 `mid` 对应的歌曲对象内容是否完全相同。
-- 已按当前四位样本检查 13 组重复 `song_mid`，对完整 `SongTab.List[]` 歌曲对象进行排序 JSON 序列化和哈希比较，结果显示 13 组重复 `song_mid` 的完整对象均完全一致，差异组数为 0。
-- 用户进一步确认来源不重要，只要记录歌曲即可。
-- 已将该决策写入 `AGENTS.md` 项目补充规则：歌曲表只记录唯一歌曲实体，不记录歌曲来自哪个歌手主页的来源关系；QQ 音乐歌曲 `mid` 作为主键，除非后续用户明确要求恢复来源追溯。
-- 后续歌曲入库设计应围绕唯一 `songs` 表和必要关系表进行，不再设计 `song_sources` 或 `raw_song_id` 作为必需表。
-
-### 设计歌曲完整表和完备表分层
-- 用户要求按“完整表”和“从完整表筛选出来的完备表”重新设计歌曲入库结构。
-- 当前设计依据为：完整表用于接住主页歌曲接口中按 `song_mid` 去重后的唯一歌曲实体；完备表用于保存满足后续分析最低结构要求的歌曲。
-- 完备表筛选条件按此前讨论暂定为 `mid`、`id`、演唱者、`language`、`album_mid` 必须非空。
-- 当前四位样本已知风险是 `album_mid` 为空的歌曲较多，因此完备表会明显少于完整表；需要通过过滤结果表记录被排除原因。
-- 复核当前四位歌手主页歌曲样本后确认 raw 行数为 3492，按 `song_mid` 去重后为 3479 首唯一歌曲，13 条重复 `song_mid` 行的完整歌曲对象均完全一致，未发现同一 `song_mid` 对应不同对象的冲突。
-- 若完备表要求 `id`、`name`、`title`、`language`、`album_mid`、歌手列表和每个歌手 `singer_mid` 均非空，当前样本中可进入完备表的唯一歌曲为 1809 首。
-- 当前样本中唯一歌曲层面的主要筛除原因是 `album_mid` 缺失，共 1668 首；另有 18 首存在歌手条目缺少 `singer_mid`；`language` 和歌手列表本身未发现缺失。
-- 初步建议完整表和完备表都以 QQ 音乐歌曲 `mid` 为主键；完整表允许 `album_mid` 和关系表中的 `singer_mid` 缺失以保留事实，完备表只接收满足约束的子集。
-- 已识别未决点：若要求 `album_mid` 作为外键，必须先设计或生成专辑表；在专辑表未建立前只能先把 `album_mid` 作为非空字段，暂不启用外键约束。
-- 用户进一步确认完备歌曲表不应另行设计独立 `song_singers` 关系表；关系表应统一服务完整歌曲和完备歌曲，完备歌曲通过筛选条件或视图查询得到对应关系。
-- 用户指出过滤记录表不应使用自增 id，而应围绕歌曲 `mid` 记录；数据库化之后所有歌曲可统一记录在一个过滤记录表中，查看时通过条件筛选，不再每次过滤写一个独立表。
-- 已据此调整设计：`song_singers` 统一以 `(song_mid, singer_order)` 为主键并关联完整歌曲表；`singer_mid` 在完整层允许为空，完备性由过滤状态表和查询条件判断。
-- 已据此调整设计：过滤状态表以 `song_mid` 为主键，保存当前完备性判断、筛除原因摘要和检查时间；若后续需要多个原因的结构化查询，可再加以 `(song_mid, reason_code)` 为主键的原因明细表。
-- 已抽查缺少歌手 `singer_mid` 的真实例子，包括《飞云之下》中 `072-韩红`、《我们的爱 (消音伴奏)》中 `G.E.M.邓紫棋`、《微音乐剧：每道光》中 `世界技能大赛中国获奖选手代表`、《剑魂 (Live)》中 `王可乔` 和 `李豪横` 等。
-
-### 导入歌曲完整表和歌曲歌手关系表
-- 用户确认歌曲完整表已无争议，只要歌曲 `mid` 和 `id` 非空即可写入，并要求先把完整表和关系表入库。
-- 已新增 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`，独立负责从 `data/raw/qqmusic/singer_homepage_song_tab/` 读取主页歌曲 Tab raw JSON 并写入 SQLite。
-- 已在 `pyproject.toml` 增加脚本入口 `mr-import-singer-song-tab-db`。
-- 新增 `songs_all` 表作为歌曲完整表，字段为 `mid`、`id`、`name`、`title`、`time_public`、`language`、`album_mid`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `mid` 为主键、`id` 为唯一非空字段。
-- 新增 `song_singers` 表作为唯一歌曲-歌手关系表，字段为 `song_mid`、`singer_order`、`singer_mid`、`singer_id`、`singer_name`，主键为 `(song_mid, singer_order)`。
-- 当前未给 `song_singers.singer_mid` 增加到 `singers.mid` 的外键，因为当前四位歌手样本中歌曲关系涉及 578 个非空歌手 `mid`，其中 331 个未出现在当前 `singers` 表；若强制外键会导致真实数据无法导入。
-- 导入脚本对同一 `song_mid` 执行完整 payload 去重检查；当前样本中 13 条重复 `song_mid` 行均与已有 payload 完全一致，未发现冲突。
-- 已执行 `python -m music_metadata_graph.pipelines.import_singer_song_tab_to_db`，结果为 raw 歌曲行 3492、唯一歌曲 3479、缺 `mid` 或 `id` 跳过 0、导入 `songs_all` 3479 行、导入 `song_singers` 5114 行。
-- 验证结果显示 `song_singers` 中缺 `singer_mid` 的关系行有 22 行，非空但未进入当前 `singers` 表的关系行有 573 行；这说明关系表应先保存事实，再通过后续完备性过滤或歌手补全处理。
-- 已同步更新 `README.md` 的 SQLite 入库说明，移除“当前只包含一张表”的过期描述，并补充 `songs_all`、`song_singers` 的字段和当前导入行数。
-- 已执行语法验证，`import_singer_song_tab_to_db.py`、`import_singer_list_to_db.py` 和 `collect_singer_song_tab_raw.py` 均通过 `py_compile`。
-- 已查询 SQLite schema 和样例数据，确认当前表为 `singers`、`songs_all`、`song_singers`，行数分别为 6803、3479、5114；`songs_all` 无空 `mid` 或空 `id`，`song_singers` 无空 `song_mid`。
-- 尝试执行 `git status --short` 时被 Git dubious ownership 保护阻止；未擅自修改全局 `safe.directory` 配置。
-
-### 设计采集即入库的数据库 UML
-- 用户要求继续保留接口原生 JSON，同时采集后写入数据库，并要求设计数据库结构、类、主键、属性和可粘贴到 PlantText 的 UML 代码。
-- 设计目标调整为：接口响应保存到 `data/raw/` 作为原始证据，同步登记到数据库原始记录表；清洗流程不再读取 JSON 文件，而是读取数据库中的 staging 表、pipeline 行状态表和最终实体关系表。
-- 形成的核心类包括运行类 `PipelineRun`、原始记录类 `SourceRecord`、平台实体类 `Artist`、`Album`、`Song`、关系类 `SongArtist`、`ArtistAlbumCandidate`、清洗行状态类 `PipelineSongRow` 和最终关系边类 `CreditEdge`。
-- 主键设计原则为内部数据库使用整数自增主键，平台身份通过 `source_platform + source_id/source_mid` 唯一约束表达；`PipelineSongRow` 用独立行主键保存每一步过滤状态，避免覆盖历史步骤。
-- 审计设计要求每个清洗行状态关联 `PipelineRun`、目标歌手、歌曲、专辑、分支、步骤、结果、原因和 `SourceRecord`，确保可以查询每一步保留行和被过滤行，并追溯到原生 JSON 缓存路径。
-- 本轮只产出 UML 设计和说明，不实现数据库代码、不修改 pipeline、不迁移既有 JSON/CSV 数据。
-
-### 设计采集入库后的数据库逻辑结构
-- 用户进一步确认可以保存原生 JSON，同时写入数据库，以保留原始响应，并询问数据库结构如何设计、需要几个类、每个类的主键和属性。
-- 当前结构设计目标调整为：原生 JSON 文件继续作为原始响应证据和可重放缓存；数据库承担正式处理链路，包括原始响应索引、staging 结构化展开、过滤步骤审计、最终实体表、关系边和导出视图。
-- 初步推荐以 SQLite 为第一阶段数据库，并以表/类的形式划分为四层：采集审计层、staging 层、标准实体层、pipeline 审计和导出层。
-- 采集审计层建议包含 `SourceRecord` 和 `PipelineRun`：前者记录平台、接口、请求参数、缓存路径、响应状态、抓取时间和原始 payload 摘要；后者记录一次 pipeline 运行的分支、参数、开始结束时间、代码版本和运行状态。
-- 标准实体层建议包含 `Artist`、`Album`、`Song`、`SongArtist` 和 `CreditEdge`：实体主键使用平台身份键优先，例如 `qqmusic:artist_mid:<mid>`、`qqmusic:album_mid:<mid>`、`qqmusic:song_mid:<mid>`；没有平台 ID 的制作人员先用 unresolved credit key，不能只按姓名合并。
-- staging 层建议包含 `StagingArtistRow`、`StagingAlbumRow` 和 `StagingSongRow`，用于保存采集响应中展开出的原始顶层字段和 `aux_` 辅助字段，主键为行级 `staging_row_id`，并通过 `source_record_id` 追溯到原始 JSON。
-- pipeline 审计层建议包含 `PipelineSongRow` 和 `PipelineStepStat`：前者按 `run_id`、分支、目标歌手、步骤、结果、原因记录每一步歌曲行状态；后者保存每一步计数，便于替代当前 summary JSON。
-- 设计注意事项包括：不要过早删除 staging 行；每一步过滤必须保留 kept 和 removed；同名去重选择结果需要记录被选中的歌曲 key、专辑类型优先级和数值歌曲 id；网页和 CSV 都应从数据库视图导出，而不是重新读取 JSON 文件。
-
-### 建立歌手专辑列表 raw JSON 请求流程
-- 用户要求在歌手列表入库和主页歌曲请求之间插入独立流程：先请求每个歌手的专辑列表，并根据 JSON 结构更新 xlsx 字段字典。
-- 用户要求当前开发阶段仍只使用周杰伦、薛之谦、林俊杰、汪苏泷四名歌手；归档数据如可用可以恢复，但脚本必须补上。
-- 已确认归档 `archive/redesign_reset_2026-05-13/data/raw/qqmusic/high_confidence_singer_songs/` 中存在四位歌手的 `singer_album_list` raw JSON 缓存。
-- 已将四位歌手专辑列表 raw JSON 恢复到当前正式目录 `data/raw/qqmusic/singer_album_list/<singer_mid>/`，共 11 个分页 JSON。
-- 已新增独立脚本 `music_metadata_graph/pipelines/collect_singer_album_list_raw.py`，使用 `client.singer.get_album_list(singer_mid, num=30, page=page)` 请求歌手专辑列表。
-- 已在 `pyproject.toml` 新增命令入口 `mr-collect-singer-album-list-raw`。
-- 新脚本支持 `--all` 全量请求，也支持 `--mid`、`--id`、`--name` 三种部分请求参数；参数可重复，也支持逗号分隔。
-- 部分请求解析阶段会查询 SQLite 的 `singers` 表；若任意目标不存在，脚本抛出 `Singer targets not found in database` 并停止，不进入请求循环。
-- 已用四位歌手姓名执行部分请求验证，所有 11 页均为 `cache_hit`，未发起新网络请求；结果为周杰伦 2 页 43 行、薛之谦 2 页 32 行、林俊杰 3 页 76 行、汪苏泷 4 页 117 行，合计 268 行。
-- 已用不存在的 `--mid not_exists_mid` 验证失败路径，脚本在目标解析阶段报错，未开始请求循环。
-- 已扩展 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，新增 `02_singer_album_list` sheet，并将主页歌曲 Tab sheet 调整为 `03_singer_song_tab`。
-- 已重新生成 `docs/request_json_key_dictionary.xlsx`，当前 sheet 为 `01_singer_list_index`、`02_singer_album_list`、`03_singer_song_tab`；验证确认 xlsx 中包含 `albumMid`、`albumName`、`albumType`、`publishDate`、`totalNum`、`singerMid` 等专辑列表字段。
-- 已同步更新 `README.md`，将当前流程顺序调整为完整歌手列表 raw、歌手列表入库、歌手专辑列表 raw、主页歌曲 Tab raw，并记录四位歌手专辑列表缓存统计。
-- 验证对象为新增脚本语法、四位歌手缓存请求、缺失目标失败路径、xlsx sheet 和关键字段；观察结果符合预期。
-
-### 建立专辑详情 raw JSON 请求流程
-- 用户要求在请求专辑列表后增加请求专辑详情的流程和脚本，并在 xlsx 字段字典中补充专辑详情结构。
-- 已新增独立脚本 `music_metadata_graph/pipelines/collect_album_detail_raw.py`，读取 `data/raw/qqmusic/singer_album_list/<singer_mid>/` 中的 `albumMid`，再调用 `client.album.get_detail(album_mid)` 请求专辑详情。
-- 已在 `pyproject.toml` 新增命令入口 `mr-collect-album-detail-raw`。
-- 脚本支持 `--all`，也支持 `--mid`、`--id`、`--name` 三种指定歌手方式；指定歌手时会先校验目标存在于 `singers` 表，并要求对应专辑列表 raw JSON 已存在。
-- 已从归档 `archive/redesign_reset_2026-05-13/data/raw/qqmusic/supplement_album_details/` 恢复当前四位歌手专辑列表可对应的 251 个专辑详情缓存到 `data/raw/qqmusic/album_detail/`。
-- 当前四位歌手专辑列表共 268 个唯一 `albumMid`；归档缺失 17 个专辑详情，已按权限规则放行网络后请求补齐。
-- 已执行 `python -m music_metadata_graph.pipelines.collect_album_detail_raw --name 周杰伦 --name 薛之谦 --name 林俊杰 --name 汪苏泷`，结果为 albums 268、cache_hits 251、fetched 17。
-- 已扩展 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，新增 `03_album_detail` sheet，并将主页歌曲 Tab sheet 调整为 `04_singer_song_tab`。
-- 已重新生成 `docs/request_json_key_dictionary.xlsx`，当前 sheet 为 `01_singer_list_index`、`02_singer_album_list`、`03_album_detail`、`04_singer_song_tab`；验证确认专辑详情 sheet 包含 `album_type`、`company`、`singers`、`time_public`、`language`、`desc` 等字段。
-- 已同步更新 `README.md`，记录专辑详情 raw JSON 目录、请求脚本、四位歌手 268 个详情文件统计和当前流程顺序。
-- 验证结果显示当前数据库仍只包含 `singers` 表，未新增专辑表或歌曲表；新增脚本和字段字典脚本均通过 `py_compile`。
-
-### 删除专辑详情流程并导入专辑列表表
-- 用户判断专辑详情补充信息没有足够价值，要求删除刚刚新增的专辑详情请求流程、脚本、请求到的数据和 xlsx 中的 sheet，但在日志中记录补充信息的键。
-- 已统计被删除前的 268 个专辑详情 JSON 结构：顶层键包括 `basicInfo`、`company`、`singer`、`album`、`singers`。
-- 专辑详情中 `basicInfo` 出现 17 次，包含 `albumMid`、`albumName`、`tranName`、`publishDate`、`desc`、`genre`、`language`、`albumType`、`genreURL`、`lanURL`、`albumTag3`、`recordNum`、`albumID`、`pmid`、`type`、`modifyTime`、`color`、`fpaymid`、`topListContent`、`topListSchema`、`adStatus`、`encourageVideoStatus`、`wikiurl`、`awards`、`LanRenBookUrl`、`adJson`、`vid`、`operateStatus`、`genres`、`album_right`、`adTag`、`headVideoVid`、`headVideoFrame`、`headMediaList`、`brand`、`albumDuration`、`recText`、`recLabels`、`genreNew`、`bookletUrl`、`singerInterpretation`、`bookletUrlNew`、`debutBtn`、`isReserved`、`reservedTotalCnt`、`dynamicCoverVid`、`threeDUrl`、`album_right_new`。
-- 专辑详情中 `album` 出现 251 次，包含 `id`、`mid`、`name`、`title`、`subtitle`、`time_public`、`pmid`、`desc`、`language`、`album_type`、`genre`、`wikiurl`。
-- 专辑详情中 `company` 出现 268 次，字段口径有两种：17 条包含 `ID`、`name`、`headPic`、`isShow`、`brief`；251 条包含 `id`、`name`、`is_show`、`brief`。
-- 专辑详情中 `singer` 出现 17 次，包含 `singerList`；`singers[]` 出现 251 组详情中的署名歌手条目，条目字段包括 `id`、`mid`、`name`、`title`、`type`、`uin`、`pmid`。
-- 已删除 `music_metadata_graph/pipelines/collect_album_detail_raw.py`，并从 `pyproject.toml` 删除 `mr-collect-album-detail-raw` 命令入口。
-- 已删除 `data/raw/qqmusic/album_detail/` 目录，移除本轮专辑详情 raw JSON。
-- 已从 `music_metadata_graph/tools/write_request_json_key_dictionary.py` 删除专辑详情 sheet 生成逻辑，并重新生成 `docs/request_json_key_dictionary.xlsx`；当前 sheet 恢复为 `01_singer_list_index`、`02_singer_album_list`、`03_singer_song_tab`。
-- 用户要求请求专辑列表后直接把专辑表入库，专辑表主键为 `mid`，属性包括 `id`、`name`、`type`、`publishDate`、`singerName`。
-- 已检查当前四位歌手专辑列表 268 行，`albumMid`、`albumID`、`albumName`、`albumType`、`publishDate`、`singerName` 均无缺失；`albumMid` 唯一 268 个，无重复。
-- 已检查当前四位歌手专辑列表的 `singerName`，并确认不是所有专辑署名都是单人：当前有 66 种署名文本，其中 65 行包含 `/`、`、`、`,`、`，` 或 `&` 等多人署名迹象；因此 `singerName` 先作为文本属性保存，不作为歌手外键。
-- 已新增 `music_metadata_graph/pipelines/import_singer_album_list_to_db.py`，从 `data/raw/qqmusic/singer_album_list/` 读取专辑列表 raw JSON 并写入 SQLite。
-- 已在 `pyproject.toml` 新增 `mr-import-singer-album-list-db` 命令入口。
-- 新增 `albums` 表，字段为 `mid`、`id`、`name`、`type`、`publishDate`、`singerName`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `mid` 为主键，`id` 为唯一非空字段。
-- 已执行 `python -m music_metadata_graph.pipelines.import_singer_album_list_to_db`，结果为 raw album rows 268、unique album rows 268、skipped missing mid or id 0、duplicate same album rows 0、imported albums 268、db album rows 268、multi-like singerName rows 65。
-- 已同步更新 `README.md`，删除专辑详情流程说明，补充 `albums` 表字段、导入入口、导入行数和 `singerName` 不作外键的原因。
-
-### 纠正歌曲数据库职责边界
-- 用户重新评估后指出：歌曲入库应只写入完备歌曲，而不是先把完整歌曲写入数据库再从完整表筛选完备表。
-- 用户明确完整数据的职责应由原始 JSON 提供，数据库应承载后续可分析、可约束、结构化程度足够的数据。
-- 已形成新的设计方向：取消或不再继续使用 `songs_all` 作为正式歌曲实体表，正式歌曲表应直接命名为 `songs` 或等价名称，并只接收满足完备条件的歌曲。
-- 新方向下，`song_singers` 应只服务正式完备歌曲，`song_mid` 可外键到正式歌曲表；若要求 `singer_mid` 外键到 `singers.mid`，则缺失或无法匹配歌手维表的歌曲不能入正式歌曲表。
-- 已识别待讨论点：是否需要保留数据库内的导入拒绝记录表，或只用 raw JSON 加导入报告记录未入库原因；该点会影响是否还需要 `song_filter_status`。
-
-### 删除试验性歌曲完整表入库实现
-- 用户要求删除刚刚新增的歌曲入库脚本和数据库中的新增两张表，并汇报保留下来的流程。
-- 已删除 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`。
-- 已从 `pyproject.toml` 删除 `mr-import-singer-song-tab-db` 命令入口。
-- 已在 SQLite 中执行 `DROP TABLE IF EXISTS song_singers` 和 `DROP TABLE IF EXISTS songs_all`，仅删除本轮试验性歌曲完整表和关系表。
-- 已更新 `README.md`，将 SQLite 当前状态改回只保留 `singers` 表，并说明歌曲数据目前只保留 raw JSON，后续歌曲数据库结构将重新设计为只写入完备歌曲。
-- 验证结果显示当前数据库表清单仅为 `singers`，`singers` 行数仍为 6803，四位歌手主页歌曲 raw JSON 仍为 118 个文件。
-- 验证结果显示 `import_singer_song_tab_to_db.py` 已不存在，当前脚本入口仅保留完整歌手列表采集、歌手列表入库和主页歌曲 Tab raw 采集三个入口。
-- 已执行语法验证，`import_singer_list_to_db.py`、`collect_singer_list_raw.py` 和 `collect_singer_song_tab_raw.py` 均通过 `py_compile`。
-
-### 纠正专辑请求来源和时机
-- 用户指出专辑列表来源和请求时机有问题：专辑信息不应在请求歌曲前按歌手请求，而应先请求歌曲，再按歌曲中的专辑请求专辑信息。
-- 已将旧 `data/raw/qqmusic/singer_album_list/` 移入 `archive/album_source_retiming_2026-05-13/`，当前正式 raw 目录不再保留旧歌手专辑列表。
-- 已将旧 SQLite `albums` 表导出到本次归档目录，并从当前数据库删除旧 `albums` 表；当前数据库表清单恢复为仅 `singers`。
-- 已删除旧歌手专辑列表请求脚本和旧专辑列表入库脚本，并从 `pyproject.toml` 删除对应命令入口。
-- 已新增 `music_metadata_graph/pipelines/collect_song_album_detail_raw.py`，脚本读取歌手主页歌曲 Tab raw JSON，从 `album.mid` 或非 0 `album.id` 去重得到专辑请求键，再调用 `qqmusic.album.get_detail` 保存原生 JSON 到 `data/raw/qqmusic/song_album_detail/`。
-- 新脚本支持 `--all` 全量请求，也支持 `--mid`、`--id`、`--name` 三种指定歌手方式；指定歌手时会先校验目标存在于 `singers` 表，并要求对应主页歌曲 Tab raw JSON 已存在。
-- 初次请求时发现歌曲中存在 `album.id = 0` 且 `album.mid` 为空的情况，若把 0 当作请求键会触发接口错误；已修正为只把非空 `album.mid` 或非 0 `album.id` 作为可请求专辑键。
-- 已按四位开发阶段歌手周杰伦、薛之谦、林俊杰、汪苏泷请求新的专辑详情 raw JSON；输入主页歌曲行 3492，缺少可请求专辑键的歌曲行 1676，去重后专辑详情 654 个，当前 `data/raw/qqmusic/song_album_detail/` 中有 654 个 JSON 文件。
-
-### 更新字段字典和流程文档为歌曲派生专辑详情
-- 已更新 `music_metadata_graph/tools/write_request_json_key_dictionary.py`，删除旧歌手专辑列表 sheet 生成逻辑，新增 `02_song_album_detail` sheet，记录 `qqmusic.album.get_detail` 的 `basicInfo`、`company`、`singer` 和 `singer.singerList[]` 等字段。
-- 已重新生成 `docs/request_json_key_dictionary.xlsx`；当前 sheet 为 `01_singer_list_index`、`02_song_album_detail`、`03_singer_song_tab`，不再包含 `02_singer_album_list`。
-- 已更新 `README.md`，把当前流程调整为完整歌手列表 raw、歌手列表入库、主页歌曲 Tab raw、按歌曲请求专辑详情 raw，并说明专辑入库规则尚待基于新详情 JSON 重新确认。
-- 已更新 `AGENTS.md` 项目补充规则，记录旧歌手专辑列表不得继续作为正式专辑来源，后续专辑入库需要基于 `song_album_detail` 的 `basicInfo` 和 `singer.singerList[]` 重新设计。
-- 验证对象为新脚本语法、字段字典脚本语法、xlsx sheet 名和关键字段、SQLite 表清单、旧 raw 目录迁移状态和新 raw 文件数量。
-- 验证结果显示 `collect_song_album_detail_raw.py` 与字段字典脚本均通过 `py_compile`；xlsx 存在且包含 `basicInfo`、`albumMid`、`albumName`、`albumType`、`singerList`，不包含旧 `02_singer_album_list`；SQLite 当前仅有 `singers` 表且行数为 6803；旧正式 raw 目录 `data/raw/qqmusic/singer_album_list/` 不存在，归档目录存在；新 `song_album_detail` JSON 文件数为 654。
-
-### 检查歌曲派生专辑详情字段和多歌手结构
-- 用户要求检查两件事：新请求的专辑信息是否包含之前约定的键，以及多歌手专辑在新 JSON 中如何记录并给出样本。
-- 已检查当前 `data/raw/qqmusic/song_album_detail/` 下 654 个专辑详情 JSON。
-- 之前约定的专辑入库键在新结构中对应为：`mid` 对应 `$.basicInfo.albumMid`，`id` 对应 `$.basicInfo.albumID`，`name` 对应 `$.basicInfo.albumName`，`type` 对应 `$.basicInfo.albumType`，`publishDate` 对应 `$.basicInfo.publishDate`。
-- 654 个 JSON 中上述 5 个专辑基础字段均存在且均非空，`albumID` 均为非 0 整数。
-- 旧约定中的 `singerName` 不再以单个标量字段出现；新详情接口通过 `$.singer.singerList[]` 记录署名歌手列表，若继续保留 `singerName` 字段，需要从 `singerList[].name` 派生拼接文本。
-- 当前 654 个专辑详情中 `singer.singerList` 均存在且非空；署名歌手数量分布为单歌手 594 张，多歌手 60 张，最多 59 个署名歌手。
-- `singer.singerList[]` 条目字段包括 `mid`、`name`、`transName`、`role`、`instrument`、`singerID`、`type`、`singerType`、`pmid`、`indentity`。
-- 904 个署名歌手条目中有 1 个缺少 `mid`：专辑 `Promise To You` 中汪苏泷条目为 `mid=""`、`singerID=0`、`pmid=""`；这说明后续若建立专辑-歌手关系，不能无条件要求每个详情署名歌手都能马上外键到 `singers.mid`。
-- 多歌手样本包括 `Season for Love`，署名歌手为汪苏泷和 Lenka；`爱你 影视原声带`，署名歌手包含汪苏泷、颜人中、米卡、符雅凝等 11 人；`新年到`，署名歌手包含林俊杰、林宇中、李志清、BY2 等 12 人。
-
-### 导入歌曲派生专辑详情表
-- 用户确认下一步做专辑入库，要求不导入歌手信息，只导入五个业务键：`mid` 主键、`id`、`name`、`albumType`、`publishDate`。
-- 用户同时要求每个入库表都带三个跟文件路径有关的追溯键；本次专辑表补充 `raw_json_path`、`raw_page`、`raw_row_index`。
-- 已新增 `music_metadata_graph/pipelines/import_song_album_detail_to_db.py`，从 `data/raw/qqmusic/song_album_detail/*.json` 读取 `basicInfo` 并写入 SQLite。
-- 已在 `pyproject.toml` 新增命令入口 `mr-import-song-album-detail-db`。
-- 新增 `albums` 表，字段为 `mid`、`id`、`name`、`albumType`、`publishDate`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `mid` 为主键，`id` 为唯一非空字段。
-- 对专辑详情这种“一文件一专辑”的请求，`raw_page` 固定为 0，`raw_row_index` 固定为 1。
-- 已执行 `python -m music_metadata_graph.pipelines.import_song_album_detail_to_db`，结果为 raw rows 654、imported rows 654、db rows 654。
-- 已更新 `README.md`，记录当前数据库表为 `singers`、`albums`，并补充专辑表字段、字段来源、导入入口和当前行数。
-- 已更新 `AGENTS.md` 项目补充规则，记录专辑表只从 `song_album_detail` 的 `basicInfo` 抽取核心字段，当前不导入 `singer.singerList[]`。
-- 验证对象为导入脚本语法、导入结果、SQLite schema、主键和唯一约束、必填字段缺失情况和样例行。
-- 验证结果显示导入脚本通过 `py_compile`；当前数据库表为 `albums`、`singers`；`albums` 行数为 654，`singers` 行数为 6803；`albums.mid` 为主键，`albums.id` 为唯一索引；`name`、`albumType`、`publishDate`、`raw_json_path` 均无空值。
-
-### 评估歌曲直接入完备表约束
-- 用户要求重新考虑歌曲是否可以直接入完备表，并给出约束：`song.mid` 非空唯一作主键，`song.id` 非空唯一，`song.name/title` 非空，`language` 非空，`album_mid` 非空且外键到专辑表，`singer` 列表非空，每个 `singer_mid` 非空且外键到歌手表。
-- 已基于当前四位歌手主页歌曲 raw JSON、当前 `albums` 表和 `singers` 表模拟该约束，未执行歌曲入库。
-- 当前样本有主页歌曲 raw 行 3492，按 `song.mid` 去重后唯一歌曲 3479；13 组重复 `song.mid` 的完整歌曲对象一致，未发现冲突；`song.id` 在唯一歌曲中无重复。
-- 严格执行上述约束时可入库唯一歌曲为 1539 首，被拒绝 1940 首。
-- 拒绝原因按唯一歌曲计数为：`missing_album_mid` 1668 首，`singer_mid_not_in_singers` 366 首，`missing_singer_mid` 18 首；同一首歌可同时命中多个原因。
-- 当前专辑表覆盖所有非空 `album_mid`，本轮未发现 `album_mid_not_in_albums`；说明先按歌曲请求专辑详情再入库专辑，能满足歌曲外键到专辑表的前置条件。
-- 当前未发现 `song.mid`、`song.id`、`name`、`title`、`language` 或 `singer` 列表为空导致的拒绝；注意 `language=0` 是有效语言编码，不能按布尔假值当作空。
-- 若暂不要求每个演唱者外键到 `singers.mid`，可入库上限为 1811 首；因此当前严格方案额外排除了 272 首主要由补充歌手未在 `singers` 表导致的歌曲。
-- 典型 `missing_album_mid` 样本包括《有我 (Demo)》、《背对背拥抱 + 她说 (Live)》、《微笑上海》；典型 `singer_mid_not_in_singers` 样本包括《绝不绝》中的“无畏契约”、《Hanggang》中的 Troy Laureta、《At Least I Had You》中的 Gentle Bones；典型 `missing_singer_mid` 样本包括《飞云之下》中的 `072-韩红`、《我们的爱 (消音伴奏)》中的 `G.E.M.邓紫棋`。
-- 初步结论：该约束技术上可实现，适合定义“高完备、强外键”的正式歌曲表，但会显著牺牲当前主页歌曲 raw 的覆盖率；若目标是尽量保留有效合作歌曲，需要先讨论是否补全歌手表或为拒绝歌曲保留导入拒绝记录。
-
-### 取消歌手表 pmid 入库
-- 用户要求修改歌手入库流程，把 `pmid` 取消入库。
-- 已修改 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，新建 `singers` 表时不再包含 `pmid`，导入 payload 和 upsert 语句也不再读取或写入 `pmid`。
-- 已为已有 SQLite 数据库增加迁移逻辑：如果 `singers` 表仍存在 `pmid` 列，优先执行 `ALTER TABLE singers DROP COLUMN pmid`；若 SQLite 版本不支持直接删列，则通过临时表重建保留其他字段。
-- 已重跑 `python -m music_metadata_graph.pipelines.import_singer_list_to_db`，结果为 raw rows 6803、imported rows 6803、db rows 6803。
-- 当前 `singers` 表字段为 `mid`、`id`、`name`、`other_name`、`singer_pic`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`。
-- 已更新 `README.md` 的 `singers` 字段说明，删除 `pmid`；已更新 `AGENTS.md` 项目补充规则，记录歌手入库字段不再包含 `pmid`。
-- 验证对象为导入脚本语法、重跑导入结果、SQLite `singers` schema、`singers` 和 `albums` 行数、关键字段缺失情况。
-- 验证结果显示 `import_singer_list_to_db.py` 通过 `py_compile`；当前 `singers` 表无 `pmid` 列，行数仍为 6803；`albums` 行数仍为 654；`mid`、`id`、`name`、`singer_pic`、`raw_json_path` 均无空值。
-
-### 在歌曲和专辑请求之间补全缺失歌手
-- 用户要求歌手库的 `mid`、`id`、`name` 都必须做非空限制，并要求在请求歌曲和请求专辑之间插入一步：验证歌曲中每个非空 `singer.mid` 是否在歌手库里，如果不在则用 `get_info` 请求歌手信息并入库。
-- 用户要求补入歌手时如果 `id` 或 `name` 为空则不入库；如果 `singer_pic` 为空，尝试用 `base_info.background_image` 作为 `singer_pic`，如果仍为空则留空。
-- 已修改 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，显式校验 `mid`、`id`、`name` 非空，并在 schema 迁移时重建 `singers` 表使 `mid TEXT NOT NULL PRIMARY KEY` 生效。
-- 已新增 `music_metadata_graph/pipelines/collect_missing_song_singers_to_db.py`，扫描 `data/raw/qqmusic/singer_homepage_song_tab/` 中的 `SongTab.List[].singer[]`，对不在 `singers` 表中的非空 `mid` 请求 `client.singer.get_info(mid)`。
-- 新脚本保存原始响应到 `data/raw/qqmusic/singer_info/<singer_mid>.json`，并只向 `singers` 表写入现有字段：`mid`、`id`、`name`、`other_name`、`singer_pic`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`。
-- 已在 `pyproject.toml` 新增命令入口 `mr-collect-missing-song-singers-db`。
-- 初次解析按旧预期读取顶层 `singer/base_info` 时失败；检查 raw 后确认 `get_info` 当前响应结构为 `Info.Singer` 和 `Info.BaseInfo`，字段为 `SingerID`、`SingerMid`、`Name`、`SingerPic`、`BackgroundImage` 等；已修正解析逻辑。
-- 已先用周杰伦样本和 `--max-singers 5` 验证缓存读取与入库，成功补入 5 个歌手，`singers` 从 6803 行变为 6808 行。
-- 已对四位开发阶段歌手周杰伦、薛之谦、林俊杰、汪苏泷执行完整补全，扫描歌曲行 3492，发现歌曲歌手条目缺 `mid` 22 个，发现不在库的非空歌手 MID 326 个，请求并入库 326 个，跳过 0 个，`singers` 表变为 7134 行。
-- 补全后重新模拟歌曲严格入库约束，唯一歌曲 3479 首中可通过约束的歌曲从补全前 1539 首提升到 1809 首；`singer_mid_not_in_singers` 已清零，剩余拒绝原因为 `missing_album_mid` 1668 首和 `missing_singer_mid` 18 首。
-- 已更新 `README.md`，将当前流程调整为完整歌手列表 raw、歌手列表入库、主页歌曲 Tab raw、补全歌曲歌手、按歌曲请求专辑详情 raw、专辑详情入库。
-- 已更新 `AGENTS.md` 项目补充规则，记录补全歌曲歌手步骤、歌手表 `mid/id/name` 非空约束和头像兜底规则。
-- 验证对象为新增脚本语法、歌手导入脚本语法、联网小样本请求、四位歌手完整补全请求、SQLite `singers` schema、补全后歌曲入库约束模拟。
-- 验证结果显示两个脚本均通过 `py_compile`；`singers` 表字段中 `mid`、`id`、`name` 均为非空约束，当前 `singers` 行数为 7134，`albums` 行数为 654；当前 `singers.mid/id/name/singer_pic/raw_json_path` 均无空值。
-
-### 验证按 mid 查询歌手信息接口
-- 用户询问是否存在根据歌手 `mid` 查询歌手信息的接口。
-- 已检查当前安装的 `qqmusic-api-python`，`Client().singer` 下存在 `get_info(mid)` 和 `get_desc(mids)` 两个相关入口。
-- `get_info(mid)` 对应 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageHeader`，参数为 `SingerMid`，用途偏歌手主页头部信息。
-- 使用周杰伦 `mid=0025NhlN2yWrP4` 实测 `get_info`，返回包含 `singer.id=4558`、`singer.mid`、`singer.name`、`singer.singer_pmid`、`base_info.avatar`、`base_info.background_image`、`base_info.is_singer` 等字段。
-- `get_desc(mids)` 对应 `music.musichallSinger.SingerInfoInter.GetSingerDetail`，参数为 `singer_mids` 列表，用途偏批量歌手详情、百科和扩展信息。
-- 使用周杰伦 `mid=0025NhlN2yWrP4` 实测 `get_desc`，返回 `singer_list[]`，其中包含 `basic_info.id`、`basic_info.mid`、`basic_info.name`、`basic_info.pmid`、`basic_info.wikiurl`、`ex_info`、`wiki`、`group_list`、`photos`、`group_info` 等字段；当前样例中多数字段为空。
-- 验证时本地沙箱网络默认拒绝访问 QQ 音乐接口，按权限规则放行后完成真实接口请求；未新增或修改项目源码。
-
-### 修复开发日志追加编码异常
-- 追加“验证按 mid 查询歌手信息接口”日志时，曾通过 PowerShell here-string 传入中文内容，导致新增中文记录被写成问号。
-- 已改用补丁方式修复该段日志内容，使标题和正文恢复为 UTF-8 可读中文。
-- 该问题未影响项目源码、数据库或 raw JSON 数据；影响范围仅为 `develop_log.md` 尾部新增日志段落。
-
-### 验证指定 mid 的歌手信息返回
-- 用户要求使用 `mid=002Z462D2amcz9` 验证按 mid 查询歌手信息接口，并列出返回 JSON 的所有键和值，长值可省略。
-- 已联网请求 `Client().singer.get_info("002Z462D2amcz9")`，返回歌手为杨瑞代，包含 `status`、`singer`、`base_info`、`tab_detail`、`prompt` 等结构。
-- 已联网请求 `Client().singer.get_desc(["002Z462D2amcz9"])`，返回 `singer_list[]`，其中包含 `basic_info`、`ex_info`、`wiki`、`group_list`、`photos`、`group_info` 等结构。
-- 当前样例中 `get_info.base_info.avatar`、`get_info.base_info.name`、`get_desc.ex_info` 多数字段为空；`get_info.base_info.background_image` 和 `get_desc.singer_list[0].basic_info.wikiurl` 有值。
-- 本次仅做接口验证和日志记录，未新增或修改项目源码、数据库结构或 raw JSON 缓存文件。
-
-### 确认 get_info 批量查询边界
-- 用户询问 `get_info` 是否支持批量查询。
-- 已根据当前 `qqmusic-api-python` 源码确认 `SingerApi.get_info` 签名为 `get_info(self, mid: str)`，请求参数为单个 `SingerMid`，接口本身不支持一次传入多个 `mid`。
-- 已确认同模块的 `get_desc(mids: list[str])` 支持传入 `singer_mids` 列表，可作为批量补充歌手详情的候选接口。
-- 若后续需要批量获取主页头部信息，应在项目脚本中对 `get_info(mid)` 做低频循环、缓存和失败重试，而不是把多个 `mid` 直接塞给 `get_info`。
-
-### 验证指定歌手 mid 信息返回
-- 用户要求使用 `mid=002Z462D2amcz9` 验证按 mid 查询歌手信息接口。
-- 已联网调用 `Client().singer.get_info("002Z462D2amcz9")`，接口返回 `status=0`，识别歌手为杨瑞代，`singer.id=13886`、`singer.mid=002Z462D2amcz9`、`singer.name=杨瑞代`、`singer.singer_pmid=002Z462D2amcz9_2`。
-- `get_info` 的 `base_info.background_image` 返回 `http://y.gtimg.cn/music/photo_new/T001R800x800M000002Z462D2amcz9_2.jpg`，但 `base_info.avatar` 和 `base_info.name` 为空；说明该接口对部分歌手未必提供完整头像字段。
-- 已联网调用 `Client().singer.get_desc(["002Z462D2amcz9"])`，返回 `singer_list[0].basic_info`，其中包含 `id=13886`、`mid=002Z462D2amcz9`、`name=杨瑞代`、`pmid=002Z462D2amcz9_2`、`has_photo=2`、`wikiurl=https://wiki.y.qq.com/i/cb3pioe3deas2l871mag`。
-- `get_desc` 的 `ex_info`、`wiki`、`photos`、`group_list` 和 `group_info` 在该样例中为空；后续若补歌手扩展资料，需要允许这些字段缺失。
-
-### 检查第一版归档头像缺失可视化逻辑
-- 用户询问归档的第一版中头像缺少时如何可视化默认头像。
-- 已检查 `archive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/export_web_dataset.py` 和 `archive/legacy_pipeline_2026-05-12/web/app.js`。
-- 第一版数据导出阶段只把制作人员接口里的 `artist.icon` 原样写入图谱节点的 `icon` 字段；目标歌手节点在首次创建时没有额外补默认头像 URL。
-- 第一版前端绘制阶段通过 `getNodeImage(node)` 读取 `node.icon`；当 `icon` 为空时返回 `null`，当图片加载失败或未完成时也不会绘制图片。
-- 第一版所谓“默认头像”不是独立图片资源，而是 Canvas 先画一个固定绿色圆形节点，再在图片可用时把头像裁剪进圆形；头像缺失时只保留绿色圆形、白色描边和节点姓名标签。
-- 本次仅做归档实现分析和日志记录，未修改当前正式源码、归档源码或数据文件。
-
-### 启动第一版归档网页预览
-- 用户询问归档代码是否还能运行，并要求查看归档网页。
-- 已确认第一版归档网页位于 `archive/legacy_pipeline_2026-05-12/web/`，包含 `index.html`、`app.js`、`styles.css`、`vendor/force-graph.min.js` 和 `data/catalog.json`、三位目标歌手数据 JSON。
-- 已使用项目指定 Conda 环境中的 Python 3.12 启动静态 HTTP 服务，只服务归档的 `web` 目录，未把归档代码迁回当前正式目录。
-- 初次使用 PowerShell `Start-Process` 启动服务时，本机环境变量存在 `Path/PATH` 键冲突导致失败；改用 PowerShell 后台 Job 后启动成功。
-- 验证方式为请求 `http://127.0.0.1:8765/data/catalog.json`，返回 HTTP 200，说明归档网页数据可通过本地 HTTP 服务读取。
-- 本次没有修改归档源码、当前正式源码或归档数据；仅新增本条开发日志。
-
-### 修正归档网页服务未保持运行
-- 用户反馈 `http://127.0.0.1:8765/` 拒绝连接，并质疑服务是否保持运行。
-- 已复查确认此前通过沙箱内 `Start-Job` 和 .NET `Process` 启动的 Python 静态服务只在同一工具调用内短暂可用，跨工具调用后即无法连接；此前向用户报告“应该保持运行”不准确。
-- 已改用沙箱外权限启动独立 Python 静态服务进程，只服务 `archive/legacy_pipeline_2026-05-12/web/` 目录。
-- 验证方式为跨工具调用重新请求 `http://127.0.0.1:8765/data/catalog.json`，返回 HTTP 200；同时检查到 `python.exe` 服务进程仍存在，进程 ID 为 `30568`。
-- 当前归档网页入口为 `http://127.0.0.1:8765/`；本次未修改归档源码、当前正式源码或归档数据。
-
-### 关闭第一版归档网页预览服务
-- 用户确认已看完归档网页，并要求关闭进程。
-- 已按记录的 PID `30568` 只停止本次归档网页预览对应的 `python.exe` 服务进程，未处理其他 Python 进程。
-- 验证方式为再次请求 `http://127.0.0.1:8765/data/catalog.json`，结果为无法连接；同时按 PID 查询不到该进程，说明预览服务已关闭。
-- 本次仅关闭本地预览服务并记录日志，未修改归档源码、当前正式源码或归档数据。
-
-### 验证歌手库是否包含韩红
-- 用户要求验证当前歌手库中是否存在“韩红”。
-- 已确认当前正式数据库为 `data/music_metadata_graph.sqlite3`，当前正式流程脚本默认也指向该 SQLite 文件。
-- 已查询 `singers` 表，当前总行数为 7134。
-- 精确查询 `name = '韩红'` 命中 1 条记录：`mid=003WlPvN2EvRaj`、`id=4419`、`name=韩红`、`spell=hanhong`。
-- 模糊查询 `name` 或 `other_name` 包含“韩红”同样只命中该 1 条记录。
-- 命中记录来源为 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/page_0002_size_80.json`，`raw_page=2`，`raw_row_index=64`。
-- 本次仅做数据库查询和日志记录，未修改业务数据或源码。
-
-### 验证韩红歌曲列表包含飞云之下
-- 用户要求使用韩红 `mid=003WlPvN2EvRaj` 请求韩红歌曲，并验证是否存在“飞云之下”，若存在则给出完整 JSON。
-- 已使用当前正式脚本 `music_metadata_graph.pipelines.collect_singer_song_tab_raw` 请求 QQ 音乐歌手主页歌曲 Tab，目标歌手为韩红。
-- 沙箱内首次联网请求因本地网络权限限制失败，按权限规则放行同一正式采集命令后请求成功。
-- 已保存韩红歌曲 Tab raw JSON 到 `data/raw/qqmusic/singer_homepage_song_tab/003WlPvN2EvRaj/`，共 21 页、630 条歌曲行，最后一页 `HasMore=false`。
-- 已扫描 21 页 raw JSON，标题包含“飞云之下”的歌曲行共 11 条；其中标题精确等于“飞云之下”的歌曲行 1 条。
-- 精确命中记录位于 `page_0007_size_30.json` 的 `SongTab.List[11]`，歌曲 `mid=000fVqPH1RjwS3`，QQ 音乐数字 `id=213773480`，歌手为韩红和林俊杰，专辑 `mid=000XAvOz4exGKL`。
-- 已将全部标题包含“飞云之下”的匹配摘要保存到 `found_feiyunzhixia_matches.json`，并将精确命中的完整歌曲对象保存到 `exact_feiyunzhixia.json`。
-- 已确认 `exact_feiyunzhixia.json` 文件非空且 UTF-8 可读，无 U+FFFD 替换字符。
-
-### 导入完备歌曲并输出拒绝 CSV
-- 用户要求第七步做歌曲入库，直接入完备表；约束为 `song.mid` 非空唯一作主键，`song.id` 非空唯一，`song.name/title` 非空，`language` 非空，`album_mid` 非空且在专辑表中，`singer` 列表非空，每个 `singer_mid` 非空且在歌手表中。
-- 用户要求入库失败的歌曲保存为 CSV，并明确这是正式流程的一部分。
-- 已新增 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`，读取歌手主页歌曲 Tab raw JSON，按 `song.mid` 去重，满足约束的歌曲写入 `songs`，演唱者关系写入 `song_singers`。
-- 已在 `pyproject.toml` 新增命令入口 `mr-import-singer-song-tab-db`。
-- `songs` 表字段为 `mid`、`id`、`name`、`title`、`language`、`album_mid`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `mid` 为非空主键，`id` 为非空唯一字段，`album_mid` 外键到 `albums.mid`。
-- `song_singers` 表字段为 `song_mid`、`singer_order`、`singer_mid`、`raw_json_path`、`raw_page`、`raw_row_index`；主键为 `(song_mid, singer_order)`，`song_mid` 外键到 `songs.mid`，`singer_mid` 外键到 `singers.mid`。
-- 入库失败歌曲 CSV 输出到 `data/processed/validation/song_import_rejections/csv_views/song_import_rejections.csv`，记录歌曲身份、专辑字段、歌手摘要、问题歌手、拒绝原因和 raw 追溯字段。
-- 首次运行脚本默认扫描全部 `data/raw/qqmusic/singer_homepage_song_tab/` 时，把此前为验证韩红而请求的韩红歌曲 raw 也纳入了入库范围，导致 raw 行数变为 4122、拒绝原因额外出现 `album_mid_not_in_albums` 和 `singer_mid_not_in_singers`；这说明正式脚本需要支持指定目标歌手范围，避免临时验证 raw 污染开发阶段四位样本。
-- 已补充脚本参数 `--all`、`--mid`、`--id`、`--name`，可像前序脚本一样指定导入范围；没有指定范围时仍可扫描全部已有 raw，正式开发阶段使用四位歌手姓名指定范围。
-- 已重新执行 `python -m music_metadata_graph.pipelines.import_singer_song_tab_to_db --name 周杰伦 --name 薛之谦 --name 林俊杰 --name 汪苏泷`，结果为 raw rows 3492、unique song rows 3479、imported songs 1809、imported song singers 2977、rejected songs 1670。
-- 当前拒绝原因计数为 `missing_album_mid` 1668、`missing_singer_mid` 18；同一首歌可同时命中多个原因，因此原因计数之和可大于拒绝歌曲行数。
-- 已更新 `README.md`，新增第七步歌曲入库与拒绝 CSV，记录 `songs`、`song_singers` 字段、导入入口和当前四位歌手结果。
-- 已更新 `AGENTS.md` 项目补充规则，记录歌曲完备入库约束和拒绝 CSV 产物路径。
-- 验证对象为新脚本语法、四位歌手导入结果、SQLite schema、外键完整性、必填字段空值、拒绝 CSV 文件存在性和行数。
-- 验证结果显示 `import_singer_song_tab_to_db.py` 通过 `py_compile`；当前数据库表为 `albums`、`singers`、`songs`、`song_singers`；`songs` 1809 行，`song_singers` 2977 行，`PRAGMA foreign_key_check` 无结果；`songs` 中 `mid/id/name/title/language/album_mid/raw_json_path` 均无空值；拒绝 CSV 存在且为 1670 行。
-
-### 复查第二版归档歌曲双分支流程
-- 用户询问归档的第二版里两个分支的流程分别是什么。
-- 已复查 `archive/redesign_reset_2026-05-13/manifest.md`、`archive/redesign_reset_2026-05-13/code/music_metadata_graph/pipelines/collect_high_confidence_singer_songs.py` 和 `archive/redesign_reset_2026-05-13/code/scripts/write_supplement_filter_validation_views.py`。
-- 确认第二版归档中的两个歌曲输入分支分别是高可信歌曲子集分支和补充分支，不属于当前重新设计后的数据库直入流程。
-- 高可信歌曲子集分支从歌手专辑列表开始，请求允许类型专辑的歌曲，先保留歌曲歌手列表中包含目标歌手 mid 的记录，再按歌曲 mid/id 和规范化歌名去重；正式 JSON 输出在 `data/processed/high_confidence_singer_songs/`，CSV 仅作为验证视图。
-- 补充分支从歌手主页歌曲 Tab raw JSON 开始，先过滤空专辑，再过滤缺失专辑 id/mid，再请求专辑详情补充专辑类型，然后保留 Single、EP、录音室专辑，再去重，最后按规范化歌名排除已在高可信子集中的歌曲；四歌手验证 JSON/CSV 输出在 `data/processed/validation/four_singers/` 下。
-- 本次仅做归档流程复查和日志记录，未修改当前正式源码、数据库或数据产物。
-
-### 添加入库后歌曲过滤步骤
-- 用户要求在当前流程中添加第八步和第九步：第八步只保留专辑类型为 `Single`、`EP`、`录音室专辑` 的歌曲，第九步按规范化歌名去重，优先级为 `录音室专辑 > EP > Single > 较小 song id`；每一步过滤掉的歌曲都要正式导出 CSV，并临时导出第九步后保留歌曲 CSV。
-- 已确认当前 `songs.mid` 为主键、`songs.id` 为唯一字段，所以第九步中的 mid/id 去重已由第七步入库约束和数据库唯一约束保证；新过滤步骤只报告 mid/id 唯一性检查，不再单独执行 mid/id 过滤。
-- 已新增 `music_metadata_graph/pipelines/filter_imported_songs.py` 和命令入口 `mr-filter-imported-songs`，脚本作用于已入库的 `songs` 与 `song_singers`；过滤删除 `songs` 记录时通过外键级联删除对应 `song_singers`。
-- 第八步过滤 CSV 正式输出到 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step8_album_type.csv`；第九步过滤 CSV 正式输出到 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_name_dedupe.csv`。
-- 第九步后保留歌曲临时 CSV 输出到 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_name_dedupe.csv`，用于本轮人工查看，不作为正式流程长期产物。
-- 已更新 `README.md` 和 `AGENTS.md`，记录第八步、第九步职责、输出路径和 mid/id 唯一性由数据库保证的结论。
-- 验证方式：先重新运行四位歌手第七步入库，再运行第八和第九步过滤脚本，检查 CSV 文件存在、非零、行数匹配，检查数据库外键、专辑类型分布和规范化歌名重复。
-- 验证结果：第七步恢复入库歌曲 1809 首、歌曲歌手关系 2977 条；第八步按专辑类型过滤 685 首，剩余 1124 首；第九步按规范化歌名过滤 179 首，最终剩余 945 首、歌曲歌手关系 1369 条；`PRAGMA foreign_key_check` 无结果；剩余专辑类型只包含 `录音室专辑`、`Single`、`EP`；规范化歌名重复组为 0。
-
-### 修正第九步为同名且同歌手去重
-- 用户指出第九步按单纯同名去重有问题，应改为同名且同歌手才去重。
-- 已修改 `music_metadata_graph/pipelines/filter_imported_songs.py`，第九步分组键从单一规范化歌名改为 `(规范化歌名, singer_mid 顺序序列)`；同歌手按 `song_singers.singer_order` 排序后的 `singer_mid` 序列判断。
-- 已同步更新 `README.md` 和 `AGENTS.md`，记录第九步按“规范化歌名 + 同歌手”去重。
-- 同时修正过滤脚本的执行顺序：先计算过滤结果并成功写出正式 CSV 和临时 CSV，再执行数据库删除，避免 CSV 被占用时数据库进入半过滤状态。
-- 原第九步正式 CSV 路径 `songs_removed_by_step9_name_dedupe.csv` 在本机被其他程序占用，且语义对应旧的单纯同名去重规则；新正式路径改为 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_same_singer_name_dedupe.csv`，临时保留歌曲 CSV 改为 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`。
-- 已重新运行四位歌手第七步入库恢复数据库，再运行第八和第九步过滤。新规则结果：第八步仍过滤 685 首，剩余 1124 首；第九步按同名且同歌手过滤 141 首，最终剩余 983 首、歌曲歌手关系 1442 条。
-- 验证结果：`filter_imported_songs.py` 通过 `py_compile`；新第八步 CSV 685 行，新第九步 CSV 141 行，新临时保留歌曲 CSV 983 行；`PRAGMA foreign_key_check` 无结果；剩余专辑类型只包含 `录音室专辑`、`Single`、`EP`；同名且同歌手重复组为 0；单纯同名但不同歌手重复组仍有 32 组，符合用户修正后的规则。
-
-### 清理歌曲过滤旧产物
-- 用户确认旧的第九步 CSV 已关闭，要求删除旧产物和临时产物，并重新整理产物路径，只保留第九步之后的结果这一个临时 CSV。
-- 已删除旧规则正式 CSV `data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_name_dedupe.csv`。
-- 已删除旧临时 CSV `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_name_dedupe.csv`。
-- 已删除新规则验证时产生的临时 CSV：`tmp_step8_album_type.csv`、`tmp_step9_same_singer_name_dedupe.csv`、`tmp_songs_after_step9_same_singer.csv`。
-- 已删除新规则验证时产生的临时 SQLite 副本 `data/music_metadata_graph.temp_step9_same_singer.sqlite3`。
-- 当前保留的正式过滤产物只有两个：第八步过滤 CSV `data/processed/validation/song_filtering/csv_views/songs_removed_by_step8_album_type.csv` 和第九步过滤 CSV `data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_same_singer_name_dedupe.csv`。
-- 当前唯一保留的临时查看产物为第九步之后保留歌曲 CSV：`data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`。
-- 验证结果：第八步正式 CSV 685 行，第九步正式 CSV 141 行，第九步后临时保留 CSV 983 行；`data/processed/validation/song_filtering/` 下仅剩两个正式 CSV，`data/processed/validation/temp_song_filtering/` 下仅剩一个临时 CSV。
-
-### 重新导出第九步后完整串表临时 CSV
-- 用户要求重新导出一次第九步之后的临时 CSV，并包含完整串起来的表。
-- 已覆盖导出 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step9_same_singer_name_dedupe.csv`。
-- 新 CSV 按一首歌的一个歌手关系一行展开，串联 `songs`、`albums`、`song_singers`、`singers` 四张表，避免多歌手歌曲被压缩成单个字符串后看不清关系表字段。
-- 导出字段使用前缀区分来源表：`song_*`、`album_*`、`song_singer_*`、`singer_*`。
-- 验证结果：文件存在且非零，大小 882195 字节；共 1442 行、32 列；当前 `songs` 为 983 首，`song_singers` 为 1442 条，因此临时 CSV 行数与歌曲-歌手关系数一致。
+### 归档代码回看和作词作曲来源复查
+- 用户多次要求回看第一版和第二版归档内容：第一版归档网页位于 `archive/legacy_pipeline_2026-05-12/web/`，可用本地静态服务预览；预览结束后按记录 PID 关闭服务。
+- 复查第一版头像缺失可视化逻辑确认旧网页在头像不可用时使用默认视觉兜底；复查第一版 `get_producer` 来源确认作词作曲来自 QQ 音乐制作人员接口，而不是歌词全文解析。
+- 复查第一版 raw 缓存发现 `get_producer` 返回同时存在大写键形态 `Lst/ReinforceMsg/Title/Producers/Name/SingerMid` 和小写键形态 `data/reinforce_msg/title/producers/name/singer_mid`，当前解析需兼容两类形态。
+- 复查第二版归档确认两个歌曲输入分支分别是高可信歌曲子集分支和补充分支，它们只作为历史流程参考，不属于当前重新设计后的数据库直入流程。
 
 ## 2026-05-14
 
-### 复查第一版作词作曲来源
-- 用户询问归档第一版或直接 API 中作词、作曲信息是如何查到的。
-- 已复查 `archive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/collect_singer_songs.py`、`archive/legacy_pipeline_2026-05-12/code/music_metadata_graph/pipelines/export_web_dataset.py` 和第一版 raw 缓存目录 `archive/legacy_pipeline_2026-05-12/data/raw/qqmusic/song_producers/`。
-- 确认第一版不是从歌词文本中解析作词作曲，而是在歌曲初过滤和去重后，对每首保留歌曲调用 `Client().song.get_producer(song_mid_or_id)` 获取 QQ 音乐制作人员信息。
-- 已检查当前本机安装的 `qqmusic-api-python` 实现，`SongApi.get_producer(value)` 接收歌曲数字 `id` 或歌曲 `mid`；数字值会作为 `songid` 请求，非数字字符串会作为 `songmid` 请求；底层模块为 `music.sociality.KolWorksTag`，方法为 `SongProducer`。
-- 第一版 raw 返回存在两种键名形态：成功样例可见顶层 `data`，旧模型或空结果也可能出现 `Lst`；代码通过兼容读取 `data/Lst`、`title/Title`、`producers/Producers` 处理。
-- 成功样例中制作人员列表按分组返回，例如 `title=演唱`、`title=作词`、`title=作曲`；每个制作人员对象包含 `name`、`singer_mid`、`icon`、`scheme`、`type` 等字段。
-- 第一版把 `title=作词` 分组中的 `producer.name` 展开为 `credits.lyricists`，把 `title=作曲` 分组中的 `producer.name` 展开为 `credits.composers`，同时保留完整分组到 `credits.groups`。
-- 网页导出阶段只从 `songs_kept.json` 读取 `credits.groups`，再提取“作词”和“作曲”两类贡献者生成歌曲明细和图谱边。
-- 本次仅做归档源码、raw 缓存和本机 API 实现复查，未修改当前正式源码、数据库或归档源码。
+### 制作人 raw 请求和作词作曲关系入库
+- 复查第一版作词作曲来源后，当前流程限定先对周杰伦范围请求制作人信息，验证 `song.get_producer` raw 结构和缺 MID 情况。
+- 后续流程扩展为第十一步请求 `song.get_producer` 制作人 raw，第十二步前置补 MID，第十三步将 `作词`、`作曲` 导入 `song_credit_artists`，并将缺失制作人补入 `artists`。
+- `song_credit_artists` 使用 `(song_mid, role, artist_order)` 作为主键，`song_mid` 外键到 `songs.mid`，`artist_mid` 外键到 `artists.mid`；当前只导入 `作词` 和 `作曲`。
+- 第十步后临时 CSV 增加 `作词`、`作曲` 两列，位置放在演唱信息前；第十三步前后的歌曲 CSV 规则分别固定为 10 列和 12 列。
 
-### 复查 get_producer 返回结构
-- 用户询问 `get_producer` 返回的完整结构。
-- 已读取本机指定 Conda 环境中 `qqmusic-api-python` 的 `qqmusic_api.models.song.GetProducerResponse`、`SongProducerGroup` 和 `SongProducer` 模型定义。
-- 当前模型结构为顶层 `Lst` 和 `ReinforceMsg`；`Lst[]` 中每个分组包含 `Title`、`Producers`、`Type`；`Producers[]` 中每个制作人员包含 `Type`、`Name`、`Icon`、`Scheme`、`SingerMid`、`Follow`。
-- 已扫描第一版 raw 缓存目录 `archive/legacy_pipeline_2026-05-12/data/raw/qqmusic/song_producers/`，样例中同时存在大写键形态 `Lst/ReinforceMsg/Title/Producers/Name/SingerMid` 和小写键形态 `data/reinforce_msg/title/producers/name/singer_mid`。
-- 第一版 raw 缓存共扫描到 602 个非空制作人员返回和 31 个空返回；分组标题包括 `演唱`、`作曲`、`作词`、`编曲`、`制作人`、`混音`、`录音`、`母带`、`吉他`、`鼓`、`贝斯`、`键盘`、`大提琴`、`小提琴`。
-- 成功样例显示顶层摘要字段 `reinforce_msg` 可返回类似“词：方文山 / 曲：周杰伦”的文案，但正式结构化抽取仍应以分组中的 `Title=作词/作曲` 和 `Producers[]` 为准。
-- 用户进一步纠正需要的是完整字段结构，而不是解释型摘要；后续回答应按 schema 形式列出顶层、分组和制作人员字段。
-- 用户要求随便使用一首歌给出真实完整返回值。
-- 已从第一版归档 raw 缓存读取歌曲 `0001bLnu2ULqYf` 的 `get_producer` 返回；该歌曲在当前歌曲视图中对应周杰伦《太阳之子》，QQ 音乐数字 `id=649556361`。
-- 该 raw 返回包含 `data[]` 三个分组：`演唱`、`作词`、`作曲`，以及顶层 `reinforce_msg`；本次未重新联网请求接口。
+### 请求量、参数边界和断点续跑
+- 评估完整流程全量请求量后，识别出歌手歌曲 Tab、缺失歌手详情、专辑详情和制作人 raw 是主要请求成本；第 4、5、9 步逐步改为使用 `Client.gather()` 合包。
+- 复核第一步歌手列表接口参数和字段取值，短暂尝试默认地区筛选后恢复为全量地区 raw；后续第三步入库时再按 `area_id in (0, 1)` 等规则过滤。
+- 调整第二步歌手入库字段和筛选，保留被过滤行可查询的验证要求；后续又被粉丝量规则进一步收紧。
+- 支持从已有歌曲 Tab raw 继续第 4、5 步，后续统一第 4、5、7 步目标范围为“第四步当前目标范围与已落盘歌曲 Tab raw 的交集”，不再扫描历史落盘但已不属于当前目标范围的 raw。
+- 坏缓存 JSON 被视为缓存未命中；第四步缺失歌手请求、第五步专辑详情请求和第九步制作人 raw 请求均改为渐进落盘，避免单批失败导致已成功结果丢失。
 
-### 限定周杰伦范围请求制作人信息
-- 用户指出步骤八后 1124 首歌曲按 0.5 秒一次请求约需 37 分钟，要求先只请求歌曲歌手包含周杰伦的歌。
-- 已使用 `collect_song_producer_raw --artist-mid 0025NhlN2yWrP4` 将第九步制作人 raw 请求范围限定为 `song_singers` 中包含周杰伦 MID 的歌曲。
-- 本次第八步后命中周杰伦相关歌曲 261 首；运行结果为 0 个新请求、261 个缓存命中，未继续执行 1124 首全量联网请求。
-- 作词、作曲制作人缺 MID 检查结果为 0 行，检查 CSV 为 `data/processed/validation/song_producer/csv_views/song_producer_missing_mid.csv`。
-- 已同步调整 `import_song_credits_to_db.py`，让作词作曲关系入库也支持 `--artist-mid` 和 `--artist-name`，避免把此前中断全量请求留下的零散 raw 缓存混入当前周杰伦范围的关系表。
-- 周杰伦范围制作人关系入库在第十一步去重前为目标歌曲 261 首、作词作曲关系 497 条；第十一步去重后重新限定周杰伦范围导入为目标歌曲 238 首、作词作曲关系 455 条。
-
-### 同步 artists 与作词作曲关系表流程
-- 已将当前音乐人表从旧 `singers` 迁移为 `artists`，字段为 `mid`、`name`、`other_name`、`icon`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`；不再保存 QQ 音乐数字 `id`，旧 `singer_pic` 语义改为 `icon`。
-- 已将歌曲、专辑、补全歌手、制作人请求相关脚本的正式查询对象改为 `artists`，并废弃部分请求中的 `--id` 参数；当前部分请求使用 `--mid` 或 `--name`。
-- 已新增 `song_credit_artists` 关系表，主键为 `(song_mid, role, artist_order)`，外键为 `song_mid -> songs.mid` 和 `artist_mid -> artists.mid`；当前只导入 `作词` 和 `作曲`。
-- 已将第八步后的同名同歌手去重脚本命名与输出调整为第十步路径：`songs_removed_by_step10_same_singer_name_dedupe.csv` 和 `songs_after_step10_same_singer_name_dedupe.csv`；mid/id 去重仍由 `songs.mid` 主键和 `songs.id` 唯一约束保证。
-- 已同步 `README.md` 和 `AGENTS.md`，记录当前流程、`artists` 表、制作人 raw 请求步骤、作词作曲关系表、周杰伦范围开发运行方式和新的 CSV 路径。
-- 验证结果：`collect_song_producer_raw.py`、`import_song_credits_to_db.py`、`filter_imported_songs.py` 均通过 `py_compile`；第十一步同名同歌手去重从 1124 首过滤到 983 首，过滤 CSV 141 行，临时保留 CSV 983 行，两个 CSV 当时均为统一 10 列。
-- 当前数据库表为 `albums`、`artists`、`songs`、`song_singers`、`song_credit_artists`；行数分别为 654、7266、983、1442、455；`PRAGMA foreign_key_check` 无结果。
-
-### 第十步后 CSV 追加作词作曲列
-- 用户要求第十步之后的 CSV 增加 `作词` 和 `作曲` 两列。
-- 已修改 `filter_imported_songs.py`，使第十步及之后导出的歌曲 CSV 在原有 10 列后追加 `作词`、`作曲`；两列从 `song_credit_artists` 关联 `artists` 后按 `artist_order` 拼接，多个名字用 ` / ` 分隔。
-- 为避免重跑去重脚本导致现有 141 行过滤 CSV 被覆盖，已对现有两个第十步后 CSV 原地补列。
-- `songs_after_step10_same_singer_name_dedupe.csv` 仍为 983 行，新增列后 204 行有作词、227 行有作曲。
-- `songs_removed_by_step10_same_singer_name_dedupe.csv` 仍为 141 行；由于去重删除时相关数据库关系已级联删除，已从现有 raw 制作人 JSON 尽量回填，67 行存在 raw，35 行有作词、46 行有作曲；其余为空是因为当前只请求了周杰伦相关歌曲的制作人 raw。
-- 已同步 `README.md` 和 `AGENTS.md`：第十步之前歌曲 CSV 保持 10 列，第十步及之后歌曲 CSV 使用 12 列。
-
-### 评估当前流程全量请求量
-- 用户询问是否存在不请求数据、只查看数据量的接口，用于预估当前流程从 0 跑全量所需请求次数。
-- 复核当前采集脚本后确认：`qqmusic.singer.get_singer_list_index` 返回顶层 `total`，当前缓存首批返回 `total=6803`，可用约 1 次请求预估完整歌手列表页数；但歌手主页歌曲 Tab `qqmusic.singer.get_tab_detail(..., TabType.SONG)` 的本地 raw 样本未发现 `total/count` 类字段，当前只能按 `HasMore` 分页到末页；`qqmusic.singer.get_info`、`qqmusic.album.get_detail`、`qqmusic.song.get_producer` 都是一对象一请求，没有发现只返回数量的现成接口。
-- 本地样本统计：完整歌手列表缓存 86 页、6803 条；四位样本歌手加 1 个额外验证目录的主页歌曲 Tab 共 5 个歌手目录、139 页、4122 行，单歌手页数最小 18、中位 32、平均 27.8、最大 34，歌曲行最小 528、中位 939、平均 824.4、最大 1013；当前 SQLite 行数为 artists 7266、albums 654、songs 983、song_singers 1442、song_credit_artists 455。
-- 按当前脚本默认限速 `REQUEST_RATE=0.5`、`REQUEST_CAPACITY=1` 粗略理解为约 2 秒 1 次请求；如果把 6803 位歌手都按样本均值 27.8 页请求主页歌曲 Tab，仅歌曲 Tab 约 18.9 万次请求，联网时间约 105 小时，不含补全歌手、专辑详情和制作人请求；因此直接全量从 0 跑存在明显时间和风控风险。
-- 粗略公式记录为：总请求约等于 `ceil(歌手总数 / 歌手列表 page_size)` + `sum(每歌手歌曲页数)` + `歌曲歌手中缺失 artists 的唯一 singer_mid 数` + `歌曲 raw 中唯一 album_mid/album_id 数` + `第八步后需要请求制作人的唯一 song_mid 数`。其中后四项无法通过当前已验证接口在不拉取数据的情况下准确得出，只能通过小样本外推或先低频抽样估计。
-
-### 分析批量请求与降请求量优化方向
-- 用户继续询问当前流程是否存在可以优化减少请求的位置，尤其是多处只能一首一首遍历请求导致时间复杂度高，是否有批量办法。
-- 复核本地 `qqmusic-api-python` 后确认，库中存在少数真实业务批量接口：`song.query_song(list[int|str])` 可以按歌曲 ID 或 MID 批量获取歌曲信息；`singer.get_desc(list[str])` 可以按多个歌手 MID 批量获取歌手详情描述；`song.get_fav_num(list[int])` 也支持批量歌曲收藏数，但当前流程不需要收藏数。
-- 当前正式流程使用的 `song.get_producer(song_mid)`、`album.get_detail(album_mid|id)`、`singer.get_info(singer_mid)`、`singer.get_tab_detail(singer_mid, TabType.SONG)` 在库公开签名层面仍是单对象或单歌手分页接口；其中制作人和专辑详情未发现可直接传入列表的业务批量接口。
-- 复核库底层 `Client.gather()` 后确认，它会把多个 request 描述符按协议、平台、公共参数和凭据分组，再按 `batch_size` 合并成一次 QQ 音乐 CGI HTTP 请求；默认 `batch_size=20`。这不能减少 QQ 音乐服务端需要处理的逻辑模块数，但可以显著减少本地等待、连接开销和脚本串行时间，适合用于专辑详情、制作人、补全歌手等当前逐个 `execute()` 的环节。
-- 结构性降请求方向：歌曲 Tab 阶段目前是最大请求源，不能简单批量多个歌手分页；真正降量需要缩小目标歌手集合、只跑抽样或分层目标、优先使用已有歌手列表和歌曲 raw 里的内嵌字段，避免为后续不会进入图谱的歌曲提前请求制作人；制作人请求应继续放在专辑类型过滤和同名同歌手去重之后，避免对明显会被过滤的歌曲请求逐首详情。
-- 后续若实现优化，建议先做三类小改动：第一，把专辑详情、制作人、缺失歌手补全改为低 batch size 的 `Client.gather()` 合包请求并保持单文件 raw 落盘；第二，评估用 `singer.get_desc(list[mid])` 替代部分 `singer.get_info(mid)` 的可行性，但要先验证其返回字段是否满足 `artists.mid/name/icon/other_name/spell/raw_json_path` 入库要求；第三，增加 dry-run/estimate 命令，从现有 raw 和数据库计算剩余请求数，避免盲目全量启动。
-
-### 核对第一步歌手列表请求参数
-- 用户询问当前第一步使用哪个请求接口、传入什么参数以及可传哪些参数。
-- 当前脚本 `collect_singer_list_raw.py` 使用 `client.singer.get_singer_list_index()`，底层 QQ 音乐模块为 `music.musichallSinger.SingerList`，方法为 `GetSingerListIndex`。
-- 当前固定传参为 `area=AreaType.ALL`、`sex=SexType.ALL`、`genre=GenreType.ALL`、`index=IndexType.ALL`、`page=page`、`num=config.page_size`；脚本默认 `page_size=80`，实际请求参数中写入 `area=-100`、`sex=-100`、`genre=-100`、`index=-100`、`sin=(page-1)*num`、`cur_page=page`。
-- 本地库支持的筛选参数包括地区 `AreaType`、性别 `SexType`、风格 `GenreType`、首字母 `IndexType`、页码 `page` 和每页数量 `num`；当前项目脚本只把 `page_size`、`max_pages`、`raw_dir`、`force` 暴露为命令行参数，未暴露地区、性别、风格和首字母筛选。
-
-### 核对歌手列表字段取值说明
-- 用户询问第一步歌手列表 JSON 中 `id`、`mid`、`name`、`title`、`type`、`uin`、`pmid`、`area_id`、`country_id`、`country`、`other_name`、`spell`、`trend`、`concern_num`、`singer_pic` 等字段是否有 API 规定说明，例如 `area_id` 的枚举值。
-- 复核本地 86 页完整歌手列表 raw 后确认，接口顶层 `tags` 明确返回请求筛选枚举：`area` 为 `-100 全部`、`2 港台`、`3 韩国`、`4 日本`、`5 欧美`、`200 内地`；`sex` 为 `-100 全部`、`0 男`、`1 女`、`2 组合`；`genre` 为 `-100 全部`、`2 电子`、`3 说唱`、`4 摇滚`、`7 流行`、`8 民谣`、`10 蓝调`、`11 R&B`、`13 乡村`、`14 爵士`、`19 国风`、`33 古典`、`37 民族乐`、`93 轻音乐`；`index` 为 `-100 全部`、`1-26 A-Z`、`27 #`。
-- 复核 `qqmusic-api-python` 模型后确认，库只对歌手行字段给出字段含义级说明，例如 `area_id` 是地区 ID、`country_id` 是国家或地区 ID、`concern_num` 是关注数、`singer_pic` 是歌手图片地址；库没有给出 `area_id`、`type`、`trend`、`country_id` 等歌手行字段的枚举映射。
-- 当前完整歌手列表样本中，`type` 恒为 `-1`，`country_id` 恒为 `0`，`country` 恒为空字符串，`trend` 恒为 `0`，`title`、`pmid`、`concern_num` 在有效值口径下均为空或 0；`area_id` 出现 `0`、`1`、`2`、`3`、`4`、`5`、`6`，次数分别为 336、1783、2374、2291、9、3、7。
-- 样本推断上，`area_id=1` 多为内地歌手，`area_id=2` 多为韩国歌手，`area_id=3` 多为欧美歌手；但 `area_id=0` 包含周杰伦、林俊杰、陈奕迅、孙燕姿、BEYOND 等港台和东南亚/华语歌手混合，`area_id=4/5/6` 样本很少且含义不稳定，因此不能把 `area_id` 直接当作顶层 `tags.area` 的枚举值使用。
-- 当前结论：项目正式入库仍应只使用已确认稳定的 `mid`、`name`、`other_name`、`spell`、`singer_pic/icon` 和 raw 追溯字段；`id`、`type`、`uin`、`pmid`、`area_id`、`country_id`、`country`、`trend`、`concern_num` 可保留在 raw 或字段字典中观察，不应作为当前业务筛选或身份合并依据。
-
-### 统计当前歌手缓存地区字段取值
-- 用户要求查看当前缓存的所有歌手 JSON 中 `area_id`、`country_id`、`country` 三个键的全部取值。
-- 本次按歌手缓存范围扫描 `data/raw/qqmusic/singer_list_index/` 和 `data/raw/qqmusic/singer_info/` 下的 JSON 文件，共读取 417 个 JSON，解析错误 0 个。
-- 统计结果显示三个键只出现在 `singer_list_index` 缓存中，`singer_info` 缓存未出现这些键。
-- `area_id` 的去重取值为 `0`、`1`、`2`、`3`、`4`、`5`、`6`，出现次数分别为 336、1783、2374、2291、9、3、7；`country_id` 只有 `0`，出现 6803 次；`country` 只有空字符串，出现 6803 次。
-
-### 分析歌手条目 area_id 地区含义
-- 用户追问是否能分析出当前缓存歌手条目中 `area_id` 代表的具体地区。
-- 复核 `qqmusic_api.modules.singer.AreaType` 和当前歌手列表响应顶层 `tags.area` 后确认，请求筛选地区标签为 `200=内地`、`2=港台`、`5=欧美`、`4=日本`、`3=韩国`；这些是请求筛选参数，不等同于歌手条目返回的 `area_id` 小整数。
-- 结合当前 6803 条歌手列表样本反推，歌手条目 `area_id=0` 的代表样本为周杰伦、林俊杰、陈奕迅、五月天、蔡依林等，可高置信判断为港台/新马华语；`area_id=1` 的代表样本为薛之谦、汪苏泷、许嵩、李荣浩、周深等，可高置信判断为内地；`area_id=2` 的代表样本以 BIGBANG、EXO、BLACKPINK、BTS 等韩语艺人为主，也夹有米津玄師等少量日语艺人，可判断为日韩或更偏韩国的外语分组；`area_id=3` 的代表样本为 Justin Bieber、Taylor Swift、Lady Gaga、The Weeknd、Adele 等，可高置信判断为欧美。
-- `area_id=4`、`5`、`6` 当前分别只有 9、3、7 条样本，且歌手名混杂；本地 `singer_info` 缓存没有这些小样本 MID 的详情可交叉验证，因此当前缓存不足以可靠命名这三个地区 ID。
-
-### 暴露第一步歌手列表筛选参数
-- 用户要求第一步采集脚本暴露 `AreaType`、`SexType`、`GenreType`、`IndexType` 四类传参，默认均为全量，传参接收列表形式，内部对列表参数组合依次请求。
-- 已修改 `music_metadata_graph/pipelines/collect_singer_list_raw.py`，新增 `--area`、`--sex`、`--genre`、`--index` 参数；参数支持枚举名或枚举值，支持逗号分隔和重复传参，不传时分别默认 `ALL`。
-- 脚本现在会对四类参数做笛卡尔组合并依次分页请求；raw 输出目录按组合命名，例如默认仍为 `area_all_sex_all_genre_all_index_all`，筛选组合为 `area_china_sex_male_genre_pop_index_a`。
-- 已更新 `README.md` 的步骤一说明，补充列表参数示例和组合输出目录示例。
-- 验证结果：`collect_singer_list_raw.py` 通过 `py_compile`；`--help` 显示新增参数；默认 `ALL/ALL/ALL/ALL` 加 `--max-pages 1` 命中既有缓存且未联网；`--max-pages 0 --area CHINA,TAIWAN --sex MALE --genre POP,RAP --index A,B,27` 正确展开 12 个组合且未发请求。
-
-### 调整第一步默认地区筛选
-- 用户要求把第一步脚本的默认 `area` 参数改成 `--area CHINA,TAIWAN`，其他默认参数保持不变。
-- 已修改 `collect_singer_list_raw.py`，当未传 `--area` 时默认使用 `AreaType.CHINA` 和 `AreaType.TAIWAN` 两个地区；`--sex`、`--genre`、`--index` 仍默认 `ALL`。
-- 已同步更新 `README.md`，说明不传参数时 `--area` 默认是 `CHINA,TAIWAN`，其余筛选默认 `ALL`。
-- 验证结果：`collect_singer_list_raw.py` 通过 `py_compile`；`--help` 显示 `--area` 默认 `CHINA,TAIWAN`；`--max-pages 0` 默认展开为 `area_china_sex_all_genre_all_index_all` 和 `area_taiwan_sex_all_genre_all_index_all` 两个组合，未发请求。
-
-### 分析第一步地区筛选后的缓存与入库边界
-- 用户指出第一步歌手列表默认地区已从 ALL 改为 CHINA,TAIWAN，旧 area_all_sex_all_genre_all_index_all 缓存不再会被新默认请求命中，并询问如何删除冗余缓存、重新入库得到更少的 artists。
-- 复核当前实现后确认，collect_singer_list_raw.py 新默认会请求 area_china_sex_all_genre_all_index_all 和 area_taiwan_sex_all_genre_all_index_all 两个组合目录；旧 area_all... 目录只在显式传 --area ALL 时命中。
-- 复核当前本地 raw 目录后确认，目前 data/raw/qqmusic/singer_list_index/ 下仍只有旧 area_all_sex_all_genre_all_index_all 目录，共 86 个分页文件；因此不能立即删除旧缓存，否则在新两个地区缓存尚未采集完成前会失去第一步 raw 证据。
-- 复核 import_singer_list_to_db.py 后确认，当前默认入库 raw 目录仍指向旧 area_all...，且入库逻辑为 upsert，不会删除数据库中旧的 artists 行；要得到更少 artists，需要先采集新地区 raw，再让第二步只读取新地区 raw，并以替换/重建方式刷新 artists 表或使用新的数据库文件。
-- 风险边界：如果数据库中已有 songs、song_singers、song_credit_artists 等依赖旧 artists 的下游数据，直接缩小 artists 表可能造成外键或语义不一致；在重新设计阶段更稳妥的做法是从步骤二开始重建数据库，或同步清空后续表再按新流程重跑。
-
-### 解释歌手列表 raw 缓存保留请求参数目录的原因
-- 用户询问旧第一步为何不直接把 data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/ 内数据移动到 singer_list_index/ 根目录，而要按请求参数区分目录。
-- 本次判断：歌手列表 raw 缓存目录名承担请求参数缓存键和来源追溯职责；同一个 page_0001_size_80.json 在 area=ALL、area=CHINA、area=TAIWAN 等参数下代表不同响应，若直接平铺到根目录会发生文件名冲突、缓存误命中、入库范围不可辨认和后续验证不可追溯。
-- 对当前需求而言，旧 area_all... 数据即使移动到根目录，本质仍是旧全地区请求结果，不能变成新默认 CHINA,TAIWAN 的更小数据集；要减少 artists，仍需要按新参数采集对应 raw，并让入库脚本只读取这些新参数目录后替换数据库中的歌手表。
-
-### 恢复第一步默认全量地区参数
-- 用户要求把第一步歌手列表请求默认参数改回全 ALL，并提供只请求内地和港台两个地区的显式指令。
-- 已修改 music_metadata_graph/pipelines/collect_singer_list_raw.py，未传 --area 时恢复为 AreaType.ALL；--sex、--genre、--index 仍默认 ALL。
-- 已同步更新 README.md 步骤一说明，改为不传四类筛选参数时默认均为 ALL。
-- 验证结果：collect_singer_list_raw.py 通过 py_compile；--max-pages 0 默认展开为 area_all_sex_all_genre_all_index_all 一个组合；--max-pages 0 --area CHINA,TAIWAN 展开为 area_china_sex_all_genre_all_index_all 和 area_taiwan_sex_all_genre_all_index_all 两个组合且不发请求。
-
-### 复核第二步歌手列表入库字段
-- 用户询问第二步入库的键和未入库的键。
-- 复核 `music_metadata_graph/pipelines/import_singer_list_to_db.py` 后确认，当前第二步写入 `artists` 的字段为 `mid`、`name`、`other_name`、`icon`、`spell`、`raw_json_path`、`raw_page`、`raw_row_index`；其中 `icon` 从 raw 行的 `icon` 或 `singer_pic` 取值，当前完整歌手列表 raw 实际使用 `singer_pic`。
-- 只读扫描 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/` 下 86 个分页 JSON，确认当前 6803 条 `singerlist[]` 行实际 raw 键为 `area_id`、`concern_num`、`country`、`country_id`、`id`、`mid`、`name`、`other_name`、`pmid`、`singer_pic`、`spell`、`title`、`trend`、`type`、`uin`。
-- 因此当前 raw 行中未以原名入库的键为 `area_id`、`concern_num`、`country`、`country_id`、`id`、`pmid`、`singer_pic`、`title`、`trend`、`type`、`uin`；其中 `singer_pic` 并非丢弃，而是映射到 `artists.icon`。
-- 本次只做字段复核和日志记录，未修改业务代码、数据库或 raw JSON。
-
-### 调整第二步歌手入库地区字段和筛选
-- 用户要求修改第二步代码，把 `area_id` 写入 `artists`，并在入库前只保留 `area_id` 为 `0` 和 `1` 的歌手行。
-- 已修改 `music_metadata_graph/pipelines/import_singer_list_to_db.py`：新增 `ALLOWED_AREA_IDS = {0, 1}`、`parse_area_id()` 和 `filter_singers_by_area()`；`run()` 先加载 raw，再按 `area_id` 过滤，再执行 `mid`、`name` 和重复 `mid` 校验，最后只导入过滤后的行。
-- 已将 `artists` schema、旧 `singers` 迁移、旧 `artists` schema 重建和 upsert 写入逻辑同步加入 `area_id INTEGER`；第二步完整歌手列表导入只写明确解析到的 `area_id`，后续通过歌曲歌手或制作人补入的音乐人如果没有地区字段，则保留 `area_id` 为空；`run()` 输出增加 `filtered_rows`、`filtered_out_rows` 和 `allowed_area_ids`，便于确认筛选规模。
-- 已同步 `README.md` 和 `AGENTS.md`，记录 `artists.area_id` 字段和第二步只导入 `area_id` 为 `0` 或 `1` 的规则。
-- 验证结果：`import_singer_list_to_db.py` 通过 `py_compile`；使用当前完整歌手列表 raw 和内存 SQLite 运行导入逻辑，6803 条 raw 行过滤后为 2119 条，实际导入 2119 条，`artists.area_id` 分布为 `0=336`、`1=1783`，schema 字段包含 `area_id`。
-- 本次未改写现有 `data/music_metadata_graph.sqlite3`；如果直接对已有旧库重跑第二步，upsert 不会自动删除历史已入库的其他地区歌手，若需要数据库结果也只保留新规则范围，应从第二步开始重建数据库或另行设计受控清理。
-
-### 将第 4、5、9 步请求改为合包
-- 用户要求优化第 4、5、9 步，把原本串行的单对象请求改成 `qqmusic-api-python` 的 `Client.gather()` 合包请求，并由脚本顶部参数控制 batch size；后续类似单对象请求也应使用合包。
-- 已修改 `collect_missing_song_singers_to_db.py`：新增 `REQUEST_BATCH_SIZE = 20`、`CollectConfig.batch_size` 和 `--batch-size`；缺失歌手信息请求先处理缓存命中，再把未命中的 `singer.get_info(mid)` request 描述符交给 `Client.gather()` 合包，返回后仍按一个歌手一个 raw JSON 文件写入 `data/raw/qqmusic/singer_info/`。
-- 已修改 `collect_song_album_detail_raw.py`：新增 `REQUEST_BATCH_SIZE = 20`、`CollectConfig.batch_size` 和 `--batch-size`；专辑详情请求先处理缓存命中，再把未命中的 `album.get_detail(album_mid/id)` request 描述符交给 `Client.gather()` 合包，返回后仍按一个专辑一个 raw JSON 文件写入 `data/raw/qqmusic/song_album_detail/`。
-- 已修改 `collect_song_producer_raw.py`：新增 `REQUEST_BATCH_SIZE = 20`、`ProducerConfig.batch_size` 和 `--batch-size`；制作人请求先处理缓存命中，再把未命中的 `song.get_producer(song_mid)` request 描述符交给 `Client.gather()` 合包，返回后仍按一首歌一个 raw JSON 文件写入 `data/raw/qqmusic/song_producer/`。
-- 已同步 `README.md`，在步骤四、五、九说明默认每批 20 个 request，可通过 `--batch-size` 覆盖，合包只减少 HTTP 往返次数，不改变 raw JSON 落盘粒度。
-- 已同步 `AGENTS.md` 项目规则：后续 QQ 音乐单对象请求如果可构造多个 request 描述符，优先使用 `Client.gather()` 按批合包；批大小使用脚本顶部常量并提供命令行参数覆盖；合包不得改变单对象 raw JSON 落盘和低频请求边界。
-- 验证结果：三个脚本通过 `py_compile`；三个脚本 `--help` 均显示 `--batch-size`；使用伪 `gather()` 做不联网批量函数验证，三条批量路径均以 `batch_size=7` 调用 `gather()`，并分别生成两个歌手、两个专辑、两首歌的 raw JSON 文件；使用 `--max-singers 0`、`--max-albums 0`、`--max-songs 0` 做本地烟测，确认摘要中包含 `batch_size=3` 且未发起联网请求。
-
-### 复核四位歌手重建数据库运行结果
-- 用户运行一键重建命令后提供终端输出文件，要求查看运行结果。
-- 运行结果显示旧数据库已备份为 `data/music_metadata_graph_20260514_154010.bak.sqlite3`，新数据库从第二步开始重建；完整歌手列表 raw 为 6803 行，按 `area_id` 为 `0` 或 `1` 过滤后导入 2119 行。
-- 四位歌手主页歌曲 Tab 请求全部命中缓存；步骤四缺失歌曲歌手补全扫描 3492 条歌曲行，发现 352 个缺失歌手，其中 21 个新请求、331 个缓存命中，补入后 `artists` 为 2471 行。
-- 专辑详情请求去重后 654 个专辑全部命中缓存，并导入 654 行专辑；歌曲入库读取 3492 条 raw 歌曲行；步骤八后保留 1124 首歌。
-- 步骤九制作人请求作用于 1124 首歌，其中 519 个新请求、605 个缓存命中，作词/作曲缺 MID 检查输出 48 行；步骤十导入制作人后 `artists` 为 2744 行，`song_credit_artists` 为 2076 条。
-- 最后按“规范化歌名 + 同歌手”去重删除 141 首歌，最终剩余 983 首歌、1442 条歌曲演唱关系；本次复核当前 SQLite 结果为 `artists=2744`、`albums=654`、`songs=983`、`song_singers=1442`、`song_credit_artists=1913`，`PRAGMA foreign_key_check` 无结果，歌曲 mid/id 重复组均为 0。
-- 当前 `artists.area_id` 分布为 `NULL=668`、`0=319`、`1=1757`；其中 `NULL` 来自后续缺失歌曲歌手和制作人补入路径没有地区字段，符合当前可空设计。
-
-### 分析断点续跑边界安全性
-- 用户询问全量运行时手动终止是否可能断在坏位置，尤其是否会写入一半 raw 文件留下坏文件。
-- 复核当前采集脚本后确认，`collect_singer_song_tab_raw.py`、`collect_missing_song_singers_to_db.py`、`collect_song_album_detail_raw.py`、`collect_song_producer_raw.py` 的 raw JSON 写入目前使用 `Path.write_text()` 直接覆盖目标文件，不是临时文件加原子替换；因此如果进程刚好在写文件过程中被终止，理论上可能留下截断或不完整 JSON。
-- 当前缓存读取使用 `json.loads()`，如果后续断点续跑遇到坏 JSON，通常会报解析错误并停止，而不是静默当作有效缓存；但这仍不是理想的可恢复边界。
-- 数据库写入侧多数关键替换操作使用 `with connection:` 事务包住，例如歌曲表删除重建、过滤删除和关系表替换；如果在事务中中断，SQLite 通常会回滚未提交事务，数据库比 raw 文件更安全。
-- 当前更稳妥的后续修复方向：为 raw JSON 和正式 CSV 写入增加同目录临时文件、写完后校验、再 `os.replace()` 原子替换；读取缓存时遇到 JSON 解析失败应把该文件视为坏缓存，提示删除或在 `--force` 下重新请求。
-
-### 将坏缓存 JSON 视为缓存未命中
-- 用户提出断点续跑时可以在 load 缓存失败后把该文件当作未命中处理，从而重新请求覆盖坏文件。
-- 已修改 `collect_singer_song_tab_raw.py`、`collect_missing_song_singers_to_db.py`、`collect_song_album_detail_raw.py`、`collect_song_producer_raw.py`，新增 `try_load_cached_json()`；只有缓存命中判断使用该函数，遇到 `OSError` 或 `json.JSONDecodeError` 时返回未命中并进入请求路径。
-- 上游 raw 扫描仍使用严格 `load_json()`，不吞掉真正的数据结构或输入文件错误；因此本次修复只覆盖“目标缓存文件存在但损坏”的断点续跑场景。
-- 验证结果：四个脚本通过 `py_compile`；使用临时目录构造半截 JSON 缓存，分别验证歌手主页歌曲 Tab、缺失歌手信息、专辑详情、制作人 raw 四条路径都会把坏缓存当作未命中，调用请求路径并覆盖为有效 JSON。
-
-### 支持从已有歌曲 Tab raw 继续第 4、5 步
-- 用户在第三步歌曲 Tab 全量采集中途停止后，要求后续先不继续请求全量歌曲，而是假设当前已有歌曲 Tab raw 已足够，直接从第四步开始处理现有数据。
-- 已确认报错原因：`collect_missing_song_singers_to_db --all` 会按当前数据库 `artists` 全量歌手解析目标，并严格要求每个目标都有步骤三歌曲 Tab raw；当前本地只有部分歌手 raw，因此缺失列表触发 `FileNotFoundError`。
-- 已修改 `collect_missing_song_singers_to_db.py` 和 `collect_song_album_detail_raw.py`，新增 `--existing-song-tabs` 参数；该参数只选择当前数据库 `artists` 中、且本地存在 `data/raw/qqmusic/singer_homepage_song_tab/<mid>/page_*_size_*.json` 的歌手，适用于第三步未全量完成但需要继续处理已有 raw 的场景。
-- 已同步修改 `import_singer_song_tab_to_db.py`，为第 7 步歌曲入库增加同名 `--existing-song-tabs` 参数，避免第 4、5 步按当前数据库已有 raw 处理后，第 7 步又用旧 `--all` 扫入数据库外的历史 raw 目录。
-- `--all` 语义保持不变：仍表示数据库歌手全量，缺任意目标的歌曲 Tab raw 就停止，避免把严格全量流程和部分续跑流程混在一起。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第 4、5、7 步部分续跑应使用 `--existing-song-tabs`。
-- 验证结果：第 4、5 步脚本通过 `py_compile`；两个脚本 `--help` 均显示 `--existing-song-tabs`；使用 `--existing-song-tabs --max-singers 0 --batch-size 3` 本地烟测第 4 步，扫描到 542 个已有歌曲 Tab raw 的当前数据库歌手、226800 条歌曲行，未发起请求；使用 `--existing-song-tabs --max-albums 0 --batch-size 3` 本地烟测第 5 步，同样扫描到 542 个歌手、226800 条歌曲行，未因数据库其他歌手缺 raw 报错。
-
-### 梳理当前流程参数和全量语义
-- 用户询问当前每一步支持哪些参数，以及全量流程里的“全”如何定义。
-- 已复核 `music_metadata_graph/pipelines/` 下当前有效脚本的 `argparse` 参数、目标解析逻辑和 README 流程说明。
-- 当前不同步骤的“全量”不是同一个集合：第一步不传筛选参数时是 QQ 音乐歌手列表接口四类筛选维度均为 `ALL`；第三、四、五步的 `--all` 是当前 SQLite `artists` 表内全部歌手；第七步的 `--all` 是当前歌曲 Tab raw 目录下所有已有 raw；第九、十、十一步默认作用于当前 SQLite `songs` 表。
-- 已确认 `--existing-song-tabs` 的语义是只选择当前数据库 `artists` 中已经存在歌曲 Tab raw 的歌手，用于第三步未全量完成时继续处理已有 raw；它不能与 `--all`、`--mid`、`--name` 混用。
-- 本次仅做流程参数分析和说明，未修改业务代码或运行采集、入库、过滤命令。
-
-### 调整已有歌曲 Tab raw 续跑参数命名
-- 用户确认第七步旧 `--all` 和 `--existing-song-tabs` 的区别后，要求把三个带 `--existing-song-tabs` 参数的脚本删除旧 `--all` 参数，并把 `--existing-song-tabs` 改名为 `--all`。
-- 已修改 `collect_missing_song_singers_to_db.py`、`collect_song_album_detail_raw.py`、`import_singer_song_tab_to_db.py`：三个脚本的 `--all` 现在统一表示“当前数据库 `artists` 中且本地已有歌曲 Tab raw 的歌手”；旧的 `--existing-song-tabs` 参数不再暴露。
-- 已移除第 4、5 步旧的数据库 `artists` 严格全量分支；已移除第 7 步旧的全 raw 目录扫描分支，并让第 7 步无参数时停止提示必须传 `--all`、`--mid` 或 `--name`。
-- 已同步 `README.md` 和 `AGENTS.md`，将第 4、5、7 步的已有歌曲 Tab raw 续跑命令改为 `--all`，并记录这三个脚本不再提供旧的严格全量或全 raw 目录扫描语义。
-- 验证结果：三个脚本通过 `py_compile`；三个脚本 `--help` 均只显示 `--all`、`--mid`、`--name`，不再显示 `--existing-song-tabs`；分别使用旧 `--existing-song-tabs` 调用三个脚本均被 argparse 拒绝；第七步无参数运行会停止并提示 `Provide --all, or at least one --mid or --name.`。
-
-### 调整第四步缺失歌手请求为渐进落盘
-- 用户指出第四步当前先找出所有缺失歌手 MID，再一次性进入 `execute_or_load_batch` 大批量请求，只有全部请求完成后才解析入库；一旦大批量请求中途失败，就得不到任何缓存，而大批量中途失败概率很高。
-- 已修改 `collect_missing_song_singers_to_db.py`：缺失歌手信息请求改为按 `--batch-size` 分批处理，每批成功响应立即写入对应 `data/raw/qqmusic/singer_info/<mid>.json`，不再等所有缺失歌手请求完成后统一落盘。
-- 如果 `Client.gather()` 返回部分异常，脚本会保留并写入同批成功项，只把失败 MID 记录为失败；如果整批 `gather()` 抛异常，脚本会降级为单个请求逐个尝试，尽量挽救可成功的 raw 缓存。
-- 脚本会先解析并导入已成功获取或命中缓存的歌手，再在仍有失败请求时以非零退出提示重新运行继续补齐；下次重跑会复用已写入的 raw 缓存。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第四步必须按批渐进落盘、批次失败降级单请求、失败后可重跑补齐的规则。
-- 验证结果：`collect_missing_song_singers_to_db.py` 通过 `py_compile`；使用伪客户端验证 `gather()` 返回部分异常时成功项会写入 raw、失败项不写；验证整批 `gather()` 抛异常时会降级单请求，并保存单请求成功项。
-
-### 调整第五步和第九步 raw 请求为渐进落盘
-- 用户要求第 5 步专辑详情请求和第 9 步制作人请求也改成与第四步一致的安全流程，避免大批量请求中途失败导致已成功响应无法缓存。
-- 已修改 `collect_song_album_detail_raw.py`：专辑详情请求按 `--batch-size` 分批处理，每批成功响应立即写入 `data/raw/qqmusic/song_album_detail/<album_key>.json`；批内部分失败只记录失败专辑 key；整批 `gather()` 抛异常时降级为单个专辑请求逐个尝试。
-- 已修改 `collect_song_producer_raw.py`：制作人请求按 `--batch-size` 分批处理，每首歌成功响应立即写入 `data/raw/qqmusic/song_producer/<song_mid>.json`；批内部分失败只记录失败歌曲 MID；整批 `gather()` 抛异常时降级为单个歌曲请求逐个尝试。
-- 两个脚本都会在汇总中输出 `failed_fetches` 和失败对象列表；第 5 步仍有失败专辑 key 时以非零退出提示重跑；第 9 步会先写出已成功歌曲的缺制作人 MID 检查 CSV，再在仍有失败歌曲 MID 时以非零退出提示重跑。
-- 已同步 `README.md` 和 `AGENTS.md`，把单对象批量 raw 请求的规则扩展为第 4、5、9 步都必须按批渐进落盘、整批失败降级单请求、失败后可重跑补齐。
-- 验证结果：`collect_song_album_detail_raw.py` 和 `collect_song_producer_raw.py` 通过 `py_compile`；分别使用伪客户端验证 `gather()` 返回部分异常时成功项会写入 raw、失败项不写；验证整批 `gather()` 抛异常时会降级单请求，并保存单请求成功项。
-
-### 允许专辑发行日期为空
-- 用户运行第六步 `import_song_album_detail_to_db` 时遇到 `ValueError: 77 album rows are missing publishDate.`，说明当前全量专辑详情 raw 中存在 `basicInfo.publishDate` 为空字符串的专辑。
-- 已抽样复核缺失项，确认这些 raw 仍有 `albumMid`、`albumID`、`albumName`、`albumType` 等核心字段，发行日期为空不应阻断专辑实体入库；后续歌曲过滤主要依赖 `albumType`。
-- 已修改 `import_song_album_detail_to_db.py`：专辑导入校验不再要求 `publishDate` 非空，`publishDate` 缺失或为空时保留为空字符串；建表语句保持 `publishDate TEXT NOT NULL DEFAULT ''`。
-- 已同步 `README.md` 和 `AGENTS.md`，记录 `albums.publishDate` 可为空字符串且不阻断专辑入库。
-- 验证结果：脚本通过 `py_compile`；重新运行第六步成功导入 `raw_rows=50624`、`imported_rows=50624`、`db_rows=50624`；数据库中 `publishDate=''` 的专辑为 77 行；`PRAGMA foreign_key_check` 返回 0 行。
-
-### 改为拒绝缺发行日期专辑
-- 用户纠正第六步规则：不应该允许发布日期为空的专辑导入，应该像第七步歌曲导入一样，把导入失败记录写到拒绝 CSV。
-- 已修改 `import_song_album_detail_to_db.py`：`mid`、`id`、`name`、`albumType`、`publishDate` 都恢复为专辑入库必填字段；缺字段的专辑不写入 `albums`，而是写入 `data/processed/validation/album_import_rejections/csv_views/album_import_rejections.csv`。
-- 专辑拒绝 CSV 列包含 `album_mid`、`album_id`、`album_name`、`album_type`、`album_publish_date`、`reason_flags`、`raw_json_path`、`raw_page`、`raw_row_index`，当前缺日期原因写作 `missing_publishDate`。
-- 第六步导入改为用本轮合格专辑集合替换 `albums` 表，并清空下游 `songs`、`song_singers`、`song_credit_artists`，避免上一轮已导入的缺日期专辑或其派生歌曲关系残留；这些下游表会在第七步及之后重新生成。
-- 已同步 `README.md` 和 `AGENTS.md`，记录专辑完备约束和拒绝 CSV 路径。
-- 验证结果：脚本通过 `py_compile`；重新运行第六步得到 `raw_rows=50624`、`accepted_rows=50547`、`rejected_rows=77`、`db_rows=50547`；拒绝 CSV 存在且 77 行，首条原因为 `missing_publishDate`；数据库中 `publishDate=''` 的专辑为 0 行；`PRAGMA foreign_key_check` 返回 0 行；下游 `songs`、`song_singers`、`song_credit_artists` 均已清空等待后续步骤重建。
-
-### 调整歌曲 CSV 排序和作词作曲列位置
-- 用户要求每次导出歌曲 CSV 时按歌名拼音首字母混排，不再按 Unicode 字符顺序排序；第十步跑完后导出临时歌曲表并包含 `作词`、`作曲` 两列；包含 `作词`、`作曲` 时两列应放在演唱信息前面，而不是放在最后。
-- 已新增 `music_metadata_graph/pipelines/song_csv.py`，集中定义歌曲 CSV 字段顺序、歌名拼音排序、演唱者 JSON、作词作曲名称查询和 CSV 写出逻辑。
-- 已修改第 7 步歌曲入库拒绝 CSV、第 8 步专辑类型过滤 CSV、第 11 步同歌手同名去重 CSV，写出时统一按歌名拼音首字母和拼音排序。
-- 已修改第 10 步 `import_song_credits_to_db.py`，默认在导入作词作曲关系后导出 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step10_credit_import.csv`；新增 `--temp-songs-csv` 和 `--no-temp-songs-csv` 参数控制该临时 CSV。
-- 已调整第 10 步及之后歌曲 CSV 字段顺序为 `song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`作词`、`作曲`、`singer_count`、`singers_json`。
-- 已同步 `README.md` 和 `AGENTS.md`，记录歌曲 CSV 拼音排序、第十步临时 CSV 路径和作词作曲列必须位于演唱信息前的规则。
-- 验证结果：相关脚本通过 `py_compile`；第十步默认运行成功，导出 `songs_after_step10_credit_import.csv` 共 105705 行，表头顺序符合新规则；第十一步使用临时输出路径和 `--no-temp-kept-csv` 做烟测，去重删除数为 0，未改变歌曲数量；拼音排序样例输出为 `A Song`、`阿飞`、`白日梦`、`曾经`、`周杰伦`。
+### CSV 安全和过滤步骤收敛
+- 用户指出 CSV 可能存在 Excel 公式注入风险；实现所有正式或临时 CSV 文本单元格在去掉开头空白后以 `= + - @` 开头时加单引号，仅影响 CSV 展示值，不改数据库和 raw JSON。
+- 插入作词作曲完整性过滤步骤：保留条件为至少 1 个 `作词` 且至少 1 个 `作曲`，过滤掉的歌曲导出到 `songs_removed_by_step11_incomplete_credits.csv`，并生成临时保留 CSV。
+- 第十二步去重规则从同名同歌手调整为“规范化歌名 + 同作词集合 + 同作曲集合”，演唱歌手不参与判断；同一角色内人员顺序不影响比较。
+- 歌名规范化后续复用 `music_metadata_graph.text_normalization.normalize_song_title_identity()`，覆盖 Unicode NFKC、中英文常见标点等价、省略号、feat/ft/featuring 写法、括号内侧空格和标点两侧空格，同时保留普通英文词间空格和括号语义版本文本。
 
 ## 2026-05-15
 
-### 分析 CSV Excel 公式风险
-- 用户指出部分歌曲名以等号开头，使用 Excel 打开 CSV 时会被识别为公式。
-- 已确认风险不只限于 `=`，Excel 对以 `=`、`+`、`-`、`@` 开头的文本也可能按公式解释；即使 CSV 字段被引号包住，Excel 仍可能执行公式解析。
-- 本次处理边界确定为只在导出 CSV 的展示值上增加 Excel 文本转义，不改写 SQLite 数据库、raw JSON 和业务字段原值。
-
-### 实现 CSV Excel 公式转义
-- 已在 `music_metadata_graph/pipelines/song_csv.py` 新增 CSV 文本单元格转义函数：文本去掉开头空白后如果以 `=`、`+`、`-`、`@` 开头，则在 CSV 输出值前加单引号。
-- 已让歌曲 CSV 统一写出函数在排序后、写入前应用该转义，覆盖第 7 步歌曲拒绝 CSV、第 8 步歌曲过滤 CSV、第 10 步临时歌曲 CSV 和第 11 步过滤/临时歌曲 CSV。
-- 已让第 6 步专辑拒绝 CSV 和第 9 步制作人缺 MID 检查 CSV 复用同一转义函数，避免专辑名、制作人名、图标 URL 或其他文本被 Excel 误当公式。
-- 已同步 `README.md` 和 `AGENTS.md`，记录导出 CSV 的 Excel 安全规则以及数据库和 raw JSON 不改写的边界。
-
-### 验证 CSV Excel 公式转义
-- 语法验证对象为 `song_csv.py`、`import_song_album_detail_to_db.py`、`collect_song_producer_raw.py`，执行项目指定 Conda 解释器的 `py_compile`，结果未报错。
-- 写出验证使用临时目录分别调用歌曲 CSV、专辑拒绝 CSV 和制作人缺 MID CSV 写出函数，构造 `=SUM(1,1)`、`+title`、`-lang`、`@producer` 等文本值。
-- 回读临时 CSV 后确认相关文本单元格均以单引号开头，例如 `'=SUM(1,1)`、`'+title`、`'-lang`、`'@producer`，可避免 Excel 按公式解析。
-- 已复查当前有效 `music_metadata_graph/pipelines/` 中直接使用 `csv.DictWriter` 的入口，只剩上述三个写出点，均已接入统一转义。
-
-### 重新生成第十步临时歌曲 CSV
-- 用户要求重新生成第十步导出的临时歌曲 CSV，以应用新的 Excel 公式安全转义规则。
-- 本次未重新写入 `song_credit_artists` 关系表，而是复用第十步导出函数从当前 SQLite `songs`、`albums`、`song_singers`、`song_credit_artists` 重新生成 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step10_credit_import.csv`。
-- 导出结果为 105,705 行，文件大小约 19.5 MB，表头为 `song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`作词`、`作曲`、`singer_count`、`singers_json`。
-- 验证方式为回读新 CSV，检查文本字段中是否仍存在去掉开头空白后以 `=`、`+`、`-`、`@` 开头且未加单引号的值；结果未发现未转义样本，并观察到 `'+ -×÷`、`'+-×÷` 等已转义歌名。
-
-### 插入作词作曲完整性过滤步骤
-- 用户要求在第十步导入作词作曲之后先删除作词作曲不完整的歌曲，因为后续网页可视化必须有作词和作曲关系；用户已确认当前会删除很多歌曲。
-- 本次将“不完整”定义为歌曲在 `song_credit_artists` 中缺少至少 1 个 `作词` 或缺少至少 1 个 `作曲`；只有同时至少存在 1 个 `作词` 和 1 个 `作曲` 的歌曲才保留。
-- 已新增 `music_metadata_graph/pipelines/filter_songs_by_credit_completeness.py` 作为新的第十一步，默认导出删除清单 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step11_incomplete_credits.csv`，并额外导出保留歌曲临时 CSV `data/processed/validation/temp_song_filtering/csv_views/songs_after_step11_complete_credits.csv`。
-- 新第十一步删除 `songs` 记录，`song_singers` 和 `song_credit_artists` 依赖外键级联删除；删除清单和保留清单均使用第十步及之后的 12 列歌曲 CSV 规则，包含 `作词`、`作曲` 并应用 Excel 公式安全转义。
-- 已将原“规范化歌名 + 同歌手”去重顺延为第十二步，默认输出路径改为 `songs_removed_by_step12_same_singer_name_dedupe.csv` 和 `songs_after_step12_same_singer_name_dedupe.csv`，命令入口仍为 `music_metadata_graph.pipelines.filter_imported_songs`。
-- 已在 `pyproject.toml` 增加脚本入口 `mr-filter-songs-credit-completeness`，并同步 `README.md` 和 `AGENTS.md` 的流程、路径和规则说明。
-
-### 验证并执行第十一步作词作曲完整性过滤
-- 语法验证对象为 `filter_songs_by_credit_completeness.py` 和 `filter_imported_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，结果未报错。
-- 先在临时 SQLite 副本上运行新第十一步，结果为 105,705 首歌曲中删除 84,785 首，保留 20,920 首；其中缺作词 82,872 首，缺作曲 80,565 首，同时缺两者 78,652 首；临时库执行后缺作词或缺作曲歌曲为 0，`PRAGMA foreign_key_check` 返回 0 行。
-- 正式执行前已备份当前数据库到 `data/music_metadata_graph_before_step11_credit_filter_20260515_014018.bak.sqlite3`。
-- 正式库执行新第十一步后，`songs` 为 20,920 行，`song_singers` 为 24,689 行，`song_credit_artists` 为 53,593 行；缺作词或缺作曲歌曲为 0，`PRAGMA foreign_key_check` 返回 0 行。
-- 删除清单 CSV 为 84,785 行，保留临时 CSV 为 20,920 行；两份 CSV 表头均为 `song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`作词`、`作曲`、`singer_count`、`singers_json`。
-- 已回读两份新 CSV 检查 Excel 公式风险，未发现去掉开头空白后仍以 `=`、`+`、`-`、`@` 开头且未转义的文本样本。
-
-### 限定第十步临时 CSV 导出范围
-- 用户要求第十步导出的临时歌曲 CSV 改为只导出演唱歌手包含周杰伦、林俊杰、薛之谦、汪苏泷的歌曲。
-- 已修改 `music_metadata_graph/pipelines/import_song_credits_to_db.py`：第十步作词作曲关系入库范围保持不变，只有临时 CSV 导出查询在未显式传入 `--artist-mid` 或 `--artist-name` 时默认筛选演唱歌手包含上述四位任意一人的歌曲。
-- 已新增 `--temp-export-artist-name` 参数，可重复传入以覆盖默认临时 CSV 歌手范围；已新增 `--all-temp-songs-csv` 参数，可恢复导出当前 `songs` 表全部歌曲。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第十步临时 CSV 的默认四歌手范围，以及该范围只影响临时 CSV、不影响作词作曲关系入库的边界。
-- 已使用第十一步执行前的 SQLite 备份重新生成 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step10_credit_import.csv`，确保该文件仍对应“第十步后、第十一步前”的阶段；新 CSV 为 985 行。
-- 验证结果：`import_song_credits_to_db.py` 通过 `py_compile`；`--help` 显示新增 `--temp-export-artist-name` 和 `--all-temp-songs-csv`；默认导出查询的入库目标歌曲数仍为 20,920，当前正式库默认临时导出范围为 801 行，未缩小导入范围；基于第十一步前备份生成的第十步临时 CSV 为 985 行，所有行的 `singers_json` 均包含四位目标歌手之一，且未发现 Excel 公式未转义样本。
-
-### 调整第十二步去重规则为同作词作曲
-- 用户要求第十二步不再按“歌名相同且演唱歌手相同”去重，改为“歌名相同且作词、作曲也分别相同”时再按既有优先级删除。
-- 已修改 `music_metadata_graph/pipelines/filter_imported_songs.py`：第十二步分组键改为规范化歌名、作词签名、作曲签名；作词和作曲分别按 `song_credit_artists.artist_order` 排序后的 `artist_mid` 序列生成签名，演唱歌手不再参与本步骤去重判断。
-- 第十二步保留优先级继续沿用 `录音室专辑 > EP > Single > 较小 song id`；`songs.mid` 主键和 `songs.id` 唯一约束仍只做唯一性检查，不额外执行 mid/id 去重。
-- 已将第十二步默认导出路径改为 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step12_same_credit_name_dedupe.csv` 和 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step12_same_credit_name_dedupe.csv`，避免文件名继续表达旧的同歌手规则。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第十二步新规则、作词作曲签名判断方式、演唱歌手不参与判断和新 CSV 路径。
-
-### 验证并执行第十二步同作词作曲去重
-- 语法验证对象为 `filter_imported_songs.py`，执行项目指定 Conda 解释器的 `py_compile`，结果未报错。
-- 先在临时 SQLite 副本上运行新第十二步，结果为 20,920 首歌曲中删除 814 首，保留 20,106 首；临时库执行后按规范化歌名、作词签名、作曲签名检查重复组为 0，`PRAGMA foreign_key_check` 返回 0 行。
-- 正式执行前已备份当前数据库到 `data/music_metadata_graph_before_step12_credit_name_dedupe_20260515_015741.bak.sqlite3`。
-- 正式库执行新第十二步后，`songs` 为 20,106 行，`song_singers` 为 23,592 行，`song_credit_artists` 为 51,812 行；按代码同一套规范化函数和作词作曲签名检查，剩余重复组为 0，`PRAGMA foreign_key_check` 返回 0 行。
-- 删除清单 CSV 为 814 行，保留临时 CSV 为 20,106 行；两份 CSV 表头均为 `song_mid`、`song_id`、`song_name`、`song_title`、`song_language`、`album_name`、`album_type`、`album_publish_date`、`作词`、`作曲`、`singer_count`、`singers_json`。
-- 已回读两份新 CSV 检查 Excel 公式风险，未发现去掉开头空白后仍以 `=`、`+`、`-`、`@` 开头且未转义的文本样本。
-
-### 限定第十二步临时保留 CSV 导出范围
-- 用户要求第十二步导出的临时 CSV 也改为只保留周杰伦、林俊杰、薛之谦、汪苏泷四位歌手相关歌曲。
-- 已修改 `music_metadata_graph/pipelines/filter_imported_songs.py`：第十二步全库去重和正式删除清单范围保持不变，只有临时保留 CSV 默认筛选演唱歌手包含上述四位任意一人的保留歌曲。
-- 已新增 `--temp-export-artist-name` 参数，可重复传入以覆盖默认临时 CSV 歌手范围；已新增 `--all-temp-kept-csv` 参数，可恢复导出第十二步后的全部保留歌曲。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第十二步临时保留 CSV 的默认四歌手范围，以及该范围只影响临时 CSV 查看范围、不影响全库去重和正式删除清单的边界。
-- 已直接重写 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step12_same_credit_name_dedupe.csv`，未重跑第十二步删除逻辑，也未覆盖正式删除清单。
-- 验证结果：`filter_imported_songs.py` 通过 `py_compile`；`--help` 显示新增 `--temp-export-artist-name` 和 `--all-temp-kept-csv`；新临时 CSV 为 777 行，所有行的 `singers_json` 均包含四位目标歌手之一；未发现 Excel 公式未转义样本；当前数据库仍为 `songs=20106`、`song_singers=23592`、`song_credit_artists=51812`，`PRAGMA foreign_key_check` 返回 0 行。
-
-### 修正第十二步作词作曲比较为集合语义
-- 用户指出第十二步多人作词作曲比较不应按字符串顺序比较，同一角色内的人员顺序不应影响是否判定为相同。
-- 已修改 `music_metadata_graph/pipelines/filter_imported_songs.py`：`credit_signature()` 改为对同一 `song_mid`、同一 `role` 下的 `artist_mid` 做集合去重并排序后生成签名，因此 `A/B` 与 `B/A` 会被视为同一组作词或作曲。
-- CSV 展示中的 `作词`、`作曲` 仍沿用 `song_credit_artists.artist_order` 输出，不影响人工查看顺序；本次只改变第十二步去重比较语义。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第十二步按作词集合、作曲集合判断，同一角色内人员顺序不影响比较。
-- 为避免正式删除清单只记录增量，已使用第十二步执行前的 SQLite 备份重新跑完整第十二步，并在替换当前数据库前备份当前库到 `data/music_metadata_graph_before_step12_credit_set_dedupe_20260515_021847.bak.sqlite3`。
-- 新集合语义第十二步完整结果：从第十一步后的 20,920 首歌曲中删除 827 首，保留 20,093 首；相比旧顺序语义多删除 13 首。
-- 当前正式库结果为 `songs=20093`、`song_singers=23573`、`song_credit_artists=51763`；按集合语义检查剩余重复组为 0，`PRAGMA foreign_key_check` 返回 0 行。
-- 正式删除清单 `songs_removed_by_step12_same_credit_name_dedupe.csv` 为 827 行；第十二步四歌手临时保留 CSV `songs_after_step12_same_credit_name_dedupe.csv` 为 776 行，所有行的 `singers_json` 均包含周杰伦、林俊杰、薛之谦、汪苏泷之一；未发现 Excel 公式未转义样本。
-- 验证结果：`filter_imported_songs.py` 通过 `py_compile`。
-
-### 临时验证单曲作词作曲信息
-- 用户要求验证歌曲 `001rG4cI4L2Qqc` 的作词、作曲信息，并明确不要使用缓存。
-- 本次使用项目指定 Conda Python 直接调用 `qqmusic_api.Client().song.get_producer("001rG4cI4L2Qqc")` 实时请求 QQ 音乐制作人接口；未读取 `data/raw/qqmusic/song_producer/`，未写入 raw JSON 缓存。
-- 沙箱内首次请求因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试成功。
-- 实时结果确认歌曲为《御龙镜中隐》，QQ 音乐制作人接口返回 `ReinforceMsg` 为 `词：汪苏泷、刘颜嘉/马寅生 / 曲：金若晨、岳敉亮/汪苏泷/刘颜嘉 / 编曲：金若晨`。
-- 结构化 `Lst` 中 `作词` 为两条：`汪苏泷`（`SingerMid=001z2JmX09LLgL`）和 `刘颜嘉/马寅生`（`SingerMid` 为空）；`作曲` 为两条：`金若晨`（`SingerMid=0039cGaQ3kEu8n`）和 `岳敉亮/汪苏泷/刘颜嘉`（`SingerMid` 为空）。
-- 边界记录：接口把部分多人姓名以斜杠合并为单个 producer 文本且不提供 `SingerMid`，当前结果只作为该接口实时返回的验证结论，不做自动拆分或入库修改。
-
-### 检查错误源头制作人姓名在库命中
-- 用户指出歌曲 `001rG4cI4L2Qqc` 的作词、作曲从第二位开始为源头信息错误，要求检查 `刘颜嘉`、`马寅生`、`岳敉亮` 三人在当前数据库中是否有命中。
-- 本次只查询当前 SQLite `data/music_metadata_graph.sqlite3` 的 `artists` 表，未请求外部接口，未修改数据库。
-- 精确查询结果：`刘颜嘉` 命中 1 条，`mid=003Y7awa2OLBok`；`马寅生` 命中 1 条，`mid=00449dq60zHQt4`；`岳敉亮` 命中 0 条。
-- 包含查询结果：`刘颜嘉`、`马寅生` 各自只命中同名记录；`岳敉亮` 在 `name` 和 `other_name` 中均无命中。进一步按单字检查，`敉` 在 `artists.name/other_name` 中命中 0 条。
-- 结论：当前库可以为 `刘颜嘉` 和 `马寅生` 提供已有 QQ 音乐 MID；`岳敉亮` 暂无库内身份记录。
-
-### 实时请求岳敉亮歌手信息
-- 用户提供歌手 MID `001ijwI032LEGX`，要求请求该歌手信息。
-- 本次使用项目指定 Conda Python 直接调用 `qqmusic_api.Client().singer.get_info("001ijwI032LEGX")` 实时请求 QQ 音乐歌手信息接口；未写入数据库，也未写入 `data/raw/qqmusic/singer_info/` 缓存。
-- 沙箱内首次请求因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试成功。
-- 实时结果：`Info.Singer.SingerMid=001ijwI032LEGX`，`Info.Singer.Name=岳敉亮`，`Info.Singer.SingerID=6122657`，`Info.Singer.SingerPic` 为空；`Info.BaseInfo.Name` 和 `Info.BaseInfo.Avatar` 为空，`Info.BaseInfo.BackgroundImage` 为 `https://y.qq.com/music/common/upload/t_celebrity_certification/1899104.png`。
-- 边界记录：该 MID 可作为当前库中缺失的 `岳敉亮` 身份候选，但本次只完成实时验证，未自动补入 `artists`。
-
-### 按岳敉亮姓名请求主页歌曲并检查 MID
-- 用户要求通过 `岳敉亮` 的名字请求歌曲主页，检查返回歌曲有哪些，以及哪些歌曲的 `singer[]` 中包含他的 MID。
-- 本次使用项目指定 Conda Python 实时调用 QQ 音乐接口：先用 `search.search_by_type("岳敉亮", SearchType.SINGER)` 搜索歌手，再用搜索命中的 `001ijwI032LEGX` 调用 `singer.get_tab_detail(..., TabType.SONG, page=1, num=30)`；未读取或写入本地 raw 缓存，未修改数据库。
-- 搜索结果命中 1 位歌手：`singerName=岳敉亮`，`singerMID=001ijwI032LEGX`，`singerID=6122657`，接口摘要显示歌曲 7 首、专辑 3 张。
-- 主页歌曲 Tab 返回 1 页 7 首，`HasMore=false`；7 首歌曲的 `singer[]` 均包含 `001ijwI032LEGX`，未发现返回歌曲缺少该 MID。
-- 返回歌曲为：`年轻的窦唯`（`004ZWpfV13BN4l`）、`Tizzy T-橘子999`（`000AoJP63cnVr7`）、`YJC no bottom line 2022cypher`（`002R0Xtt3UquQU`）、`飞天茅台`（`0047Usrm1zKa7Y`）、`天上的星星不说话`（`000O57eZ1joZN4`）、`欺骗游戏`（`003UDF8h2sYKri`）、`Show Time`（`003LwWHn3xklYR`）。
-- 边界记录：本次只验证歌手主页歌曲列表的演唱歌手 MID，不代表 `001rG4cI4L2Qqc` 制作人接口中错误合并的作曲文本已被自动纠正。
-
-### 测试张杰姓名搜索接口返回
-- 用户要求用 `张杰` 搜索测试按名字查歌手的接口表现。
-- 本次先实时调用 `search.search_by_type("张杰", SearchType.SINGER, num=10, page=1)`，接口返回风控错误 `触发风控, 需登录或者安全验证`，未得到候选列表。
-- 随后实时调用更轻量的 `search.quick_search("张杰")` 成功，未读取或写入本地缓存，未修改数据库。
-- `quick_search` 的歌手区块返回 2 条：`张杰`（`mid=002azErJ0UcDN6`，`id=6499`）和 `张杰峰`（`mid=000FUs8S16Fen3`，`id=12453042`）。
-- 边界记录：`quick_search` 可用于姓名到候选 MID 的轻量解析，但返回结构比 `search_by_type` 简略；对热门关键词，正式分页歌手搜索可能触发登录或安全验证。
-
-### 复测张杰 search_by_type 歌手搜索
-- 用户直接要求执行 `search_by_type("张杰", SearchType.SINGER)`。
-- 本次使用项目指定 Conda Python 构造 `Client().search.search_by_type("张杰", SearchType.SINGER)`，确认该调用返回 `PaginatedRequest`，需要通过 `await Client().execute(request)` 执行；未读取或写入本地 raw 缓存，未修改数据库。
-- 沙箱内首次执行因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试。
-- 实时执行结果仍为 QQ 音乐接口风控：`RatelimitedError`，业务码 `2001`，提示 `触发风控, 需登录或者安全验证`；响应体中 `singer=[]`，未得到候选歌手列表。
-- 边界记录：对热门关键词 `张杰`，当前未登录状态下 `search_by_type(..., SearchType.SINGER)` 不稳定，可能无法作为姓名到 MID 的可靠入口；此前 `quick_search("张杰")` 可返回轻量候选，但结果结构不等同于分页歌手搜索。
-
-### 对比测试周杰伦与菠萝塞东 search_by_type 歌手搜索
-- 用户要求分别执行 `search_by_type("周杰伦", SearchType.SINGER)` 和 `search_by_type("菠萝塞东", SearchType.SINGER)`。
-- 本次使用项目指定 Conda Python 实时构造两个 `Client().search.search_by_type(..., SearchType.SINGER)` 请求，并通过 `await Client().execute(request)` 执行；未读取或写入本地 raw 缓存，未修改数据库。
-- 沙箱内首次执行两个关键词均因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试。
-- `周杰伦` 实时执行结果为 QQ 音乐接口风控：`RatelimitedError`，业务码 `2001`，提示 `触发风控, 需登录或者安全验证`；响应体中 `singer=[]`，未得到候选歌手列表，`estimate_sum=1`。
-- `菠萝塞东` 实时执行结果同样为 QQ 音乐接口风控：`RatelimitedError`，业务码 `2001`，提示 `触发风控, 需登录或者安全验证`；响应体中 `singer=[]`，未得到候选歌手列表，`estimate_sum=12`。
-- 边界记录：本次对比说明当前未登录状态下 `search_by_type(..., SearchType.SINGER)` 对常见和非常见关键词都可能被同一风控拦截，不能仅用关键词热门程度解释失败。
-
-### 复测岳敉亮 search_by_type 歌手搜索
-- 用户要求再次执行 `search_by_type("岳敉亮", SearchType.SINGER)`。
-- 本次使用项目指定 Conda Python 实时构造 `Client().search.search_by_type("岳敉亮", SearchType.SINGER)` 请求，并通过 `await Client().execute(request)` 执行；未读取或写入本地 raw 缓存，未修改数据库。
-- 沙箱内首次执行因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试。
-- 实时执行结果为 QQ 音乐接口风控：`RatelimitedError`，业务码 `2001`，提示 `触发风控, 需登录或者安全验证`；响应体中 `singer=[]`，未得到候选歌手列表，`estimate_sum=0`。
-- 边界记录：此前同一姓名曾通过 `search_by_type("岳敉亮", SearchType.SINGER)` 成功命中候选，但当前连续复测显示分页歌手搜索已被风控拦截；后续若要稳定做姓名到 MID 解析，应优先考虑本地歌手表、已知 MID、或在合规登录态下测试接口稳定性。
-
-### 测试第一步歌手列表接口一页
-- 用户要求尝试其他接口，并指定尝试第一步使用的歌手请求接口请求一页。
-- 本次先复核当前第一步脚本，确认使用 `client.singer.get_singer_list_index(area=AreaType.ALL, sex=SexType.ALL, genre=GenreType.ALL, index=IndexType.ALL, page=1, num=80)`，底层模块为 `music.musichallSinger.SingerList`，方法为 `GetSingerListIndex`。
-- 本次直接实时请求接口并只打印摘要；未运行正式采集脚本，未读取或写入本地 raw 缓存，未修改数据库。
-- 沙箱内首次执行因网络权限返回 `WinError 5 拒绝访问`；随后经授权在沙箱外重试成功。
-- 实时结果返回 `SingerIndexPageResponse`，`total=6803`，第一页返回 `singer_count=80`。前几条包括：周杰伦 `0025NhlN2yWrP4`、林俊杰 `001BLpXF2DyJe2`、陈奕迅 `003Nz2So3XXYek`、薛之谦 `002J4UUk29y8BY`、王力宏 `001JDzPT3JdvqK`、汪苏泷 `001z2JmX09LLgL`。
-- 边界记录：当前未登录状态下，第一步歌手列表接口可以成功返回分页歌手数据，而 `search_by_type(..., SearchType.SINGER)` 连续多次返回风控；因此姓名到 MID 的稳定策略应优先使用本地已采集歌手列表或重新采集歌手列表索引，再按姓名/拼音筛选，而不是依赖分页搜索接口。
-
-### 测试 quick_search 快搜接口
-- 用户要求尝试另一个可以搜索歌手的接口，推测为 `quick_search`。
-- 本次先确认当前库中 `Client().search.quick_search` 签名为 `quick_search(keyword: str) -> dict[str, Any]`；该方法本身是异步调用，不返回 `Request` 描述符。
-- 本次使用项目指定 Conda Python 实时调用 `await client.search.quick_search(keyword)`，测试关键词为 `张杰`、`周杰伦`、`菠萝塞东`、`岳敉亮`；未读取或写入本地 raw 缓存，未修改数据库。
-- 沙箱内首次请求 `c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg` 因网络连接失败未得到业务返回；随后经授权在沙箱外重试成功。
-- `张杰` 的歌手区块返回 2 条：`张杰`（`mid=002azErJ0UcDN6`，`id=6499`）和 `张杰峰`（`mid=000FUs8S16Fen3`，`id=12453042`）；同时返回 4 首单曲、2 张专辑和 2 个 MV 的轻量候选。
-- `周杰伦` 的歌手区块返回 2 条：`周杰伦`（`mid=0025NhlN2yWrP4`，`id=4558`）和 `周杰伦微博台`（`mid=004Frj3P4Emgu1`，`id=4331423`）；同时返回 4 首单曲、2 张专辑和 2 个 MV 的轻量候选。
-- `菠萝塞东` 的歌手、单曲、专辑、MV 区块均返回 `count=0`。
-- `岳敉亮` 的歌手区块返回 1 条：`岳敉亮`（`mid=001ijwI032LEGX`，`id=6122657`）；单曲区块返回 1 条 `飞天茅台`（`mid=0047Usrm1zKa7Y`，`id=426982979`）。
-- 边界记录：`quick_search` 当前可作为姓名到候选 MID 的轻量入口，且本轮未触发 `search_by_type(..., SearchType.SINGER)` 遇到的风控；但它返回的是智能框候选，不是完整分页搜索结果，候选数量少且需要结合本地歌手列表或后续 `singer.get_info(mid)` 校验。
-
-## 2026-05-15
-
-### 清理开发日志异常空行
-- 用户指出 `develop_log.md` 日志行数明显失控，要求先去掉异常空行再判断是否恢复正常。
-- 清理前文件大小为 593830012 字节，流式统计原始行数为 395660010 行，其中非空行 1982 行。
-- 本次仅执行机械空行清理：保留所有非空日志文本，移除异常重复空行，并在标题前保留单个空行以维持 Markdown 可读性。
-- 清理前已生成压缩备份 `develop_log.before_blank_cleanup.md.gz`，用于必要时追溯原始文件。
-
-## 2026-05-15
-
-### 修复开发日志 BEL 控制字符
-- 用户指出 `develop_log.md` 约 1956-1972 行存在 `BEL` 异常字符。
-- 复核确认异常为 ASCII 控制字符 `\x07`，来源形态符合把 `\a` 当作转义写入后丢失字母 `a`，影响 `archive`、`area`、`artists` 等词。
-- 本次按同一根因修复全文件 26 处 `BEL` 控制字符，将其恢复为字母 `a`；随后继续修复 4 处垂直制表控制字符为 `v`、1 处换页控制字符为 `f`，并恢复 6 处因 `\r` 转义断裂的 `reports/` 路径、2 处因 `\n` 转义断裂的 `node_modules/` 路径。
-
-### 插入 quick_search 缺 MID 前置补全步骤
-- 用户要求在第四步和第十步之前分别插入一个缺 MID 补全步骤：对 artists 相关来源中只有姓名、没有 MID 的条目调用 quick_search，仅当返回 artist 候选中存在唯一姓名完全匹配且 MID 非空的结果时补入 artists，并分别导出 CSV 记录补充情况。
-- 已新增通用 helper music_metadata_graph/pipelines/quick_search_artist_mid.py，统一 quick_search raw 缓存、唯一精确匹配判断、CSV 写出、Excel 公式安全转义和渐进落盘；脚本中途失败或被中断时，已处理名字会保留在 CSV，后续重跑会跳过已完成非失败行。
-- 已新增第四步前置脚本 fill_song_singer_missing_mids.py，扫描步骤三歌曲 raw 的 SongTab.List[].singer[] 中缺 MID 演唱歌手，默认 CSV 为 data/processed/validation/song_singer_mid_fill/csv_views/song_singer_mid_fill.csv，raw 缓存为 data/raw/qqmusic/quick_search_artist_mid/song_singer/。
-- 已新增第十步前置脚本 fill_song_credit_missing_mids.py，扫描步骤九制作人 raw 的 作词、作曲 缺 MID 制作人，默认 CSV 为 data/processed/validation/song_credit_mid_fill/csv_views/song_credit_mid_fill.csv，raw 缓存为 data/raw/qqmusic/quick_search_artist_mid/song_credit/。
-- 已修改第七步歌曲入库脚本，默认读取第四步前置 CSV，将 matched 行按 source_name -> matched_mid 用于补齐歌曲演唱者缺失 MID；已修改第十步作词作曲导入脚本，默认读取第十步前置 CSV，将 matched 行按制作人名补齐缺失 artist_mid，并优先保留 quick_search 的头像和 raw 路径。
-- 已在 pyproject.toml 增加 mr-fill-song-singer-missing-mids 和 mr-fill-song-credit-missing-mids 两个命令入口，并同步 README.md、AGENTS.md 的流程、路径和规则说明。
-- 验证结果：新增和修改的五个 pipeline 文件均通过项目指定 Conda 解释器 py_compile；两个新增脚本的 --help 可正常显示参数。
-- 已运行第四步前置正式四歌手范围补全，输出 CSV 共 21 个唯一缺 MID 名字，其中 12 个为唯一精确匹配并补入 artists，状态分布为 matched=12、no_singer_candidates=6、not_matched=2、ambiguous_exact_match=1。
-- 第十步前置当前正式库统计为 1509 条缺 MID 制作人来源、954 个唯一名字；本次只做 5 个名字的 smoke 验证并写出临时 CSV，未执行完整 954 名字全量 quick_search，原因是低频请求预计耗时较长，正式命令已支持从已写 CSV 和 raw 缓存继续。
-
-### 改为数据库命中缺 MID 补全结果
-- 用户指出第七步歌曲入库和第十步制作人入库不应读取对应补全 CSV，因为后续不一定保留 CSV；CSV 应只作为补充情况审计产物。
-- 已修改 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`，移除 `--singer-mid-fill-csv` 参数和 CSV 读取逻辑；第七步现在直接从 `artists` 表构建 `name -> mid` 映射，只有 `artists.name` 精确且唯一命中时才补齐歌曲演唱者缺失 MID，同名多 MID 不自动选择。
-- 已修改 `music_metadata_graph/pipelines/import_song_credits_to_db.py`，移除 `--credit-mid-fill-csv` 参数和 CSV 读取逻辑；第十步现在直接从 `artists` 表命中缺 MID 的作词/作曲制作人姓名，只有精确且唯一命中时才补齐 `artist_mid`。
-- 已同步 `README.md` 和 `AGENTS.md`，记录两个 quick_search 前置步骤导出的 CSV 只是补充情况记录，第七步和第十步不依赖 CSV，而依赖数据库中的 `artists` 表。
-- 验证结果：第七步和第十步入库脚本通过 `py_compile`；两个脚本的 `--help` 中已不再出现补全 CSV 参数；临时内存库验证确认唯一姓名可命中 MID、同名多 MID 不命中；检索确认代码和文档中不再保留“后续读取补全 CSV”的旧描述。
-
-### 增加斜杠姓名拆分补 MID 兜底
-- 用户要求两个补 MID 前置步骤增加兜底检查：当原名字搜索没有直接匹配且名字包含 `/` 时，认为可能是源信息把多个 artists 拼在一起，应按 `/` 拆分后分别搜索实际 artists。
-- 已修改 `music_metadata_graph/pipelines/quick_search_artist_mid.py` 的共用 quick_search 补全逻辑：先对原名字执行唯一精确匹配；若没有直接精确命中且原名字包含 `/`，则按 `/` 拆分去重后逐个 quick_search，并继续只接受唯一精确匹配且 MID 非空的 artist。
-- CSV 字段新增 `search_name` 和 `match_mode`，用于区分原始脏名字和实际搜索名；原名字行记录为 `direct`，拆分后名字记录为 `split`。补入数据库的仍是命中的真实 artist 名和 MID。
-- 已调整断点恢复逻辑：旧 CSV 中只有斜杠原名字未匹配记录时，不再把该 source 视为完成，后续重跑会重新执行拆分兜底；已有 split 记录的 source 才按完成处理。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第四步前置和第十步前置都会在原名字无直接精确命中且包含 `/` 时按 `/` 拆分搜索。
-- 验证结果：`quick_search_artist_mid.py`、`fill_song_singer_missing_mids.py`、`fill_song_credit_missing_mids.py` 通过 `py_compile`；纯函数验证确认 `刘颜嘉/马寅生` 会拆为 `刘颜嘉`、`马寅生`，重复和空片段会被去除；模拟 quick_search 验证确认 `A/B` 原名未匹配时会写出 direct 未匹配行和两个 split matched 行，并把两个拆分 artist 写入 `artists`；恢复判断验证确认旧斜杠未匹配记录不会阻止新兜底重跑。
-
-### 优先用 artists 表避免重复补 MID 请求
-- 用户指出缺 MID 条目可能已经能在第二步导入的 `artists` 表中命中，此时补 MID 前置步骤继续请求 `quick_search` 会产生不必要请求。
-- 已修改 `music_metadata_graph/pipelines/quick_search_artist_mid.py`：每个待补名字先查询当前 `artists` 表，姓名精确且唯一命中时写出 `db_matched` 并跳过 `quick_search`；姓名命中多个 MID 时写出 `db_ambiguous_name` 并不自动选择；只有库内未命中时才请求 `quick_search`。
-- 斜杠拆分兜底也改为同样的优先级：每个拆分名先查库，库内唯一命中则直接记录 `db_matched`，只有库内未命中才搜索。
-- 汇总 JSON 新增 `db_matches`，统计本次直接从数据库命中的名字数；`matched_names` 现在同时统计 `matched` 和 `db_matched`。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第四步前置和第十步前置均采用“先查库、再搜索”的补 MID 策略。
-- 验证结果：`quick_search_artist_mid.py`、`fill_song_singer_missing_mids.py`、`fill_song_credit_missing_mids.py` 通过 `py_compile`；模拟验证确认库内唯一命中和库内同名多 MID 均不会触发 quick_search；模拟验证确认 `A/B` 原名无候选时，拆分出的 `A`、`B` 若已在库内唯一命中，会记录 split `db_matched` 且不会对拆分名发起请求。
-
-### 梳理当前完整数据流程
-- 用户询问当前完整流程是什么。
-- 本次复核 `AGENTS.md`、`develop_log.md`、`README.md`、`pyproject.toml` 和 `music_metadata_graph/pipelines/` 当前入口，确认正式流程为 QQ 音乐单数据源的 raw JSON、SQLite 入库、过滤验证 CSV 流程。
-- 当前完整流程包含步骤一到步骤十二，并在步骤四和步骤十前各有一个 quick_search 缺 MID 前置补全步骤；第七步和第十步不依赖补全 CSV，而是直接查询 `artists` 表做唯一姓名命中补齐。
-- 当前网页和旧端到端流程已归档，不属于正式运行入口；当前流程产物以 `data/raw/qqmusic/`、`data/music_metadata_graph.sqlite3` 和 `data/processed/validation/` 为主。
-
-### 设计脚本运行日志保留方案
-- 用户指出长时间终端运行会挤掉最早输出，要求所有脚本自动保留日志，并按脚本名和日期时间命名。
-- 目标效果确定为：运行正式脚本时终端继续实时显示输出，同时在 `logs/runs/` 生成一份完整日志，文件名形如 `collect_singer_list_raw_YYYYMMDD_HHMMSS.log`；脚本异常退出时也保留 traceback。
-- 实现范围限定为当前正式 Python 脚本入口，包括 `pyproject.toml` 中暴露的 pipeline 命令和字段字典工具；`song_csv.py`、`quick_search_artist_mid.py` 等 helper 模块不作为独立入口产生日志。
-- 风险边界：该机制只能记录脚本启动后的 Python `stdout` 和 `stderr`，不能恢复脚本启动前已被终端 scrollback 丢弃的历史，也不记录外部 shell 提示符历史。
-
-### 实现脚本运行日志保留功能
-- 新增 `music_metadata_graph/run_log.py`，提供 `run_with_log()` 和 tee 输出对象，统一创建 `logs/runs/`、生成 `脚本名_YYYYMMDD_HHMMSS.log` 文件，并把 `stdout`、`stderr` 同步写入终端和日志文件。
-- 已把 `music_metadata_graph/pipelines/` 中 14 个正式 pipeline 入口和 `music_metadata_graph/tools/write_request_json_key_dictionary.py` 的 `main()` 包装为日志入口；helper 模块保持无副作用导入。
-- 已同步 `README.md` 的运行日志说明，记录日志目录、命名规则、异常输出保留行为和 `logs/` 不提交 Git 的规则。
-- 已同步 `.gitignore`，明确忽略 `logs/`，避免自动生成的运行日志进入版本库。
-
-### 验证脚本运行日志保留功能
-- 验证对象为 `music_metadata_graph/` 下所有 Python 文件，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为 15 个正式脚本入口，执行方式为逐个运行 `python -m <module> --help`，结果全部退出码为 0，未触发真实 QQ 音乐请求。
-- 日志生成验证显示 `logs/runs/` 下已生成 15 个按脚本名和时间命名的 help 日志文件；抽查 `collect_singer_list_raw_20260515_140638.log`，内容包含终端显示的 `run_log=...` 行和完整 `--help` 输出。
-- 当前 Git 状态检查仍受本机 safe.directory 所有权限制影响，`git status --short` 返回 dubious ownership 提示，未据此判断工作区完整差异。
-
-### 增强脚本日志异常退出防护
-- 用户补充要求考虑终端异常退出场景，避免日志只依赖终端 scrollback 或普通缓冲。
-- 已修改 `music_metadata_graph/run_log.py`：日志文件改为行缓冲打开，tee 输出每次写入后同步 flush 终端和日志文件，降低终端关闭或进程中断时最后输出丢失的概率。
-- 已增加运行状态标记：每次日志记录 `run_started_at`、正常或异常的 `run_status`、以及 `run_log_closing_at`；未处理异常会先写入完整 traceback，再写入失败状态。
-- 已启用 `faulthandler` 写入当前日志文件，用于 Python fatal error 时保留线程栈；退出时恢复原始 `stderr` 的 faulthandler 状态。
-- Windows 下已注册控制台事件 flush 钩子，在 Ctrl+C、关闭控制台窗口、注销或关机等控制台事件触发时尽量写入事件标记并 flush 当前日志。
-- 已同步 `README.md`，说明低缓冲写入、状态标记、Windows 控制台事件 flush 和无法绝对保证的边界：操作系统强杀、断电或磁盘写入失败仍可能丢失最后极短时间输出。
-
-### 验证脚本日志异常退出防护
-- 验证对象为 `music_metadata_graph/run_log.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为正常退出路径，执行 `python -m music_metadata_graph.pipelines.collect_singer_list_raw --help`，日志 `collect_singer_list_raw_20260515_141039.log` 包含 `run_started_at`、完整 help 输出、`run_status=system_exit code=0` 和 `run_log_closing_at`。
-- 验证对象为未处理异常路径，执行 `run_with_log("smoke_failure", ...)` 抛出模拟 `RuntimeError`，日志 `smoke_failure_20260515_141038.log` 包含完整 traceback、`run_status=failed` 和 `run_log_closing_at`，命令按预期以非零退出。
-- 验证对象为 15 个正式脚本入口，逐个执行 `python -m <module> --help`，结果全部退出码为 0，未触发真实 QQ 音乐请求。
-
-### 改为后台异步写入运行日志
-- 用户提出写日志不应阻塞请求节奏，避免日志写入耗时后下一次请求还要再等待完整请求间隔。
-- 已修改 `music_metadata_graph/run_log.py`：日志文件写入由 `AsyncLogWriter` 后台线程负责，主线程的 `stdout/stderr` tee 只把文本放入队列，后台线程顺序写盘并 flush。
-- 正常退出、异常退出、`atexit` 和 Windows 控制台事件 flush 均改为 drain 当前日志队列，尽量保留已有安全防护。
-- `faulthandler` 仍直接绑定真实日志文件，用于 fatal error 时写入线程栈；常规 print 日志通过后台队列写入，避免同步磁盘写入参与请求循环耗时。
-- 已同步 `README.md`，说明日志写入采用后台线程队列，退出时 drain，且操作系统强杀、断电或磁盘失败仍可能丢失最后极短时间输出。
-
-### 验证后台异步写入运行日志
-- 验证对象为 `music_metadata_graph/run_log.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为正常退出路径，执行 `python -m music_metadata_graph.pipelines.collect_singer_list_raw --help`，日志 `collect_singer_list_raw_20260515_141331.log` 包含开始时间、完整 help 输出、退出状态和关闭时间。
-- 验证对象为未处理异常路径，执行 `run_with_log("smoke_async_failure", ...)` 抛出模拟 `RuntimeError`，日志 `smoke_async_failure_20260515_141330.log` 包含完整 traceback、`run_status=failed` 和 `run_log_closing_at`；命令按预期以非零退出。
-- 验证对象为 `music_metadata_graph/` 下所有 Python 文件，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为 15 个正式脚本入口，逐个执行 `python -m <module> --help`，结果全部退出码为 0，未触发真实 QQ 音乐请求。
-
-### 固定单次运行日志上下文
-- 用户指出按实时时间生成日志名可能导致一次运行内出现多个日志，要求每次脚本开始时确定一个日志名，脚本内都复用这个日志名，不再按实时当前时间派生新日志。
-- 已修改 `music_metadata_graph/run_log.py`：新增 `RunLogIdentity` 和 `RunLogContext`，在进入 `run_with_log()` 时一次性生成 `run_id` 和 `log_path`，并在日志开头写入 `run_id=...` 与 `run_log=...`。
-- 已将同一进程内嵌套 `run_with_log()` 调用改为复用当前活动日志上下文；嵌套入口会写入 `run_log_reused=... nested_script=...`，不会创建第二个日志文件。
-- 日志文件名冲突处理不再重新读取实时当前时间，而是在启动时固定的 `run_id` 后追加 `_02`、`_03` 等序号；若同一秒内冲突过多则显式报错。
-- 已同步 `README.md`，说明每次脚本启动只生成一次 `run_id` 和 `run_log`，同一进程内后续脚本代码复用该日志上下文。
-
-### 验证单次运行日志上下文复用
-- 验证对象为 `music_metadata_graph/run_log.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为普通入口启动，执行 `python -m music_metadata_graph.pipelines.collect_singer_list_raw --help`，日志 `collect_singer_list_raw_20260515_142036.log` 开头包含固定 `run_id` 和对应 `run_log`，后续状态行未生成新日志名。
-- 验证对象为嵌套入口调用，执行外层 `run_with_log("outer_nested_smoke", ...)` 内部再调用 `run_with_log("inner_nested_smoke", ...)`；结果只生成 `outer_nested_smoke_20260515_142035.log`，未生成 `inner_nested_smoke` 日志文件，日志中包含 `run_log_reused=... nested_script=inner_nested_smoke`。
-- 验证对象为 15 个正式脚本入口，逐个执行 `python -m <module> --help`，结果全部退出码为 0，未触发真实 QQ 音乐请求。
-
-### 分析当前运行日志状态
-- 用户要求查看现有日志并分析。
-- 本次检查对象为 `logs/runs/` 下 9 个日志文件，总大小约 27.4 MB；其中 8 个日志已写入 `run_status=completed` 和 `run_log_closing_at`，1 个日志仍在运行中。
-- 已完成日志未发现 `Traceback`、`run_status=failed`、`KeyboardInterrupt`，也未发现已完成采集步骤的 `failed_fetches` 或 `failed_searches` 非零记录。
-- 已完成流程显示：歌手列表导入 6803 行 raw，按地区规则导入 2119 位 artists；歌曲歌手缺 MID 补全处理 976 个唯一姓名并导入 528 位 artists；缺失歌曲歌手信息补入 12623 位 artists；专辑详情 56293 个请求键全部命中缓存且无失败；专辑入库 56218 行、拒绝 91 行；歌曲入库 181837 首、拒绝 70558 首；第八步专辑类型过滤后保留 153979 首；制作人 raw 检查 153979 首全部命中缓存且无失败，发现缺 MID 制作人来源 79130 行。
-- 当前仍在运行的日志为 `fill_song_credit_missing_mids_20260515_142807.log`，对应 Python 进程仍响应；检查时进度约为 `13754/20359`，约 67.56%，剩余 6605 个唯一姓名。
-- 当前第十步前置补 MID CSV 已有 14043 行，状态分布以 `no_singer_candidates`、`not_matched`、`matched`、`db_matched` 为主；日志前段大量 `csv_existing` 表示断点恢复已生效，后段包含实际 quick_search 请求，因此速度明显慢于缓存阶段。
-
-### 检查 artists 表 area_id 覆盖情况
-- 用户要求检查当前数据库中 `artists` 数量、有 `area_id` 的数量以及 `area_id` 分布。
-- 检查对象为 `data/music_metadata_graph.sqlite3` 的 `artists` 表，执行方式为项目指定 Conda Python 只读打开 SQLite 并按 `area_id` 分组统计。
-- 统计快照时间为 2026-05-15 14:44:34，本次快照显示 `artists` 共 16978 行，其中 `area_id IS NOT NULL` 为 1665 行，`area_id IS NULL` 为 15313 行。
-- `area_id` 分布为：`NULL` 15313 行、`0` 177 行、`1` 1488 行；有值的 `area_id` 只出现 0 和 1。
-- 检查时仍有 `fill_song_credit_missing_mids_20260515_142807.log` 对应的第十步前置补 MID 脚本运行中，两次查询间 `artists` 总数发生增长，因此该结果是运行中的当前时刻快照，不是该脚本结束后的最终稳定值。
-
-### 诊断 artists 表 area_id 数量偏少
-- 用户指出第一步请求到的 JSON 中 `area_id` 为 0 和 1 的数量似乎不应只有当前数据库统计的规模。
-- 本次复查第一步 raw 目录 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`，共有 86 个 page JSON、6803 行 `singerlist`，接口 `total` 为 6803。
-- 第一份 raw 的 `area_id` 原始分布为：0 共 336 行、1 共 1783 行、2 共 2374 行、3 共 2291 行、4 共 9 行、5 共 3 行、6 共 7 行；按当前第二步规则应导入的 0/1 合计为 2119 行。
-- 对比 raw 中 2119 个 `area_id` 为 0/1 的 MID 与当前数据库，确认 2119 个 MID 全部存在，但其中 454 个数据库 `area_id` 已变为 `NULL`，没有缺失 MID，也没有被改成其他非空地区。
-- 根因定位为 `import_artists()` 的 upsert 逻辑使用 `area_id = excluded.area_id`，后续歌曲歌手、quick_search 和作词作曲制作人补入流程在同一 MID 上传入 `area_id=None` 时会覆盖第一步 raw 中已有的地区值。
-
-### 修复 artists upsert 保留已有 area_id
-- 已修改 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，将 `artists` 冲突更新中的 `area_id` 改为 `COALESCE(excluded.area_id, artists.area_id)`，使后续无地区来源不会清空已有地区字段，非空新地区仍可覆盖旧值。
-- 验证对象为 `music_metadata_graph/pipelines/import_singer_list_to_db.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为临时内存 SQLite，先导入同一 MID 的 `area_id=1`，再用 `area_id=None` 更新，观察结果保留 `area_id=1`；随后用 `area_id=0` 更新，观察结果变为 `area_id=0`。
-- 当前数据库中已被清空的 454 条 `area_id` 尚未回填；原因是第十步前置补 MID 脚本仍在运行并写入同一数据库，直接写库可能产生并发冲突。后续应在该脚本结束后用第一步 raw 对这 454 条进行回填验证。
-
-### 确认第三步歌曲 Tab 请求目标口径
-- 用户询问第三步歌手主页歌曲请求是否使用 `artists` 表中的全部人，以及后续补充 `artists` 后重跑第三步是否会多出需要请求歌曲的歌手。
-- 复核 `music_metadata_graph/pipelines/collect_singer_song_tab_raw.py` 确认：第三步使用 `--all` 时会在脚本启动时执行 `SELECT mid, name FROM artists ORDER BY rowid`，因此目标集合是当时数据库中全部 `artists`。
-- 第三步已有缓存逻辑：每个目标歌手的页面 raw 路径为 `data/raw/qqmusic/singer_homepage_song_tab/<mid>/page_XXXX_size_30.json`；文件存在且可读时默认 `cache_hit`，不会重新请求，除非传入 `--force`。
-- 当前快照显示数据库 `artists` 为 16990 行，已有歌曲 Tab raw 的数据库内歌手目录为 610 个，数据库内尚无歌曲 Tab raw 的 artists 为 16380 个；另有 60 个歌曲 Tab raw 目录对应 MID 已不在当前数据库中。
-- 检查时此前运行的第十步前置补 MID 日志已写入 `run_status=keyboard_interrupt`，当前未发现仍在运行的 Python 进程。
-
-### 限定第三步只请求第二步入库歌手
-- 用户要求第三步不要再对当前 `artists` 全表请求主页歌曲，而是只对第二步入库的歌手请求；当前第二步规则为 `area_id in (0, 1)`，后续规则可能变化，但不希望为此新增数据库字段。
-- 已修改 `music_metadata_graph/pipelines/collect_singer_song_tab_raw.py`：第三步 `--all` 改为读取第二步同一歌手列表 raw 目录，并复用 `import_singer_list_to_db.py` 中的 `load_singers()` 和 `filter_singers_by_area()` 得到目标 MID，再与当前数据库 `artists` 做存在性校验。
-- 新增第三步参数 `--singer-list-raw-dir`，默认值与第二步默认 raw 目录一致；如果第二步后续使用非默认 raw 目录，第三步可显式传入相同目录，不需要在数据库增加来源字段。
-- 保留 `--mid` 和 `--name` 的手动指定行为；`--all` 仍与 `--mid`、`--name` 互斥。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第三步 `--all` 目标范围来自第二步当前入库规则，不会因后续补入 `artists` 自动扩大。
-- 验证对象为 `collect_singer_song_tab_raw.py` 和 `import_singer_list_to_db.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为第三步 `--help`，输出已包含 `--singer-list-raw-dir`，且 `--all` 说明为按当前第二步歌手列表入库规则选择目标。
-- 验证对象为第三步目标解析，当前数据库 `artists` 为 14963 行时，`resolve_targets(--all)` 返回 2119 个目标，前几个目标为周杰伦、林俊杰、陈奕迅、薛之谦、王力宏，确认不再按全库 artists 请求。
-- 本次尝试使用 `git diff` 查看差异时，当前目录未被 Git 识别为仓库，命令返回 “Not a git repository”；本次未依赖 Git 差异完成验证。
-
-### 限定第四步前置补 MID 扫描范围
-- 用户指出第四步前置补 MID 如果扫描落盘的全部歌曲 Tab raw，会混入旧第三步请求到的非目标歌手歌曲，要求改成与第三步歌曲范围一致。
-- 已修改 `music_metadata_graph/pipelines/fill_song_singer_missing_mids.py`：`--all` 不再通过 `collect_missing_song_singers_to_db.py` 的“当前数据库 artists 且已有 raw”口径解析目标，而是复用第三步 `collect_singer_song_tab_raw.py` 的目标解析逻辑。
-- 新增第四步前置参数 `--singer-list-raw-dir`，默认与第二步和第三步一致；如果第三步使用非默认歌手列表 raw 目录，第四步前置可传入同一目录保持范围一致。
-- 保留手动 `--mid` 和 `--name` 行为，`--all` 仍与手动目标互斥。
-- 当前验证显示第三步目标 MID 为 2119 个，落盘歌曲 Tab raw 目录共 670 个，其中 542 个属于第三步当前目标范围，128 个属于旧落盘但当前非目标范围；第四步前置新逻辑只会扫描目标范围内的 542 个目录。
-- 源扫描验证在不触发 quick_search 的情况下完成：按第三步范围收集到 2045 条缺 MID 演唱者来源、976 个唯一名字，来源于 378 个目标歌手 raw 目录。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第四步前置 `--all` 范围必须与第三步一致，不得扫描历史落盘但已不属于第三步目标范围的歌手主页歌曲 raw。
-- 验证对象为 `fill_song_singer_missing_mids.py` 和 `collect_singer_song_tab_raw.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为第四步前置 `--help`，输出已包含 `--singer-list-raw-dir`，且 `--all` 说明为只扫描当前第二步歌手列表入库规则选中的歌手歌曲 raw。
-
-### 统一第 4、5、7 步目标范围
-- 用户要求把第 4、5、7 步中类似“已有 raw 目录”的口径也改成与第三步相同的目标解析，避免历史落盘但当前非目标的歌手主页歌曲 raw 继续进入流程。
-- 已修改 `music_metadata_graph/pipelines/collect_missing_song_singers_to_db.py`：第 4 步 `--all` 复用第三步目标解析，并只处理第三步目标范围内已落盘 song-tab raw 的歌手。
-- 已修改 `music_metadata_graph/pipelines/collect_song_album_detail_raw.py`：第 5 步 `--all` 复用第三步目标解析，并只从第三步目标范围内已落盘 song-tab raw 提取专辑请求目标。
-- 已修改 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`：第 7 步 `--all` 复用第三步目标解析，并只导入第三步目标范围内已落盘 song-tab raw；新增 `--singer-list-raw-dir` 和 `--qqmusic-raw-dir` 参数用于保持目标解析来源可配置。
-- 三个步骤的 `--all` 语义统一为“第三步当前目标范围与已落盘歌曲 Tab raw 的交集”；显式 `--mid` 和 `--name` 仍按用户指定目标执行，目标 raw 缺失时仍报错。
-- 当前验证显示第 4、5、7 步解析出的 `--all` 目标均为 542 个歌手，不再是所有落盘 raw 目录 670 个，也不是第三步完整目标 2119 个。
-- 本地 raw 扫描验证显示三步读取的歌曲范围一致：第 4 步扫描 542 个目标歌手、226679 条歌曲 raw，发现 28 个缺失歌手信息的非空 MID 目标和 2045 个缺 MID 演唱者条目；第 5 步扫描 542 个目标歌手、226679 条歌曲 raw，提取 44078 个专辑目标，57248 条歌曲缺专辑 key；第 7 步扫描 542 个目标歌手、226679 条歌曲 raw，来源目录数为 542。
-- 验证对象为 `collect_missing_song_singers_to_db.py`、`collect_song_album_detail_raw.py`、`import_singer_song_tab_to_db.py`、`fill_song_singer_missing_mids.py` 和 `collect_singer_song_tab_raw.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为第 4、5、7 步 `--help`，输出均已包含 `--singer-list-raw-dir`，第 7 步额外包含 `--qqmusic-raw-dir`；三个脚本的 `--all` 文案均改为按当前第二步歌手列表入库规则选择目标。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第 4、5、7 步 `--all` 不再使用旧的“所有已有 raw 目录”口径。
-
-### 复查当前 artists 表 area_id 状态
-- 用户要求重新检查当前数据库 `artists` 表。
-- 检查对象为 `data/music_metadata_graph.sqlite3` 的 `artists` 表，执行方式为项目指定 Conda Python 只读打开 SQLite 并统计总量、`area_id` 覆盖和分布。
-- 统计快照时间为 2026-05-15 18:02:39，本次快照显示 `artists` 共 25997 行，其中 `area_id IS NOT NULL` 为 2119 行，`area_id IS NULL` 为 23878 行。
-- `area_id` 分布为：`NULL` 23878 行、`0` 336 行、`1` 1783 行；有值的 `area_id` 只出现 0 和 1。
-- 对比第一步 raw `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`，raw 中 `area_id` 原始分布仍为 0 共 336 行、1 共 1783 行、2 共 2374 行、3 共 2291 行、4 共 9 行、5 共 3 行、6 共 7 行。
-- 第一阶段规则选中的 2119 个 `area_id` 为 0/1 的 raw MID 当前全部存在于数据库，且数据库 `area_id` 与 raw 完全一致；未发现缺失 MID、被清空为 `NULL` 或改成其他非空值的情况。
-
-### 梳理当前完整流程说明
-- 用户要求说明当前完整流程，并明确每一步及前置步骤，不使用项目符号和编号格式。
-- 已复核 `README.md`、`develop_log.md`、`pyproject.toml` 和 `music_metadata_graph/pipelines/`，确认当前正式流程为步骤一到步骤十二，并在步骤四和步骤十前各有一个 quick_search 缺 MID 前置补全步骤。
-- 当前流程边界为元数据采集、SQLite 入库、歌曲过滤和人工查看 CSV；旧网页、旧图谱导出和旧端到端流程已经归档，不属于当前正式运行入口。
-- 当前最新目标范围规则为：第三步 `--all` 使用第二步当前入库规则选中的歌手；第四步前置、第四步、第五步和第七步的 `--all` 使用第三步当前目标范围与已落盘歌曲 Tab raw 的交集，避免历史落盘但当前非目标的 raw 混入流程。
-
-### 梳理当前流程 CSV 读取点
-- 用户询问当前哪些步骤会读取 CSV。
-- 已检查 `music_metadata_graph/pipelines/` 中的 CSV 相关代码，确认正式流程里真正打开并读取 CSV 文件的是 `quick_search_artist_mid.read_mid_fill_csv()`，用于断点续跑和复用已匹配结果。
-- 第四步前置 `fill_song_singer_missing_mids.py` 会读取 `data/processed/validation/song_singer_mid_fill/csv_views/song_singer_mid_fill.csv`；第十步前置 `fill_song_credit_missing_mids.py` 会读取 `data/processed/validation/song_credit_mid_fill/csv_views/song_credit_mid_fill.csv`。
-- 第七步、第八步、第九步、第十步、第十一步和第十二步会写出 CSV 供人工检查或记录过滤结果，但当前后续正式流程不读取这些 CSV 作为输入。
-
-### 梳理两个 quick_search 前置步骤内部流程
-- 用户要求说明第四步前置和第十步前置的完整内部流程，包括读取顺序、命中处理、未命中处理和后续读取行为。
-- 已复核 `fill_song_singer_missing_mids.py`、`fill_song_credit_missing_mids.py` 和公共模块 `quick_search_artist_mid.py`。
-- 两个前置步骤的差异在于缺 MID 名字来源：第四步前置从第三步目标范围内的歌曲 Tab raw 读取 `singer[].name` 且 `singer[].mid` 为空的演唱者；第十步前置从第九步制作人 raw 读取作词、作曲条目里 `singer_mid` 为空的制作人。
-- 两个前置步骤的公共匹配顺序为：去重缺 MID 名字源；非 `--force` 时读取已有 CSV 判断已完成项；读取 `artists` 表按姓名精确匹配；未命中时读取 quick_search raw 缓存或请求 QQ 音乐；只在唯一精确命中时补入 `artists`；无精确命中且名字含 `/` 时拆分后按同样顺序处理。
-- CSV 的作用是断点续跑和复用匹配结果；第七步和第十步正式导入不会读取该 CSV，而是查询 `artists` 表中已经补入或已有的唯一姓名匹配。
-
-### 调整 quick_search 前置步骤不再读取 CSV
-- 用户要求第四步前置和第十步前置保留 CSV 写出，但去掉读取旧 CSV 作为断点输入或跳过依据的逻辑；权威链路调整为缺 MID 来源 raw、`artists` 表、quick_search raw 缓存、必要时请求接口、写 CSV 视图。
-- 已修改 `music_metadata_graph/pipelines/quick_search_artist_mid.py`，删除 `read_mid_fill_csv()`、旧 CSV 完成判断、从旧 CSV 反补 `artists`、`csv_existing` 统计和 `csv_existing` 跳过分支。
-- 保留 `write_mid_fill_csv()`，运行中仍会把 `db_matched`、`db_ambiguous_name`、`matched`、`not_matched`、`no_singer_candidates`、`failed:*` 等结果写入 CSV 供人工检查。
-- 保留 `execute_or_load_quick_search()` 的缓存逻辑：库内未唯一命中时先按名字查 quick_search raw JSON，缓存存在且未传 `--force` 时读缓存，缓存不存在或传入 `--force` 时才请求 QQ 音乐。
-- 已同步 `README.md` 和 `AGENTS.md`，说明第四步前置和第十步前置每次运行都会重写 CSV 视图，流程不再读取旧 CSV 作为断点输入或跳过依据。
-
-### 验证 quick_search 前置步骤 CSV 读取移除
-- 验证对象为 `quick_search_artist_mid.py`、`fill_song_singer_missing_mids.py` 和 `fill_song_credit_missing_mids.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为第四步前置和第十步前置入口，执行 `python -m music_metadata_graph.pipelines.fill_song_singer_missing_mids --help` 和 `python -m music_metadata_graph.pipelines.fill_song_credit_missing_mids --help`，结果均退出码为 0，未触发真实 QQ 音乐请求。
-- 源码搜索确认 `quick_search_artist_mid.py` 中不再存在 `read_mid_fill_csv`、`existing_source_complete`、`build_artist_row_from_csv` 或 `csv_existing`。
-
-### 检查补 MID CSV 拆分检索记录
-- 用户询问第四步前置和第十步前置补 MID CSV 是否记录名字包含 `/` 的拆分检索过程，并希望查看这些不干净源数据的解析情况。
-- 检查 `song_singer_mid_fill.csv` 显示当前第四步前置 CSV 共有 976 行，`match_mode` 全部为 `direct`，当前没有 `source_name` 包含 `/` 的记录。
-- 检查 `song_credit_mid_fill.csv` 显示当前第十步前置 CSV 共有 18952 行，其中 `source_name` 包含 `/` 的记录 723 行，涉及 216 个唯一原始名字；其中 `match_mode=direct` 为 216 行，`match_mode=split` 为 507 行。
-- 第十步前置拆分记录状态分布为：`split/no_singer_candidates` 238 行、`split/db_matched` 173 行、`split/not_matched` 53 行、`split/matched` 30 行、`split/db_ambiguous_name` 7 行、`split/ambiguous_exact_match` 6 行。
-- 已导出便于人工查看的过滤 CSV：`data/processed/validation/song_credit_mid_fill/csv_views/song_credit_mid_fill_slash_sources.csv`，包含原始 `source_name`、拆分 `search_name`、`match_mode`、`status`、匹配 MID、匹配姓名、候选计数和来源歌曲信息。
-
-### 修正拆分检索检查 CSV 编码
-- 用户指出手工导出的 `song_credit_mid_fill_slash_sources.csv` 内容编码有问题。
-- 复查文件头确认首次导出没有 UTF-8 BOM，不符合项目 CSV 通过 `utf-8-sig` 兼容 Excel 查看的一贯做法。
-- 已使用 PowerShell `Export-Csv -Encoding utf8BOM` 重新导出 `song_credit_mid_fill_slash_sources.csv`。
-- 验证方式为 `Format-Hex -Count 16` 检查文件头，结果显示开头字节为 `EF BB BF`，确认已改为带 BOM 的 UTF-8。
-
-### 检查带斜杠原始名是否整体命中
-- 用户询问补 MID CSV 中是否存在原始名字包含 `/` 且整体 direct 检索成功的情况，用于判断是否有真实艺人名本身带 `/`。
-- 检查 `song_credit_mid_fill.csv` 中 `source_name` 包含 `/` 且 `match_mode=direct` 的 216 行，状态分布为 `no_singer_candidates` 214 行、`not_matched` 2 行，没有 `matched` 或 `db_matched`。
-- 两条 direct 非 `no_singer_candidates` 记录为 `N/A` 和 `GAI/周延`，均为 `not_matched`，没有整体命中 MID。
-- 当前 `song_singer_mid_fill.csv` 中没有 `source_name` 包含 `/` 且 `match_mode=direct` 的记录。
-
-### 调整带斜杠缺 MID 名字拆分策略
-- 用户判断带 `/` 的名字可直接拆分，不需要按原始整体名字搜索，并纠正拆分后不要求每个片段都能匹配；能唯一匹配的片段应入库，不能匹配的片段跳过。
-- 已修改 `music_metadata_graph/pipelines/quick_search_artist_mid.py`：补 MID 前置遇到 `source_name` 包含 `/` 时不再执行整体 direct 查库或 quick_search，而是直接按 `/` 拆分，并对每个拆分片段执行查库、读 quick_search raw 缓存、必要时请求接口和写 CSV。
-- 已修改 `music_metadata_graph/pipelines/import_singer_song_tab_to_db.py`：第七步歌曲入库遇到缺 MID 且歌手名包含 `/` 时，按拆分片段查询 `artists` 唯一姓名映射；能命中的片段写入 `song_singers`，不能命中的片段跳过；只有没有任何片段命中时才把歌曲按缺歌手 MID 拒绝。
-- 已修改 `music_metadata_graph/pipelines/import_song_credits_to_db.py`：第十步作词作曲入库遇到缺 MID 且制作人名包含 `/` 时，按拆分片段查询 `artists` 唯一姓名映射；能命中的片段写入 `song_credit_artists`，不能命中的片段跳过。
-- 已同步 `README.md` 和 `AGENTS.md`，记录带 `/` 名字不再整体搜索、拆分片段部分命中即可入库、CSV 仍只作为人工检查视图。
-
-### 验证带斜杠拆分策略代码
-- 验证对象为 `quick_search_artist_mid.py`、`import_singer_song_tab_to_db.py`、`import_song_credits_to_db.py`、`fill_song_singer_missing_mids.py` 和 `fill_song_credit_missing_mids.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为拆分解析辅助函数，执行内联 Python 导入 `resolve_missing_artist_name_mids()` 和 `resolve_missing_artist_name_rows()`，用 `A/B/C` 和只包含 `A`、`C` 的唯一姓名映射测试，结果分别返回 `mid_a` 和 `mid_c`，确认部分片段命中即可返回。
-- 本次未重跑第四步前置、第十步前置、第七步或第十步正式入库，因此现有数据库和现有补 MID CSV 仍反映旧运行结果；需要重新运行对应步骤后才会应用新拆分策略到数据产物。
-
-### 实现一键完整流程编排入口
-- 用户要求写一个脚本按顺序一键运行完整流程，并且做安全检查，不能默认上一个脚本正确跑完。
-- 新增 `music_metadata_graph/pipelines/run_full_pipeline.py`，作为完整流程编排入口；该入口使用当前 Python 解释器逐个子进程调用现有正式 pipeline，保留各子脚本自身运行日志。
-- 编排步骤共 14 个，将第四步前置和第十步前置补 MID 作为独立编排步骤纳入顺序；对应业务流程仍是步骤一到步骤十二加两个前置步骤。
-- 编排入口在每一步前后执行检查，检查范围包括：歌手列表 raw 页和行数、`artists` 表、步骤三目标歌手歌曲 Tab raw 覆盖、歌曲 Tab 中非空歌手 MID 是否进入 `artists`、专辑 raw、`albums` 表、`songs/song_singers` 表、SQLite 外键、步骤八后专辑类型是否只剩允许值、步骤九后每首保留歌曲是否都有制作人 raw、`song_credit_artists` 表、作词/作曲角色是否存在、步骤十一后是否仍有缺作词或作曲歌曲、步骤十二后歌曲 `mid/id` 是否仍唯一。
-- 新增命令行参数 `--continue-from`、`--stop-after` 和 `--dry-run`，支持从编排步骤中间继续、只跑到某一步、以及只打印命令并检查当前已有产物。
-- 已在 `pyproject.toml` 增加脚本入口 `mr-run-full-pipeline = "music_metadata_graph.pipelines.run_full_pipeline:main"`。
-- 已同步 `README.md` 和 `AGENTS.md`，说明一键入口、检查边界和 14 个编排步骤与 12 个业务步骤的对应关系。
-
-### 验证一键完整流程编排入口
-- 验证对象为 `run_full_pipeline.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为 `pyproject.toml`，执行方式为项目指定 Conda Python 使用 `tomllib` 解析，结果输出 `pyproject ok`。
-- 验证对象为一键入口帮助信息，执行 `python -m music_metadata_graph.pipelines.run_full_pipeline --help`，结果退出码为 0，并显示 `--continue-from`、`--stop-after` 和 `--dry-run` 参数。
-- 验证对象为 dry-run 单步检查，执行 `python -m music_metadata_graph.pipelines.run_full_pipeline --dry-run --stop-after 1`，结果未执行真实采集命令，检查到当前歌手列表 raw 为 86 页、6803 行。
-
-### 检查运行日志对应步骤
-- 用户要求查看当前运行日志实际运行的是流程中的哪几步。
-- 本次检查对象为 `logs/runs/` 下 13 个日志文件，文件名显示已运行第二步、第四步前置、第四步、第五步、第六步、第七步、第八步、第九步、第十步前置、第十步、第十一步和第十二步。
-- 已完成日志均包含 `run_status=completed`，未在这些完成日志的尾部看到 `failed_fetches`、`failed_searches` 非零或失败状态。
-- 当前未看到本轮第一步 `collect_singer_list_raw` 的运行日志，说明本轮日志目录中没有记录重新请求完整歌手列表，第二步使用的是已有歌手列表 raw。
-- 当前 `collect_singer_song_tab_raw_20260515_152010.log` 对应第三步仍在写入，检查时未出现 `run_status` 结束行；日志进度从 `[1099/2119]` 增长到 `[1103/2119]`，说明第三步仍在运行中。
-- 当前观察到第三步运行时间与后续步骤完成时间存在重叠，后续步骤已经基于当时已落盘的歌曲 Tab raw 和缓存继续完成；第三步本次全目标采集尚未结束。
-
-### 重命名非本轮生成的 validation CSV
-- 用户要求检查 `data/processed/validation/` 中的 CSV，并把不是本次生成的文件改名为 `deleted_1/2/3`。
-- 本次将 `data/processed/validation/` 下 12 个 CSV 与 `logs/runs/` 中本轮日志明确输出的 CSV 路径交叉比对。
-- 确认 11 个 CSV 出现在本轮日志输出路径中，且修改时间集中在本轮运行时间段。
-- 发现旧文件 `songs_removed_by_step10_same_singer_name_dedupe.csv` 未出现在本轮日志输出路径中，修改时间为本轮运行前的旧时间。
-- 已将该旧文件在原目录内重命名为 `deleted_1.csv`，未发现需要改名为 `deleted_2.csv` 或 `deleted_3.csv` 的其他旧 CSV。
-- 验证结果显示原文件名已不存在，`data/processed/validation/song_filtering/csv_views/deleted_1.csv` 存在，其余本轮生成 CSV 保持原名。
-
-### 区分 validation 中的歌曲 CSV
-- 用户询问本轮 11 个 validation CSV 中哪些内容是歌曲，以及分别在哪些步骤导出。
-- 已读取 11 个本轮 CSV 的表头，并与 `logs/runs/` 中的 CSV 输出路径对应。
-- 确认以歌曲行为主体的 CSV 共 7 个：第七步歌曲入库拒绝 CSV、第八步专辑类型过滤删除 CSV、第十步后临时歌曲 CSV、第十一步作词作曲不完整删除 CSV、第十一步后临时保留歌曲 CSV、第十二步同名同作词作曲去重删除 CSV、第十二步后临时保留歌曲 CSV。
-- 确认其余 4 个 CSV 不是歌曲明细表：第六步专辑导入拒绝 CSV、第四步前置歌曲歌手缺 MID 补全 CSV、第九步制作人缺 MID 明细 CSV、第十步前置作词作曲缺 MID 补全 CSV。
-
-### 调整第十一步临时歌曲 CSV 导出范围
-- 用户指出第十步临时 CSV 默认只导出周杰伦、林俊杰、薛之谦、汪苏泷四个人，并要求第十一步临时 CSV 也改成同样范围。
-- 已确认当前数据库已经执行到第十二步，不能直接从数据库重导“第十一步后、第十二步前”的完整状态；但现有第十一步完整临时 CSV 仍保留，因此可用该 CSV 直接过滤出四个人范围。
-- 已修改 `music_metadata_graph/pipelines/filter_songs_by_credit_completeness.py`：新增默认临时导出歌手范围 `周杰伦`、`林俊杰`、`薛之谦`、`汪苏泷`，新增 `--temp-export-artist-name` 和 `--all-temp-kept-csv` 参数，并在日志结果中输出 `temp_export_artist_names` 与 `exported_temp_kept_rows`。
-- 已同步 `README.md` 的第十一步说明，记录第十一步临时 CSV 默认只导出四个人范围；全量保留歌曲需要显式传入 `--all-temp-kept-csv`。
-- 已用现有 `songs_after_step11_complete_credits.csv` 过滤覆盖同名文件，数据行从 52821 行变为 869 行；验证显示所有 869 行的 `singers_json` 均包含四位目标歌手之一。
-- 验证对象为第十一步脚本，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误；执行 `--help` 显示新增参数已生效。
-
-### 纠正从歌曲 Tab 后续测试入口语义
-- 用户纠正“默认歌手的主页已经全请求到了”指的是步骤三按完整 `--all` 参数目标范围全部请求完成，不是指四位临时导出歌手或默认四个歌手。
-- 已确认 `run_full_pipeline.py` 未保留按默认四人筛选的参数或分支；`run_from_song_tabs.py` 固定等价于完整编排 `--continue-from 4`，即从四前置开始，并先检查步骤三 `--all` 目标歌手主页歌曲 Tab raw 覆盖完整性。
-- 已修改 `run_from_song_tabs.py` 的帮助描述，将前提明确为 “all step-3 --all target singer homepage song-tab raw JSON already exists”。
-- 已同步 `README.md` 和 `AGENTS.md`，把测试入口前提从“默认歌手主页歌曲 Tab raw 已完成”改为“步骤三 `--all` 目标歌手主页歌曲 Tab raw 已全部完成”。
-
-### 验证从歌曲 Tab 后续测试入口
-- 验证对象为 `run_from_song_tabs.py` 和 `run_full_pipeline.py`，执行方式为项目指定 Conda Python 运行 `py_compile`，结果未输出语法错误。
-- 验证对象为 `run_from_song_tabs` 帮助信息，执行 `python -m music_metadata_graph.pipelines.run_from_song_tabs --help`，结果退出码为 0，并显示该入口假设全部步骤三 `--all` 目标歌手主页歌曲 Tab raw 已存在。
-- 验证对象为 dry-run 前置检查，执行 `python -m music_metadata_graph.pipelines.run_from_song_tabs --dry-run --stop-after 4`，结果在四前置前停止，提示当前仍缺少 9 个步骤三 `--all` 目标歌手的主页歌曲 Tab raw，确认该入口不会假设步骤三已经正确完成。
-
-### 修正歌曲 Tab 后续测试入口检查口径
-- 用户指出步骤三之后的 `--all` 续跑语义不是要求步骤三目标歌手主页歌曲 Tab raw 全部存在，而是只根据当前已经落盘的歌手主页歌曲 Tab raw 继续处理。
-- 已确认单步脚本当前行为为：第四步前置会解析步骤三 `--all` 目标范围但只读取已存在的 raw 文件；第四步、第五步和第七步的 `--all` 也按步骤三目标范围与已落盘 raw 的交集处理。
-- 已修改 `run_full_pipeline.py`，新增 `ensure_song_tab_available()`：从四前置及后续依赖歌曲 Tab raw 的步骤继续时，只要求步骤三目标范围内至少有可处理的 raw，并报告 `available_song_tab_singers`；第三步自身的 postcheck 仍保留 `ensure_song_tab_complete()`，完整一键从第三步跑完后仍检查目标覆盖完整性。
-- 已修改 `run_from_song_tabs.py`、`README.md` 和 `AGENTS.md`，将该测试入口前提改为“根据当前已落盘步骤三 `--all` 目标 raw 继续”，不再表述为要求全部目标落盘。
-
-### 验证歌曲 Tab 后续测试入口检查口径修正
-- 验证对象为 `run_full_pipeline.py` 和 `run_from_song_tabs.py`，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为 `run_from_song_tabs --help`，输出已说明该入口从已有步骤三 `--all` 目标主页歌曲 raw 继续，并只检查至少一个范围内 raw 目录存在。
-- 验证对象为 dry-run 前置检查，执行 `python -m music_metadata_graph.pipelines.run_from_song_tabs --dry-run --stop-after 4`，结果退出码为 0，未执行真实四前置命令，只打印命令并完成已有 CSV postcheck；当前检查结果显示步骤三目标歌手 2119 个、可用主页歌曲 raw 歌手 2119 个、raw 文件 16527 个。
-
-### 整理完整手动流程命令
-- 用户要求从请求歌手开始列出完整流程每一步命令。
-- 已按 `run_full_pipeline.py` 当前 `build_steps()` 中的实际模块和参数核对，确认完整编排为 14 个步骤，其中第四步前置和第十步前置 quick_search 补 MID 被单独编号。
-- 当前命令口径使用项目默认数据库、QQ 音乐 raw 根目录、默认歌手列表 raw 目录和各步骤默认 validation CSV 路径。
-
-### 检查数据库默认路径定义
-- 用户询问数据库路径在几个脚本里写死。
-- 源码搜索确认 `music_metadata_graph/pipelines/` 下共有 14 个脚本直接定义 `DEFAULT_DB_PATH = Path("data/music_metadata_graph.sqlite3")`。
-- 另有 `run_from_song_tabs.py` 从 `run_full_pipeline.py` 导入 `DEFAULT_DB_PATH` 作为默认值，不重复写死字符串。
-- 所有这些入口均暴露 `--db` 参数，因此该路径是 CLI 默认值，不是不可覆盖的固定路径。
-
-### 集中数据库默认路径常量
-- 用户要求新增单独常量文件，让所有脚本从常量文件导入数据库默认路径，避免每个脚本重复写死。
-- 新增 `music_metadata_graph/pipelines/defaults.py`，定义统一的 `DEFAULT_DB_PATH = Path("data/music_metadata_graph.sqlite3")`。
-- 已修改 14 个原先直接定义 `DEFAULT_DB_PATH` 的 pipeline 脚本，改为从 `music_metadata_graph.pipelines.defaults` 导入该常量；`run_from_song_tabs.py` 继续通过 `run_full_pipeline.py` 复用默认值。
-- 已同步 `README.md` 和 `AGENTS.md`，记录 pipeline 默认 SQLite 路径必须复用 `defaults.py`，命令行入口仍保留 `--db` 覆盖能力。
-
-### 验证数据库默认路径常量集中
-- 验证对象为 16 个相关 pipeline 文件，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为入口帮助信息，执行 `run_full_pipeline --help`、`import_singer_list_to_db --help`、`fill_song_singer_missing_mids --help`，结果均退出码为 0，`--db` 参数仍存在。
-- 验证对象为所有改动模块导入链，执行内联 Python 使用 `importlib.import_module()` 导入 15 个相关模块，结果输出 `imports ok 15`。
-- 源码搜索确认除 `music_metadata_graph/pipelines/defaults.py` 外，`music_metadata_graph/pipelines/` 下不再直接定义 `DEFAULT_DB_PATH = Path("data/music_metadata_graph.sqlite3")`。
-
-### 设计并实现 MVP 流程模式
-- 用户要求定义新的数据库路径用于 MVP 流程，并为需要的脚本添加 MVP 参数，以便查看最小实现；随后纠正 raw 数据仍然共用，不应另建 MVP raw 目录或重复请求已有 raw。
-- 已在 `music_metadata_graph/pipelines/defaults.py` 增加 `DEFAULT_MVP_DB_PATH = Path("data/music_metadata_graph_mvp.sqlite3")` 和 `MVP_SINGER_LIMIT = 10`。
-- 已修改 `collect_singer_list_raw.py`，新增 `--mvp`；MVP 模式在未显式传入 `--max-pages` 时只确保歌手列表第一页 raw 存在，raw 根目录仍使用 `data/raw/qqmusic`。
-- 已修改 `import_singer_list_to_db.py`，新增 `--mvp`；MVP 模式默认写入 MVP 数据库，并只导入 `area_id in (0, 1)` 过滤后的前 10 个歌手。
-- 已修改第三步目标解析和依赖该目标解析的脚本：`collect_singer_song_tab_raw.py`、`fill_song_singer_missing_mids.py`、`collect_missing_song_singers_to_db.py`、`collect_song_album_detail_raw.py`、`import_singer_song_tab_to_db.py` 新增 `--mvp`，使 `--all` 在 MVP 模式下使用同一前 10 个歌手范围。
-- 已修改 `run_full_pipeline.py`，新增 `--mvp`；MVP 模式默认使用共享 raw 目录、MVP 数据库，并把 validation 输出路径从 `data/processed/validation/` 映射到 `data/processed/validation_mvp/`。
-- 已修改 `run_from_song_tabs.py`，新增 `--mvp`，用于从已有共享 raw 继续 MVP 后续流程。
-- 已同步 `README.md` 和 `AGENTS.md`，记录 MVP raw 共享、MVP 数据库、MVP validation 产物目录和一键命令。
-
-### 验证 MVP 流程模式
-- 验证对象为新增和修改的 MVP 相关 pipeline 文件，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为 `run_full_pipeline --help`、`import_singer_list_to_db --help`、`collect_singer_song_tab_raw --help`，输出均包含 `--mvp` 参数。
-- 验证对象为一键 MVP dry-run 第一段，执行 `python -m music_metadata_graph.pipelines.run_full_pipeline --mvp --dry-run --stop-after 1`，结果未执行真实请求，打印的第一步命令使用共享 raw 根目录 `data/raw/qqmusic` 并携带 `--mvp`。
-- 验证对象为 MVP 编排命令生成，执行内联 Python 构造 MVP `PipelineContext` 并输出 14 个步骤参数；结果显示数据库路径均为 `data/music_metadata_graph_mvp.sqlite3`，raw 路径仍为 `data/raw/qqmusic`，validation 产物路径均位于 `data/processed/validation_mvp/`。
-
-### 修复 MVP 第五步歌手详情缺名导致 postcheck 失败
-- 用户反馈 MVP 一键流程第 5 步 `collect_missing_song_singers_to_db` 完成后，编排 postcheck 仍失败，提示歌曲 Tab 中 `0006dV7e442viT` 不在 `artists`。
-- 已定位该 MID 来自 `data/raw/qqmusic/singer_homepage_song_tab/000CK5xN3yZDJt/page_0012_size_30.json` 中歌曲《不得不爱》的歌手项，歌曲 raw 里的歌手名为 `w别丢下甜甜`。
-- 已检查对应 `singer_info/0006dV7e442viT.json`，QQ 音乐详情返回 `Info.Singer.Name` 为空，因此第 5 步原逻辑按 `missing_name` 跳过，导致 postcheck 失败。
-- 已修改 `collect_missing_song_singers_to_db.py`：收集缺失歌手 MID 时同步保存歌曲 raw 中出现的源歌手名；当 singer_info 详情缺 name 时，`extract_singer_row()` 使用源歌手名作为兜底入库姓名。
-
-### 验证第五步缺名兜底修复
-- 验证对象为 `collect_missing_song_singers_to_db.py` 和 `run_full_pipeline.py`，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为 `extract_singer_row()`，使用 `singer_info/0006dV7e442viT.json` 和 fallback name `w别丢下甜甜` 执行内联 Python，结果返回 `ok`，并生成 MID 为 `0006dV7e442viT`、姓名为 `w别丢下甜甜` 的 artist row。
-- 已实际重跑 MVP 编排第 5 步：`python -m music_metadata_graph.pipelines.run_full_pipeline --mvp --continue-from 5 --stop-after 5`；结果只处理 1 个缺失 MID，命中本地缓存，导入 `w别丢下甜甜(0006dV7e442viT)`，`db_artists` 变为 921，postcheck 显示 `missing_artist_mids=0`。
-
-### 新增业务第十三步 language 过滤
-- 用户要求增加业务第 13 步，对应总编排第 15 步，筛除 `language=9` 的歌曲，导出删除 CSV，并临时导出留下的 CSV。
-- 新增 `music_metadata_graph/pipelines/filter_songs_by_language.py`，默认删除 `songs.language = 9` 的歌曲；删除 CSV 默认写入 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step13_language_9.csv`，临时保留歌曲 CSV 默认写入 `data/processed/validation/temp_song_filtering/csv_views/songs_after_step13_language_filter.csv`。
-- 新脚本使用现有 `song_csv.write_song_csv()` 和 `include_credits=True`，因此删除 CSV 与保留 CSV 都包含歌曲基础字段、作词、作曲和歌手 JSON。
-- 已接入 `run_full_pipeline.py` 第 15 个编排步骤，postcheck 会确认 `songs` 表中不再存在 `language=9`；`run_from_song_tabs.py` 默认结束步骤改为 15。
-- 已在 `pyproject.toml` 增加脚本入口 `mr-filter-songs-language`。
-- 已同步 `README.md` 和 `AGENTS.md`，记录业务流程从 12 步扩展为 13 步，一键编排从 14 步扩展为 15 步。
-
-### 验证业务第十三步 language 过滤
-- 验证对象为 `filter_songs_by_language.py`、`run_full_pipeline.py` 和 `run_from_song_tabs.py`，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为 `filter_songs_by_language --help` 和 `run_full_pipeline --help`，结果退出码为 0，前者显示 `--rejection-csv`、`--temp-kept-csv`、`--removed-language` 和 `--mvp` 参数，后者默认 `--stop-after` 已改为 15。
-- 验证对象为 `pyproject.toml`，执行项目指定 Conda Python `tomllib` 解析，结果输出 `pyproject ok`。
-- 已实际在 MVP 数据库执行第 15 步：`python -m music_metadata_graph.pipelines.run_full_pipeline --mvp --continue-from 15 --stop-after 15`；结果从 1980 首中删除 9 首 `language=9`，剩余 1971 首，postcheck 显示 `language_9_songs=0`。
-- 验证输出 CSV：`data/processed/validation_mvp/song_filtering/csv_views/songs_removed_by_step13_language_9.csv` 有 9 行，首行 `song_language=9`；`data/processed/validation_mvp/temp_song_filtering/csv_views/songs_after_step13_language_filter.csv` 有 1971 行。
-
-### 复核第九步来源歌曲范围
-- 用户询问第九步制作人 raw 请求的来源歌曲范围来自数据库还是 raw。
-- 已复核 `collect_song_producer_raw.py`：第九步先连接 SQLite，并从当前 `songs` 表执行 `SELECT mid FROM songs ... ORDER BY name, id, mid` 得到目标歌曲 MID；正式完整流程未传 `--artist-mid`、`--artist-name` 或 `--max-songs`，因此目标范围是第八步过滤后仍保留在数据库 `songs` 表里的全部歌曲。
-- 已确认第九步不会扫描歌曲 Tab raw、专辑 raw 或已有 producer raw 来决定目标歌曲范围；producer raw 目录只用于按 `song_mid` 判断缓存命中，存在且 JSON 可读时复用，不存在或缓存损坏时请求接口并写入 raw。
-
-### 纠正当前库测试重跑范围
-- 用户指出当前目标是用现有数据库测试带 `/` 名字拆分入库效果，而不是等待重新补全新增歌曲的制作人 raw。
-- 已复核第七步 `import_singer_song_tab_to_db.py`：该步骤会从已有歌曲 Tab raw 重建 `songs` 和 `song_singers`，不适合作为当前只测试制作人拆分入库的最小动作。
-- 已复核第十步 `import_song_credits_to_db.py`：该步骤只读取当前 SQLite 的 `songs/song_singers/artists` 与已有 `data/raw/qqmusic/song_producer/*.json`，会重建 `song_credit_artists` 并导出临时歌曲 CSV，不会请求 `song.get_producer`，也不会导入新歌曲。
-- 已复核第九步 `collect_song_producer_raw.py` 才会请求制作人 raw；第十步前置 `fill_song_credit_missing_mids.py` 才可能触发 quick_search 补 MID 请求。
-- 当前若只想验证新拆分逻辑，最小重跑范围应是备份数据库后只跑第十步导入；该方式不会补新增歌曲缺失的 producer raw，新增但没有 producer raw 的歌曲不会产生作词作曲关系。
-
-### 检查总数据库第四步缺失演唱者补库进度
-- 用户截图显示当前正在运行 `collect_missing_song_singers_to_db --all`，本次检查按该脚本实际 `--all` 目标解析口径只读复算进度。
-- 当前默认总数据库路径为 `data/music_metadata_graph.sqlite3`，检查时数据库只有 `artists` 表，`artists` 可见行数为 2746，数据库修改时间仍停留在本步骤启动前，说明脚本尚未进入最终统一导入阶段。
-- 该步骤启动口径为目标歌手 2119 个、扫描歌曲 Tab 行 463375 条、无 MID 的演唱者条目 6496 条、需要补入的唯一缺失演唱者 MID 为 31331 个。
-- 只读复算显示 31331 个缺失演唱者 MID 中已有 30897 个存在 `data/raw/qqmusic/singer_info/` 详情 JSON，仍有 434 个缺失详情 JSON，按 raw 落盘口径约完成 98.61%。
-- 以本次运行开始时间之后新写入或更新的详情 JSON 计，当前运行已处理 19120 个缺失 MID，约占本轮目标 61.03%；其余已存在的详情 JSON 来自历史缓存。
-- 抽查已存在的 30897 个缺失演唱者详情 JSON 均可提取为可导入 artist 行；当前未发现这批缓存因缺 MID 或缺姓名不可导入。
-- 当前日志文件尾部仍只有启动摘要，尚未输出逐个歌手进度或最终 JSON 汇总；因此最终导入数量、失败 MID 和跳过原因需等脚本结束后再以日志尾部和数据库行数确认。
-
-### 确认总数据库第四步缺失演唱者补库完成
-- `logs/runs/collect_missing_song_singers_to_db_20260515_211725.log` 已输出 `run_status=completed`，完成时间为 2026-05-15T20:50:40Z。
-- 本次第四步共处理缺失演唱者 MID 31331 个，其中请求新增详情 JSON 19494 个、命中历史缓存 11837 个，请求失败数为 0。
-- 脚本最终提取可导入歌手 31293 个，并实际导入 31293 个；`artists` 表从检查时的 2746 行增长到 34039 行。
-- 本次仍跳过 38 个缺失演唱者，日志原因均为 `missing_name`；后续只读复算确认剩余 38 个 MID 均已有 `singer_info` JSON，但详情无法提取姓名且未被当前兜底逻辑导入。
-- 导入完成后按同一 `--all` 目标范围复算：目标歌手 2119 个、歌曲 Tab 行 463375 条、无 MID 演唱者条目 6496 条，剩余唯一缺失演唱者 MID 为 38 个。
-
-### 查询 MVP 库歌曲名包含空格的歌曲
-- 用户要求从 MVP 库中查找歌曲名包含空格的歌曲。
-- 查询对象为 `data/music_metadata_graph_mvp.sqlite3` 的 `songs` 表，当前共有 1971 首歌曲。
-- 查询口径为 `songs.name` 或 `songs.title` 任一字段包含普通 ASCII 空格，并关联 `albums`、`song_singers`、`artists` 输出专辑类型和演唱者信息。
-- 查询结果共 291 首；因 Windows 控制台 GBK 编码无法完整打印日文和特殊字符，已将完整结果以 UTF-8 BOM CSV 导出到 `data/processed/validation_mvp/song_name_space_query.csv`，文件大小 32606 字节。
-- 追加核对严格歌名口径：仅 `songs.name` 包含普通 ASCII 空格的歌曲为 195 首；`songs.title` 包含空格为 291 首，其中 96 首属于 `name` 不含空格但 `title` 含版本信息空格。
-- 已额外导出严格歌名口径 CSV 到 `data/processed/validation_mvp/song_name_space_query_name_only.csv`，文件大小 21320 字节。
-
-### 设计第十二步中英文混排歌名规范化规则
-- 用户指出第十二步现有歌名规范化过于保守，导致 `（......醉鬼阿Q）（feat.孙燕姿）` 与 `（……醉鬼阿Q）（feat. 孙燕姿）` 这类等价标题未被去重，并要求整理更完备的中英文混合书写规范或使用工具库，而不是针对单例打补丁。
-- 已将第十二步歌名身份规范化抽为 `music_metadata_graph.text_normalization.normalize_song_title_identity()`，作为独立可测试能力供去重复用。
-- 新规则使用确定性等价规范化，不引入模糊相似度库；覆盖 Unicode `NFKC`、中英文常见标点等价、连续省略号归一、`feat./ft./featuring` 写法归一、连续空白压缩、括号内侧空格清理、逗号/斜杠/连接符等标点两侧空格清理、大小写折叠和首尾空白清理。
-- 风险边界：规则保留普通英文词间空格，不删除括号中的语义版本文本，避免把不同版本或不同英文词边界误合并；后续如需更激进的版本名处理，应单独设计人工复核视图。
-
-### 实现第十二步歌名规范化复用
-- 新增 `music_metadata_graph/text_normalization.py`，集中维护歌曲标题身份规范化规则。
-- 修改 `music_metadata_graph/pipelines/filter_imported_songs.py`，使第十二步 `normalize_song_name()` 调用新的 `normalize_song_title_identity()`。
-- 新增 `tests/test_text_normalization.py`，使用标准库 `unittest` 固化中英文混排等价、保留语义版本文本、保留英文词间空格、全半角与标点空格等测试场景。
-- 已同步 `README.md` 和 `AGENTS.md`，记录第十二步歌名规范化必须复用统一函数及当前规则边界。
-
-### 验证第十二步歌名规范化修正
-- 验证对象为 `music_metadata_graph/text_normalization.py`、`music_metadata_graph/pipelines/filter_imported_songs.py` 和 `tests/test_text_normalization.py`，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为新增单元测试，执行 `python -m unittest tests.test_text_normalization`，结果运行 4 个测试并全部通过。
-- 验证对象为用户给出的两条标题，执行函数级检查后两者均规范化为 `(...醉鬼阿q)(feat.孙燕姿)`，确认得到同一身份 key。
-- 验证对象为第十二步分组逻辑，使用内存 SQLite 构造两首同作词同作曲歌曲，专辑类型分别为 `Single` 与 `录音室专辑`；结果第十二步删除 `003hfx1A3MavCH`，保留 `001LID6n1Szd9Z`，符合现有保留优先级。
-- 当前未重跑真实 MVP 或正式数据库第十二步，因此现有 SQLite 与已导出 CSV 尚未被本次代码修改改写。
-
-### 检查第六步专辑详情 raw 落盘进度
-- 用户截图显示当前正在运行第六步 `collect_song_album_detail_raw --all`，本次检查仅读取 raw 目录与 SQLite 元信息，不中断正在运行的采集进程。
-- 第一次检查 `data/raw/qqmusic/song_album_detail/` 下已有 57789 个 `.json` 文件；间隔 15 秒后复查已有 58089 个 `.json` 文件，说明当前进程仍在持续写入专辑详情 raw。
-- 按本次运行启动摘要中的目标专辑数 104844 估算，复查时 raw 文件数约占目标的 55.4%；该比例按目录文件数粗略计算，最终完成数量仍需等运行日志输出完成汇总后确认。
-- 当前 `data/music_metadata_graph.sqlite3` 可见表仅有 `artists`，本次第六步检查未发现专辑详情已经导入数据库表；当前可确认的是 raw JSON 文件落盘进度。
-
-### 设计 MVP 数据库可视化方案
-- 用户说明 MVP 流程已跑通且已有 MVP 数据库，要求实现最后一步可视化，并指出归档第一版可视化可参考但旧版数据源是 JSON。
-- 已按当前流程边界确认本轮目标为从 SQLite 数据库生成本地静态图谱页面，不回写归档目录，不恢复旧 JSON 作为正式数据源。
-- 目标效果为运行一个命令后生成 `data/visualization_mvp/index.html`，页面打开即可查看音乐人合作关系图谱，支持搜索、最小歌曲数筛选、有向/无向切换、作词作曲分开或合并显示、自我创作边显示开关、节点详情、边详情、歌曲明细和关系明细。
-- 关系口径定义为“作词/作曲人 -> 演唱者”；边的支撑歌曲来自当前 `songs`、`song_singers`、`song_credit_artists`、`artists`、`albums` 表联查；节点优先使用 `artists.icon` 作为头像。
-- 风险边界为头像 URL 依赖外部网络、正式大库边数可能需要后续切片或导出上限、浏览器真实渲染仍需在用户本机打开页面确认。
-- 本轮不做在线采集、不做后端服务、不提交生成的 HTML 或数据库、不修改归档旧网页。
-
-### 实现 MVP 数据库静态图谱生成器
-- 新增 `music_metadata_graph/visualization/build_static_graph.py`，实现从 SQLite 读取当前标准表并生成自包含 `index.html`。
-- 新增 `music_metadata_graph/visualization/__init__.py` 和 `music_metadata_graph/visualization/vendor/`，将 force-graph 前端运行时及其 MIT 许可证作为当前可视化模块的本地资源，避免默认依赖被 `.gitignore` 排除的 `node_modules`。
-- 新增命令入口 `mr-build-static-graph`；模块入口支持 `--mvp`、`--db`、`--output-dir`、`--title`、`--vendor` 和 `--include-self-edges`。
-- 页面端内联图谱数据和 force-graph 运行时代码，避免直接双击 HTML 时浏览器因 `file://` 跨文件读取限制无法加载外部 JSON。
-- 页面默认隐藏自我创作边，但导出数据保留自我边，由“自我创作”开关在浏览器端控制显示，避免生成阶段丢失可切换信息。
-- 同步 `README.md`，增加 MVP 可视化命令、默认输出路径、页面功能、关系口径和生成物不提交 Git 的说明。
-- 新增 `tests/test_static_graph_build.py`，覆盖 SQLite 到图谱数据的核心关系口径以及嵌入 HTML 的 JSON 脚本闭合转义。
-
-### 验证 MVP 数据库静态图谱生成器
-- 验证对象为 `music_metadata_graph/visualization/build_static_graph.py` 和 `tests/test_static_graph_build.py`，执行项目指定 Conda Python `py_compile`，结果未输出语法错误。
-- 验证对象为新增单元测试，执行 `python -m unittest tests.test_static_graph_build`，结果运行 2 个测试并全部通过。
-- 验证对象为 `pyproject.toml`，执行项目指定 Conda Python `tomllib` 解析，结果输出 `pyproject ok`；执行 `python -m music_metadata_graph.visualization.build_static_graph --help`，结果显示可视化入口参数和说明。
-- 已实际执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp`，输出 `data/visualization_mvp/index.html`，当前 MVP 数据库导出结果为 1970 首歌曲、1210 个图谱节点、2365 条关系边，默认不显示自我创作边。
-- 验证输出 HTML 文件存在且大小约 2.7 MB，UTF-8 可读，无 U+FFFD 替换字符，内联数据块中没有未转义的 `</script>` 提前闭合字符串，页面包含有向/无向、职能、自我创作、阈值和搜索控件，并包含 force-graph 初始化代码。
-- 尝试使用 Codex in-app browser 打开本地 `file://` 输出时被浏览器安全策略拒绝；尝试通过 `127.0.0.1` 临时 HTTP 服务验证时也被当前环境拦截或连接拒绝，因此本轮未完成真实浏览器 canvas 渲染截图验证。
-- 当前替代验证覆盖了文件生成、数据规模、HTML 编码、脚本边界、入口参数和单元测试；剩余风险是用户本机浏览器实际渲染仍需打开 `data/visualization_mvp/index.html` 目检确认。
-
-### 修复可视化节点头像未显示
-- 用户反馈可视化节点不是头像。
-- 复核 MVP 数据库确认 `artists` 表 1839 位音乐人均有非空 `icon`，当前图谱涉及的 1210 个节点也均有头像 URL，因此问题不在数据库头像字段缺失。
-- 定位页面端 `getNodeImage()` 曾设置 `image.crossOrigin = "anonymous"`；QQ 音乐头像服务未必返回允许匿名跨域的响应，可能导致图片加载失败或无法绘制到 canvas。
-- 已修改 `build_static_graph.py`：移除图片 `crossOrigin` 设置；新增 `normalize_icon_url()`，导出图谱时将 `http://` 头像 URL 升级为 `https://`。
-- 已更新 `tests/test_static_graph_build.py`，新增头像 URL 升级测试；重新执行 `python -m unittest tests.test_static_graph_build`，结果运行 3 个测试并全部通过。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；静态检查确认 HTML 中不再包含 `crossOrigin`，不再包含 QQ 头像 `http://` URL，仍包含 HTTPS 头像 URL。
-
-### 调整可视化节点名字显示和悬停高亮
-- 用户要求节点名字做成开关，默认不显示名字；鼠标悬停边或节点时高亮并显示名字，高亮效果参考 force-graph 官方 highlight 示例。
-- 已修改 `build_static_graph.py` 的静态页面模板，工具栏新增“显示名字”开关，页面状态 `showLabels` 默认值为 `false`。
-- 已参考 force-graph highlight 示例新增 `highlightNodes`、`highlightLinks`、`hoveredNode` 和 `hoveredLink` 状态；节点悬停时高亮该节点、相邻节点和相关边；边悬停时高亮边和两端节点。
-- 已调整 canvas 绘制逻辑：默认只绘制头像节点；打开“显示名字”时绘制全部名字；悬停或选中的节点即使开关关闭也会显示名字；非高亮元素在悬停状态下降低透明度。
-- 已调整边绘制逻辑：高亮边加粗并加深颜色，非高亮边在悬停状态下降低宽度和颜色权重；有向/无向、职能拆分/合并逻辑保持不变。
-- 已更新 `tests/test_static_graph_build.py`，新增默认名字关闭、hover 高亮集合和 hover 回调存在性测试；执行 `python -m unittest tests.test_static_graph_build`，结果运行 4 个测试并全部通过。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；静态检查确认 HTML 包含 `label-toggle`、`showLabels: false`、`highlightNodes`、`highlightLinks`、`.onNodeHover` 和 `.onLinkHover`，无 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串。
-
-### 修改可视化选中高亮交互
-- 用户要求移除悬停判断，并把原来的点击选中聚焦放大改成点击选中高亮，不再聚焦放大。
-- 已修改 `build_static_graph.py`：移除 `hoveredNode`、`hoveredLink` 状态和 `.onNodeHover()`、`.onLinkHover()` 回调；保留 `highlightNodes` 和 `highlightLinks` 集合，但只由点击事件更新。
-- 点击节点时设置选中状态并调用 `setNodeHighlight(node)`，高亮该节点、相邻节点和相关边；点击边时调用 `setLinkHighlight(edge)`，高亮该边和两端节点；点击空白处清空选中和高亮。
-- 已删除点击节点后的 `centerAt()` 和 `zoom()` 行为，页面不再因点击节点自动居中或放大。
-- 已更新页面提示文案为“点击高亮相邻关系”。
-- 已更新 `tests/test_static_graph_build.py`，断言默认名字关闭、点击高亮函数存在、hover 回调不存在且源码中不再包含点击聚焦放大调用；执行 `python -m unittest tests.test_static_graph_build`，结果运行 4 个测试并全部通过。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；静态检查确认源码不含 `.onNodeHover`、`.onLinkHover`、`centerAt()` 或 `.zoom()` 调用，输出 HTML 保留点击高亮文案且无 U+FFFD 替换字符。
-
-### 移除可视化自我创作开关和自我边
-- 用户要求永远不要显示自我创作，并删除“自我创作”开关。
-- 已修改 `build_static_graph.py`：`build_graph_data()` 不再接收自我边显示参数，构建关系边时遇到 `source == target` 直接跳过，静态数据层不再导出自我作词或自我作曲边。
-- 已删除页面工具栏中的“自我创作”开关，删除前端 `includeSelfEdges` 状态、`self-toggle` 事件处理和自我边浏览器端过滤逻辑。
-- 已删除 CLI 参数 `--include-self-edges`，避免后续通过命令重新启用自我边。
-- 已更新 `README.md`，说明可视化关系口径永远排除同一音乐人自己给自己作词或作曲的自我边。
-- 已更新 `tests/test_static_graph_build.py`，将原“保留自我边给页面开关”测试改为“自我边永远排除”，并断言前端不再包含 `includeSelfEdges` 或 `self-toggle`。
-- 验证对象为新增测试，执行 `python -m unittest tests.test_static_graph_build`，结果运行 4 个测试并全部通过；初次 `py_compile` 因 Windows 写入 `tests/__pycache__` 权限拒绝失败，随后设置 `PYTHONDONTWRITEBYTECODE=1` 重新执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边，自我边移除后边数从上一版 2365 降至 2271。
-- 静态检查确认输出 HTML 不含 `self-toggle`、“自我创作”、`includeSelfEdges` 或 `initial_show_self_edges`，不含 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串。
-
-### 恢复目标歌手下拉筛选并调细高亮轮廓
-- 用户反馈当前高亮轮廓太粗，并要求参考归档旧版恢复可勾选周杰伦、林俊杰等目标歌手的下拉筛选框。
-- 已修改 `build_static_graph.py`，导出图谱数据时新增 `targets` 列表，取当前数据库演唱歌曲数前 10 位演唱者作为目标歌手筛选项；当前 MVP 包含陈奕迅、汪苏泷、林俊杰、周杰伦、王力宏、孙燕姿、许嵩、薛之谦、G.E.M. 邓紫棋、王源等。
-- 已在页面工具栏恢复“目标歌手”下拉，支持搜索、勾选、全选和反选；筛选逻辑作用于关系边目标端，即只显示指向已勾选演唱者的作词/作曲合作关系。
-- 已同步调整歌曲明细表，使其只显示当前勾选目标歌手演唱的歌曲；图谱标题和顶部说明显示当前目标歌手筛选范围。
-- 已调细选中高亮轮廓：高亮外圈从 `radius + 5`、`lineWidth = 5` 调整为 `radius + 3`、`lineWidth = 2`，节点选中描边从 `3.4` 调整为 `2.2`，普通描边从 `2` 调整为 `1.5`。
-- 已更新 `README.md`，补充页面支持勾选目标歌手。
-- 已更新 `tests/test_static_graph_build.py`，新增目标歌手筛选数据与前端控件存在性测试；执行 `python -m unittest tests.test_static_graph_build`，结果运行 5 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；静态检查确认 HTML 包含目标歌手下拉、全选、反选、周杰伦、林俊杰，不含“自我创作”开关，无 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串。
-
-### 调整名字节点模式和详情栏信息
-- 用户要求“显示名字”开关打开时名字作为节点，参考 force-graph 官方 text-nodes 示例；同时指出高亮轮廓仍太粗、不区分职能边颜色不好看、右侧详情栏未与图同高且内部滚动、节点详情第一条不应显示 MID 而应显示有用统计。
-- 已修改 `build_static_graph.py`：导出节点时保留并新增 `sung_song_count`、`lyricist_song_count`、`composer_song_count`，用于节点详情统计。
-- 已新增文字节点绘制逻辑：`showLabels` 打开时，节点绘制为带浅色背景和细边框的文字节点，并同步调整 `nodePointerAreaPaint`，让点击区域匹配文字节点矩形；关闭时仍使用头像圆点节点，选中节点仍显示名字标签。
-- 已进一步调细高亮：高亮外圈改为 `radius + 2`、`lineWidth = 1`，选中描边改为 `1.5`，文字标签描边从 `4` 调整为 `3`。
-- 已将“不区分职能”合并边颜色从灰色改为克制的绿色 `rgba(20, 132, 117, ...)`，并同步图例颜色。
-- 已调整右侧详情栏：在 `renderGraph()` 中按图区域高度加面板头高度同步设置 `.detail-panel` 的 `height` 和 `maxHeight`；`.detail-panel` 改为 flex 容器，`.detail-content` 独立内部滚动。
-- 已修改节点详情第一张卡，去掉 MID，改为显示“演唱 N 首 · 作词 N 首 · 作曲 N 首”；边详情和歌曲列表保持原逻辑。
-- 已更新 `README.md`，把“显示节点名字”描述改为“切换头像节点或名字节点”。
-- 已更新 `tests/test_static_graph_build.py`，新增节点统计字段、文字节点绘制、详情栏高度同步、合并边颜色和细轮廓检查；执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；静态检查确认 HTML 包含文字节点函数、细高亮参数、合并边新颜色、右栏高度同步逻辑、节点详情统计文案，不再包含旧的节点详情 MID 文案，无 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串。
-
-### 分析树形 DAG 效果用于合作图谱的影响
-- 用户询问如果强行使用 force-graph 官方 tree 示例的层级 DAG 效果展示音乐人合作关系会产生什么后果。
-- 已确认该示例的核心机制是通过 `dagMode()` 将有向无环关系按固定方向或放射方向分层排布，适合父子层级、依赖树、目录树等数据。
-- 对当前音乐人合作图谱而言，作词、作曲人与演唱者之间是多对多网络，可能存在互相合作、共同作者、跨歌曲重复连接等结构，并不天然满足树或 DAG 的语义。
-- 识别出的主要影响为：视觉上会更整齐、有方向感，但会把网络关系误读成上下级层级；存在环或双向关系时 DAG 布局可能需要打散、挤压或无法表达完整语义；中心音乐人和跨圈层合作关系可能被层级方向人为扭曲。
-- 适合保留为可选视图或局部视图，例如“某个音乐人的作品贡献展开图”“歌曲 -> 职能 -> 音乐人”的层级钻取，不适合作为全局音乐人合作网络的默认视图。
-
-### 调细可视化高亮边框并降低边透明度
-- 用户反馈高光边框仍然太粗，并要求把边透明度降到 `0.05`。
-- 已修改 `build_static_graph.py`：普通作词、作曲、合并边颜色分别调整为 `rgba(..., 0.05)`；点击选中的高亮边保留较高透明度以便与普通边区分。
-- 已继续压细节点高亮视觉：头像节点高亮外圈改为 `radius + 0.6 / globalScale`、外圈线宽改为 `0.25 / globalScale`，选中或高亮头像描边改为 `0.65 / globalScale`，文字节点选中描边改为 `0.55 / globalScale`。
-- 已将高亮边宽从 `2.2` 调整为 `1.8`，使点击选中关系仍可识别但不再显得过粗。
-- 已更新 `tests/test_static_graph_build.py`，断言普通边透明度、细节点边框和高亮边宽参数存在。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串，三类普通边均包含 `0.05` 透明度，高亮边和节点细边框参数均已写入产物。
-
-### 修正可视化点击重布局和高亮语义
-- 用户反馈每点一下图都会转一下，要求“作词/作曲分开”改成开关，询问有向边含义，并要求高光只给节点加轮廓、边只改为不透明，名字显示模式默认不要边框和底色。
-- 已定位点击后图会继续转动的原因：点击节点、边或背景后调用完整 `render()`，`renderGraph()` 每次都会向 force-graph 重新写入 `graphData()`，触发布局继续模拟。
-- 已修改点击路径：节点、边和背景点击后只调用 `renderSelection()`，刷新 canvas 和详情栏，不再重新写入图数据、重新聚焦或重跑布局；筛选、搜索、方向和职能模式变化仍会按数据变化重新渲染图谱。
-- 已将“职能”下拉改为“作词/作曲分开”开关；开启时作词和作曲分别成边，关闭时合并为合作边。
-- 已在页面视图控件和图谱说明中补充有向/无向含义：有向模式表示“作词/作曲人 -> 演唱者”，无向模式只合并两位音乐人的合作关系，不表达谁给谁写。
-- 已修改高亮逻辑：相关边不再因高亮加粗，只把颜色透明度从 `0.05` 提升为 `1`；节点高亮仍只加细轮廓。
-- 已修改名字节点绘制：未选中、未高亮时只绘制文字，不再绘制底色和边框；选中或高亮时只绘制细轮廓，不填充底色。
-- 已同步 `README.md` 的 MVP 可视化说明，记录作词作曲开关、有向边含义以及点击高亮不重跑布局。
-- 已更新 `tests/test_static_graph_build.py`，覆盖点击选中刷新路径、职能开关、动态边透明度、移除高亮边加粗和名字节点默认背景。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，内联数据块无提前闭合脚本字符串，包含 `role-split-toggle`、`renderSelection()`、边透明度动态逻辑和有向边说明，不再包含旧 `role-display` 下拉、选中边加粗逻辑或名字节点默认底色。
-
-### 修复可视化节点点击详情不显示
-- 用户反馈当前选中一个人后右侧数据不显示。
-- 已定位为上一轮 `renderSelection()` 使用了 `graphInstance.refresh()`，当前 force-graph 实例未提供该 API 时会在点击处理里抛出异常，导致后续 `renderDetail()` 未执行。
-- 已修改 `renderSelection()`：改用 `graphInstance.graphData(graphInstance.graphData())` 请求 canvas 重新绘制当前数据，再执行 `renderDetail()`；该调用不改变图数据，也不触发重新聚焦。
-- 已更新 `tests/test_static_graph_build.py`，断言选中刷新路径使用 `graphInstance.graphData(graphInstance.graphData())`，并断言不再包含 `graphInstance.refresh()`。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含新的选中重绘调用，不再包含 `graphInstance.refresh()`，并确认 `renderDetail()` 在重绘调用之后执行。
-
-### 修复可视化点击后布局再次转动
-- 用户反馈上一轮修复详情栏后，点击图谱又变成点一下转一下。
-- 已确认原因是 `renderSelection()` 中的 `graphInstance.graphData(graphInstance.graphData())` 虽然复用了当前数据，但仍会向 force-graph 重新写入图数据，触发布局模拟继续运行。
-- 已修改 `renderSelection()` 为只执行 `renderDetail()`，点击节点、边或背景时不再调用任何 force-graph 实例刷新或数据写入方法。
-- 已同步移除 `renderGraph()` 非数据变化分支中的 `api.refresh()` 残留，避免窗口尺寸或轻量刷新路径调用不存在或会引发副作用的刷新方法。
-- 当前高亮绘制依赖页面已开启的 `.autoPauseRedraw(false)` 持续重绘画布状态，不通过重写图数据触发刷新。
-- 已更新 `tests/test_static_graph_build.py`，断言不再包含 `graphInstance.graphData(graphInstance.graphData())` 和 `graphInstance.refresh()`。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，`renderSelection()` 只调用 `renderDetail()`，不含 `.refresh(` 或 `graphData(graphInstance.graphData())`，且只在图数据 key 变化时调用 `api.graphData(...)`。
-
-### 调整可视化边宽和透明度连续映射
-- 用户要求边的粗细和透明度都按当前图谱边权重连续过渡，而不是固定公式或离散状态；示例为当前图最小边 `song_count=1` 时宽度为 `1`、透明度为 `0.05`，最大边 `song_count=72` 时宽度为 `5`、透明度为 `1`，中间连续过渡。
-- 用户随后补充选中高亮仍然要把边设为不透明。
-- 已修改前端逻辑：每次生成当前可见图后调用 `updateEdgeWeightScale(graph.edges)`，按当前筛选结果中的最小和最大 `song_count` 计算边权重范围。
-- 新增 `edgeWeightRatio(edge)`，按 `(song_count - min) / (max - min)` 得到 `0` 到 `1` 的连续比例；若当前只有一种边权重，则比例为 `0`，避免除零。
-- 新增 `edgeWidth(edge)`，将比例线性映射为 `1 + ratio * 4`，即当前最小边宽 `1`、最大边宽 `5`。
-- 新增 `edgeAlpha(edge)`，未高亮时将比例线性映射为 `0.05 + ratio * 0.95`，即当前最小边透明度 `0.05`、最大边透明度 `1`；选中高亮边直接返回 `1`。
-- 已删除旧边宽公式 `Math.min(4, 0.8 + Math.sqrt(edge.song_count || 1) * 0.38)`，边宽不再使用平方根和 `4px` 封顶。
-- 已更新 `tests/test_static_graph_build.py`，断言连续映射函数、当前边权重范围更新、选中边透明度覆盖为 `1`，并断言旧平方根宽度公式不存在。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含连续边宽、连续透明度、选中边不透明逻辑，不再包含旧平方根边宽公式或旧高亮边宽覆盖逻辑。
-
-### 改为永久无向边并保留方向提示
-- 用户要求删除有向边和无向边下拉菜单，图谱永远以无向边显示，但悬浮在边上时要按方向显示 `A -> B` 和 `B -> A`。
-- 已删除页面“视图”下拉控件，移除前端 `directionMode` 状态和对应事件绑定。
-- 已修改边合并逻辑：所有边都按两端节点排序后的无向 pair 合并；“作词/作曲分开”开启时按无向 pair + 职能合并，关闭时按无向 pair + 合作合并。
-- 已将合并边内部的方向来源从字符串集合升级为 `directions` 统计数组，每个方向记录 `source`、`target`、`song_count` 和包含的职能列表。
-- 已修改边悬浮提示：第一行仍显示无向两端和总歌曲数，随后按方向显示 `作词/作曲人 -> 演唱者：职能 · N 首`。
-- 已修改右侧边详情：在无向总览卡片后增加方向拆解卡片，再显示支撑歌曲列表。
-- 已强制关闭图上方向箭头和方向粒子，页面标题固定为“无向合作网络”，图谱说明提示“悬浮边可查看作词/作曲人 -> 演唱者方向”。
-- 已同步 `README.md` 的 MVP 可视化说明，删除有向/无向切换描述，说明页面永远无向显示但悬浮和详情保留方向拆解。
-- 已更新 `tests/test_static_graph_build.py`，断言不再包含方向状态或方向下拉，并断言方向拆解数据和 tooltip 文案存在。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，不含 `direction-mode` 或 `directionMode`，包含方向拆解数据、边悬浮方向文案、右侧详情方向文案，且方向箭头和方向粒子均关闭。
-
-### 恢复可视化粒子效果开关
-- 用户要求保留粒子效果，并参考归档版本改成开关控制，默认关闭。
-- 已参考归档旧版 `particle-toggle` 和 `particlesEnabled` 命名，在当前工具栏新增“粒子效果”开关。
-- 已新增前端状态 `particlesEnabled: false`，页面加载时默认关闭粒子效果。
-- 已将 force-graph 的 `.linkDirectionalParticles()` 从固定 `0` 改为 `() => (state.particlesEnabled ? 1 : 0)`；打开开关后每条边显示 1 个流动粒子。
-- 当前图谱仍永久无向显示，方向箭头继续固定关闭；粒子仅作为流动视觉效果，不表示有向边模式。
-- 已同步 `README.md`，在 MVP 可视化能力说明中加入粒子效果开关。
-- 已更新 `tests/test_static_graph_build.py`，断言粒子默认关闭、开关存在且粒子数量由 `state.particlesEnabled` 控制。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含 `particle-toggle`、`particlesEnabled: false`、粒子开关事件处理和按状态启用粒子的配置，方向箭头仍固定关闭。
-
-### 修正粒子方向语义
-- 用户纠正“粒子应该代表箭头方向”，并说明“无向边”的意思只是两个人互有作词作曲时不要显示 4 条边，而是按两人和职能合并为 2 条边。
-- 已调整理解：图谱线条按两位音乐人和职能合并显示，但每条合并边内部仍保留真实 `作词/作曲人 -> 演唱者` 方向。
-- 已停止使用 force-graph 内置 `linkDirectionalParticles` 表达粒子，因为内置粒子只能沿当前合并边的 `source -> target` 单一方向流动，无法在同一条合并边上同时表达 `A -> B` 和 `B -> A`。
-- 已新增 `drawDirectionalParticles(edge, ctx, globalScale)` 自定义粒子绘制函数，读取边内 `directions` 数组，按每个方向的 `source` 和 `target` 节点坐标绘制流动粒子。
-- 已将 `.linkCanvasObject(drawDirectionalParticles)` 和 `.linkCanvasObjectMode(() => "after")` 接入 force-graph，使粒子绘制在线条之后；保留 `.linkDirectionalParticles(0)`，避免内置单向粒子与自定义方向粒子叠加。
-- 粒子开关仍默认关闭；打开后，如果一条合并边同时包含 `A -> B` 和 `B -> A`，会在同一条线上出现两个相反方向运动的粒子。
-- 方向箭头仍固定关闭，避免视觉上重新拆成有向边；方向由粒子、悬浮提示和右侧详情表达。
-- 已同步 `README.md`，说明图谱按两位音乐人和职能合并线条，避免互相作词作曲时显示 4 条边，但悬浮边、右侧边详情和粒子方向会按真实方向拆出 `A -> B` 与 `B -> A`。
-- 已更新 `tests/test_static_graph_build.py`，断言自定义方向粒子绘制函数、link canvas 接入、内置粒子关闭，以及 direction source/target 使用存在。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，包含粒子开关、自定义方向粒子函数、方向 source/target 使用和 link canvas 接入，内置粒子和方向箭头保持关闭。
-
-### 简化边悬浮和详情方向显示
-- 用户截图指出边悬浮框和右侧详情中信息重复显示，要求先显示“作词 1 首”，再显示“谁到谁”。
-- 已修改 `linkLabel(edge)`：悬浮框第一行只显示 `职能 · N 首`，后续方向行只显示 `A -> B`，不再重复显示方向行的职能和数量。
-- 已修改右侧边详情：总览卡片只显示 `职能 · N 首`，方向卡片只显示 `A -> B`，不再重复显示方向行的职能和数量。
-- 支撑歌曲列表保持不变，继续显示歌曲名和歌曲层面的演唱目标、职能、专辑信息。
-- 已更新 `tests/test_static_graph_build.py`，断言 tooltip 总览优先显示 `edge.role` 和 `edge.song_count`，并断言前端不再包含 `formatNumber(direction.song_count)` 或方向行角色拼接展示逻辑。
-- 验证对象为可视化生成器和测试文件，执行 `python -m unittest tests.test_static_graph_build`，结果运行 6 个测试并全部通过；设置 `PYTHONDONTWRITEBYTECODE=1` 执行 `py_compile`，结果未输出语法错误。
-- 已重新执行 `python -m music_metadata_graph.visualization.build_static_graph --mvp` 生成 `data/visualization_mvp/index.html`；导出结果为 1970 首歌曲、1210 个节点、2271 条边。
-- 静态检查确认输出 HTML 文件存在且大小约 2.4 MB，无 U+FFFD 替换字符，悬浮框保留总览和方向行，方向行不再重复显示职能和歌曲数。
-
-### 分析专辑详情单个失败导致全流程中断
-- 用户提供完整流程第 6 个编排步骤失败日志：104844 个专辑详情请求中 60734 个新请求成功、44109 个缓存命中，只有专辑 key `002o6oXX3GgGCM` 返回 `CgiApiException: CGI 请求错误 (code=104500)`，随后 `collect_song_album_detail_raw.py` 因 `failed_fetches=1` 抛出 `RuntimeError`，导致 `run_full_pipeline.py` 以 Step 6 失败中断。
-- 已确认原有规则是批量单对象 raw 请求在仍有失败对象时非零退出，适合可重跑补齐的网络失败；本次边界是单个 QQ 音乐 CGI 业务错误可能长期稳定失败，继续严格失败会使 10 万级长跑在最后阶段反复卡住。
-- 目标效果调整为：手动采集入口默认继续严格失败；一键完整流程对极少量专辑详情失败设置小阈值，保留失败 key、raw 路径和异常原因清单后允许继续，超过阈值仍中断。
-- 风险边界为失败专辑对应歌曲后续可能因 `album_mid_not_in_albums` 被拒绝入库；这比静默伪造专辑数据更可追溯，且失败清单可用于后续人工复查或单独补采。
-
-### 实现专辑详情失败阈值和失败清单
-- 已修改 `music_metadata_graph/pipelines/collect_song_album_detail_raw.py`，新增 `--max-failed-fetches` 参数，默认值为 `0`，保持手动入口原有严格行为。
-- 已新增 `--failure-json` 参数和失败报告写出逻辑，报告包含 `failed_fetches`、`failed_album_keys` 以及每个失败项的 `album_key`、`raw_json_path` 和 `reason`。
-- 正式默认失败报告路径为 `data/processed/validation/album_detail_fetch_failures/album_detail_fetch_failures.json`；MVP 直接运行时默认写入 `data/processed/validation_mvp/album_detail_fetch_failures/album_detail_fetch_failures.json`。
-- 已修改 `music_metadata_graph/pipelines/run_full_pipeline.py`，第 6 个编排步骤传入 `--max-failed-fetches 10` 和对应失败报告路径；`run_from_song_tabs.py` 复用完整编排，因此会继承同一 Step 6 参数。
-- 已新增 `tests/test_collect_song_album_detail_raw.py` 覆盖失败阈值允许、超过阈值报错和失败 JSON 字段；新增 `tests/test_run_full_pipeline.py` 覆盖 Step 6 传参、Step 5 不误带该参数，以及 MVP 失败报告路径。
-- 已同步 `README.md`，说明手动入口默认严格、可显式容忍少量失败、一键流程 Step 6 默认容忍 10 个以内失败，以及失败清单路径。
-
-### 验证专辑详情失败阈值修复
-- 验证对象为新增专辑详情失败阈值测试和完整编排传参测试，执行 `python -m unittest tests.test_collect_song_album_detail_raw tests.test_run_full_pipeline`，结果运行 5 个测试并全部通过。
-- 验证对象为 `collect_song_album_detail_raw.py`、`run_full_pipeline.py` 和新增测试文件，执行项目指定 Conda Python 的 `py_compile`，结果未输出语法错误。
-- 验证对象为 `collect_song_album_detail_raw --help`，输出已包含 `--max-failed-fetches` 和 `--failure-json` 参数。
-- 验证对象为正式完整编排 Step 6 dry-run，执行 `run_full_pipeline --dry-run --continue-from 6 --stop-after 6`，输出命令已包含 `--max-failed-fetches 10` 和正式失败清单路径。
-- 验证对象为 MVP 完整编排 Step 6 dry-run，执行 `run_full_pipeline --mvp --dry-run --continue-from 6 --stop-after 6`，输出命令已包含 `--max-failed-fetches 10`、MVP 数据库路径和 `validation_mvp` 失败清单路径。
-- 当前未重新执行真实全量 Step 6 或 Step 7；本次 dry-run 观察到当前专辑详情 raw 目录已有 117043 个 JSON 文件，超过用户日志中的本轮目标 104844，说明目录内存在历史或其他范围缓存，本次修复未删除或改写这些 raw 文件。
-
-### 补采单个失败专辑详情 raw
-- 用户询问第 6 步失败是否影响其他成功落盘，并要求再次尝试请求失败专辑 key。
-- 已检查用户失败日志附近的成功样本 `004ge2cw2gVAJZ`、`004geCpD31NPBI`、`004gePDM2bN0Fh`、`004geTTk3j4p3h`、`004geqQg1x80BW`，对应 raw JSON 文件均存在且可解析；失败 key `002o6oXX3GgGCM` 在重试前不存在 raw JSON 文件。
-- 第一次单独请求因当前沙箱网络限制无法连接 `u.y.qq.com`，错误为本地连接拒绝，不是 QQ 音乐 CGI 业务错误。
-- 经用户授权外网请求后，单独请求 `002o6oXX3GgGCM` 成功返回，专辑名为 `鹿鼎记-洗山河`，`albumMid` 为 `002o6oXX3GgGCM`。
-- 已将成功响应保存到 `data/raw/qqmusic/song_album_detail/002o6oXX3GgGCM.json`，回读确认文件存在、大小为 3138 字节、JSON 可解析，`basicInfo.albumName` 为 `鹿鼎记-洗山河`。
-- 随后执行 `run_full_pipeline --dry-run --continue-from 6 --stop-after 7` 仅用于检查编排命令和 raw 文件数；Step 6 postcheck 显示专辑详情 raw 文件数变为 117044。
-- 该 dry-run 在 Step 7 postcheck 因数据库尚无 `albums` 表失败，原因是 dry-run 不执行 Step 7 入库命令但仍执行 postcheck；这不代表补采 raw 失败，也没有改写数据库。
+### quick_search 缺 MID 前置补全
+- 多次手动测试姓名搜索、`search_by_type`、歌手列表接口和 `quick_search` 后，确认缺 MID 补全应优先查数据库，只有库内未唯一命中时才读取或请求本地 quick_search raw。
+- 新增歌曲演唱者和制作人两条前置补 MID 流程，分别输出人工检查 CSV 到 `song_singer_mid_fill` 和 `song_credit_mid_fill`，但后续正式入库不读取这些 CSV，而是直接查询 `artists` 表。
+- 名字不含 `/` 时先查 `artists` 表，唯一命中直接用，库内同名多 MID 标记 ambiguous；名字包含 `/` 时拆成片段分别执行同样规则，不再按原始整体名字检索。
+- quick_search raw 分别写入 `data/raw/qqmusic/quick_search_artist_mid/song_singer/` 和 `data/raw/qqmusic/quick_search_artist_mid/song_credit/`；每次运行重写 CSV 视图，不把旧 CSV 当断点输入。
+
+### 脚本运行日志和完整流程编排
+- 设计并实现脚本运行日志保留功能，随后增强异常退出防护、后台异步写入和单次运行日志上下文复用；后续用于追踪完整流程每一步输出。
+- 梳理当前完整数据流程、CSV 读取点和两个 quick_search 前置步骤，确认前置步骤不再读取旧 CSV 作为跳过依据。
+- 实现一键完整流程编排入口 `python -m music_metadata_graph.pipelines.run_full_pipeline`，将 raw、CSV、SQLite 表、外键、目标覆盖、过滤约束、网站资源和网站生成结果检查纳入每一步前后置检查。
+- 数据库默认路径集中到 `music_metadata_graph/pipelines/defaults.py` 的 `DEFAULT_DB_PATH`，脚本保留 `--db` 覆盖能力，避免各脚本重复硬编码 `data/music_metadata_graph.sqlite3`。
+- 设计并实现 MVP 流程模式：默认数据库 `data/music_metadata_graph_mvp.sqlite3`，validation 产物写入 `data/processed/validation_mvp/`；MVP raw 复用正式 raw 目录，不另建 MVP raw。
+
+### artists 范围、area_id 和目标口径修复
+- 检查发现 `artists.area_id` 覆盖偏少，修复 artists upsert 保留已有 `area_id`，避免后续歌曲歌手或制作人补库覆盖第三步已有地区字段。
+- 第三步歌曲 Tab 请求目标口径收紧为只请求第二步入库歌手；第四步前置补 MID、第五步和第七步后续流程也统一使用同一目标范围。
+- 复查确认第四步全量尚未完成时，第 5、6、8 步使用 `--all` 只扫描第四步当前目标范围与已落盘歌曲 Tab raw 的交集，不再扫描历史落盘但不属于当前目标范围的 raw。
+- 总数据库第四步缺失演唱者补库进度曾被检查并确认完成；第六步专辑详情 raw 落盘进度也做过阶段性复核。
+
+### MVP 静态图谱生成和可视化迭代
+- 用户要求实现 MVP 数据库最后一步可视化，确认目标是从 SQLite 生成本地静态图谱页面，不回写归档目录，不恢复旧 JSON 作为正式数据源。
+- 新增 MVP 数据库静态图谱生成器，后续修复头像未显示、节点名字显示、悬停高亮、选中高亮、详情栏信息、自我边和自我创作开关等交互。
+- 可视化方向逐步收敛为永久无向边，但保留方向提示和粒子效果开关；边宽、透明度、节点高亮、点击详情、布局稳定性和粒子方向经过多轮调整。
+- 分析树形 DAG 后确认合作图谱不适合强制树形表达；仍以 force-graph 网络图为主，通过筛选、选中和详情表解释方向。
+- 专辑详情单个失败导致全流程中断的问题被修复为失败阈值和失败清单机制，并补采单个失败专辑详情 raw。
 
 ## 2026-05-16
 
@@ -3227,6 +535,25 @@ Read this file as UTF-8.
 - 本次生成压缩备份 `README.before_blank_cleanup.md.gz` 后执行机械空行压缩，保留全部 501 行非空内容，并在标题前保留单个空行以维持 Markdown 可读性。
 - 清理后 `README.md` 文件大小为 38060 字节，共 526 行，其中非空行仍为 501 行。
 - 验证结果：UTF-8 严格读取成功，隐藏控制字符列表为空，U+FFFD 替换字符数量为 0，未发现三连空行、`<BEL>` 字面标记、`eports/`、`ode_modules/`、`ata/` 或 `rchive/` 断行残留。
+
+## 2026-05-17
+
+### 检查并清理 Python 文件异常空行
+- 用户指出除文档外代码也似乎有异常，要求检查所有 `.py` 文件。
+- 全量扫描所有 `.py` 文件，检查行数与非空行比例、隐藏控制字符、U+FFFD 替换字符、三连空行和异常文件大小；未发现隐藏控制字符或 U+FFFD 替换字符。
+- 复核确认只有 `music_metadata_graph/pipelines/filter_imported_songs.py` 呈现明显异常空行膨胀：清理前文件大小为 19555 字节，共 3822 行，其中非空行 253 行，空行比例约 15:1；其它 `.py` 文件未达到同级异常阈值。
+- 本次生成压缩备份 `filter_imported_songs.before_blank_cleanup.py.gz` 后，对 `filter_imported_songs.py` 执行机械空行压缩，保留全部 253 行非空代码内容。
+- 清理后 `filter_imported_songs.py` 文件大小为 12901 字节，共 495 行，其中非空行仍为 253 行。
+- 验证结果：`filter_imported_songs.py` 通过 `py_compile`；全量 `.py` 复扫显示剩余高疑似异常数量为 0；执行 `python -m unittest tests.test_text_normalization tests.test_filter_songs_by_album_type`，共 5 个测试全部通过。
+
+## 2026-05-17
+
+### 复查核心文档异常状态
+- 用户要求再次检查 `AGENTS.md`、`README.md`、`develop_log.md` 是否仍有异常。
+- 本次使用 Python 严格 UTF-8 读取三个文档，检查文件大小、总行数、非空行数、最大连续空行数、CRLF 与孤立 LF/CR、隐藏控制字符、U+FFFD 替换字符、`<BEL>/<VT>/<FF>` 字面标记和此前出现过的断行污染前缀。
+- 复查结果：`AGENTS.md` 为 208 行、189 行非空、最大连续空行 1；`README.md` 为 148 行、102 行非空、最大连续空行 1；`develop_log.md` 为 4226 行、3709 行非空、最大连续空行 1。
+- 三个文件均为 CRLF 换行，无孤立 LF/CR，无隐藏控制字符，无 U+FFFD 替换字符，未发现 `eports/`、`ode_modules/`、`ata/`、`rchive/` 等断行残留。
+- `develop_log.md` 中存在 2 处 `<BEL>` 字面量，经定位均为此前修复记录中的检查项描述，不是控制字符污染。
 
 ### 设计 large-graph 风格可视化页面
 - 用户要求新增一个脚本，页面与 MVP 可视化网页一样，但绘图区模仿 force-graph 官方 `example/large-graph/index.html`。
@@ -4147,6 +1474,20 @@ Read this file as UTF-8.
 - `run_full_pipeline` 的实际编排包含 19 个步骤，每步执行前后都有检查；任一 raw、CSV、SQLite 外键、过滤约束、网站资源或页面产物检查失败都会停止。
 - 另一个入口 `python -m music_metadata_graph.pipelines.run_from_song_tabs` 或 `mr-run-from-song-tabs` 固定从第 5 个编排步骤开始，适用于第 4 步主页歌曲 Tab raw 已有部分落盘后继续跑后续流程。
 
+### 调整专辑类型过滤的孤立歌名保留规则
+- 用户要求在“按专辑类型过滤歌曲，只保留 Single、EP、录音室专辑”步骤中增加判断：如果被去掉的歌的 `name` 在库里只有一个则不去掉。
+- 已修改 `music_metadata_graph/pipelines/filter_songs_by_album_type.py`，删除条件从“专辑类型不在白名单”调整为“专辑类型不在白名单且同一个 `songs.name` 在当前库里出现不止一首”。
+- 已同步 `music_metadata_graph/pipelines/run_full_pipeline.py` 的第十步后置检查，不再要求所有非白名单专辑类型完全消失，而是只检查是否还存在“非白名单且同名多首”的可过滤歌曲。
+- 已修正 `filter_songs_by_album_type.run()` 的 SQLite 连接释放方式，避免 Windows 测试中临时数据库文件被未关闭连接占用。
+- 已新增 `tests/test_filter_songs_by_album_type.py`，覆盖同名重复歌曲中的非白名单版本会删除、孤立歌名的非白名单歌曲会保留的行为。
+- 已同步 README 和 AGENTS 中第十步专辑类型过滤规则说明。
+
+### 验证专辑类型过滤孤立歌名保留规则
+- 语法验证执行 `py_compile`，覆盖 `filter_songs_by_album_type.py`、`run_full_pipeline.py`、新增测试和 `tests/test_run_full_pipeline.py`，未报错。
+- 定向单元验证执行 `python -m unittest tests.test_filter_songs_by_album_type tests.test_run_full_pipeline`，共 5 个测试全部通过。
+- 全量单元验证执行 `python -m unittest discover tests`，共 31 个测试全部通过。
+- 首次定向测试在 Windows 临时目录清理 SQLite 文件时出现文件占用错误，原因是测试与被测函数存在未关闭连接；已通过显式关闭连接和修正被测函数连接释放解决。
+
 ### 实现显示名字文字透明度权重映射
 - 用户要求标准图开启“显示名字”时，名字文字透明度也按节点大小类似规则设置，最终视觉下限为 0.5、上限为 1。
 - 已在标准静态图模板中新增 `textNodeOpacity()`，复用当前节点视觉半径从 10 到 65 的权重区间，将文字透明度映射到 0.5 到 1。
@@ -4198,3 +1539,1112 @@ Read this file as UTF-8.
 - 单元验证执行 `tests.test_static_graph_build`，共 15 个测试全部通过；全量单元验证第一次执行时，既有头像下载间隔测试因浮点边界出现 `0.014999999999...` 与 `0.015` 的精度差异失败，未做代码修改后立即重跑，全量 30 个测试全部通过。
 - 文件级验证确认 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 页面均包含 `detail-controls`、`selected-node-view`、`selected-edge-mode`、默认 `selectedNodeView: "all"`、默认 `selectedEdgeMode: "intersection"`、`selectedNodeHighlightEdges()` 和 `edgeConnectsOnlySelectedNodes()`。
 - 浏览器入口验证通过本地预览打开 `site/index.html`，确认页面标题为“音乐人合作关系图谱”，图谱 canvas 存在，详情栏控件容器存在，生成 HTML 中包含“视图”和“边关系”下拉菜单模板。
+
+### 重写 README 为用户项目介绍
+- 用户要求 README 应介绍项目给用户，而不是介绍开发状态和开发细节。
+- 已将 README 从流程步骤、当前状态、归档说明和底层表结构说明，改写为面向用户的项目介绍。
+- 新 README 主要说明项目用途、适用和不适用场景、快速开始、图谱打开方式、网页交互、常用命令、输出内容、数据口径、项目结构和注意事项。
+- README 保留必要运行入口和数据边界说明，但不再把历史归档、逐步开发状态和细节流水账作为正文主体。
+- 本次只修改用户文档和开发日志，未修改采集流程、数据库逻辑、测试代码或生成网页产物。
+
+### 验证 README 用户介绍改写
+- 文件级检查确认 README 不再包含“当前状态”“步骤一”“步骤二”“步骤三”“归档内容”“重新设计”“开发阶段”“当前已确认”等开发状态和流程日志式标题或措辞。
+- UTF-8 回读 README，确认主要章节包括项目介绍、使用场景、快速开始、打开图谱、常用命令、输出内容、数据口径、项目结构和注意事项。
+- 本次为纯文档改写，未运行单元测试或生成图谱；剩余风险是 README 中命令说明依赖当前 pipeline 入口继续保持兼容。
+
+### 分析 GitHub Pages 头像资源发布策略
+- 用户指出头像资源被 `.gitignore` 排除后，GitHub Pages 打开页面没有头像；若提交头像资源，当前本地头像缓存约 17744 个文件、442 MB。
+- 已检查当前站点产物，`site/assets/graph-data.js` 中节点 `icon` 已被重写为 `../site_assets/avatars/...` 本地相对路径；而 `.gitignore` 明确排除 `site_assets/`，因此远端 Pages 上头像路径会缺失。
+- 已核对 GitHub Pages 官方限制：Pages 源仓库推荐不超过 1 GB，发布站点不超过 1 GB，软带宽限制为每月 100 GB；Git LFS 官方说明不能用于 GitHub Pages 站点。
+- 初步判断不应把完整头像缓存直接提交到当前主仓库；这会显著膨胀仓库和 Pages 站点体积，且未来每次头像缓存变化都会制造大量二进制变更。
+- 建议方向为把头像发布策略从“全量本地缓存必需”拆成两层：GitHub Pages 默认使用数据库中的远程头像 URL 或缺省头像兜底；如需稳定展示，再生成一个受限发布头像集，只包含默认页面或 demo 页面真正需要的高价值节点缩略图。
+- 风险边界为直接使用远程头像 URL 可能受第三方防盗链、跨域、失效或限流影响；发布缩略图集则需要新增压缩、筛选和体积预算规则，并避免把完整缓存误提交。
+- 本轮只完成策略分析和事实记录，未修改头像生成脚本、`.gitignore` 或站点产物。
+
+### 纠正远程头像 URL 兜底的并发风险
+- 用户指出几千个节点同时请求远程头像资源会形成高并发。
+- 已检查当前前端头像加载逻辑，`getNodeImage()` 在首次绘制带 `node.icon` 的节点时创建 `new Image()` 并立即设置 `image.src`；如果 `icon` 改为远程 URL，完整图首轮绘制可能触发大量浏览器并发图片请求。
+- 已纠正策略判断：远程头像 URL 不能作为完整图默认裸兜底；若使用远程 URL，必须配合懒加载、并发队列、只加载选中/高亮/当前视口/高权重节点等限制。
+- 更稳妥的发布策略调整为：GitHub Pages 默认使用受限发布头像缩略集和缺省头像；远程 URL 只作为手动补载或小规模 demo 的兜底，不在完整图首屏批量触发。
+- 本轮只完成风险纠正和事实记录，未修改前端头像加载代码。
+
+### 分析完整头像压缩上传方案
+- 用户询问是否存在压缩解压或高效存储格式，可以把完整头像都上传到 GitHub Pages 使用。
+- 已识别关键约束：GitHub 普通文件超过 50 MiB 会警告、超过 100 MiB 会阻止；GitHub Pages 源仓库和发布站点推荐不超过 1 GB；静态 Pages 没有服务端解压能力。
+- 判断普通 ZIP、tar、zstd 等整包压缩不适合网页首屏使用：浏览器端必须先下载整包并在客户端解压，无法像普通图片 URL 一样按需随机加载，且单包容易触碰 GitHub 单文件上限。
+- 判断 Git 自身压缩和 ZIP 对现有 JPEG、PNG、WebP 头像收益有限，无法解决大量二进制文件造成的仓库历史膨胀、Pages 请求数量和浏览器加载压力。
+- 可行方向为把“完整头像”转成发布专用缩略图资产，而不是上传原始缓存：统一缩放到 64/96/128px，重编码为 WebP 或 AVIF，并可进一步打包为多张 sprite atlas 加 manifest，页面按需加载 atlas 并从画布裁切绘制。
+- 风险边界为 sprite atlas 方案需要新增生成脚本、manifest 数据结构、前端裁切绘制逻辑和按需加载策略；若仍在完整图首屏绘制全部节点头像，体积和并发问题只会从“很多小文件”变成“若干大图集”。
+- 本轮只完成方案分析，未修改资源生成和网页渲染逻辑。
+
+### 设计 150 像素头像图集发布方案
+- 用户确认可新增建议依赖库，要求小于 150 像素头像采用合适过采样且无需标记，处理后图片另设目录不覆盖原图，并询问扩展名不一致是否需要先修、前端是否可一次性加载图集甚至内嵌网页。
+- 已检查当前项目依赖，`pyproject.toml` 尚未包含图像处理库；本机目标 Conda 环境当前没有 Pillow，但系统可用 `ffmpeg` 且包含 WebP 编码能力。
+- 设计建议新增 `Pillow` 作为 Python pipeline 图像处理依赖，用于读取 JPEG/PNG/WebP/GIF、中心裁切、Lanczos 缩放、质量控制、图集拼接和 manifest 写出；若目标环境 Pillow WebP 编码不可用，再以 ffmpeg 作为实现兜底。
+- 扩展名不一致不建议在原缓存目录中就地修复；发布生成脚本应按文件头识别真实格式并解码，在新目录输出统一 `.webp` 图集，同时把 mismatch 写入报告，保留原始缓存可追溯性。
+- 处理目录建议与原始头像缓存分离，例如 `site_assets/avatar_atlas_150/` 作为本地生成目录，发布时复制到各站点 `site/assets/avatar_atlas_150/`；原始 `site_assets/avatars/` 继续作为忽略的下载缓存。
+- 图像规格建议先固定头像单元为 `150x150` 像素；DPI 对网页 canvas 显示无实际影响，若输出中间单张 JPEG/PNG 可写入 96dpi 元数据，但 WebP 图集主要以像素尺寸为准。
+- 图集 key 设计为稳定的 `avatar_key = sha256(normalized_icon_url)`，manifest 将头像 URL 哈希映射到 atlas 文件和裁切坐标，使完整库、MVP、demo、large-graph 或未来数据库都能复用同一套全局图集。
+- 前端一次性加载图集可行方向是把数千张头像合并为几十张 atlas 图片并在页面初始化时 preload；不建议把全部 atlas base64 内嵌到 HTML 或 graph-data JS，因为 base64 会额外膨胀体积、破坏浏览器缓存，并可能触碰 GitHub 单文件限制。
+- 本轮只完成设计分析，未安装依赖、未生成图集、未修改前端渲染或 `.gitignore`。
+
+### 收敛头像 raw 缓存和 3000 图集方案
+- 用户确认头像发布图只保留像素并去除不必要元数据，原始下载缓存可移动到 raw 体系，站点外层只放站点用小图；图集先暂定 3000 像素、WebP 质量 80，且不内嵌进网页。
+- 目标效果收敛为：`data/raw/` 保存原始头像下载缓存和来源 manifest；`site_assets/` 或站点 `assets/` 只保存由 raw 头像生成的 150x150 WebP 图集、manifest 和必要报告。
+- 实现方案调整为新增头像处理阶段：先迁移或兼容读取旧 `site_assets/avatars/` 原始头像缓存，再生成 `data/raw/qqmusic/avatar_cache/` 和原始 manifest；之后从 raw 缓存生成 `site_assets/avatar_atlas_150/atlas_*.webp` 与 `avatar-atlas-manifest.json`。
+- 图集参数暂定为单元格 `150x150`、图集 `3000x3000`、每张图集 400 个头像、WebP quality 80；17,743 张头像约需 45 张图集。
+- 前端方案为 `graph-data.js` 不再写单图头像路径，而写稳定 `avatar_key`；页面加载 `avatar-atlas-manifest.json` 后一次性 preload 图集文件，绘制节点时按 atlas 坐标裁切到 Canvas。
+- 扩展名不一致不作为迁移前置修复；生成过程按真实文件头解码，输出统一 WebP 图集，并在报告中记录扩展名不一致、解码失败、过采样和跳过项，避免改写原始证据。
+- 风险边界包括：一次性加载 45 张 3000 图集可能仍有首屏等待和内存压力；质量 80 是否足够需要抽样肉眼验证；Pillow WebP 编码能力需安装后确认；站点资源体积和 GitHub Pages 加载表现必须用真实生成结果验证。
+- 本轮只完成方案收敛，未安装依赖、未移动缓存、未生成图集、未修改前端。
+
+### 纠正共享头像图集目录边界
+- 用户指出 `site_assets/avatar_atlas_150/` 与 `site/assets/avatar_atlas_150/` 的表述像重复产物，并明确希望所有站点共用一套图集；即使 MVP 会加载过多头像，也可以接受，以减少重复。
+- 已纠正目录方案：发布图集只保留一个共享位置，例如仓库根目录 `site_assets/avatar_atlas_150/`；`site/`、`site_mvp/`、`site_demo/`、`site_large/` 的页面和 graph data 均通过相对路径 `../site_assets/avatar_atlas_150/...` 引用同一套 manifest 和 atlas 文件。
+- `site/assets/` 后续只保留每个站点自己的 `graph-data.js` 和 `vendor/force-graph.min.js` 等站点专属资源，不再复制共享头像图集。
+- 该方案会让 MVP、demo 和 large-graph 在一次性加载时读取完整共享图集，但换来发布资产只有一套、缓存可复用、Git 历史不重复和路径规则更简单。
+- 本轮只做方案纠正和日志记录，未修改生成脚本或站点产物。
+
+### 设计共享图集的分层前缀加载
+- 用户提出进一步优化：制造图集时先放 MVP 用到的头像，再放 demo 用到的头像，最后放完整站点用到的头像，从而让 MVP 和 demo 按需加载图集前缀。
+- 已检查当前站点 graph data：MVP 页面节点头像约 574 个，demo 页面节点头像约 835 个，完整站点节点头像约 17155 个；MVP 与 demo 的并集约 928 个，完整站点在二者之外还有约 16255 个头像。
+- 方案判断为可行：仍维护一套共享 `site_assets/avatar_atlas_150/`，但生成顺序按分层优先级排序，manifest 同时记录每个站点需要加载的 atlas 文件列表或前缀数量。
+- 图集参数为 3000x3000 且每张 400 个头像时，MVP 理论需要前 2 张左右，demo 如果包含 MVP 并集约需要前 3 张，完整站点加载全部约 43 到 45 张；这比所有页面都加载完整图集更合理。
+- 建议排序层级为 `mvp -> demo 增量 -> full 增量 -> orphan cache`；其中 orphan cache 指 raw 缓存里存在但当前任何站点 graph data 未引用的头像，可选择是否放入发布图集。
+- 前端方案为各站点 graph data 或一个站点配置字段写入 `avatar_atlas_files`；页面初始化只 preload 当前站点列出的 atlas 文件，但 manifest 仍是一份全局 manifest。
+- 风险边界为站点 graph data 更新后必须重新生成图集 manifest，否则某站点可能引用尚未列入其 preload 列表的 atlas；可通过页面兜底在绘制时发现 atlas 未加载则补载对应 atlas。
+- 本轮只完成分层前缀加载方案分析，未修改脚本或生成图集。
+
+### 实现共享头像图集生成流程
+- 按用户确认的方案新增 `Pillow` 依赖，并安装到项目指定 Conda 环境，用于头像解码、中心裁切、Lanczos 缩放和 WebP 图集输出。
+- 新增 `music_metadata_graph/pipelines/avatar_assets.py`，统一提供头像 URL 规范化和 `avatar_key = sha256(normalized_icon_url)` 计算。
+- 新增 `music_metadata_graph/pipelines/build_avatar_atlas.py` 和命令入口 `mr-build-avatar-atlas`，默认从 `data/raw/qqmusic/avatar_cache/` 读取原始头像缓存，输出共享 `site_assets/avatar_atlas_150/`。
+- 图集生成参数默认实现为 `150x150` 单元格、`3000x3000` atlas、WebP quality 80；生成顺序按 `mvp -> demo -> full` 的头像使用集合分层排序，manifest 中写入各 profile 需要加载的 atlas 文件列表。
+- 图集生成脚本按真实文件内容交给 Pillow 解码，不要求先修正扩展名；输出统一 WebP atlas，并写出 `avatar-atlas-manifest.json` 与 `avatar-atlas-report.json`。
+- `prepare_static_graph_assets` 的默认原始头像缓存目录改为 `data/raw/qqmusic/avatar_cache/`；若默认 raw 缓存还不存在且旧 `site_assets/avatar-manifest.json` 存在，会兼容复制旧缓存到 raw 目录。
+- `prepare_static_graph_assets` 生成 graph data 时不再写本地单头像路径，而是把命中的头像写为 `avatar_key` 并清空 `icon`，避免站点 graph data 继续引用被 ignore 的单头像文件。
+- 标准网页前端改为读取共享 `../site_assets/avatar_atlas_150/avatar-atlas-manifest.json`，按 `rawData.avatar_profile` 预加载对应 atlas 文件，并在绘制节点时从 atlas 坐标裁切头像到 Canvas。
+- 前端保留运行时补载兜底：若某节点头像所在 atlas 未在当前 profile 预加载列表中，绘制时会临时加载该 atlas 并刷新图谱。
+- 一键完整流程从 19 步调整为 20 步：第 17 步准备网站 graph data、vendor 和原始头像缓存，第 18 步生成共享头像图集，第 19 步生成标准静态网站，第 20 步生成 large-graph 静态网站。
+- `run_from_song_tabs` 同步使用新的 20 步默认终点；`.gitignore` 调整为继续忽略 `site_assets/` 下普通内容，但允许提交 `site_assets/avatar_atlas_150/` 共享图集发布资源。
+- README 与 AGENTS 已同步头像 raw 缓存、共享图集目录、图集生成命令和完整流程编号变化。
+
+### 验证共享头像图集生成流程
+- 语法验证执行 `py_compile`，覆盖新增头像工具、图集生成脚本、资源准备脚本、标准网页生成脚本、一键流程、从歌曲 Tab 继续流程和相关测试文件，未报错。
+- Pillow 能力验证使用内存中的 10x10 RGB 图像保存为 WebP，输出非空字节，确认当前 Conda 环境具备 WebP 写出能力。
+- 定向单元验证执行 `python -m unittest tests.test_static_graph_build tests.test_run_full_pipeline`，共 20 个测试通过；新增测试覆盖头像图集按 MVP/demo/full profile 前缀排序，并确认 profile 只需加载对应 atlas 文件列表。
+- 全量单元验证执行 `python -m unittest discover tests`，共 33 个测试全部通过。
+- 行尾处理按项目偏好对本轮触碰的源码、测试、文档、配置和开发日志统一为 CRLF；处理后再次执行全量单元测试，33 个测试全部通过。
+- 本轮未生成真实完整 `site_assets/avatar_atlas_150/` 图集，因此尚未取得完整头像集的实际输出体积、首屏加载时间和肉眼画质抽样结果；这些仍是后续验证缺口。
+
+### 移动旧头像缓存并生成真实共享图集
+- 按用户要求将旧 `site_assets/avatars/` 和 `site_assets/avatar-manifest.json` 直接移动到 `data/raw/qqmusic/avatar_cache/`，外层 `site_assets/` 不再保留原始单头像缓存。
+- 同步测试和命令帮助中仍显式使用旧 `site_assets` 作为头像缓存的调用，改为 raw 头像缓存路径 `data/raw/qqmusic/avatar_cache/`。
+- 使用禁用头像下载模式重新运行 `prepare_static_graph_assets`、`prepare_static_graph_assets --mvp` 和 `prepare_static_graph_assets --demo`，分别重写 `site/`、`site_mvp/`、`site_demo/` 的 `assets/graph-data.js`，使图谱数据使用 `avatar_key` 而不是单头像路径。
+- 完整站点资源准备结果为 24357 个节点、104464 条边、77443 首歌、17156 个头像 URL，其中 17155 个复用 raw 缓存、1 个跳过；MVP 资源准备结果为 1210 个节点、2271 条边、1970 首歌、949 个头像 URL，其中 789 个复用、160 个跳过；demo 资源准备结果为 1213 个节点、1828 条边、2119 首歌、950 个头像 URL，全部复用缓存。
+- 通过完整流程第 18 步 `run_full_pipeline --continue-from 18 --stop-after 18` 生成真实共享图集，输出 `site_assets/avatar_atlas_150/avatar-atlas-manifest.json`、`avatar-atlas-report.json` 和 `atlas_000.webp` 到 `atlas_042.webp`。
+- 第 18 步后置检查结果为 17183 个头像条目、43 张 atlas、profiles 包含 `mvp`、`demo`、`full`，无失败项、无缺失 profile key。
+- 图集发布目录共 45 个文件，包含 43 个 `.webp` 和 2 个 `.json`，总大小约 60.3 MB。
+- manifest profile 显示 MVP 加载 2 张 atlas、demo 加载 3 张 atlas、full 加载 43 张 atlas；三个站点当前 graph data 中的唯一头像 key 均能在 manifest 中命中。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_demo/index.html`，使当前页面产物包含 atlas manifest 加载、profile preload 和 Canvas 裁切绘制逻辑。
+
+### 验证真实共享图集生成结果
+- 语法验证执行 `py_compile`，覆盖头像工具、图集生成脚本、资源准备脚本、标准网页生成脚本、一键流程、从歌曲 Tab 继续流程和相关测试文件，未报错。
+- 全量单元验证执行 `python -m unittest discover tests`，共 33 个测试全部通过。
+- 文件级验证确认 `site/`、`site_mvp/`、`site_demo/` 的 HTML 均包含 `AVATAR_ATLAS_BASE`、`avatar-atlas-manifest.json`、`loadAvatarAtlases()` 和 `getNodeAvatar()`。
+- 数据级验证确认 `site/assets/graph-data.js`、`site_mvp/assets/graph-data.js` 和 `site_demo/assets/graph-data.js` 的节点 `icon` 均为空，头像改由 `avatar_key` 驱动；三个站点 graph data 中引用的唯一头像 key 均无 manifest 缺失。
+- 本轮未做浏览器实际加载截图和肉眼画质抽样；剩余风险为 60.3 MB 图集在 GitHub Pages 上的首屏加载时间、不同浏览器解码内存和 WebP 画质需要后续实际页面验证。
+
+### 修复本地打开网页时头像 manifest 加载失败
+- 用户反馈网页打开后头像全部缺失。
+- 已定位可疑原因：页面通过 `fetch("../site_assets/avatar_atlas_150/avatar-atlas-manifest.json")` 读取头像图集 manifest；直接双击本地 HTML 使用 `file://` 打开时，浏览器通常会拦截本地 JSON fetch，导致 manifest 为空并回退到缺失头像。
+- 已修改图集生成脚本，同时输出 `site_assets/avatar_atlas_150/avatar-atlas-manifest.js`，内容为 `window.AVATAR_ATLAS_MANIFEST_DATA = ...`，使 manifest 能像 graph data 一样通过普通 script 标签加载。
+- 已修改标准网页 HTML 生成模板，在 graph data 后加载 `../site_assets/avatar_atlas_150/avatar-atlas-manifest.js`；前端优先读取 `window.AVATAR_ATLAS_MANIFEST_DATA`，只有该全局对象不存在时才回退 fetch JSON。
+- 已修正图集生成脚本的重复生成行为：每次生成前清理旧 `atlas_*.webp`、manifest 和 report，避免上一次生成残留多余 atlas 文件。
+- 修复过程中曾误用 `--include-unused-cache` 生成过 45 张 atlas 和未使用缓存失败报告；随后按默认发布范围重跑，恢复为 17183 个头像条目、43 张 atlas、失败数 0。
+- 已重新生成 `site/index.html`、`site_mvp/index.html`、`site_demo/index.html` 和共享图集 manifest 脚本；当前图集目录包含 43 个 `.webp`、1 个 `.js` 和 2 个 `.json`。
+- 验证执行 `py_compile` 覆盖 `build_avatar_atlas.py`、`build_static_graph.py` 和 `run_full_pipeline.py`，未报错；全量单元验证 `python -m unittest discover tests` 共 33 个测试全部通过。
+- 文件级验证确认三个 HTML 页面均引用 `avatar-atlas-manifest.js`，且 manifest 脚本可解析出 17183 个头像条目，profile 仍为 MVP 2 张、demo 3 张、full 43 张 atlas。
+
+### 优化图集头像的首屏加载方式
+- 用户反馈改为图集后页面加载速度明显慢于使用原始图。
+- 已定位性能风险：完整站点 profile 需要 43 张 `3000x3000` WebP atlas，总发布图集约 60 MB；旧实现会在 manifest 就绪后等待当前 profile 的所有 atlas 加载完成，并且 canvas 绘制遍历节点时可能触发全部 atlas 同时开始加载。
+- 已调整标准网页前端加载策略：页面先执行普通图谱渲染，不再等待全部 atlas；manifest 就绪后只触发轻量重绘，头像图集通过队列加载。
+- 新增 atlas 加载队列、去重集合和并发上限，完整站点同时最多处理 2 张 atlas，MVP/demo 同时最多处理 3 张 atlas；节点绘制发现头像所在 atlas 未加载时只入队，不直接启动无限制图片请求。
+- atlas 加载完成后优先调用 `graphInstance.refresh()` 进行 Canvas 轻量重绘，避免为了头像到位而重建图谱数据和重新启动布局。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_demo/index.html`，确保实际页面产物包含新的非阻塞队列加载逻辑。
+- 验证执行 `py_compile music_metadata_graph/pipelines/build_static_graph.py`，未报错；全量单元验证 `python -m unittest discover tests` 共 33 个测试全部通过。
+- 文件级验证确认三个标准 HTML 页面均包含 `initializeAvatarAtlases()` 和 `enqueueAtlasImage()`，且不再包含旧的 `loadAvatarAtlases()` 或 `Promise.all(files...)` 全量等待逻辑。
+- 浏览器实际验证存在缺口：Codex 浏览器插件拒绝直接打开 `file://` 页面，并且本机 `localhost` 静态服务访问被浏览器端拦截为 `ERR_BLOCKED_BY_CLIENT`；因此本轮未取得真实浏览器首屏耗时截图或性能计时。
+
+### 修复头像图集到位后的绘图区闪烁
+- 用户反馈头像图集加载变快后，绘图区仍会在每次图集解析完成时闪一下，导致页面仍不好操作。
+- 已复查当前 `force-graph` 运行库能力，确认当前版本公开了 `pauseAnimation/resumeAnimation`，但没有 `refresh()` 方法。
+- 已定位闪烁原因：上一轮代码在 atlas 加载完成后尝试调用 `graphInstance.refresh()`；由于该方法不存在，实际落入 fallback `renderGraph()`，导致每张 atlas 到位都触发一次图谱重渲染。
+- 已修改 `requestAvatarAtlasRender()`，不再在头像图集到位时调用 `renderGraph()`；现在只在可用时调用 `graphInstance.resumeAnimation()`，让既有动画循环在下一帧自然绘制已解码头像。
+- 已重新生成 `site/index.html`、`site_mvp/index.html` 和 `site_demo/index.html`，实际页面产物已去除 atlas 到位后的重渲染 fallback。
+- 已补充单元断言，确认模板中保留 `requestAvatarAtlasRender()` 和 `graphInstance.resumeAnimation()`，且不再包含 `graphInstance.refresh()`。
+- 验证执行 `py_compile music_metadata_graph/pipelines/build_static_graph.py`，未报错；全量单元验证 `python -m unittest discover tests` 共 33 个测试全部通过。
+
+### 分析头像图集重建判断策略
+- 用户询问当前图集制作脚本是否会自动判断何时需要重建，或是否可以每次都重新制作。
+- 已检查 `build_avatar_atlas.py`，当前脚本没有输入指纹、mtime 比较或增量跳过逻辑；每次运行都会删除旧 `atlas_*.webp`、`avatar-atlas-manifest.json`、`avatar-atlas-manifest.js` 和 `avatar-atlas-report.json`，然后完整重建。
+- 当前完整图集产物为 43 张 WebP atlas，加 manifest/report 共 46 个文件，总大小约 62.7 MB；重建不需要网络请求，但需要重新读取、解码、裁切缩放 17183 张头像并重新 WebP 编码。
+- 判断结论为不建议把图集制作作为每次普通网页生成都无条件执行；更合适的是在头像 raw 缓存、graph data 头像 key/profile、图集参数或图像处理算法变化后才重建。
+- 后续可新增构建指纹：记录图集参数、脚本版本、profile graph data 中的 avatar_key 顺序、raw manifest 中对应记录的 local_path/status/文件大小/mtime 或内容 hash；指纹一致时直接复用已有图集。
+
+### 完善头像图集重建判断边界
+- 用户指出上一轮“何时重建图集”的判断不够完备，要求进一步仔细分析。
+- 已补充判断边界：复用图集必须同时满足“输入等价”和“输出完整”两类条件；只比较 raw 缓存或 graph data 时间戳不能证明图集可复用。
+- 输入等价需要覆盖图集参数、图像处理算法版本、Pillow/WebP 编码能力、profile graph data 的头像 key 集合与 profile 前缀顺序、当前发布范围内 raw manifest 记录、对应本地头像文件内容，以及失败/缺失头像集合。
+- 输出完整需要覆盖 manifest JSON、manifest JS、atlas 文件列表、文件大小和文件 hash；还需要检查 manifest item 坐标在 atlas 边界内、坐标按 cell size 对齐、profile 需要的 atlas 文件全部存在，且没有旧构建残留的额外 atlas 混入发布目录。
+- 已识别当前脚本的额外风险：图集构建开始时会先删除旧产物；如果中途失败或被中断，会留下不可用或不完整的发布目录。后续更稳妥的实现应先写入临时目录并验证，再替换正式目录。
+- 建议后续实现三种运行模式：默认 `auto` 指纹匹配则跳过、`--force` 无条件重建、`--check` 只验证现有图集是否匹配当前输入和输出完整性。
+
+### 实现头像图集指纹复用和安全重建
+- 已在 `build_avatar_atlas.py` 中新增默认 `auto` 模式、`--force` 强制重建和 `--check` 只验证模式。
+- 新增 `avatar-atlas-build-fingerprint.json`，记录图集参数、生成器版本、Pillow/WebP 环境摘要、profile key 摘要、ordered key 摘要、source entry 内容 hash 摘要，以及 manifest、manifest JS、report 和 atlas 文件的大小与 hash。
+- 默认 `auto` 模式会先重新计算当前输入 hash，并验证现有输出文件集合、文件 hash、manifest 结构、坐标边界、profile atlas 引用和 manifest JS 是否与 manifest 一致；全部匹配时跳过重建。
+- 当输入变化、fingerprint 缺失、输出 hash 不匹配、atlas 文件集合有旧残留或 manifest 结构错误时，`auto` 会重新制作图集。
+- 重建流程已改为先写入 `site_assets` 下的临时目录，生成 manifest、report 和 fingerprint 后先验证临时目录；验证通过后再替换正式 `site_assets/avatar_atlas_150/`，避免中途失败破坏已有可用图集。
+- `run_full_pipeline` 的第 18 步后置检查已接入同一套 fingerprint 校验，不再只检查图集文件是否存在和非空。
+- README 已补充 `build_avatar_atlas` 默认 `auto`、`--force` 和 `--check` 的使用说明；AGENTS 已同步第 18 步和图集脚本运行规则。
+- 单元测试新增覆盖：首次构建生成 fingerprint、输入输出一致时跳过、存在旧 atlas 残留时自动重建并清理、源头像文件内容变化时 `--check` 报告输入变化。
+
+### 验证头像图集指纹复用和安全重建
+- 语法验证执行 `py_compile`，覆盖 `build_avatar_atlas.py`、`run_full_pipeline.py` 和 `tests/test_static_graph_build.py`，未报错。
+- 定向单元验证执行头像图集相关 4 个测试，全部通过；全量单元验证执行 `python -m unittest discover tests`，共 36 个测试全部通过。
+- 首次使用新脚本处理真实图集时，因为旧图集尚无 fingerprint，执行完整重建；结果为 17183 个头像、43 张 atlas、失败数 0，耗时约 5 分 47 秒。
+- 真实图集第二次执行同一命令时返回 `status=skipped`，确认默认 `auto` 模式可复用现有图集；严格 hash 检查和输出验证耗时约 1 分钟。
+- `--check` 验证真实图集返回 `status=valid`，头像条目 17183，atlas 文件 43，输入 hash 为 `a53e905c6e72539543086a3bfc78af29e54a821db33e58558c84e0d1ea28deb7`。
+- 运行完整编排第 18 步 `run_full_pipeline --continue-from 18 --stop-after 18`，步骤命令返回 `status=skipped`，后置检查返回 fingerprint 路径、输入 hash、17183 个头像条目和 43 张 atlas 文件。
+- 初版 fingerprint 曾因记录完整输入明细达到约 11 MB；已改为只保存摘要 hash 并复用现有图集压缩 fingerprint，当前 fingerprint 文件约 9.6 KB，图集目录总大小约 62.5 MB。
+
+### 实现过滤后临时歌曲 CSV 双导出
+- 用户要求完整流程中原本导出四位歌手相关歌曲的 4 个临时 CSV 步骤，同时增加全量歌曲临时 CSV 导出；原四位歌手 CSV 文件名需要写明“四位歌手”，并使用新的 SQLite 数据库运行完整流程，CSV 路径仍覆盖当前验证目录。
+- 已修改第 13 步 `import_song_credits_to_db.py`：默认 `--temp-songs-csv` 导出当前歌曲全量临时 CSV，新增 `--four-singer-temp-songs-csv` 导出周杰伦、林俊杰、薛之谦、汪苏泷四位歌手范围 CSV，文件名为 `songs_after_step10_credit_import_四位歌手.csv`。
+- 已修改第 14 步 `filter_songs_by_credit_completeness.py`：默认 `--temp-kept-csv` 导出全量保留歌曲临时 CSV，新增 `--four-singer-temp-kept-csv` 导出四位歌手范围 CSV，文件名为 `songs_after_step11_complete_credits_四位歌手.csv`。
+- 已修改第 15 步 `filter_imported_songs.py`：默认 `--temp-kept-csv` 导出全量保留歌曲临时 CSV，新增 `--four-singer-temp-kept-csv` 导出四位歌手范围 CSV，文件名为 `songs_after_step12_same_credit_name_dedupe_四位歌手.csv`。
+- 已修改第 16 步 `filter_songs_by_language.py`：原全量临时 CSV 保持通用文件名，新增四位歌手范围 CSV，文件名为 `songs_after_step13_language_filter_四位歌手.csv`。
+- 已修改 `run_full_pipeline.py`，让完整流程第 13 到 16 步同时传入全量 CSV 路径和四位歌手 CSV 路径，并在后置检查中检查两类 CSV 存在。
+- 已新增 `tests.test_run_full_pipeline` 断言，确认完整流程第 13 到 16 步均包含全量和四位歌手两份临时 CSV 路径。
+
+### 修复完整流程运行中的过滤和进度问题
+- 使用新数据库 `data/music_metadata_graph_temp_csv_fullrun.sqlite3` 运行完整流程时，第 10 步专辑类型过滤在完整库规模上因相关子查询按歌曲逐行统计同名数量而长时间占用 CPU。
+- 已将 `filter_songs_by_album_type.py` 和 `run_full_pipeline.py` 中对应检查改为先按 `songs.name` 聚合出重复歌名，再 JOIN 过滤非白名单专辑类型歌曲；真实库查询耗时约 2.79 秒，保持“非白名单专辑类型且同名歌曲不止一首才删除”的业务规则。
+- 第 11 步 `collect_song_producer_raw.py` 原实现会在处理完整歌曲列表时长时间静默，容易被误判为卡住；已改为按批处理并定期打印进度，默认每 1000 首或实际新请求时输出状态，失败请求仍逐条输出。
+- 第 11 步 smoke 验证使用新数据库和 `--max-songs 5`，5 首均命中制作人 raw 缓存，脚本正常输出进度和缺 MID CSV。
+
+### 验证临时 CSV 双导出相关改动
+- 语法验证执行 `py_compile`，覆盖 `import_song_credits_to_db.py`、`filter_songs_by_credit_completeness.py`、`filter_imported_songs.py`、`filter_songs_by_language.py`、`filter_songs_by_album_type.py`、`collect_song_producer_raw.py`、`run_full_pipeline.py` 和 `tests/test_run_full_pipeline.py`，未报错。
+- 定向单元验证执行 `tests.test_filter_songs_by_album_type` 和 `tests.test_run_full_pipeline`，共 6 个测试通过。
+- 新数据库完整流程实际运行完成了第 1 到第 10 步；第 10 步后临时数据库状态为 `artists=34076`、`albums=116186`、`songs=303401`、`song_singers=442831`，`PRAGMA foreign_key_check` 返回 0 行。
+- 第 10 步专辑类型过滤日志显示从 331689 首歌曲删除 28288 首，保留 303401 首，删除 CSV 写入 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step8_album_type.csv`。
+- 第 11 步制作人 raw 请求在沙箱网络受限时出现 `WinError 5 拒绝访问`；申请网络放行后被用户中断并要求终止，已停止残留 Python 进程，不再继续运行完整流程。
+- 终止时新数据库尚未创建 `song_credit_artists` 表，流程未到达第 13 到 16 步，因此本轮新增的 4 份“四位歌手”临时 CSV 尚未生成；当前验证目录中的旧临时 CSV 时间戳仍早于本轮运行。
+- 终止时第 11 步制作人 raw 覆盖从缺 6473 个推进到缺 4225 个；后续若继续完整流程，应从第 11 步继续，并允许网络请求或提前补齐剩余 raw。
+
+### 修正制作人 raw 采集进度输出的合包语义
+- 用户指出第 11 步进度输出修改后可能不再按缺失请求合包，请求制作人 raw 的网络效率会下降。
+- 复核确认上一版虽然仍调用 `Client.gather()`，但外层按全量歌曲每 20 首切批；当缺失 raw 稀疏分布时，实际会形成很多不足 20 个请求的小合包，削弱原有合包效率。
+- 已修改 `collect_song_producer_raw.py`：扫描全量歌曲时缓存命中立即处理，缺失 raw 请求先加入 `pending_requests`，累计到 `--batch-size` 默认 20 个后再调用 `Client.gather()` 合包发送；扫描结束后再发送最后不足 20 个的尾批。
+- 进度输出仍保留：`[x/总歌曲数]` 表示全量歌曲扫描位置，`status=fetched` 表示该歌曲 raw 刚请求成功，`status=cache_hit` 仍按 1000 首或末尾节流打印。
+- 验证执行 `py_compile collect_song_producer_raw.py` 未报错；使用新数据库 `--max-songs 5` 执行缓存 smoke，5 首均为 `cache_hit`，脚本正常输出摘要。
+
+### 压缩前两版开发日志
+- 用户要求整理 `develop_log.md` 第 33 到 1400 行的前两版日志，允许合并、拆分、删除和局部调序，但不能破坏大的顺序和先后逻辑。
+- 已将 `## 日志内容` 之后到 `### 归档当前流程和本地数据准备重新设计` 之前的前两版流水日志压缩为 7 条阶段性记录，覆盖项目初始化、第一版端到端采集与过滤、第一版静态网页与 force-graph、第一版归档、第二版高可信/补充分支、第二版目录与 CSV 治理、第二版数据库化方向分析。
+- 压缩后保留两次归档位置：第一版旧端到端流程归档到 `archive/legacy_pipeline_2026-05-12/`，第二版重新设计前流程仍由后续原日志记录为归档到 `archive/redesign_reset_2026-05-13/`。
+- 本次只修改 `develop_log.md` 的历史日志表达，不修改源码、数据库、raw 缓存、验证 CSV、网站产物或归档目录。
+- 验证对象为 `develop_log.md` 标题结构、归档锚点、UTF-8 编码和行尾；检查结果显示压缩记录位于日志开头，`归档当前流程和本地数据准备重新设计` 仍保留在压缩段之后，文件无 U+FFFD 替换字符、无 BEL 控制字符、无裸 LF。
+
+### 补充完整流程长步骤进度日志
+- 用户指出除第 11 步外，还有几个完整流程步骤容易让人误以为卡住，要求改成类似第 11 步的日志显示方式，同时不得破坏落盘和请求规则。
+- 已修改第 7 步 `collect_song_album_detail_raw.py`：专辑详情 raw 采集在缓存命中、请求成功和失败发生时即时输出 `[当前/总数]` 进度；缓存命中按 1000 条和末尾节流打印，新请求和失败逐条打印；保留原有 `Client.gather()` 按 `--batch-size` 合包请求语义、raw 路径和失败报告规则。
+- 已修改第 8 步 `import_song_album_detail_to_db.py`：读取专辑详情 raw 时每 1000 个文件和末尾输出进度，并在拆分有效/拒绝、替换 `albums`、写拒绝 CSV 前输出阶段 JSON。
+- 已修改第 9 步 `import_singer_song_tab_to_db.py`：读取歌曲 Tab raw、按 song mid 分组、评估入库/拒绝歌曲时输出固定间隔进度，并在替换歌曲表和写拒绝 CSV 前输出阶段 JSON。
+- 已修改第 10、14、15、16 步过滤脚本：在查询待删除歌曲、准备 CSV 行、写正式删除 CSV、写全量临时 CSV、写“四位歌手”临时 CSV 和执行删除前输出阶段日志；过滤 SQL、删除规则、CSV 路径和临时 CSV 双导出语义保持不变。
+- 已修改第 13 步 `import_song_credits_to_db.py`：扫描制作人 raw 时每 1000 个文件和末尾输出进度，导入制作人、替换作词作曲关系、写全量临时 CSV 和四位歌手临时 CSV 前输出阶段日志；未改变制作人 raw 读取范围、缺 MID 解析、艺人补入和关系入库规则。
+- 已在 `song_csv.prepare_song_csv_rows()` 新增可选 `progress_label` 参数；默认不输出，只有长流程脚本显式传入时才打印 CSV 行准备进度，避免影响普通调用。
+- 验证执行 `py_compile`，覆盖本轮修改的 `song_csv.py`、第 7/8/9/10/13/14/15/16 步相关脚本，未报错。
+- 定向单元验证执行 `python -m unittest tests.test_filter_songs_by_album_type tests.test_run_full_pipeline`，共 6 个测试通过；测试日志中已能看到第 10 步阶段输出和 CSV 准备进度。
+
+### 节流第十二步常规补 MID 进度输出
+- 用户询问第 12 步逐条打印 `db_matched` 和 `cache_hit` 是否会增加 IO 耗时，并要求修改。
+- 已修改 `quick_search_artist_mid.py`：新增 `PROGRESS_EVERY = 1000` 和 `should_print_progress()`，用于节流无需网络请求的常规成功日志。
+- 第 12 步及共用补 MID 逻辑现在对 `db_matched` 和任意 `cache_hit` 结果只在每 1000 个唯一姓名及最后一个唯一姓名打印；真实 `fetched`、请求失败、库内姓名歧义、空拆分等仍逐条打印。
+- 本次未修改 quick_search raw 读取/请求规则，未修改每条处理后重写补 MID CSV 的渐进落盘规则，未修改艺人入库和拆分姓名匹配规则。
+- 验证执行 `py_compile quick_search_artist_mid.py fill_song_credit_missing_mids.py fill_song_singer_missing_mids.py`，未报错；定向单元验证 `python -m unittest tests.test_filter_songs_by_album_type tests.test_run_full_pipeline` 共 6 个测试通过。
+
+### 轻度压缩当前版早期日志
+- 用户要求对当前这一版日志做轻度压缩，不同于前两版归档日志压缩；本次只删除或合并明显低价值内容，例如纯“验证通过”记录、重复验证流水、以及已被后续设计推翻的早期方案，同时遵循越新的日志保留越多。
+- 已将当前版较早部分从 `归档当前流程和本地数据准备重新设计` 到 2026-05-15 末尾的流水日志压缩为阶段性记录，保留重新设计启动、完整歌手列表 raw、歌手表入库、主页歌曲 Tab、歌曲/专辑数据库边界、缺失歌手补全、作词作曲关系、请求量与断点续跑、quick_search 补 MID、完整流程编排、MVP 可视化等关键事实。
+- 本次保留 2026-05-16 及之后较新日志的详细记录，仅在早期段落中合并验证空话和被后续推翻的设计；未修改源码、数据库、raw 缓存、CSV、网站产物或归档目录。
+- 验证对象为 `develop_log.md` 标题结构、UTF-8 编码和行尾；检查目标为无 U+FFFD 替换字符、无 BEL 控制字符、无裸 LF，并确认 `## 2026-05-16` 之后较新日志仍保留。
+
+### 扩展补 MID 姓名拆分分隔符
+- 用户指出补 MID 步骤里除带 `/` 的姓名要拆开，带中文逗号 `，` 和顿号 `、` 的姓名也应该拆开。
+- 已将共用 `quick_search_artist_mid.split_artist_names()` 从仅按 `/` 拆分改为按 `/`、`，`、`、` 拆分，并新增 `has_artist_name_separator()` 供调用方统一判断是否进入拆分分支。
+- 第五步前置补演唱歌手 MID、第十二步前置补作词作曲 MID、第八步歌曲入库缺 MID 歌手名解析、第十三步作词作曲导入缺 MID 制作人解析均复用同一分隔符判断。
+- 新增 `tests/test_artist_name_split.py`，覆盖 `/`、`，`、`、` 混合拆分、重复片段去重、歌曲演唱者缺 MID 库内唯一姓名匹配、作词作曲缺 MID 库内唯一姓名匹配。
+- AGENTS 项目规则已同步补 MID 分隔符范围，明确相关步骤不再只处理 `/`。
+
+### 调整右侧详情栏歌曲卡片信息顺序
+- 用户指出右侧详情栏选中歌手后，支撑歌曲卡片原本第一行只显示标题、第二行显示“演唱者 · 选中音乐人职能 · 专辑”，容易把职能理解为演唱者或专辑侧信息。
+- 已调整标准静态图模板 `renderSongList()`：歌曲卡片第一行改为“歌曲标题 · 作词/作曲”，表示选中音乐人对该歌曲的贡献职能；第二行改为“演唱者 · 专辑”，表示贡献流向的演唱方和歌曲出处。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`，使当前可打开网页产物同步新顺序。
+- 已补充 `tests/test_static_graph_build.py` 静态断言，确认模板包含 `[song.name, song.role]` 和 `[song.target, song.album]` 两段拼接，且不再包含旧的 `[song.target, song.role, song.album]` 拼接。
+- 验证执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，未报错；执行 `python -m unittest tests.test_static_graph_build.StaticGraphBuildTests`，19 个测试通过；执行 `python -m unittest discover tests`，39 个测试通过。
+- 文件级验证确认 `site/index.html` 包含新顺序并不包含旧顺序；浏览器实际入口验证存在环境缺口，Codex 浏览器插件拦截 `file://` 访问，并且本地 HTTP `127.0.0.1` 页面返回 `ERR_BLOCKED_BY_CLIENT`。
+
+### 调整网页标题下方数据来源和生成时间换行
+- 用户要求把网页标题下方摘要中的“SQLite 静态图谱”改为“数据来源：QQ音乐”，并让“生成于”时间单独换行，避免时间戳在中间被动折断。
+- 已修改标准静态图模板 `renderHeader()`，摘要第一行显示“数据来源：QQ音乐 · 数据库：歌曲数 / 音乐人数”，第二行显示“生成于 时间戳”。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`，使当前网页产物同步新标题摘要。
+- 已补充 `tests/test_static_graph_build.py` 断言，确认模板包含“数据来源：QQ音乐”和 `<br />`，且不再包含“SQLite 静态图谱”。
+- 验证执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，未报错；执行 `python -m unittest tests.test_static_graph_build.StaticGraphBuildTests`，20 个测试通过；执行 `python -m unittest discover tests`，42 个测试通过。
+- 文件级验证确认四个站点 HTML 均包含新文案和生成时间换行；`site_large/assets/graph-data.js` 因生成命令只改动生成时间戳，已按 HEAD 字节恢复，避免无关数据产物变更。
+
+### 固定顶栏并同步明细表高度
+- 用户要求底部“歌曲明细/关系明细”表的高度改成和右侧详情栏一样，从绘图区高度读取；同时要求顶部控制栏固定显示，不随页面滚动消失。
+- 已将 `.topbar` 改为 `position: sticky; top: 0`，并通过 CSS 变量 `--topbar-height` 让右侧详情栏 sticky 偏移避开固定顶栏。
+- 已将原 `syncDetailPanelHeight()` 扩展为 `syncPanelHeights()`，继续从 `.graph-panel` 读取实际高度，并同时写入右侧详情栏和底部 `.data-section` 的 `height/maxHeight`。
+- 已把底部 `.data-section` 改为纵向 flex 容器，标签栏固定占位，`#table-content` 作为剩余空间滚动区，避免继续使用固定 `420px` 高度。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`，使当前网页产物同步固定顶栏和明细表高度逻辑。
+- 已补充 `tests/test_static_graph_build.py` 断言，覆盖顶栏 sticky、详情栏基于顶栏高度偏移、底部明细区 flex 高度、`syncPanelHeights()` 统一同步高度，并确认旧 `syncDetailPanelHeight()` 不再存在。
+- 验证执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，未报错；执行 `python -m unittest tests.test_static_graph_build.StaticGraphBuildTests`，20 个测试通过；执行 `python -m unittest discover tests`，42 个测试通过。
+- 文件级验证确认四个站点 HTML 均包含固定顶栏和统一高度同步逻辑；生成命令刷新过的各站点 `assets/graph-data.js` 只涉及生成时间戳，已按 HEAD 字节恢复，避免无关数据产物变更。
+
+### 增加隐藏绘图表格查看模式
+- 用户要求在顶栏右半部分第一行开关最左侧新增“隐藏绘图”开关，默认关闭；除非后续特别说明，该开关必须永远位于所有开关最左边。
+- 已在开关区最左侧新增 `drawing-toggle`，状态字段为 `hideDrawing: false`，默认不勾选。
+- 开启“隐藏绘图”后，页面给 `body` 增加 `drawing-hidden` 类，隐藏 `.workspace` 中的绘图区和右侧详情栏，并将底部 `.data-section` 顶到顶栏下方。
+- 已调整 `render()` 和 `renderSelection()`：隐藏绘图时不调用 `renderGraph()` 和 `renderDetail()`，筛选、表格搜索和标签切换只刷新明细表与高度，避免图谱重绘卡顿。
+- 已调整窗口 resize 逻辑，隐藏绘图时不触发 `renderGraph()`；`syncPanelHeights()` 在隐藏绘图时直接按明细区距离视口顶部计算表格区域高度。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 `index.html`，使当前网页产物同步隐藏绘图开关。
+- 已补充 `tests/test_static_graph_build.py` 断言，覆盖开关默认关闭、开关位置在作词/作曲开关之前、隐藏绘图 body class、跳过 `renderGraph()`/`renderDetail()`、隐藏绘图时 resize 不重绘图谱。
+- 验证执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，未报错；执行 `python -m unittest tests.test_static_graph_build.StaticGraphBuildTests`，20 个测试通过；执行 `python -m unittest discover tests`，42 个测试通过。
+- 文件级验证确认四个站点 HTML 均包含“隐藏绘图”开关、`drawing-hidden` 样式和跳过绘图逻辑；`site_large/assets/graph-data.js` 因生成命令只改动生成时间戳，已按 HEAD 字节恢复，避免无关数据产物变更。
+
+### 核对 singer.get_info 接口使用步骤
+- 用户追问 `qqmusic.singer.get_info` 除粉丝量补充外还在哪些步骤使用。
+- 已核对当前有效源码和一键完整流程编排，当前正式流程中 `get_info` 只在第 2 步歌手粉丝量 raw JSON 和第 6 步补全歌曲歌手信息中使用。
+- 第 2 步 `collect_singer_fans_raw.py` 对 `get_singer_list.concernNum` 未覆盖的第三步目标歌手调用 `get_info(mid)`，读取 `Info.FansNum.Num` 并写入 `data/raw/qqmusic/singer_fans_info/` 和粉丝量汇总。
+- 第 6 步 `collect_missing_song_singers_to_db.py` 扫描第四步主页歌曲 Tab 中不在 `artists` 表的非空歌手 MID，调用 `get_info(mid)`，保存到 `data/raw/qqmusic/singer_info/` 并补入 `artists`。
+- 本次只做接口用途核对和日志记录，未修改业务代码。
+
+### 第六步补入歌曲歌手粉丝量
+- 用户确认第 6 步补全歌曲歌手信息时也应该将 `qqmusic.singer.get_info` 返回的粉丝量入库。
+- 已修改 `collect_missing_song_singers_to_db.extract_singer_row()`：当 `Info.FansNum.Num` 为可用正数时，随补入歌手 row 写入 `fans_num`、`fans_source=qqmusic.singer.get_info.FansNum.Num` 和当前 `singer_info` raw 路径。
+- 复用既有 `import_artists()` 的冲突更新规则，空粉丝量不会覆盖已有正数粉丝量，非空来源和 raw 路径才会更新来源追溯字段。
+- 已新增 `tests/test_collect_missing_song_singers_to_db.py`，覆盖第 6 步从 `get_info` 抽取粉丝量，以及缺粉丝量时不覆盖已有粉丝量。
+- AGENTS 项目规则已同步第 6 步粉丝量入库要求。
+
+### 修正网页歌曲展示优先使用 title
+- 用户指出内部去重等逻辑可以继续使用歌曲和专辑的 `name`，但网页展示应使用 `title`。
+- 已修改 `build_static_graph.py`：图谱数据中的歌曲明细和边支撑歌曲同时导出 `name` 与 `title`；前端新增 `songDisplayTitle()`，右侧详情卡、关系表支撑歌曲和歌曲明细表均优先显示 `title`，缺失时回退 `name`。
+- 已为专辑展示预留兼容字段：若 `albums` 表存在 `title` 列则导出 `album_title` 并优先显示；当前正式 `albums` 表仍只有 `name`，因此现有网页专辑展示会回退到 `album.name`，不改变专辑入库或过滤规则。
+- 已同步 `AGENTS.md` 项目规则，明确网页展示层优先 `songs.title`，但过滤、去重、排序和身份判断仍按已确认的 `songs.name` 与 `albums.name` 规则执行。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的 HTML；并重写四个站点的 `assets/graph-data.js`，使外部图谱数据也包含 `title` 与 `album_title` 字段。
+
+### 验证网页歌曲 title 展示修正
+- 定向单元验证执行 `python -m unittest tests.test_static_graph_build`，共 20 个测试通过；新增测试覆盖 `songs.name` 与 `songs.title` 不同时图谱数据仍保留内部 `name`，并向网页展示层导出 `title`。
+- 重新生成标准站点数据资产时使用 `prepare_static_graph_assets --skip-avatar-download`，未触发新头像网络下载；完整站点、MVP、demo 三个站点分别重写 `assets/graph-data.js`，large-graph 由 `build_large_graph_static --output-dir site_large` 重写。
+- 文件级验证确认 `site/index.html`、`site_mvp/index.html`、`site_demo/index.html`、`site_large/index.html` 均包含 `songDisplayTitle()` 与 `albumDisplayTitle()`；四份 `graph-data.js` 均包含 `title` 与 `album_title` 字段。
+
+### 核对 artists 入库步骤
+- 用户询问当前完整流程还有哪些步骤会向 `artists` 表加人。
+- 已核对当前有效源码中 `import_artists()` 调用点和一键完整流程编排，确认会新增或更新 `artists` 的正式步骤为第 3 步歌手列表入库、第 5 步前置 quick_search 补歌曲歌手缺 MID、第 6 步补全歌曲歌手信息、第 12 步前置 quick_search 补作词作曲缺 MID、第 13 步导入作词作曲关系。
+- 第 2 步只生成粉丝量 raw 和汇总 JSON，不直接写数据库；第 4、7、8、9、10、11、14、15、16、17、18、19、20 步不负责向 `artists` 新增音乐人。
+
+### 同步网页明细表范围与绘图筛选
+- 用户要求网页下方明细表显示范围与上方绘图一致，所有绘图筛选都必须应用在明细表上。
+- 已修改标准静态图模板：`renderTable()` 先获取当前 `buildGraph()` 结果，关系明细直接使用当前图的可见边，歌曲明细只展示当前可见边支撑到的歌曲。
+- 歌曲明细的作词、作曲、演唱列现在按当前图可见节点过滤；当用户选中节点时，明细表仍可在当前图范围内进一步收窄到选中节点相关人员。
+- 已同步 `AGENTS.md` 项目规则，明确明细表搜索和选中节点只能缩小当前图范围，不得重新扩大到原始全量歌曲集合。
+
+### 验证网页明细表筛选同步
+- 已执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，确认本轮修改的网页生成脚本和测试文件语法可编译。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 与 `site_large/` 的静态网页入口，使当前可打开网页产物同步明细表范围规则。
+- 已执行 `python -m unittest tests.test_static_graph_build`，共 20 个测试通过；新增断言覆盖明细表复用 `buildGraph()`、歌曲明细按当前可见边提取歌曲、人员列按当前可见节点过滤，并确认旧的目标歌手独立过滤逻辑不再存在。
+
+### 补充网页明细表保留节点自身歌曲
+- 用户补充指出任何时候明细表都应该包含节点本身的歌曲，即使某些筛选会让图中出现孤岛节点，明细表仍应显示这些节点自己的歌曲。
+- 已调整标准静态图模板：歌曲明细在当前图可见边支撑歌曲之外，额外合并当前可见节点作为演唱者参与的歌曲；该补充不改变关系明细表的可见边范围。
+- 已同步 `AGENTS.md` 项目规则，明确孤岛节点自身演唱歌曲属于歌曲明细表当前图范围内应显示内容。
+
+### 验证网页明细表保留节点自身歌曲
+- 已执行 `py_compile build_static_graph.py tests/test_static_graph_build.py`，确认本轮补充修改语法可编译。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的静态网页入口；large-graph 生成命令带出的 `graph-data.js` 仅为生成时间戳刷新，已恢复为原字节，避免无关数据产物变化。
+- 已执行 `python -m unittest tests.test_static_graph_build`，共 20 个测试通过；新增断言覆盖歌曲明细把当前可见节点作为演唱者参与的歌曲加入结果。
+
+### 修正明细表歌曲行完整显示
+- 用户指出顶栏筛选对明细表的影响应只决定歌曲条目本身是否出现；如果歌曲条目出现，作词、作曲、演唱等字段应显示完整内容，不应因为制作人节点被筛选掉而变成空白。
+- 已调整标准静态图模板 `renderTable()`：继续使用当前 `buildGraph()` 结果和选中节点范围决定歌曲行集合，但歌曲行进入表格后，作词、作曲、演唱列直接使用歌曲完整人员列表渲染。
+- 已移除前端 personNamesForTable() 对当前可见节点或选中节点的二次人员过滤，避免筛选后歌曲仍在但制作人/演唱者列被裁空。
+- 已同步 AGENTS.md 网页明细表范围规则，明确绘图筛选只决定歌曲条目是否进入歌曲明细表，不得裁剪歌曲内部字段。
+- 已重新生成 site/、site_mvp/、site_demo/ 和 site_large/ 的静态网页入口，使当前可打开页面同步修正后的明细表显示逻辑。
+
+## 2026-05-18
+
+### 修正隐藏绘图下绘图开关仍卡顿
+- 用户指出开启“隐藏绘图”后，切换“作词/作曲分开”“显示名字”等只和绘图有关的开关仍会卡顿数秒。
+- 已定位原因：这些开关虽然隐藏绘图时跳过 `renderGraph()`，但仍统一调用 `render()`，而 `render()` 末尾会执行 `renderTable()`；`renderTable()` 会重新 `buildGraph()` 并重写大表，因此仍有明显卡顿。
+- 已新增 `renderDrawingOnlyChange()`，隐藏绘图时只同步 `drawing-hidden`、图例和面板高度，不再触发表格重算；绘图显示状态下则只刷新绘图和详情栏。
+- 已将“隐藏绘图”“作词/作曲分开”“显示名字”“粒子效果”四个绘图表达开关改为调用 `renderDrawingOnlyChange()`，不再调用整页 `render()`。
+- 已将明细表内部图范围固定为 `buildGraph({ roleDisplay: "split" })`，使“作词/作曲分开”只影响绘图区边的视觉合并/拆分，不再影响歌曲明细表的计算路径。
+- 已同步 `AGENTS.md` 隐藏绘图性能规则，明确绘图专用开关在隐藏绘图时不得触发图谱重绘、`buildGraph()` 大表重算或明细表重写。
+
+### 增加清除筛选与隐藏绘图清空确认
+- 用户要求在顶栏右侧第一行开关区最左侧新增“清除筛选”按钮，并让“隐藏绘图”默认成为第二项。
+- 已在 `html_document()` 顶栏模板中将“清除筛选”放在第一位，将“隐藏绘图”包入 `drawing-toggle-shell` 并放在第二位，同时新增向下弹出的 `drawing-clear-popover`，文案为“是否清空筛选？”，选项为“否”和“是”。
+- 已实现 `resetFiltersToEmpty()`：清除筛选不是恢复默认值，而是重置为无筛选状态，包括粉丝量 0 到不限、目标歌手全选、隐藏叶节点关闭、仅显示目标歌手关闭、最小歌曲数 1、显示名字关闭、粒子效果关闭、作词/作曲分开关闭，并清除图表选中和明细表搜索。
+- 已调整隐藏绘图开关事件：从关闭切换为开启时打开清空确认弹窗；点击“否”只关闭弹窗，点击“是”在保持隐藏绘图开启的前提下执行 `resetFiltersToEmpty({ preserveHideDrawing: true })`。
+- 已补充 `tests/test_static_graph_build.py` 断言，覆盖控件顺序、确认弹窗、清除筛选状态重置、隐藏绘图开启时弹窗逻辑和“是/否”按钮行为。
+- 已同步 `AGENTS.md` 顶栏筛选重置规则，固定“清除筛选”第一、“隐藏绘图”第二，以及无筛选状态的具体含义。
+
+### 核查 artists 表中的虚拟歌手
+- 用户要求检查默认数据库 `artists` 表中是否已有洛天依、乐正绫、言和、初音，以及未点名的其他虚拟歌手。
+- 已使用项目指定 Conda Python 直接查询默认 SQLite `data/music_metadata_graph.sqlite3`，避免 PowerShell 中文编码影响判断；当前 `artists` 表共 48595 行。
+- 点名对象中，洛天依、乐正绫、言和、初音未来均已在 `artists` 表命中；其中洛天依和乐正绫来自完整歌手列表并带近似粉丝量，言和和初音未来来自歌曲歌手 quick_search 补 MID。
+- 扩展核查确认库中还存在镜音铃、镜音双子、镜音连、巡音流歌、MEIKO、KAITO、GUMI、v flower、VY1、重音テト、徵羽摩柯、墨清弦、乐正龙牙、星尘、海伊、诗岸、苍穹、赤羽、牧心、心华、东方栀子、VOCALOID 和 ACE虚拟歌姬等候选虚拟歌手或相关账号。
+- 同时统计了候选人在 `song_singers` 与 `song_credit_artists` 中的引用情况；当前命中的虚拟歌手主要作为演唱者出现，作词作曲关系表中暂未发现对应引用。
+- 本次只执行只读数据库核查和日志记录，未修改 SQLite 数据。
+
+### 追溯洛天依Official无最终关系引用原因
+- 用户追问 `洛天依Official` 为什么没有关系引用，以及库里是否没有她的歌曲。
+- 已查询默认 SQLite：`artists.mid=000YMcoP4cQo22` 存在，但 `song_singers` 和 `song_credit_artists` 对该 MID 的最终引用数均为 0，最终 `songs` 表中也没有歌名或标题包含 `洛天依Official` 的歌曲。
+- 已追溯 raw 歌曲缓存，`data/raw/qqmusic/singer_homepage_song_tab/003ktdcg3E4kaG/` 中有 9 个 raw 文件包含该 MID，去重后共 33 首歌曲的 `singer[]` 包含 `洛天依Official`。
+- 已追溯 validation CSV，这 33 首歌曲全部出现在 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step11_incomplete_credits.csv`，样例包括《孤独症患者》《晨光与橡皮》《春天认得我》《深海流萤》《The Cursive Healing》等。
+- 这些歌曲在删除清单中作词、作曲列为空，说明它们不是没有进入过流程，而是在最终保留库前因作词或作曲不完整被过滤掉；因此当前最终关系表不再保留 `洛天依Official` 的演唱关系。
+- 本次只做只读追溯和日志记录，未修改 SQLite 数据或 CSV 产物。
+
+### 解释歌词页制作人信息与结构化制作人接口差异
+- 用户指出 QQ 音乐客户端播放歌曲时歌词顶部能看到作词作曲信息，但歌曲信息本身似乎没有设置作词作曲。
+- 已核对样例《孤独症患者》《晨光与橡皮》《春天认得我》的 `data/raw/qqmusic/song_producer/*.json`，三者均为 `{"Lst": null, "ReinforceMsg": ""}`，说明当前采集使用的 `song.get_producer` 结构化制作人接口未返回作词作曲列表。
+- 已核对当前有效源码，作词作曲导入只读取 `song_producer` raw 中的 `Lst/data/producer/producers/list/items` 等结构化列表，并不采集或解析歌词页顶部的制作人文本。
+- 当前判断为 QQ 音乐客户端歌词页展示的制作人信息可能来自歌词文本、歌词接口或客户端侧另一个展示数据源，而非当前流程使用的结构化 `song.get_producer` 字段；因此这些歌在客户端可见作词作曲，但在当前数据库中仍被视为结构化制作人缺失。
+- 本次只做只读核查和原因分析，未修改采集流程；若后续引入歌词页制作人文本，应作为低于结构化制作人接口置信度的补充来源，并保留来源接口、原始文本和解析方式追溯。
+
+### 小样例验证歌词接口补充作词作曲
+- 用户要求测试可搜索歌曲的 QQ 音乐接口，后续补充只需选几首 `洛天依Official` 相关歌曲验证，不逐个验证全部 33 首。
+- 已枚举本地 `qqmusic_api` 可用于找歌和查歌的接口：`search.complete`、`search.quick_search`、`search.general_search`、`search.search_by_type(SearchType.SONG)`、`search.search_by_type(SearchType.LYRIC)`、`song.query_song`、`song.get_detail`、`song.get_other_version`、`song.get_producer`、`lyric.get_lyric`，以及专辑侧 `album.get_detail/get_song` 可作为已知专辑入口。
+- 已选取《孤独症患者》《晨光与橡皮》《Ebbing Love Flowing Tears》《蓝色共鸣宇宙》四首样例并进行低频联网探针；沙箱内首次请求被网络限制拦截，随后按审批联网重跑成功。
+- 结果显示常规搜索、歌曲详情、批量查歌和 `song.get_producer` 均未直接提供可入库的结构化作词作曲；`song.get_producer` 对四首样例仍返回 `{"Lst": null, "ReinforceMsg": ""}`。
+- `lyric.get_lyric(song_mid).decrypt()` 可从歌词头部解析出部分样例的词曲：《孤独症患者》为作词“枫黎酥”、作曲“不二兔”；《晨光与橡皮》为作词“不二兔”、作曲“不二兔”；《Ebbing Love Flowing Tears》为作词和作曲“Eden Alison Ro O'Connell”。
+- `search.search_by_type(SearchType.LYRIC)` 的精确 `mid` 命中条目也包含歌词 `content` 字段，可作为定位和交叉验证来源；但同名检索会返回其他歌曲，必须按 `song_mid` 精确匹配，不能只按关键词命中判断。
+- 《蓝色共鸣宇宙》样例对应的当前 MID 是 Piano Version，`lyric.get_lyric` 返回空，歌词搜索精确 MID 条目也无歌词头部；同名其他版本可返回词曲，但不能直接套用到该版本，除非后续规则确认版本间可继承。
+- 探针结果已写入 `data/processed/validation/song_credit_source_probe/luotianyi_official_probe.json` 和 `data/processed/validation/song_credit_source_probe/luotianyi_official_exact_probe.json`；本次未修改采集流程、数据库或正式 CSV。
+
+### 确认 lyric.get_lyric 返回结构
+- 用户追问是否实际可靠接口就是 `lyric.get_lyric(song_mid).decrypt()`，以及返回 JSON 内容形态。
+- 已基于本地 `qqmusic_api.models.lyric.GetLyricResponse` 确认，HTTP 返回核心字段为 `songID`、`crypt`、`lyric`、`trans`、`roma`；`decrypt()` 是本地模型方法，不是额外请求，会在 `crypt=1` 时把 `lyric`、`trans`、`roma` 解密为可读文本。
+- 当前结论为：在 `song.get_producer` 结构化制作人为空时，`lyric.get_lyric(song_mid).decrypt().lyric` 是目前最直接可用的补充来源，但其本质仍是歌词文本解析，置信度应低于结构化制作人接口，且部分歌曲可能返回空歌词。
+
+### 随机 30 首测试歌词头部解析行数
+- 用户要求从第十四步作词作曲不完整删除 CSV 中随机抽 30 首，以 batchsize=30 合包请求一次，验证前多少行能稳定解析到词曲作者。
+- 已从 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step11_incomplete_credits.csv` 中用固定随机种子 `20260518` 抽取 30 首，使用 `Client.gather(requests)` 一次合包请求 30 个 `lyric.get_lyric(song_mid)`，并对 `crypt=1` 的歌词执行本地 `qrc_decrypt`。
+- 合包请求 30 首均成功返回；其中 10 首返回空歌词，13 首同时解析到作词和作曲，7 首有歌词但未同时匹配到作词和作曲。
+- 对 13 首可解析样例，按原始解密歌词行计数时，作词作曲最晚出现在第 8 行；按去掉 `[ti]`、`[ar]`、`[al]`、`[by]`、`[offset]` 元信息后的有效行计数时，作词作曲最晚出现在第 3 行。
+- 覆盖统计显示原始前 8 行即可覆盖本次所有可解析样例，原始前 5 行覆盖 0 首；有效前 3 行即可覆盖本次所有可解析样例。
+- 结果写入 `data/processed/validation/song_credit_source_probe/step14_random30_lyric_batch_probe.json`；控制台打印最后一条结果时因歌名含特殊符号触发 GBK 输出错误，但结果文件已完整写入并回读确认共有 30 条结果。
+- 本次只做接口验证和日志记录，未修改采集流程、数据库或正式 CSV。
+
+### 筛选后随机 30 首复测歌词头部解析
+- 用户指出前一次 30 首抽样质量不好，应先筛 `album_type` 为 `Single`、`EP`、`录音室专辑` 且 `song_language != 9`，并补充歌词语言差异：日文应识别 `詞/作詞`，英文应大小写不敏感识别 `lyrics by/composed by`。
+- 已按用户要求从第十四步删除 CSV 中筛选出 134681 行候选，再用固定随机种子 `20260518` 抽取 30 首，使用 `Client.gather(requests)` 一次合包请求 30 个 `lyric.get_lyric(song_mid)`。
+- 已在本次探针解析规则中加入 `作詞/詞`，并对 `Lyrics/Lyricist/Lyrics by/Composed/Composer/Music` 使用大小写不敏感匹配。
+- 合包请求 30 首均成功返回；其中 5 首返回空歌词，18 首同时解析到作词和作曲，7 首有歌词但未同时匹配到作词和作曲。
+- 对 18 首可解析样例，按原始解密歌词行计数时，作词作曲最晚出现在第 9 行；按去掉 `[ti]`、`[ar]`、`[al]`、`[by]`、`[offset]` 元信息后的有效行计数时，最晚出现在第 4 行。
+- 覆盖统计显示原始前 8 行覆盖 17 首、前 10 行覆盖全部 18 首；有效前 3 行覆盖 17 首、前 5 行覆盖全部 18 首。
+- 结果写入 `data/processed/validation/song_credit_source_probe/step14_filtered_random30_lyric_batch_probe.json`；本次未修改采集流程、数据库或正式 CSV。
+
+### 识别作曲编曲同标签解析缺口
+- 用户指出《浪淘沙》的歌词头部为 `作曲、编曲：李志辉`，当前严格匹配 `作曲` 会漏掉这类作曲和编曲写在同一标签里的情况。
+- 已回看未完整解析样例，《浪淘沙》前 4 行依次为歌名、`作词：古柳`、`作曲、编曲：李志辉`、`演唱：罗勤颖`，因此它应可解析出作曲“李志辉”。
+- 后续正式解析器应先去掉时间戳并按冒号切分为左侧角色标签和右侧人员值；单字 `词/詞/曲` 只在角色标签严格等于该词时生效，避免把 `编曲` 误判为作曲；`作曲/作詞/作词` 这类明确角色词可在角色标签中包含匹配，以支持 `作曲、编曲`、`作词/作曲`、`作曲 Composer` 等组合标签。
+- 风险边界：不能在整句歌词正文中全局搜索 `作曲`；匹配范围应限制在歌词头部有效前几行、且必须是冒号前角色标签，否则可能误把正文或说明性文字当作制作人字段。
+
+### 调整清除筛选按钮样式
+- 用户指出顶栏“清除筛选”按钮与周围开关相比过于违和，字号、字体和按钮大小不一致。
+- 已调整 `.clear-filters-button` 样式：去掉输入框式边框和背景，改为透明工具栏文字按钮，字号为 12px，颜色与开关文字一致，并保留 hover 与键盘 focus-visible 状态。
+- 已补充 `tests/test_static_graph_build.py` 断言，确认清除筛选按钮使用 22px 工具栏高度、透明背景、无边框和 12px 字号，并确认旧 26px 带 padding 的按钮样式不再存在。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的静态网页入口，使当前页面同步按钮样式。
+
+### 细化清除筛选为纯文字按钮
+- 用户继续指出“清除筛选”仍未与右侧开关文字对齐，怀疑仍有外框影响，并要求直接删除外框变成纯文字按钮。
+- 已进一步调整 `.clear-filters-button`：将 `min-height` 改为 0，显式去除控件外观 `appearance`，保持无边框、无背景、无 padding 的纯文字按钮。
+- 已将 hover 和键盘焦点状态从蓝色外框改为文字下划线，避免按钮获得焦点时再次出现外框视觉。
+- 已补充 `tests/test_static_graph_build.py` 断言，确认纯文字按钮样式、无外框焦点，以及旧的 22px/26px 控件式高度不再使用。
+- 已重新生成 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/` 的静态网页入口，使当前页面同步纯文字按钮样式。
+
+### 整理长流程请求与日志规则
+- 用户要求整理完整流程中涉及合包、断点续跑、及时落盘、日志合理跳过和及时打印的通用规则。
+- 已核对当前有效源码中的长步骤实现：第 2 步粉丝量补 `get_info`、第 6 步歌曲歌手 `get_info`、第 7 步专辑详情、第 11 步制作人请求使用 `Client.gather()` 按批合包；第 4 步歌曲 Tab 为分页单请求缓存；第 5 和第 12 步 `quick_search` 为低频单请求并逐行重写 CSV；第 17 步头像缓存按间隔启动下载并边完成边写 manifest；第 18 步头像图集使用 fingerprint 跳过和临时目录校验后替换。
+- 已在 `AGENTS.md` 同步项目补充规则：合包不得改变一个对象一个 raw JSON 文件的追溯方式；请求型步骤必须 cache 优先、`--force` 才覆盖；坏 JSON 可视为未命中；旧 CSV 不得作为断点输入；成功对象必须及时落盘；失败时保留成功结果并非零退出以便重跑补齐。
+- 已补充日志规则：长步骤必须接入 `run_with_log`，打印 `run_id/run_log`、结构化摘要和 `[当前/总数]` 进度；新请求、失败和最后一项必须及时打印，大量缓存命中或数据库命中可间隔打印但要在摘要中计数；跳过必须区分 `fetched/cache_hits/db_matches/skipped/failed` 等状态，不得伪装成成功抓取。
+- 本次只整理规则和文档记录，未修改采集、入库、过滤或网页生成代码。
+
+### 改造请求调度为异步等待
+- 用户要求把所有请求都改成异步，避免在请求间隔之外还要等待下载时间；已评估可行性，确认 `Client.gather()` 已用于第 2、6、7、11 步，头像缓存第 17 步也已按间隔启动下载并异步等待完成。
+- 已修改第 1 步 `collect_singer_list_raw.py`：每个筛选组合先请求第一页获取 `total`，随后对已知剩余页使用 `Client.gather()` 批量启动并等待，避免逐页串行等待响应。
+- 已修改第 4 步 `collect_singer_song_tab_raw.py`：同一歌手内部仍按 `HasMore` 顺序请求分页，但多个歌手之间使用异步任务并发推进，避免一个歌手的响应等待阻塞其他歌手启动请求。
+- 已修改 `quick_search_artist_mid.py`：歌曲歌手和作词作曲补 MID 的 `quick_search` 按唯一搜索名创建异步任务并按完成顺序处理结果；同名搜索只请求一次，多条来源共享结果；数据库已命中、歧义和空拆分仍即时写 CSV。
+- 已同步 `AGENTS.md` 异步请求调度规则：能提前构造请求的步骤应按限速启动请求并异步等待响应；分页依赖上一页 `HasMore` 或 `total` 的流程只能在已知页范围或不同歌手之间并发，不得请求未知页。
+- 验证执行 `py_compile` 覆盖 `collect_singer_list_raw.py`、`collect_singer_song_tab_raw.py`、`quick_search_artist_mid.py`、两个补 MID 入口，未报错；定向单元验证 9 个测试通过；全量单元验证 `python -m unittest discover tests` 共 42 个测试通过。
+
+### 修正歌曲 CSV 步骤编号命名
+- 用户指出导出 CSV 中的 step 与完整编排实际 step 不一致。
+- 已将后续歌曲 CSV 默认导出路径统一为当前 `run_full_pipeline` 编排步骤号：第 10 步专辑类型过滤导出 `songs_removed_by_step10_album_type.csv`，第 13 步作词作曲导入临时表导出 `songs_after_step13_credit_import.csv`，第 14 步作词作曲完整性过滤导出 `songs_removed_by_step14_incomplete_credits.csv` 和 `songs_after_step14_complete_credits.csv`，第 15 步同词曲同名去重导出 `songs_removed_by_step15_same_credit_name_dedupe.csv` 和 `songs_after_step15_same_credit_name_dedupe.csv`，第 16 步语言过滤导出 `songs_removed_by_step16_language_9.csv` 和 `songs_after_step16_language_filter.csv`。
+- 已同步 `run_full_pipeline.py`、各过滤/导入脚本默认路径、帮助文案、去重摘要字段和 `tests/test_run_full_pipeline.py` 断言；作词作曲补 MID CSV 的 `source_step` 从旧 `step10_song_credit` 改为当前来源步骤 `step11_song_credit`。
+- 已同步 `AGENTS.md` 歌曲入库后过滤规则，避免后续文档继续引用旧步骤号文件名。
+- 已检查现有 `data/processed/validation*/` 下已生成的歌曲 CSV，并将旧步骤号文件复制出对应的新步骤号文件名；用户随后确认旧命名 CSV 可以删除，已只删除旧步骤号 CSV，保留新步骤号 CSV。
+- 验证执行相关脚本 `py_compile` 未报错；执行 `python -m unittest tests.test_run_full_pipeline` 共 5 个测试通过。
+
+### 追踪周大侠和断了的弦流程状态
+- 用户要求检查歌曲名为《周大侠》和《断了的弦》的歌曲在当前完整流程中的入库、过滤和步骤位置。
+- 已只读查询正式数据库 `data/music_metadata_graph.sqlite3` 的 `songs`、`song_singers`、`song_credit_artists`、`albums`、`artists`，并读取正式验证 CSV：歌曲入库拒绝、第 10 步专辑类型过滤、第 14 步作词作曲完整性过滤、第 15 步同词曲同名去重、第 16 步语言过滤，以及第 13/14/15/16 步临时保留 CSV。
+- 当前正式数据库最终各保留 1 条：`周大侠` 为封茗囧菌《封茗囧菌翻唱合辑》版本，`断了的弦` 也为封茗囧菌《封茗囧菌翻唱合辑》版本；二者作词均为方文山，作曲均为周杰伦。
+- 周杰伦原唱《断了的弦》在第 13 和第 14 步后仍存在，随后在第 15 步同词曲同名去重中被删除；原因是同名、同作词、同作曲分组内优先级为 `录音室专辑 > EP > Single > 较小 song id`，封茗囧菌翻唱合辑为 `录音室专辑`，周杰伦原唱所在《寻找周杰伦》为 `EP`。
+- `周大侠` 的周杰伦现场专辑版本在第 10 步因 `现场专辑` 被过滤；伴奏、Demo 和部分空专辑/缺专辑信息版本在歌曲入库阶段写入拒绝 CSV，未进入 `songs`。
+- 本次未修改源码、数据库、raw 缓存或正式 CSV；验证范围是只读 SQLite 查询和 CSV 回读。
+
+### 分析第十步和第十五步去重设计缺口
+- 用户追问第十步是否已特殊设计为保留原唱现场专辑，并询问同名同作词作曲去重规则是否应调整。
+- 已核对当前 `filter_songs_by_album_type.py` 实现，第十步实际规则为：专辑类型不在 `Single`、`EP`、`录音室专辑` 白名单内，且同一个 `songs.name` 在当前库中出现不止一首时删除；代码没有识别原唱，也没有按演唱歌手或目标歌手保留现场专辑。
+- 当前问题不在于 `录音室专辑 > EP > Single` 这个优先级本身，而在于第十步和第十五步把不同演唱歌手的同名同词曲歌曲放在同一个自动删除竞争里；这会把“同一歌手先发 Single/EP 后收录进录音室专辑”的合理场景，和“原唱/翻唱/现场/覆盖版本”的场景混在一起。
+- 初步建议为：第十步不要只按 `songs.name` 删除非白名单专辑类型，应至少加入演唱歌手集合约束；非白名单版本只有在同名且同演唱歌手集合存在白名单版本时才自动删除，否则保留到后续步骤。
+- 初步建议为：第十五步同名同作词作曲去重时，`录音室专辑 > EP > Single` 优先级只应在同一演唱歌手集合内部生效；不同演唱歌手集合默认不自动互删，若后续仍要压缩翻唱版本，应另设“原唱候选/翻唱候选”规则或人工检查 CSV。
+- 本次只做规则核对和方案分析，未修改源码、数据库或 CSV。
+
+### 纠正同名同词曲去重目标
+- 用户纠正前一轮分析：项目目标不是不同演唱歌手之间都保留歌曲条目，而是同名同作词作曲歌曲需要跨演唱歌手合并并保留原唱或主版本。
+- 已调整理解：第十五步仍应允许不同演唱歌手之间互相竞争，但不能只用 `录音室专辑 > EP > Single` 判断跨歌手原唱；该优先级更适合用于同一演唱歌手内部的发行版本选择。
+- 后续方案应先识别或估算原唱/主版本，再在原唱候选内部使用专辑类型优先级；否则会出现翻唱录音室专辑压过原唱 EP 或现场版本的问题。
+- 本次记录为需求纠正和方案边界调整，尚未修改源码、数据库或 CSV。
+
+### 增加歌词补充作词作曲步骤
+- 用户要求在结构化制作人 raw 请求之后新增歌词补充分支，只处理结构化作词/作曲不完整的歌曲，并且不得覆盖结构化制作人已有角色。
+- 已新增 `collect_song_lyric_credit_raw.py`，按 `songs` 与 `song_producer` raw 判断目标歌曲，只对缺作词或缺作曲的歌曲合包请求 `lyric.get_lyric(song_mid)`，raw 写入 `data/raw/qqmusic/song_lyric_credit/`，解析视图写入 `data/processed/validation/song_lyric_credit/csv_views/song_lyric_credit.csv`。
+- 歌词头部解析限制在原始前 10 行、去掉 LRC 元信息后的有效前 5 行内；按冒号前角色标签匹配，单字 `词/詞/曲` 要求标签严格相等，`作词/作詞/作曲` 与英文 `lyrics/lyricist/composed/composer/music` 可在标签内包含匹配，以支持 `作曲、编曲：李志辉` 并避免把 `编曲：某人` 误判为作曲。
+- 已调整作词作曲补 MID 步骤：第十三步同时扫描结构化制作人缺 MID 和歌词补充得到的缺失角色姓名，仍使用“先查 artists、再 quick_search”的原有规则，CSV 继续写入 `song_credit_mid_fill.csv`。
+- 已调整作词作曲导入步骤：第十四步先导入结构化制作人作词/作曲；只有结构化缺失的角色才从歌词解析结果补入，歌词来源通过 `raw_json_path/raw_row_index` 追溯，不会覆盖结构化已有角色。
+
+### 调整语言过滤到歌曲入库阶段
+- 用户要求 `language=9` 过滤移到歌曲入库后立即执行，或者在入库时筛选，同时照常导出过滤掉的歌曲。
+- 已调整 `import_singer_song_tab_to_db.py`：歌曲先完成原有完备性约束判断；满足入库约束但 `language=9` 的歌曲写入 `data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_language_9.csv`，不写入 `songs` 和 `song_singers`。
+- 已从完整编排中移除后置独立 language 过滤步骤，新增第十二步歌词补充后，总步骤数仍为 20；第十三步补 MID、第十四步导入作词作曲、第十五步完整性过滤、第十六步同名同词曲去重、第十七到二十步仍为网站资源、头像图集、标准网站和 large-graph 网站。
+- 已同步相关默认 CSV 步骤号：作词作曲导入临时 CSV 改为 `songs_after_step14_credit_import.csv`，完整性过滤改为 `songs_removed_by_step15_incomplete_credits.csv` / `songs_after_step15_complete_credits.csv`，同名同词曲去重改为 `songs_removed_by_step16_same_credit_name_dedupe.csv` / `songs_after_step16_same_credit_name_dedupe.csv`。
+- 已同步 `AGENTS.md` 项目规则和 `pyproject.toml` 命令入口 `mr-collect-song-lyric-credit-raw`。
+
+### 验证歌词补充与编排调整
+- 已执行项目 Python 的 `py_compile`，覆盖歌词补充采集、作词作曲补 MID、作词作曲导入、歌曲入库、完整编排、作词作曲完整性过滤和同名同词曲去重脚本，未发现语法错误。
+- 已新增 `tests/test_collect_song_lyric_credit_raw.py`，覆盖 `作曲、编曲` 可解析为作曲、`编曲` 不会误判为作曲、日文 `詞` 和英文大小写不敏感标签可解析、超出头部有效行限制的词曲不会被解析。
+- 已更新 `tests/test_run_full_pipeline.py`，覆盖新增 `lyric_credit_raw_dir`、第九步 language 删除 CSV、第十二步歌词补充模块、第十四至十六步新临时 CSV 路径和网站步骤仍为第十七至二十步。
+- 已执行 `python -m unittest tests.test_collect_song_lyric_credit_raw tests.test_run_full_pipeline`，共 9 个测试通过。
+
+### 核查歌词补充落盘状态
+- 用户询问通过歌词补充作词作曲时是否有落盘。
+- 已核对当前实现：第十二步 `collect_song_lyric_credit_raw.py` 会把 `lyric.get_lyric(song_mid)` 原始响应保存到 `data/raw/qqmusic/song_lyric_credit/`，并把解析检查视图写入 `data/processed/validation/song_lyric_credit/csv_views/song_lyric_credit.csv`。
+- 已核对第十四步导入逻辑：只有结构化制作人缺失的角色才会读取歌词 raw 解析结果补入 `song_credit_artists`，补入关系通过 `raw_json_path` 和 `raw_row_index` 追溯到歌词 raw，不覆盖结构化已有角色。
+- 只读检查当前本地数据：歌词 raw 目录已有 92850 个 JSON 文件；歌词解析 CSV 有 92850 行，其中 38336 行解析到至少一个词曲角色、36212 行同时解析到作词和作曲。
+- 只读查询当前正式数据库 `song_credit_artists`：现有 181371 条作词作曲关系，但 `raw_json_path` 指向 `song_lyric_credit` 的关系数为 0，说明当前最终库中尚没有保留下来的歌词来源关系，或最后一次导入/过滤结果未包含歌词来源关系。
+
+### 核查歌词制作人 MID 补全来源
+- 用户追问歌词解析到制作人只有姓名时 MID 在哪里补。
+- 已核对当前实现：第十三步 `fill_song_credit_missing_mids.py` 会扫描第十二步歌词 raw 解析出的姓名，只处理结构化制作人缺失的角色，并把来源标记为 `step12_song_lyric_credit`。
+- MID 补全复用 `quick_search_artist_mid.py`：先在当前 `artists` 表按姓名精确唯一匹配；库内唯一命中时写 `db_matched`，库内多 MID 时写 `db_ambiguous_name` 且不自动选择；库内未命中时请求或读取 `data/raw/qqmusic/quick_search_artist_mid/song_credit/` 下的 quick_search raw，只有搜索结果中歌手姓名精确且唯一命中时才把该 MID 导入 `artists`。
+- 第十四步 `import_song_credits_to_db.py` 不读取补 MID CSV 作为关系输入，而是重新读取 `artists` 的唯一姓名映射；歌词姓名能唯一解析到 `artists.mid` 时才写入 `song_credit_artists.artist_mid`，关系来源仍追溯到歌词 raw。
+- 只读检查当前 `song_credit_mid_fill.csv`：来自 `step12_song_lyric_credit` 的歌词姓名来源共有 21209 行，其中 `db_matched` 11019 行、`matched` 1682 行、`db_ambiguous_name` 1191 行、`ambiguous_exact_match` 126 行，其余为未匹配或无候选。
+
+### 分析第十二步本地缓存扫描慢
+- 用户询问第十二步扫描本地缓存为什么仍然很慢。
+- 已核对 `collect_song_lyric_credit_raw.py`：本地缓存命中时仍会读取歌词 JSON、执行 `qrc_decrypt` 解密、解析头部词曲、统计歌词行数，并最终重写 `song_lyric_credit.csv`，不是只检查文件是否存在。
+- 只读计时显示读取 2000 个歌词 JSON 并做 JSON 解析约 0.47 秒；按当前歌词解析逻辑处理 100 个缓存文件约 5.48 秒，说明主要瓶颈是歌词解密与解析而不是单纯磁盘枚举。
+- 已识别当前实现中 `build_csv_row()` 会先调用 `parse_lyric_credit_rows()` 解密一次，又调用 `lyric_text_from_payload()` 统计行数再解密一次；缓存命中越多，重复解密成本越明显。
+- 当前完整缓存规模为歌词 raw 92850 个 JSON；按上述小样本速度，纯本地重建解析 CSV 也会达到分钟级到小时级，且日志只每 1000 个 cache hit 打印一次，容易看起来像“卡在扫描本地”。
+
+### 核查歌词 raw 落盘内容范围
+- 用户询问歌词补充落盘的是完整歌词还是前几行。
+- 已核对 `collect_song_lyric_credit_raw.py`：`dump_json()` 保存的是 `lyric.get_lyric(song_mid)` 的完整原始响应 payload，未在写 raw JSON 前截断歌词字段。
+- 前几行限制只发生在 `parse_lyric_credit_rows()` 的解析阶段：只在原始前 10 行、去掉 LRC 元信息后的有效前 5 行里寻找作词作曲标签。
+- 解析 CSV 不保存完整歌词，只保存 `matched_lines_json`、`lyric_line_count`、解析出的作词/作曲姓名和 raw 路径；需要回看完整接口响应时应打开 `data/raw/qqmusic/song_lyric_credit/*.json`。
+
+### 讨论歌词缓存改为最小证据
+- 用户提出可否把第十二步歌词落盘放到解析阶段，或把落盘内容改成解密后的前 10 行，不再保存完整加密歌词。
+- 已形成初步判断：该方向更符合项目“不提交大量歌词”和最小化本地缓存的边界；完整加密歌词虽然不是明文，但可由本地库解密，仍不适合作为长期 raw 缓存。
+- 目标效果应改为：第十二步联网请求后只在内存中持有完整接口响应，立即解密并抽取用于作词作曲解析的头部证据，再落盘有限 JSON；CSV 和第十三、十四步继续读取该有限证据，不依赖完整歌词。
+- 建议有限 JSON 至少保存 `schema_version`、`source_api`、`song_mid`、`song_id`、`song_name`、`fetched_at`、`producer_missing_roles`、解密后的原始前 10 行、去掉 LRC 元信息后的有效前 5 行、解析出的词曲行、原接口 `crypt` 状态和必要的空歌词/解析失败状态，不保存完整 `lyric/trans/roma/qrc`。
+- 风险边界：去掉完整歌词 raw 后，后续如果需要调整解析窗口或检查正文以外信息，只能重新请求接口；旧 `song_lyric_credit/*.json` 需要迁移或重建，否则会出现完整 raw 与有限证据两种格式混用。
+- 初步实现方案应同步改第十二步采集、歌词解析函数、第十三步补 MID、第十四步关系导入和一键流程检查，并新增兼容测试覆盖旧完整 raw、有限证据 JSON 和空歌词样例。
+
+### 确认旧歌词 raw 读时迁移策略
+- 用户提出兼容旧完整加密缓存时，可以在读到旧格式后解析并按新的有限证据格式落盘覆盖旧文件。
+- 已调整方案判断：采用读时迁移比一次性全目录清理更稳，能够随着第十二、十三、十四步正常读取逐步淘汰旧完整歌词缓存。
+- 迁移规则应为：识别到旧 `lyric.get_lyric` 完整响应格式时，只在内存中解密并抽取有限证据，随后用临时文件加原子替换覆盖同一路径；若旧 JSON 损坏或无法解析，不覆盖原文件并按失败状态报告。
+- 新格式文件仍可沿用原 `data/raw/qqmusic/song_lyric_credit/{song_mid}.json` 路径，避免改动数据库和 CSV 中的 raw 路径追溯字段；内容通过 `schema_version` 或 `cache_kind` 区分有限证据格式。
+- 后续实现应统计并打印 `migrated_legacy_raw`、`evidence_cache_hits`、`fetched`、`failed_migrations` 等计数，避免把旧 raw 迁移伪装成普通缓存命中。
+
+### 设计歌词补充有限证据缓存完整方案
+- 用户要求整理不保存完整加密歌词、改为解密后前几行有限证据落盘的完整方案。
+- 目标效果为：第十二步联网请求仍能补充结构化制作人缺失的作词/作曲，但本地长期缓存只保存解析词曲所需的头部证据，不保存完整 `lyric`、`trans`、`roma` 或 `qrc` 字段。
+- 新缓存仍使用 `data/raw/qqmusic/song_lyric_credit/{song_mid}.json` 路径，文件通过 `cache_kind=qqmusic_lyric_credit_evidence` 和 `schema_version=1` 标识有限证据格式，保留现有 CSV 和数据库 raw 路径追溯口径。
+- 有限证据 JSON 应包含歌曲标识、来源接口、抓取时间、结构化制作人缺失角色、原接口 `crypt` 状态、歌词是否为空、解密后原始前 10 行、去 LRC 元信息后的有效前 5 行、解析出的词曲行、解析状态和错误摘要；不得保存完整歌词正文、翻译、罗马音或 qrc 全文。
+- 第十二步应在请求成功后只在内存中持有完整响应，解密一次并构造有限证据 JSON，然后立即写入缓存；缓存命中时直接读取有限证据，不再重复解密。
+- 旧完整缓存兼容方案为读时迁移：第十二、十三、十四步读到旧完整响应时，解析并覆盖为有限证据；迁移失败不覆盖原文件，并输出 `failed_migrations`。
+- 第十三步补 MID 和第十四步导入作词作曲应改为读取统一的 `parsed_credit_rows`，不再假设缓存文件一定是完整 `lyric.get_lyric` 响应。
+- 验证方案包括单元测试覆盖新格式解析、旧格式读时迁移、空歌词、解密失败、只补结构化缺失角色、不保存完整歌词字段，以及小样本运行确认计数中区分 `evidence_cache_hits`、`migrated_legacy_raw`、`fetched` 和 `failed_migrations`。
+- 风险边界为：未来若需要扩大解析窗口或回看完整歌词，只能重新请求接口；本轮不应一次性删除全部旧缓存，也不应把完整歌词复制到 CSV、日志、数据库或新缓存字段中。
+
+### 增加第十三步来源扫描进度日志
+- 用户确认第十三步主要问题是扫描 `song_producer` 和 `song_lyric_credit` raw、收集缺 MID 来源时没有进度输出，导致 raw 很多时看起来像卡住；本轮不调整 quick_search 阶段的缓存命中和数据库命中节流。
+- 已修改 `fill_song_credit_missing_mids.py`：在 `collect_missing_credit_sources()` 开始时打印 `scan_credit_sources` 摘要，扫描 producer raw 时每 1000 个和最后一个打印 `[当前/总数] scan_credit_sources`，并在结束时打印 `scan_credit_sources_summary`。
+- 新增扫描日志字段包括 producer raw 文件总数、目标歌曲数、跳过非目标歌曲数、已收集来源数、已检查歌词 raw 数和歌词补充来源行数，便于判断第十三步当前处于前置扫描阶段还是后续 quick_search 补 MID 阶段。
+- 已新增 `tests/test_fill_song_credit_missing_mids.py`，用临时 SQLite 和 producer/lyric raw 样例验证扫描进度、跳过非目标 raw、歌词来源计数和来源步骤标识。
+- 验证执行 `py_compile fill_song_credit_missing_mids.py tests/test_fill_song_credit_missing_mids.py` 未报错；定向单元验证 `python -m unittest tests.test_fill_song_credit_missing_mids` 通过 1 个测试。
+
+### 梳理各类扫描步骤总量可知性
+- 用户追问扫描阶段是在开始时知道总量，还是只能扫到没有更多才知道结束，并明确问题不只针对第十三步，而是所有涉及扫描的步骤。
+- 已核对当前 pipeline 代表性实现：本地 raw 目录扫描和 SQLite 查询结果扫描通常可以在正式处理前得到候选总量，例如 `glob()` 结果列表、`SELECT ... fetchall()` 结果或已解析的目标列表。
+- 已确认外部分页请求类步骤不完全相同：完整歌手列表第一页返回 `total` 后可推算剩余页数；歌手主页歌曲 Tab 目前依赖每页 `HasMore` 判断结束，单个歌手的总页数不是开始前已知。
+- 当前判断：长步骤日志应区分 `known_total`、`discovered_total` 和 `unknown_until_has_more_false` 三种口径；本地扫描应优先打印 `[当前/总数]`，分页请求则应打印当前页、累计行数和结束原因。
+
+### 区分均匀进度和请求型进度
+- 用户继续要求分析哪些步骤的进度日志属于均匀本地进度，不会发生外部请求，例如本地扫描和入库。
+- 已按当前完整流程判断：本地 raw 文件扫描、SQLite 查询结果处理、入库校验、过滤和 CSV 准备通常属于不发外部请求的进度，`[当前/总数]` 更接近线性进度；但单项解析、数据库查询和 CSV 排序仍可能让速度有小幅波动。
+- 请求型进度包括歌手列表 raw、粉丝量补齐、主页歌曲 Tab、歌曲歌手信息、专辑详情、制作人 raw、歌词补充 raw、quick_search 补 MID 和头像下载；这些进度即使有 `[当前/总数]`，也会受网络、缓存命中、批量请求和失败降级影响，不应按线性剩余时间判断。
+- 当前判断中第 9、14、15、16 步的主要本地处理或 CSV 准备更接近均匀进度；第 13 步新增的 `scan_credit_sources` 是均匀本地扫描，但后续 quick_search 是请求/缓存混合进度。
+
+### 设计终端进度条和定时日志心跳
+- 用户提出终端显示进度条时，run log 不应按每 1000 条或固定条数打印，而应每两分钟打印一行并带时间戳前缀。
+- 当前判断为该方案更适合长流程日志：按墙钟时间输出能稳定判断进程仍在推进，避免不同数据规模或不同机器上按条数输出过密或过稀。
+- 建议统一进度工具在终端使用 tqdm 纯进度条，日志侧输出机器可读心跳行，格式包含 UTC 时间戳、进度标题、当前值、总量、百分比、已耗时和可选速率；每个进度段开始打印标题，结束时无论是否满两分钟都打印完成摘要。
+- 风险边界：定时心跳只能在循环迭代边界检查时间；如果单个对象处理本身阻塞超过两分钟，仍需要在该对象内部或请求型步骤另行打印请求开始/失败日志。
+
+### 实现本地均匀进度 tqdm 和日志心跳
+- 已安装 `tqdm` 到项目指定 Conda 环境，并在 `pyproject.toml` 依赖中新增 `tqdm`。
+- 已新增 `music_metadata_graph/progress.py`，提供 `iter_progress()`：终端可交互时显示纯 tqdm 进度条，run log 中只写 `progress_start`、每 120 秒一次的 `progress` 心跳和 `progress_done`，每条日志带 UTC 时间戳、标题、当前值、总量、百分比、耗时和速率。
+- 已扩展 `run_log.py`：暴露真实终端 stdout 和当前异步日志 writer，使 tqdm 输出只写终端，日志心跳直接写 run log，避免 tqdm 回车刷新污染日志文件。
+- 已将本地均匀进度替换为 `iter_progress()`：第 8 步专辑详情 raw 加载，第 9 步歌曲 Tab raw 加载、歌曲 raw 分组、歌曲入库约束评估，第 13 步作词作曲来源 raw 扫描，第 14 步制作人 raw 扫描，以及第 14/15/16 步共享的歌曲 CSV 准备。
+- 请求型步骤、quick_search 轮、头像下载和完整流程 step precheck/postcheck 未改为 tqdm，继续保留结构化日志。
+- 已新增 `tests/test_progress.py`，覆盖 start/定时/done 日志、run log 与 tqdm 输出分流；已更新 `tests/test_fill_song_credit_missing_mids.py` 以匹配第十三步扫描的新进度日志。
+- 验证执行 `py_compile` 覆盖新增进度工具、运行日志、被替换的 pipeline 文件和相关测试文件，未报错；定向单元验证 `tests.test_progress tests.test_fill_song_credit_missing_mids tests.test_filter_songs_by_album_type tests.test_run_full_pipeline` 共 9 个测试通过。
+- 真实缓存 smoke 执行 `fill_song_credit_missing_mids --max-names 0`，第十三步扫描 324419 个 producer raw 文件完成，run log 中只记录 `progress_start/progress_done` 文本心跳，没有 tqdm 动态回车内容。
+
+## 2026-05-18
+
+### 再次清理开发日志异常空行
+- 用户反馈日志又出问题，要求检查当前异常。
+- 复核确认本次异常仍为空行膨胀：清理前 `develop_log.md` 文件大小为 1349776 字节，共 521543 行，其中非空行 1856 行；未发现隐藏控制字符或 U+FFFD 替换字符。
+- 本次生成压缩备份 `develop_log.before_blank_cleanup_20260518_191127.md.gz` 后执行机械空行压缩，保留全部非空内容，并在标题前保留单个空行以维持 Markdown 可读性。
+
+### 拆分多轮进度阶段提示
+- 用户指出同一步骤内多个轮次的进度输出不能直接混在一起，尤其第十三步旧日志中第一轮到 `[55005/55005]` 后又出现 `[17000/55005]`，看起来像进度倒退。
+- 已在 `progress.py` 新增统一阶段标题 `== 标题 ==`，并让 `iter_progress()` 在每个本地进度条前自动打印阶段标题；第 8、9、13、14、15、16 步的本地均匀轮次切换现在会有明确标题分隔。
+- 已修改 `quick_search_artist_mid.py`：补 MID 流程拆成“解析缺失音乐人姓名并检查本地 artists”和“请求或读取 quick_search raw 并写入匹配结果”两个阶段；第二阶段进度改用 quick_search 搜索名完成数作为分母，不再复用第一阶段唯一姓名序号，避免异步结果按完成顺序打印时出现序号倒退。
+- 已新增 `tests/test_quick_search_artist_mid.py`，验证 quick_search 阶段会打印阶段标题，并且搜索阶段输出 `[1/2]`、`[2/2]` 而不是继续使用第一阶段 `[2/3]` 这类混合分母。
+
+### 探测 other_version 支撑原唱归并
+- 用户表示可以放宽目标，不要求归到主版本，只要归到原唱，并询问是否有比启发式更靠谱的方案。
+- 已核对本地 `qqmusic-api-python`，存在 `song.get_other_version(value)`，对应 QQ 音乐 `music.musichallSong.OtherVersionServer.GetOtherVersionSongs`，返回 `versionList`。
+- 已联网只读探测《断了的弦》和《周大侠》的周杰伦/封茗囧菌版本；结果显示从封茗囧菌《断了的弦》请求 other_version 返回周杰伦《断了的弦》，从封茗囧菌《周大侠》请求 other_version 返回周杰伦《大灌篮 电影原声带》版本；从周杰伦《断了的弦》请求 other_version 返回多个翻唱版本；从周杰伦现场版《周大侠》请求返回空列表。
+- 当前判断：`get_other_version` 比单纯发行日期、作曲人是否演唱等启发式更可靠，适合作为原唱归并的主要证据，但它不是直接返回“原唱字段”，需要围绕同名同词曲候选构建版本关系图，并用平台返回的版本关系把翻唱候选指向原唱候选。
+- 后续规则设计应避免第十步提前删除潜在原唱；原唱归并应放在作词作曲导入之后，结合当前库候选和 other_version raw 证据执行。
+- 本次只做接口能力探测和方案分析，未修改源码、数据库或正式 CSV。
+
+### 扩展验证 other_version 原唱归并样本
+- 用户要求用周杰伦相关《世界末日》《蜗牛》《一路向北》《我是如此相信》，以及当前最终保留歌曲中专辑名包含“翻唱”的样本验证 `song.get_other_version` 对原唱归并的可靠性。
+- 已从正式数据库和正式过滤 CSV 定位样本：四首周杰伦相关歌曲覆盖最终保留、第十步删除、第十四步删除、第十五步删除和入库拒绝状态；翻唱专辑样本覆盖刘瑞琦、王俊凯、周深、排骨教主、封茗囧菌等当前最终保留歌曲。
+- 联网只读批量请求 `song.get_other_version` 后观察到：鹿晗/曲肖冰/周杰伦现场《世界末日》均指向 S.B.D.W《世界末日》；周杰伦/庾澄庆等《蜗牛》版本指向许茹芸、齐秦、动力火车、熊天平《蜗牛》；《一路向北》的周杰伦 Live、吴岱林、丁芙妮版本指向周杰伦《J III MP3 Player》版本；多个翻唱专辑样本能指向平台版本关系中的更标准版本，例如 TFBOYS《宠爱》、A-Lin《P.S.我爱你》、大塚愛《星象仪》、洛天依/言和《普通Disco》、周杰伦《断了的弦》和《周大侠》电影原声带版本。
+- 同时观察到两个限制：对原唱或主版本本身请求 `other_version` 时，返回的可能是翻唱列表，不能把返回第一条直接当原唱；部分返回目标 MID 当前不在最终库或已经被第十五步删除，例如《断了的弦》周杰伦 EP、《普通Disco》洛天依/言和 Single、《房间》刘瑞琦《私房歌》版本。
+- 当前判断：`other_version` 适合作为原唱归并主证据，但流程必须在删除前采集并保存版本关系 raw；如果平台返回的原唱目标不在当前库，应把目标补入或至少阻止翻唱版本替代原唱直接保留。
+- 本次未修改源码、数据库或正式 CSV；验证仅包含只读 SQLite/CSV 查询和联网只读接口探测。
+
+### 核查周杰伦给别人写的歌流程状态
+- 用户提供 `周杰伦给别人写的歌_每行歌名歌手.txt`，要求检查清单歌曲在当前完整流程中的状态。
+- 已读取清单共 174 行，按歌名为主、歌手为辅助匹配当前默认 SQLite、歌曲入库拒绝 CSV、各步骤过滤 CSV 和主页歌曲 Tab raw；对 `4 in Love`、`Super Junior-M`、`Jesus Fashion Family` 这类歌手名含空格的行做了手动解析修正。
+- 已生成核查 CSV `data/processed/validation/manual_checks/jay_chou_written_songs_flow/jay_chou_written_songs_flow_check.csv`，每行记录原始清单、解析歌名/歌手、流程状态、命中歌曲 MID/ID、实际演唱者、专辑、作词、作曲和来源 CSV/raw。
+- 核查结果：按清单歌手精确或近似命中的行共 102 行，其中最终 `songs` 保留 76 行，歌曲入库拒绝 3 行，第 10 步专辑类型过滤 1 行，第 14 步作词作曲不完整过滤 21 行，第 15 步同名同词曲去重过滤 1 行；另有 72 行未命中清单歌手，其中 50 行在当前流程输出和 raw 中未找到，22 行只命中了同名但非清单歌手版本。
+- 本次为只读核查和报告导出，未修改 SQLite、raw 缓存或正式流程代码。
+
+### 生成周杰伦给别人写的歌逐条解释报告
+- 用户反馈上一版状态统计看不懂，要求逐条解释每首歌是初始范围未包含、某一步过滤还是最终包含。
+- 已基于上一版核查 CSV 生成 `data/processed/validation/manual_checks/jay_chou_written_songs_flow/jay_chou_written_songs_flow_explained.md` 和同目录 `jay_chou_written_songs_flow_explained.csv`。
+- 逐条解释报告对每行输出清单原文和中文说明，说明是否最终包含、是否歌曲入库拒绝、第 10 步专辑类型过滤、第 14 步作词作曲不完整过滤、第 15 步同名同词曲去重，或当前初始范围未包含；只命中同名非清单歌手版本时单独说明为清单版本未命中。
+- 已抽查《落雨声》《You Will Get My Heart》《倒带》《亲爱的那不是爱情》《命中注定》《幸福微甜》《Jesus Fashion》等边界样例，确认解释文本包含命中歌手、专辑、词曲或过滤原因。
+- 本次只生成解释报告和开发日志，未修改数据库、raw 缓存或流程源码。
+
+### 细化 other_version 原唱归并流程方案
+- 用户要求把更靠谱的 `song.get_other_version` 原唱归并流程说详细。
+- 已形成方案方向：第十步从提前删除非白名单同名歌曲调整为保守标记或只删除明确噪声；在作词作曲导入后、最终去重前新增版本关系请求步骤，按同名同词曲候选请求并缓存 `song.get_other_version` raw；随后在去重步骤中优先按平台版本关系选择被指向的原唱候选，只有缺少版本关系证据时才回退专辑类型优先级。
+- 方案强调：`other_version` 返回的是其他版本列表，不是直接原唱字段；从翻唱或派生版本查通常可指向原唱，从原唱查通常返回翻唱列表，因此不能把任意返回第一条当原唱，必须在同名同词曲组内构建“源版本 -> 返回候选”的关系图。
+- 方案边界：若平台指向的原唱 MID 不在当前库，不能让当前翻唱版本自动胜出，应导出待补原唱清单或补采该 MID；若组内没有稳定入边或出现冲突，应进入人工检查 CSV，不强行归并。
+- 本次只记录流程方案，未修改源码、数据库或正式 CSV。
+
+### 核查初始未包含歌曲演唱者是否在第一步歌手列表
+- 用户要求针对大量初始范围未包含的歌曲，列出去重演唱者，并检查这些演唱者是否存在于第一步请求到的完整歌手列表 raw 中。
+- 已从逐条核查结果中提取 72 行初始未包含或只命中同名非清单歌手的记录，按清单演唱者拆分去重后得到 41 个演唱者。
+- 已扫描 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/page_*.json` 的 `singerlist/hotlist` 中 `name/title/other_name` 字段做严格规范化匹配；第一步歌手列表中仅精确命中 `许慧欣` 1 个演唱者，其余 40 个未命中。
+- 已输出 `data/processed/validation/manual_checks/jay_chou_written_songs_flow/initial_missing_expected_singers_step1_check_strict.csv`，记录每个演唱者、涉及歌曲、是否在第一步歌手列表、命中 MID 和 raw 路径。
+- 本次为只读核查和报告导出，未修改数据库、raw 缓存或流程源码。
+
+### 为失败和剔除 CSV 增加原因代码列
+- 用户要求所有入库失败和过滤剔除 CSV 在导出时最后增加原因列，原因值使用有意义的短词组代码，不使用长句自然语言。
+- 已修改歌曲 CSV 通用写出工具，新增可选 `reason_code` 末列；普通保留和临时查看 CSV 默认不输出该列。
+- 已覆盖第九步歌曲入库拒绝 CSV、第九步 `language=9` 剔除 CSV、第十步专辑类型剔除 CSV、第十五步词曲不完整剔除 CSV、第十六步同名同词曲去重剔除 CSV，以及手动语言过滤剔除 CSV。
+- 已修改第八步专辑入库拒绝 CSV，将短代码 `reason_code` 放在最后一列，并继续保留脚本内部原有原因统计所需字段。
+- 已同步 `AGENTS.md` 中专辑入库、歌曲入库失败和歌曲 CSV 列规则，明确失败/剔除 CSV 追加 `reason_code`，临时保留 CSV 不追加原因列。
+
+### 验证失败和剔除 CSV 原因代码列
+- 已执行 `py_compile` 覆盖本轮修改的 CSV 工具、专辑入库、歌曲入库、歌曲过滤脚本和新增测试文件，未发现语法错误。
+- 已执行 `python -m unittest tests.test_rejection_reason_csv tests.test_filter_songs_by_album_type`，共 4 个测试通过。
+- 新增测试确认歌曲入库拒绝 CSV 和专辑入库拒绝 CSV 的最后一列为 `reason_code`，并确认普通歌曲 CSV 不会误输出原因列。
+
+### 探测歌手数字 ID 请求接口
+- 用户询问第一步歌手列表中缺失的数字 ID 是否可直接请求歌手。
+- 已确认 `qqmusic_api` 当前 `singer.get_info()`、`get_tab_detail()`、`get_album_list()`、`get_mv_list()` 等封装方法公开参数均为歌手 MID。
+- 已联网探测 `music.UnifiedHomepage.UnifiedHomepageSrv.GetHomepageHeader`：已知有效歌手 BEYOND 使用 `SingerMid=002pUZT93gF4Cu` 成功，但改用 `SingerId=2`、`SingerID=2` 或 `singerId=2` 均失败；此前对缺失 ID 传入 `get_info()` 也返回 CGI 错误。
+- 已联网探测 `musichall.song_list_server.GetSingerSongList`：已知有效歌手 BEYOND 使用 `singerId=2` 或 `singerID=2` 均成功，并在响应中返回 `singerMid=002pUZT93gF4Cu` 和歌曲列表。
+- 当前结论：主页信息接口不能按数字 ID 请求；旧歌手歌曲列表接口可按数字 ID 请求并可用于把有效数字 ID 反查 MID，但它不是主页 Tab 接口，也不等价于正式第四步歌曲来源。
+
+### 探测按 MID 请求歌手接口的地区字段
+- 用户指出旧歌曲列表接口只能得到 MID 和部分名字，继续询问按 MID 请求歌手接口是否能得到 `area_id`。
+- 已用 BEYOND、数字 ID 3 反查的 dMDM、数字 ID 16 反查的杜德伟、以及数字 ID 11 反查到但无歌曲的 MID，联网探测 `get_info`、`get_desc`、`get_similar`、`get_songs_list`、`get_album_list`、`get_mv_list`、`get_tab_detail(song)` 和 `get_tab_detail(wiki)`。
+- `get_info`、主页 Tab、歌曲列表、专辑列表、MV 列表和相似歌手返回中未发现 `area`、`area_id`、`country` 等地区相关字段。
+- `get_desc` 返回中存在 `singer_list[0].ex_info.area`，但样本 BEYOND、dMDM、杜德伟均为 `0`，无歌曲样本未返回可用地区字段；该字段不等同于第一步歌手列表 raw 中可用于过滤的 `area_id`。
+- 当前结论：按 MID 的现有歌手接口没有稳定可用的第一步 `area_id`；补全缺失数字 ID 的 MID 后，若需要按当前 `area_id in (0, 1)` 规则过滤，仍不能仅依赖 `get_info` 或其他按 MID 接口恢复地区。
+
+### 按第一步 area_id 样本验证 get_desc 地区字段
+- 用户要求从第一步歌手列表每个 `area_id` 值各取 3 人，用 MID 请求 `get_desc([mid])` 验证返回结果。
+- 已确认第一步 raw 中存在 `area_id` 值 0、1、2、3、4、5、6，并按每类最小数字 ID 取 3 个样本，共 21 个 MID。
+- 联网请求 `get_desc([mid])` 后，21 个样本均成功返回 `singer_list[0].basic_info`，其中 `basic_info.singer_id`、`basic_info.singer_mid`、`basic_info.name` 与第一步样本可对应。
+- 21 个样本的 `singer_list[0].ex_info.area` 全部为 `0`，覆盖第一步 `area_id` 为 0 到 6 的所有类别。
+- 当前结论进一步确认：`get_desc` 的 `ex_info.area` 不是第一步 `area_id` 的可用映射，不能用它恢复或校验当前第三步入库所需的地区过滤字段。
+
+### 分析 Client.gather 合包请求原理
+- 用户询问合包请求的底层原理以及设置很大合包量的后果。
+- 已复核当前项目规则和源码调用点，确认本项目所说合包请求主要指 qqmusic_api.Client.gather()：业务语义仍是一个对象一个 request 描述符，脚本把多个描述符按批交给 client.gather()，并保持一个对象一个 raw JSON 文件的落盘追溯。
+- 当前指定 Conda 环境未安装 qqmusic_api 包，无法在本机直接 inspect 安装包源码；结论基于项目调用方式、既有运行日志和 Client.gather() 这类 QQ 音乐 CGI 合包接口的一般机制。
+- 形成解释结论：合包通常把多个子请求编码到一次 HTTP CGI 请求体中，由服务端分别执行并返回按
+
+eq_0、
+
+eq_1 等键组织的子响应；合包量过大不会改变业务请求数量，只会减少 HTTP 往返次数，同时增加单次请求体、响应体、服务端处理时间、超时概率、批次整体失败影响范围和风控风险。
+
+- 本次只做原理分析和日志记录，未修改源码或运行外部采集请求。
+
+### 核查 QQ 音乐 id 和 mid 对应关系
+- 用户询问 QQ 音乐 `id` 和 `mid` 的对应关系，以及是否有说明计算方式。
+- 已核对当前 `AGENTS.md`、开发日志、建表代码和导入代码：项目当前没有实现 `id` 与 `mid` 的计算或互转逻辑，也没有记录可信的计算公式。
+- 当前有效规则为：`artists` 只使用 QQ 音乐 `mid` 作为主键且不保存歌手数字 `id`；`songs` 使用 `mid` 作为主键并保存数字 `id` 唯一约束；`albums` 使用 `mid` 作为主键并保存数字 `id` 唯一约束。
+- 代码层面只把接口 raw 中返回的 `id` 和 `mid` 原样抽取为两个平台字段：歌手入库会主动移除旧 `id/pmid/singer_pic` 列；歌曲和专辑入库会校验 `mid`、`id` 均非空且 `id` 不重复，但不会由一个字段推导另一个字段。
+- 当前结论：`id` 与 `mid` 应视为 QQ 音乐接口返回的并列身份标识；可通过同一接口响应、搜索或特定支持数字 ID 的接口反查对应关系，但项目中没有、也不应假设存在稳定公开计算方式。
+
+### 分析 id 推导 mid 的可行性
+- 用户明确希望找出计算方式，以便不再通过接口由数字 `id` 反查 `mid`。
+- 已检索公开资料，未找到可信的 QQ 音乐 `id -> mid` 本地计算公式；公开接口文档和第三方 API 说明多把 `id` 与 `mid/songmid` 作为不同入参或通过查询服务获取 `mid`。
+- 已从本地 QQ 音乐 raw 中抽取已有 `id/mid` 样本做模式验证：专辑详情唯一对约 11.7 万组、歌曲唯一对约 52.6 万组、第一步歌手列表 6803 组、歌曲演唱者唯一对约 4.3 万组。
+- 样本观察到各类 `mid` 基本固定为 14 位，前三位主要分布在 `000`、`001`、`002`、`003`、`004`；数字 `id` 的十进制、base36、base62 表示几乎不出现在对应 `mid` 中，少量命中可解释为短字符偶然命中。
+- 当前判断：没有证据支持 `mid` 是由数字 `id` 通过简单进制、前缀、后缀或可逆短码计算得到；更可能是 QQ 音乐服务端分配的另一套不透明标识或依赖服务端映射表。
+- 可行替代方向是维护本地 `id <-> mid` 映射缓存：从已采集 raw、搜索结果、歌曲/专辑/歌手接口响应和特定支持数字 ID 的旧接口中渐进补全；缺失时仍需接口查询或放弃该对象。
+
+### 评估两千万 ID 场景下避免反查 MID
+- 用户指出两千万量级下，即使 20 个一组合包请求，也需要数天才能通过接口由 `id` 反查 `mid`，因此希望绕开反查。
+- 已核对本地 `qqmusic_api` 源码：歌曲侧 `query_song`、`get_detail`、`get_other_version`、`get_producer`、`lyric.get_lyric` 均支持数字歌曲 ID；专辑侧 `album.get_detail` 和 `album.get_song` 支持数字专辑 ID；歌手主页、歌手详情、歌手主页 Tab、歌手专辑和歌手 MV 等当前封装主要支持歌手 MID。
+- 当前判断：如果两千万对象主要是歌曲或专辑，流程不应先全量补 MID，而应改为以数字 `id` 作为采集入口和本地稳定键，只有在接口响应自然返回 `mid` 时再补充映射。
+- 真正绕不开 MID 的场景主要是当前项目内部 schema 把 `songs.mid` 和 `albums.mid` 设为主键，以及歌手主页类接口只接受歌手 MID；这属于流程和数据模型设计问题，不应通过大规模反查弥补。
+- 建议后续方案是引入“QQ 音乐数字 ID 优先”的采集分支或重构身份键：歌曲和专辑表允许以数字 `id` 作为主键或候选主键，关系表先以 song_id 承载，待响应中出现 MID 时再写入可空 `mid` 和映射表。
+
+### 澄清补 MID 的真实原因
+- 用户澄清希望补 MID 的原因是第一步请求结果严重缺少歌手，不是单纯为了任意对象做 `id -> mid` 映射。
+- 当前判断：问题根源应从“第一步歌手列表是否能作为歌手全集”改为“第一步歌手列表只能作为种子来源，缺失歌手应由歌曲、专辑和制作人证据流逐步发现并入库”。
+- 若缺失歌手来自歌曲列表或歌曲 ID，优先应通过歌曲详情、歌曲批量查询、专辑歌曲列表或制作人/歌词流程自然获得歌手 MID 和署名信息，而不是先对歌手数字 ID 做全量反查。
+- 若缺失歌手只存在歌手数字 ID 而没有歌曲、专辑或姓名上下文，则仍缺少可离线计算 MID 的证据；这种场景需要重新确认输入来源、目标范围和是否必须覆盖这些歌手。
+
+### 梳理 qqmusic-api-python 公开接口分类
+- 用户要求按功能分类展示当前 API 库提供的所有接口。
+- 已在指定 Conda 环境中确认本地安装包为 `qqmusic_api` 0.6.0，入口文件位于环境的 site-packages，公开客户端为 `Client`。
+- 已读取 `qqmusic_api.modules` 和 `core.client` 源码，确认接口按 `album`、`comment`、`login`、`lyric`、`mv`、`recommend`、`search`、`singer`、`song`、`songlist`、`top`、`user` 模块暴露，并通过 `client.<module>.<method>()` 调用。
+- 本次为只读接口梳理，未修改项目源码、数据库或 raw 缓存；仅追加开发日志。
+
+### 调整 tqdm 进度条显示当前和总数
+- 用户纠正所有 tqdm 进度条应显示 `几/几` 进度，而不是只有进度条本体。
+- 已修改 `progress.py` 的 tqdm `bar_format` 为 `{bar} {n_fmt}/{total_fmt}`，标题仍由上一行 `== 标题 ==` 单独说明，进度条行只显示进度条和当前/总数。
+- 已在 `tests/test_progress.py` 增加回归测试，确认 tqdm 构造参数包含 `{n_fmt}/{total_fmt}`，避免后续改回纯进度条。
+
+## 2026-05-18
+
+### 再次修复开发日志异常空行并固化检查规则
+- 用户指出文档异常问题再次出现，要求再次修复，并把异常描述和修复规则写入 `AGENTS.md`，确保后续自动发现、自动保守修复，且不删除 Markdown 必要空行。
+- 复核全仓 Markdown 后确认本次异常只出现在 `develop_log.md`：清理前文件大小为 345208 字节，共 17953 行，其中非空行 1973 行；`AGENTS.md` 与 `README.md` 未出现空行膨胀，三者均未发现隐藏控制字符或 U+FFFD 替换字符。
+- 本次修复采用 Markdown 感知空行压缩：fenced code block 内部原样保留；fenced code block 外部连续空行最多保留一个；非空行内容不改写。
+- 已新增 `scripts/repair_markdown_anomalies.py`，用于扫描或修复 Markdown 异常；扫描项包括 UTF-8 替换字符、非换行隐藏控制字符、fenced code block 外连续空行、文件总行数相对非空行异常膨胀等。
+- 已在 `AGENTS.md` 补充“Markdown 文档异常自动修复规则”，要求每次读取 AGENTS、README、develop_log 或修改 Markdown 后自动运行扫描；发现异常时优先用该脚本保守修复，保留必要单个空行和代码块内部空行，并记录开发日志。
+- 验证结果：`python -m py_compile scripts/repair_markdown_anomalies.py` 无语法错误；`python scripts/repair_markdown_anomalies.py --fix` 对核心文档扫描通过；`python scripts/repair_markdown_anomalies.py --all` 对全仓 Markdown 扫描通过，所有文件 `max_blank_run=1`、隐藏控制字符为空、U+FFFD 替换字符数量为 0。
+
+### 纠正 Markdown 异常修复规则的空行语义
+- 用户指出上一轮修复仍不正确：不应在每一行之间保留一个空行，`###` 开头的日志标题和紧随其后的 `-` 条目之间不应该隔空行，连续 `-` 条目之间也不应该隔空行。
+- 已修改 `scripts/repair_markdown_anomalies.py`：新增结构性空行检查，把核心文档中“标题后紧跟列表项却有空行”和“连续列表项之间有空行”识别为异常；修复时删除这些异常空行，同时保留标题之间、代码块内部、段落和代码块等块级结构需要的单个空行。
+- 已使用新规则修复 `develop_log.md` 和 `README.md`，非空内容不变；`develop_log.md` 修复后为 2297 行、非空 1993 行，`README.md` 修复后为 144 行、非空 108 行。
+- 已收窄结构性空行检查范围：只对 `AGENTS.md`、`README.md`、`develop_log.md` 等核心文档执行结构性空行规则，避免对归档参考文档中的普通 Markdown 段落分隔误报。
+- 已同步更新 `AGENTS.md` 的 Markdown 文档异常自动修复规则，明确结构性空行错误定义和保守修复边界。
+- 已进一步修正脚本写回方式：不再用文本模式 `newline="\r\n"` 写入已经包含换行的内容，改为字节级写出 CRLF，避免 Windows 换行转换生成 `CRCRLF` 并再次表现为每行之间多空行。
+
+### 探测歌手相似歌手接口返回数量
+- 用户要求用周杰伦 MID 调用 `singer.get_similar`，并把 `number` 设置为 100 查看返回结果。
+- 已从本地 raw 确认周杰伦 MID 为 `0025NhlN2yWrP4`，随后联网调用 `client.singer.get_similar('0025NhlN2yWrP4', number=100)`。
+- 接口成功返回 `code=0`，但 `singerlist` 只有 5 个相似歌手：F.I.R.飞儿乐团、王力宏、范玮琪、蔡依林、李荣浩。
+- 已核对本地 `qqmusic_api.modules.singer` 源码，封装会把 `number` 原样作为请求参数传给 `music.SimilarSingerSvr.GetSimilarSingerList`，因此本次 5 个结果不是客户端侧截断。
+- 本次为只读接口探测，未写入 raw 缓存、数据库或正式流程代码。
+
+### 合包探测第二层相似歌手接口
+- 用户要求继续使用周杰伦相似歌手返回的 5 个 MID，各请求 `number=100` 的相似歌手，并用 5 个请求合包成一次请求。
+- 已构造 F.I.R.飞儿乐团、王力宏、范玮琪、蔡依林、李荣浩 5 个 `client.singer.get_similar(mid, number=100)` 请求，并通过 `Client.gather(requests, batch_size=5)` 执行。
+- 接口成功返回 5 个响应，F.I.R.飞儿乐团、王力宏、范玮琪、蔡依林各返回 5 个相似歌手，李荣浩返回 4 个相似歌手；所有响应 `code=0` 且 `err_msg` 为空。
+- 当前观察：即使 `number=100`，该接口对这些样本仍只返回 4 到 5 个相似歌手，不能作为一次请求扩展到 100 个候选歌手的来源。
+- 本次为只读接口探测，未写入 raw 缓存、数据库或正式流程代码。
+
+### 递归探测周杰伦相似歌手 10 层
+- 用户要求从第二层 14 个新歌手开始继续递归请求相似歌手，共得到 10 层，并且合包请求上限为 20 个。
+- 已用 BFS 方式执行：每层只请求上一层新增歌手，每个请求调用 `client.singer.get_similar(mid, number=100)`，通过 `Client.gather()` 分批合包，单批最多 20 个请求。
+- 本次完成到第 10 层，接口请求错误数为 0；各层新增歌手数依次为：第 1 层 5、第 2 层 14、第 3 层 27、第 4 层 52、第 5 层 74、第 6 层 87、第 7 层 86、第 8 层 94、第 9 层 131、第 10 层 151。
+- 去重后累计发现 722 个唯一歌手，包括周杰伦起点；累计记录相似歌手边 2420 条。
+- 已将层级结果写入 `data/processed/validation/manual_checks/similar_singers_jay_chou_10_layers/similar_singers_layers.json` 和同目录 CSV，将边关系写入 `similar_singers_edges.csv`，并写入 `similar_singers_summary.json`。
+- 已复核输出文件存在且非空，层级 CSV 为 722 行，边 CSV 为 2420 行；本次未写入 raw 缓存、数据库或正式流程代码。
+
+### 实现周杰伦相似歌手递归采集工具脚本
+- 用户确认将相似歌手递归请求实现为正式独立工具脚本，但不并入完整流程编排。
+- 已新增 `music_metadata_graph/tools/collect_jay_chou_similar_singers.py`，固定根节点为周杰伦 `0025NhlN2yWrP4`，递归调用 `qqmusic.singer.get_similar(mid, number=100)`。
+- 工具默认不限制层数、歌手总数或运行时间；新增命令行参数 `--max-depth`、`--max-singers`、`--max-seconds`、`--number`、`--batch-size`、`--force`，其中合包批大小限制为 1 到 20。
+- 已实现每个被请求歌手一个 raw JSON，默认写入 `data/raw/qqmusic/singer_similar/jay_chou_root/requests/<source_mid>.json`；raw 包含 `source` 元信息和 `response` 原始响应，元信息记录根节点、源歌手、层数、number 和抓取时间。
+- 已实现 `manifest.json` 和 `frontier.json` 作为断点续跑状态，记录已请求 MID、已发现歌手、失败项和待请求队列；运行时会复用已存在 raw JSON 作为缓存，除非显式 `--force`。
+- 已实现派生查看产物，默认写入 `data/processed/validation/singer_similar_jay_chou/`，包含摘要 JSON、歌手 CSV、边关系 CSV 和失败 CSV；这些产物只作为人工查看结果，不写入 SQLite 或主流程输入。
+- 已复用 `run_with_log()`，运行日志默认写入 `logs/singer_similar_jay_chou/`，并打印每层、每批、停止原因和统计摘要。
+- 已在 `pyproject.toml` 新增命令入口 `mr-collect-jay-similar-singers`；该入口仅指向工具脚本，不加入 `run_full_pipeline`。
+- 已新增 `tests/test_collect_jay_chou_similar_singers.py`，覆盖初始断点状态、raw 包装层数信息、边关系重建、validation 输出，以及未缓存请求使用 `Client.gather()` 合包路径。
+
+### 验证周杰伦相似歌手递归采集工具脚本
+- 已执行 `python -m py_compile music_metadata_graph/tools/collect_jay_chou_similar_singers.py tests/test_collect_jay_chou_similar_singers.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_collect_jay_chou_similar_singers`，共 4 个测试通过。
+- 已用临时 smoke 目录执行 `python -m music_metadata_graph.tools.collect_jay_chou_similar_singers --max-depth 1 --raw-dir data/raw/qqmusic/singer_similar/jay_chou_root_smoke_gather --validation-dir data/processed/validation/singer_similar_jay_chou_smoke_gather`，联网请求成功完成。
+- smoke 运行观察到第 1 层请求 1 个源歌手，返回并新增 5 个相似歌手，保存 1 个 raw 请求文件、5 条边和 5 个待续跑 frontier；运行日志写入 `logs/singer_similar_jay_chou/`。
+- 已回读 smoke raw JSON，确认 `source.depth=1`、`source.number=100`，且 `response.singerlist` 为 5 条；已确认 smoke validation CSV 存在。
+- 本次未将相似歌手结果写入数据库、正式 pipeline raw 目录之外的既有缓存，未并入完整流程编排。
+
+### 运行周杰伦相似歌手递归工具到 10 层
+- 用户要求重新运行新工具脚本到 10 层，并把结果落到正式默认产物目录。
+- 已执行 `python -m music_metadata_graph.tools.collect_jay_chou_similar_singers --max-depth 10`，运行日志写入 `logs/singer_similar_jay_chou/collect_jay_chou_similar_singers_20260518_231007.log`。
+- 本次从周杰伦 `0025NhlN2yWrP4` 出发，递归完成 10 层；累计请求并保存 571 个源歌手 raw JSON，发现 722 个唯一歌手，记录 2420 条相似歌手边，失败数为 0。
+- 默认 raw 产物已写入 `data/raw/qqmusic/singer_similar/jay_chou_root/`，其中 `requests/` 包含 571 个单请求 JSON，`manifest.json` 记录 722 个已发现歌手和 571 个已请求 MID，`frontier.json` 保留第 10 层新增的 151 个待续跑歌手。
+- 默认查看产物已写入 `data/processed/validation/singer_similar_jay_chou/`，其中歌手 CSV 为 722 行，边关系 CSV 为 2420 行，失败 CSV 为 0 行，摘要 JSON 与 manifest 统计一致。
+- 本次只运行独立工具并落盘 raw、validation 和日志；未写入 SQLite，未并入或触发完整 pipeline。
+
+### 实现周杰伦相似歌手 DAG 静态站点生成工具
+- 用户要求参考 force-graph `dag-yarn` 示例模板，生成一个与现有 `site/`、`site_mvp/`、`site_demo/`、`site_large/` 并列的正式站点，不复用现有顶部控制栏，不需要粒子效果，且重力模式固定为 `radialout` 不可切换。
+- 已新增 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py`，默认读取 `data/processed/validation/singer_similar_jay_chou/csv_views/similar_singers_artists.csv` 和 `similar_singers_edges.csv`，输出到 `site_similar_singers/`。
+- 已新增命令入口 `mr-build-jay-similar-dag-site`，该工具独立于完整 pipeline，不并入 `run_full_pipeline`。
+- 生成站点包含 `index.html`、`assets/graph-data.js`、`assets/vendor/force-graph.min.js` 和对应 license；页面保持极简全屏图谱结构，只包含 `#graph` 和底部状态文字。
+- 为满足 force-graph DAG radialout 布局约束，页面绘制边使用“首次发现父节点 -> 新歌手”的发现树/DAG，共 722 个节点和 721 条发现边；完整相似歌手原始边 2420 条仍保存在 `graph-data.js` 的 `similarLinks` 中，不在当前页面绘制，避免回边和环破坏 DAG 布局。
+- 页面固定调用 `.dagMode("radialout")`，未加入 `dat.gui`、模式切换或 `linkDirectionalParticles` 粒子效果。
+- 已新增 `tests/test_build_jay_chou_similar_dag_site.py`，验证图谱数据使用首次发现父节点生成 DAG 边、站点资源能写出、页面固定 radialout 且不包含粒子配置。
+
+### 验证周杰伦相似歌手 DAG 静态站点
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 2 个测试通过。
+- 已执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，生成 `site_similar_singers/`，摘要显示 722 个节点、721 条发现 DAG 边、2420 条完整相似边数据、`dagMode=radialout`。
+- 已回读 `site_similar_singers/assets/graph-data.js`，确认节点数、DAG 边数和完整相似边数与摘要一致；已检查 `site_similar_singers/index.html` 中存在固定 `dagMode("radialout")`，未发现 `linkDirectionalParticles` 或 `dat.gui`。
+- 已通过本地 HTTP 服务器和浏览器打开 `site_similar_singers/index.html`，确认页面标题、状态文字、canvas 生成和图谱可视化渲染；截图观察到全屏 radialout DAG 已显示。
+- 验证过程中 Python 内置 `http.server` 在本机沙箱下传输大 JS 文件时出现资源提前断开，改用临时 HTTP/1.0 静态服务器完成浏览器验证；该问题只影响本次验证服务器，不影响静态站点文件本身。
+
+### 纠正相似歌手 DAG 站点输入来源
+- 用户指出 CSV 只是人工检查视图，任何时候都不应该依赖 CSV，并要求将该规则记录进 AGENTS。
+- 已在 `AGENTS.md` 项目补充规则中新增 CSV 边界：CSV 永远只作为人工检查、验收查看或发布产物，不得作为正式脚本、工具、站点生成、断点续跑、清洗、过滤、入库或图谱构建的输入来源；正式输入必须来自 raw JSON、manifest、SQLite/数据库或明确结构化源文件。
+- 已修改 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py`，移除 `--artists-csv` 和 `--edges-csv` 参数，默认改为读取 `data/raw/qqmusic/singer_similar/jay_chou_root/manifest.json` 和 `requests/*.json`。
+- 站点生成逻辑现在从 manifest 的 `seen_artists` 构建节点和首次发现 DAG 边，从每个 raw 请求 JSON 的 `source` 与 `response.singerlist` 重建完整相似边数据，不再读取 validation CSV。
+- 已更新 `tests/test_build_jay_chou_similar_dag_site.py`，用 raw manifest 与 raw request fixture 验证站点构建，并新增测试覆盖 raw loader 路径。
+- 已重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，从 raw/manifest 重新生成 `site_similar_singers/`；回读 `graph-data.js` 确认仍为 722 个节点、721 条 DAG 边、2420 条完整相似边。
+
+### 验证相似歌手 DAG 站点输入来源纠正
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已用 `rg` 检查站点生成脚本和测试，确认正式脚本中不再包含 CSV 输入路径或读取逻辑；测试中的 CSV 字样仅出现在防回归测试名称中。
+- 已机械统一 `AGENTS.md`、站点生成脚本和对应测试文件为 CRLF 行尾。
+
+### 纠正相似歌手 DAG 站点连线样式
+- 用户指出页面连线不应是曲线，除用户明确要求的差异外，站点应尽量与 force-graph `dag-yarn` 示例模板保持一致。
+- 已确认前一版页面因为手动设置 `.linkCurvature(0.24)` 导致连线变成曲线，该设置偏离模板。
+- 已修改 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 的页面模板：恢复示例的文字节点背景、浅蓝文字、`dagLevelDistance(300)`、`d3AlphaDecay(0.02)`、`d3VelocityDecay(0.3)` 和基于 dagMode 的 `linkCurvature` 逻辑；由于页面固定 `radialout`，该逻辑在当前模式下返回 0，连线为直线。
+- 保留用户明确要求的差异：不加入 GUI 模式切换，不加入粒子效果，DAG 模式固定为 `radialout`。
+- 已重新生成 `site_similar_singers/`，并确认 `site_similar_singers/index.html` 中 `radialout/radialin` 分支的曲率为 0，未包含 `linkDirectionalParticles` 或 `dat.gui`。
+
+### 验证相似歌手 DAG 站点直线连线
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已通过本地 HTTP 服务器和浏览器重新打开 `site_similar_singers/index.html`，页面生成 1 个 canvas，状态文字显示 722 个节点和 721 条 discovery links；浏览器截图确认连线为直线。
+- 浏览器日志中仍显示一次旧端口 8765 的历史脚本错误，但当前复核页面为 8766，当前页面已正常渲染。
+
+### 设置相似歌手 DAG 力稳定时间为 10 秒
+- 用户希望先把相似歌手 DAG 图结构的力稳定时间设置为 10 秒观察效果。
+- 已修改 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 的页面模板，在 force-graph 初始化链中显式设置 `.cooldownTime(10000)`。
+- 已移除原先 600ms 后执行的 `setTimeout(() => Graph.zoomToFit(...))`，改为 `.onEngineStop(() => Graph.zoomToFit(800, 60))`，使视图在 10 秒布局结束后再自适应。
+- 已更新 `tests/test_build_jay_chou_similar_dag_site.py`，断言生成页面包含 10 秒冷却时间、引擎停止后缩放，并不再包含早期 `setTimeout` 缩放逻辑。
+- 已重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，生成 `site_similar_singers/`，统计仍为 722 个节点、721 条 DAG 边、2420 条完整相似边数据。
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+
+### 调整相似歌手 DAG 节点斥力
+- 用户判断问题可能不在力稳定时间，要求删除刚刚设置的 10 秒稳定时间，并改为加大节点间斥力。
+- 已从 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 页面模板中移除 `.cooldownTime(10000)` 和 `.onEngineStop(...)`，恢复 600ms 后执行 `zoomToFit`。
+- 已在 force-graph 初始化后设置 `Graph.d3Force("charge").strength(-240)`，用于增强节点间斥力。
+- 已更新 `tests/test_build_jay_chou_similar_dag_site.py`，断言生成页面包含新的 charge 设置、恢复早期 `zoomToFit`，且不再包含 10 秒冷却和引擎停止缩放逻辑。
+- 已重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，生成 `site_similar_singers/`，统计仍为 722 个节点、721 条 DAG 边、2420 条完整相似边数据。
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已用简单文本搜索确认 `site_similar_singers/index.html` 和生成脚本包含 `Graph.d3Force("charge").strength(-240)`，生成页面和生成脚本不再包含 `cooldownTime`、`onEngineStop` 或 `linkDirectionalParticles`。
+
+### 试调相似歌手 DAG 斥力为 -1000
+- 用户要求把相似歌手 DAG 页面的节点斥力设置为 `-1000` 观察效果。
+- 已将 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 中的 `Graph.d3Force("charge").strength(-240)` 调整为 `Graph.d3Force("charge").strength(-1000)`。
+- 已同步更新 `tests/test_build_jay_chou_similar_dag_site.py` 中的生成页面断言。
+- 已重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，生成 `site_similar_singers/`，统计仍为 722 个节点、721 条 DAG 边、2420 条完整相似边数据。
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已用简单文本搜索确认生成页面、生成脚本和测试断言包含 `Graph.d3Force("charge").strength(-1000)`，未再命中旧的 `-240` 设置。
+
+### 改用固定径向树布局解决枝桠重叠
+- 用户根据截图指出问题不是稳定时间或斥力，而是树枝在 radial DAG force 布局中互相穿插；按发现树结构，每个节点只有一个父节点，子树应清晰分区。
+- 已判断 `force-graph` 的 `dagMode("radialout")` 只约束层级半径，不会为每棵子树分配互不重叠的角度扇区，因此同层和跨层枝桠仍会由力模拟自由旋转并出现穿插。
+- 已新增 `apply_fixed_radial_tree_layout()`：从首次发现父子边构建树，按每棵子树叶子数量分配连续角度区间，使用层数乘 `300` 作为半径，为每个节点写入 `x/y/fx/fy/layoutAngle/layoutRadius`。
+- 已调整相似歌手 DAG 页面模板：移除 `.dagMode("radialout")`、`.dagLevelDistance(300)` 和 `Graph.d3Force("charge").strength(-1000)`，保留直线 `.linkCurvature(0)`，并显式移除 `charge/link/center` force，让页面按预计算固定坐标绘制。
+- 已更新 `tests/test_build_jay_chou_similar_dag_site.py`，覆盖 `meta.layout=fixedRadialTree`、节点固定坐标、根节点在中心、页面不再包含 radial DAG force 或强斥力。
+- 开发中曾两次把 `layout_meta` 插入到错误位置，导致 `NameError`；已修正为只在 `build_graph_data()` 返回前计算，并重新跑验证。
+- 已重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，生成 `site_similar_singers/`，统计为 722 个节点、721 条 DAG 边、2420 条完整相似边数据、353 个叶子节点、固定径向树布局。
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已做生成数据几何检查：`site_similar_singers/assets/graph-data.js` 中 722 个节点全部包含 `fx/fy`，根节点坐标为 `(0, 0)`，最大半径为 `3000`；页面脚本不再包含 `.dagMode("radialout")`、`.dagLevelDistance(300)` 或 `strength(-1000)`。
+- 尝试用 Codex Browser 打开本地站点做截图验证时，`file://` 和本地 HTTP 导航被 Browser URL 策略拦截或连接失败；未继续绕过策略，改用静态文件和生成数据检查作为替代验证。
+
+### 修复 Markdown 与 Python 文本换行异常并升级自动检查规则
+- 用户指出异常再次出现，且不仅限于 Markdown，Python 文件也出现异常；要求修复并在 `AGENTS.md` 中给出更详细具体的预防和检查规则。
+- 全仓扫描确认本次异常包括：`AGENTS.md` 出现 `CRCRLF` 和核心 Markdown 结构性空行错误；`develop_log.md` 出现大规模空行膨胀；`music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 行数异常膨胀；`music_metadata_graph/tools/collect_jay_chou_similar_singers.py` 与 `tests/test_collect_jay_chou_similar_singers.py` 出现 `CRCRLF`；多份 Python 文件存在连续空行超过 2 个的格式异常。
+- 已新增 `scripts/repair_text_anomalies.py` 作为通用文本异常扫描与修复入口，覆盖 `.md` 和 `.py`；保留 `scripts/repair_markdown_anomalies.py` 作为兼容入口。
+- 修复策略为：Markdown 保留 fenced code block 内部空行，核心 Markdown 删除标题到列表、列表到列表之间的异常空行；Python 删除连续 import、装饰器与定义、冒号后的首个代码行、括号/字典/列表/函数调用内部元素之间的结构性异常空行，并把其他连续 3 个及以上空行压缩为最多 2 个空行；写回前后用 AST 解析确认语法可解析；所有写回均使用字节级 CRLF，避免 Windows 文本模式产生 `CRCRLF`。
+- 已运行 `python scripts/repair_text_anomalies.py --fix --all` 修复全仓支持文本，并再次运行 `python scripts/repair_text_anomalies.py --all` 验证通过；所有扫描文件均无 `CRCRLF`、无隐藏控制字符、无 U+FFFD 替换字符、无异常空行膨胀，Python 文件 AST 解析通过。
+- 已更新 `AGENTS.md` 的文本异常自动扫描与修复规则，要求开始任务读取核心文档或修改任意 `.md`、`.py` 后运行扫描，涉及多文件或怀疑全仓异常时运行全仓扫描；发现异常后先用脚本保守修复，再全仓验证并记录日志。规则同时明确禁止把已含 `\n` 的字符串再用 `newline="\r\n"` 写入，避免再次产生 `CRCRLF`。
+
+## 2026-05-19
+
+### 安装 black 作为 Python 格式化工具
+- 用户要求直接安装 `black` 之类的工具用于 Python 文件格式修复。
+- 已在项目指定 Conda 环境中执行 `python -m pip install black`，安装结果为 `black 26.5.1`，同时安装其依赖 `click`、`mypy-extensions`、`pathspec`、`platformdirs` 和 `pytokens`。
+- 已使用项目指定 Conda Python 执行 `python -m black --version`，确认 `black 26.5.1` 可用；`pip show black` 曾因 Windows 控制台 GBK 无法输出作者姓名中的非 ASCII 字符触发日志编码错误，因此改用 `importlib.metadata` 读取版本和包名进行验证。
+- 已在 `pyproject.toml` 增加 `[project.optional-dependencies] dev = ["black>=26.5.1"]`，并增加 `[tool.black]` 配置：`line-length = 100`、`target-version = ["py312"]`。
+- 本次只用 black 格式化并验证 `scripts/repair_text_anomalies.py` 和 `scripts/repair_markdown_anomalies.py`，未对全仓业务源码执行 black，避免把大量既有业务改动混入本次工具安装。
+- 验证结果：`python -m black --check scripts/repair_text_anomalies.py scripts/repair_markdown_anomalies.py` 通过；`python -m py_compile scripts/repair_text_anomalies.py scripts/repair_markdown_anomalies.py` 通过；文本异常扫描确认核心文档和修复脚本无 `CRCRLF`、无隐藏控制字符、无 U+FFFD 替换字符。
+
+### 用新相似歌手 raw 数据更新站点
+- 用户说明已请求新数据，要求更新相似歌手网页。
+- 已执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site`，继续只读取 `data/raw/qqmusic/singer_similar/jay_chou_root/manifest.json` 和 `requests/*.json`，不读取 CSV。
+- 已重新生成 `site_similar_singers/`，新站点统计为 7113 个节点、7112 条发现树边、32620 条完整相似歌手边、3204 个叶子节点，布局仍为 `fixedRadialTree`。
+- 已执行 `python -m py_compile music_metadata_graph/tools/build_jay_chou_similar_dag_site.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_build_jay_chou_similar_dag_site`，共 3 个测试通过。
+- 已检查 `site_similar_singers/assets/graph-data.js`：7113 个节点全部包含 `fx/fy` 固定坐标，根节点周杰伦坐标为 `(0, 0)`，最大半径为 `16200`。
+- 已检查 `site_similar_singers/index.html`：页面保留 `linkCurvature(0)`，显式移除 `charge/link/center` force，未命中 `.dagMode("radialout")`、`.dagLevelDistance(300)` 或旧的 `strength(-1000)`。
+
+### 统计相似歌手名称文字类型分布
+- 用户要求检查所有相似歌手数据，统计名字纯中文、包含中文、纯英文和其他的分布。
+- 已直接读取 `data/raw/qqmusic/singer_similar/jay_chou_root/manifest.json` 和 `requests/*.json` 统计，不读取 CSV。
+- 已定义分类口径：纯中文为去掉空白后每个字符都是 CJK 汉字；包含中文为含至少一个 CJK 汉字但不是纯中文；纯英文为不含中文且只含 ASCII 字母、数字、空格和常见英文艺名符号；其他覆盖韩文、日文假名、西里尔字母、重音拉丁字母和符号型名称等。
+- 唯一歌手 7113 个：纯中文 1479 个，占 20.79%；包含中文但不纯中文 341 个，占 4.79%；纯英文/ASCII 艺名 4837 个，占 68.00%；其他 456 个，占 6.41%。
+- 原始返回行按边计数 32620 行：纯中文 6342 行，占 19.44%；包含中文但不纯中文 1445 行，占 4.43%；纯英文/ASCII 艺名 22759 行，占 69.77%；其他 2074 行，占 6.36%。
+- 已将完整统计和示例写入 `data/processed/validation/singer_similar_jay_chou/name_script_distribution.json`。
+
+### 检查 40 位指定艺人是否进入相似歌手递归结果
+- 用户提供截图中的 40 位艺人名单，询问递归算法是否找到这些人。
+- 已直接读取 `data/raw/qqmusic/singer_similar/jay_chou_root/manifest.json` 和 `requests/*.json` 检查，不读取 CSV。
+- 初次尝试包含匹配时发现会产生误判，例如 `Selina` 命中 `Lina`、`4 in Love` 命中 `V`，因此最终只采用名称/标题精确匹配和大小写、全半角、常见连字符规范化后的严格等值匹配。
+- 严格匹配结果：40 个查询名中只找到 1 个唯一艺人 `江语晨`，MID 为 `003UoVkR2GDjGX`，首次发现层数为 4，首次来源为 `BY2`。
+- 其余 39 个查询名在 manifest 和 raw response singerlist 中均未严格命中。
+
+### 使用 black 格式化当前 Python 文件
+- 用户要求检查所有 Python 文件，对有必要的文件使用 black 修复格式。
+- 先运行 `python scripts/repair_text_anomalies.py --all`，确认文本层面无 `CRCRLF`、隐藏控制字符、U+FFFD 替换字符或异常空行膨胀。
+- 使用项目指定 Conda 环境执行 `python -m black --check music_metadata_graph scripts tests`，确认当前源码、脚本和测试目录中 46 个 Python 文件需要 black 格式化，归档目录未纳入本轮主动格式化范围。
+- 已执行 `python -m black music_metadata_graph scripts tests`，格式化当前有效源码、脚本和测试文件；未对 `archive/` 历史参考目录执行 black，以避免改动归档材料。
+- black 格式化后，自定义文本扫描器一度误报三引号 SQL 字符串内部空行，已调整 `scripts/repair_text_anomalies.py` 识别多行字符串范围，不再把字符串内容中的空行当作 Python 结构异常。
+- 验证结果：`python scripts/repair_text_anomalies.py --all` 通过；`python -m black --check music_metadata_graph scripts tests` 通过；`python -m compileall -q music_metadata_graph scripts tests` 通过。
+- 初次执行 `python -m unittest discover tests` 时误用了系统默认 Inkscape Python，因缺少 `qqmusic_api` 和 `pypinyin` 依赖失败；随后按项目规则使用指定 Conda Python 重跑 `python -m unittest discover tests`，共 61 个测试通过。
+
+### 明确 Python 格式交给 black
+- 用户确认 Python 正常格式应交给 black，不应继续由自定义文本规则判断 import、装饰器、函数体或括号内部空行。
+- 已更新 `AGENTS.md`：自定义文本异常修复只负责编码、换行损坏、异常空行膨胀和 Markdown 结构性空行；Python 正常格式统一由 `black` 负责。
+- 已调整 `scripts/repair_text_anomalies.py`：移除 Python 结构性空行判断，不再检查或修复 import/import、装饰器/定义、冒号后代码块首行、括号内部元素之间的空行；Python 扫描只保留 UTF-8、隐藏控制字符、`CRCRLF`、异常膨胀和 AST 可解析检查。
+- 已明确 Python 修复顺序：先运行文本异常修复处理损坏，再运行 `black`，最后再运行文本异常扫描确认没有 `CRCRLF` 等损坏。
+- 验证结果：`python -m black scripts/repair_text_anomalies.py` 通过；`python -m py_compile scripts/repair_text_anomalies.py` 通过；`python scripts/repair_text_anomalies.py AGENTS.md develop_log.md README.md scripts/repair_text_anomalies.py` 通过。
+
+### 实现歌词补充有限证据缓存
+- 用户要求开始实现第十二步歌词补充缓存改造，并在开始前重新读取 `AGENTS.md` 和 `develop_log.md`；本次已按要求重新读取两份文件，并在修改前运行核心文档文本异常扫描。
+- 已修改 `music_metadata_graph/pipelines/collect_song_lyric_credit_raw.py`：新增 `qqmusic_lyric_credit_evidence` 有限证据缓存格式，请求返回的完整歌词只在内存中解密一次，落盘 JSON 不再保存完整 `lyric`、`trans`、`roma` 或 `qrc` 字段。
+- 新的歌词证据 JSON 继续写入 `data/raw/qqmusic/song_lyric_credit/{song_mid}.json`，包含 `cache_kind`、`schema_version`、歌曲标识、来源接口、结构化制作人缺失角色、原接口 `crypt` 状态、歌词空状态、解密后原始前 10 行、有效前 5 行、解析出的词曲行、解析状态和歌词非空行数。
+- 已实现旧完整歌词 raw 的读时迁移：第十二步读到旧 `lyric.get_lyric` 完整响应时会在内存中解密、构造有限证据，并用临时文件原子替换原路径；坏 JSON 或迁移失败不会覆盖旧文件，采集摘要中统计 `failed_migrations`。
+- 已调整第十二步摘要计数，区分 `fetched`、`evidence_cache_hits`、`migrated_legacy_raw`、`failed_migrations`，并保留兼容字段 `cache_hits` 指向新证据缓存命中数。
+- 已修复第十二步 SQLite 连接未显式关闭的问题；临时 smoke 验证确认旧完整缓存迁移后不再锁住临时数据库文件。
+
+### 接入歌词证据缓存到补 MID 和作词作曲导入
+- 已修改 `fill_song_credit_missing_mids.py`：扫描第十二步歌词缓存时改用统一加载/迁移函数，读到旧完整 raw 会先转换为有限证据，再从 `parsed_credit_rows` 生成 `step12_song_lyric_credit` 来源姓名。
+- 已修改 `import_song_credits_to_db.py`：第十四步导入作词作曲关系时同样通过统一加载/迁移函数读取歌词证据，只有结构化制作人缺失的角色才使用歌词解析结果补充关系。
+- 第十三步补 MID CSV 仍只作为人工检查视图；第十四步仍不读取该 CSV，而是从 `artists` 表按唯一姓名映射解析歌词姓名到 MID。
+- 已同步 `AGENTS.md` 和 `README.md`：说明第十二步长期缓存为歌词头部有限证据，不保存完整歌词，旧完整歌词 raw 读到时应迁移覆盖为新格式。
+
+### 验证歌词证据缓存改造
+- 已新增和更新 `tests/test_collect_song_lyric_credit_raw.py`，覆盖新证据格式不包含完整歌词字段、新格式解析、旧完整 raw 读时迁移、请求成功后直接写有限证据。
+- 已更新 `tests/test_fill_song_credit_missing_mids.py`，覆盖第十三步可从新证据格式中读取歌词来源姓名。
+- 定向验证执行 `python -m unittest tests.test_collect_song_lyric_credit_raw tests.test_fill_song_credit_missing_mids tests.test_run_full_pipeline`，共 14 个测试通过。
+- 临时 smoke 验证构造旧完整歌词缓存和最小 SQLite 数据库，执行第十二步采集入口后观察到 `migrated_legacy_raw=1`，缓存文件 `cache_kind=qqmusic_lyric_credit_evidence`，不再包含 `lyric` 字段，CSV 包含解析出的作词作曲姓名。
+- 全量验证执行 `python -m unittest discover tests`，共 66 个测试通过。
+- 格式和文本验证：已对本次触达 Python 文件运行 `black`，`black --check` 通过；`python scripts/repair_text_anomalies.py --all` 通过；`git diff --check` 对本次触达文件通过。
+
+### 修改相似歌手递归脚本首轮种子
+- 用户要求把相似歌手递归脚本首轮从周杰伦单点改为第一步完整歌手列表 raw 中 `area_id in (0, 1)` 的两千多个 MID，并把这些 MID 先设为已发现。
+- 已修改 `music_metadata_graph/tools/collect_jay_chou_similar_singers.py`：新增 `DEFAULT_SEED_SINGER_LIST_DIR` 指向 `data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all/`，新增 `load_area_seed_artists()` 读取所有 `page_*.json` 的 `singerlist[]`，按 `area_id in (0, 1)`、MID 非空和 MID 去重构造第 0 层种子。
+- 默认 raw 输出目录从 `data/raw/qqmusic/singer_similar/jay_chou_root/` 改为 `data/raw/qqmusic/singer_similar/area_0_1_singer_list_seed/`，默认 validation 目录改为 `data/processed/validation/singer_similar_area_0_1_seed/`，默认日志目录改为 `logs/singer_similar_area_0_1_seed/`，避免继续复用旧周杰伦根目录断点。
+- 新 manifest 记录 `seed_source`，`seen_artists` 初始即为全部 area 0/1 种子，frontier 初始也为这些种子，深度均为 0；后续请求仍按原有 BFS、缓存优先、每个 MID 一个 raw JSON 和合包上限 20 执行。
+- 已新增 `--seed-singer-list-dir` 参数，用于覆盖首轮种子来源目录；显式指定旧 `--raw-dir` 时，脚本仍按该目录已有 manifest/frontier 断点续跑，不自动迁移旧数据。
+- 已更新 `tests/test_collect_jay_chou_similar_singers.py`，新增 area 0/1 种子过滤和去重测试，并把初始状态测试从周杰伦单点改为多种子 frontier。
+- 已用真实第一步 raw 只读调用 `load_area_seed_artists()` 验证当前本地种子数为 2119，前 5 个为周杰伦、林俊杰、陈奕迅、薛之谦、王力宏。
+- 验证结果：`python -m py_compile music_metadata_graph/tools/collect_jay_chou_similar_singers.py tests/test_collect_jay_chou_similar_singers.py` 通过；`python -m unittest tests.test_collect_jay_chou_similar_singers` 共 5 个测试通过；`python scripts/repair_text_anomalies.py music_metadata_graph/tools/collect_jay_chou_similar_singers.py tests/test_collect_jay_chou_similar_singers.py` 通过。
+- 曾尝试使用 `--max-depth 0` 做只初始化 smoke，但该参数按现有规则表示“不限制”，因此实际进入第 1 层并因沙箱网络权限失败；临时 smoke 目录已清理，未保留半成品。
+
+### 迁移相似歌手 raw 为全局请求缓存
+- 用户要求把之前请求的相似歌手结果迁移到合适目录，并保证未来无论从哪个节点开始递归，都能自动复用已请求数据且不重复保存。
+- 已确定新目录边界：`data/raw/qqmusic/singer_similar/request_cache/number_<number>/<source_mid>.json` 保存全局唯一的 `qqmusic.singer.get_similar(source_mid, number)` 原始响应；`data/raw/qqmusic/singer_similar/runs/<run_id>/manifest.json` 和 `frontier.json` 保存具体递归任务的根节点、种子、层数、首次来源、frontier 和 requested MID。
+- 已修改 `music_metadata_graph/tools/collect_jay_chou_similar_singers.py`：新增 `request_cache_dir`，默认 raw 状态目录改为 `data/raw/qqmusic/singer_similar/runs/area_0_1_singer_list_seed`，默认请求缓存目录为 `data/raw/qqmusic/singer_similar/request_cache/number_100`；缓存命中、写 raw 和重建边均改为从全局请求缓存读取。
+- 已修改 raw wrapper：全局请求缓存不再写入根节点和层数信息，层数和首次来源只保存在 run manifest/frontier 中。
+- 已修改 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py`：默认读取 `runs/jay_chou_root` 的 manifest，并从 `request_cache/number_100` 读取完整相似歌手响应；页面生成仍不读取 CSV。
+- 已新增 `music_metadata_graph/tools/migrate_singer_similar_raw_cache.py`，用于把旧根目录中的 `requests/*.json` 合并到全局请求缓存，并把旧 `manifest.json`、`frontier.json` 复制到 `runs/<旧目录名>/`；同一 `source_mid + number` 响应相同则复用，响应不同则报告冲突并停止。
+- 已执行迁移脚本：从旧 `jay_chou_root`、`jay_chou_root_smoke`、`jay_chou_root_smoke_gather` 迁移/复用请求，结果为迁移 7113 个请求、复用 2 个请求、冲突 0 个；旧目录保留为兼容备份，未删除。
+- 迁移后复核：`request_cache/number_100` 中有 7113 个 JSON；`runs/jay_chou_root` 保留周杰伦根节点状态，seen 7113、requested 7113、frontier 0；`runs/area_0_1_singer_list_seed` 初始化为 area 0/1 种子状态，seen 2119、requested 0、frontier 2119。
+- 已用新目录重新执行 `python -m music_metadata_graph.tools.build_jay_chou_similar_dag_site --raw-dir data/raw/qqmusic/singer_similar/runs/jay_chou_root --request-cache-dir data/raw/qqmusic/singer_similar/request_cache/number_100`，站点统计仍为 7113 个节点、7112 条发现树边、32620 条完整相似边。
+- 已执行 `python -m py_compile music_metadata_graph/tools/collect_jay_chou_similar_singers.py music_metadata_graph/tools/build_jay_chou_similar_dag_site.py music_metadata_graph/tools/migrate_singer_similar_raw_cache.py tests/test_collect_jay_chou_similar_singers.py tests/test_build_jay_chou_similar_dag_site.py`，未发现语法错误。
+- 已执行 `python -m unittest tests.test_collect_jay_chou_similar_singers tests.test_build_jay_chou_similar_dag_site`，共 8 个测试通过。
+- 已执行文本异常扫描，相关源码和测试均无 `CRCRLF`、隐藏控制字符、U+FFFD 替换字符或异常空行膨胀。
+- 曾额外尝试 `python -m music_metadata_graph.tools.collect_jay_chou_similar_singers --max-seconds 1` 做默认采集 smoke，但沙箱网络权限导致连接 QQ 音乐失败；该失败不影响迁移和本地缓存复用验证。
+- 已在 `AGENTS.md` 新增相似歌手递归缓存规则，明确后续不得按根节点重复保存相同 `source_mid + number` raw。
+
+### 扁平化相似歌手请求缓存并删除旧目录
+- 用户指出相似歌手请求缓存不应包含 `number_100` 父目录；无论以多少 number 参数请求，后续都应按源歌手 MID 直接复用同一个 raw 缓存文件。
+- 已修改 `music_metadata_graph/tools/collect_jay_chou_similar_singers.py` 和 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py`，默认请求缓存目录从 `data/raw/qqmusic/singer_similar/request_cache/number_100/` 改为 `data/raw/qqmusic/singer_similar/request_cache/`。
+- 已修改 `music_metadata_graph/tools/migrate_singer_similar_raw_cache.py`，迁移目标改为 `request_cache/<source_mid>.json`，并兼容把既有 `request_cache/number_*/*.json` 搬平到同一层缓存；冲突判断改为同一 source MID 响应不同即停止报告。
+- 已更新 `AGENTS.md` 的相似歌手递归缓存规则：`number` 只允许作为 raw JSON 内部请求元信息，不得成为缓存父目录或缓存键。
+- 已执行迁移脚本，`request_cache/number_100` 中 7113 个 JSON 已搬平为 `request_cache/*.json`，旧根目录请求复用 7115 次，冲突 0 个。
+- 已在确认目标路径位于当前工作区和 `data/raw/qqmusic/singer_similar/` 下后，删除旧目录 `jay_chou_root/`、`jay_chou_root_smoke/`、`jay_chou_root_smoke_gather/` 和 `request_cache/number_100/`。
+- 删除后复核 `data/raw/qqmusic/singer_similar/` 只保留 `request_cache/` 与 `runs/` 两个子目录，`request_cache/` 下无子目录且保留 7113 个 JSON；`runs/jay_chou_root/manifest.json` 仍保留 seen 7113、requested 7113。
+- 已用扁平缓存重新生成 `site_similar_singers/`，统计为 7113 个节点、7112 条发现树边、32620 条完整相似边、3204 个叶子节点。
+- 已新增 `tests/test_migrate_singer_similar_raw_cache.py` 覆盖旧 `number_*` 缓存搬平和旧根目录 run 迁移；已更新采集和站点测试中的请求缓存路径夹具。
+- 验证结果：`python -m py_compile` 覆盖 3 个工具脚本和 3 个测试文件通过；`python -m unittest tests.test_collect_jay_chou_similar_singers tests.test_build_jay_chou_similar_dag_site tests.test_migrate_singer_similar_raw_cache` 共 9 个测试通过；文本异常扫描确认本次触达 Markdown 与 Python 文件无 `CRCRLF`、隐藏控制字符、U+FFFD 替换字符或异常空行膨胀。
+
+### 删除相似歌手递归可视化站点和生成脚本
+- 用户要求删除之前写的递归可视化站点和生成脚本，并明确不要误删其他内容。
+- 已先搜索 `build_jay_chou_similar_dag_site`、`site_similar_singers`、`SimilarDagSite` 和命令入口引用，确认删除范围只包含递归可视化站点生成脚本、对应测试、命令入口和生成站点目录。
+- 已删除 `music_metadata_graph/tools/build_jay_chou_similar_dag_site.py` 和 `tests/test_build_jay_chou_similar_dag_site.py`，并从 `pyproject.toml` 移除 `mr-build-jay-similar-dag-site` 命令入口。
+- 已递归删除 `site_similar_singers/` 下的生成文件，包括 `index.html`、`assets/graph-data.js` 和 vendor 资源；Windows 当前仍报告空目录本身被其他进程占用，因此目录空壳暂时未能移除。
+- 明确未删除 `music_metadata_graph/tools/collect_jay_chou_similar_singers.py`、`music_metadata_graph/tools/migrate_singer_similar_raw_cache.py`、`data/raw/qqmusic/singer_similar/request_cache/` 或 `data/raw/qqmusic/singer_similar/runs/`。
+- 验证结果：`rg` 确认当前源码、测试、README、AGENTS 和 pyproject 中不再存在递归可视化生成脚本、命令入口或 `site_similar_singers` 引用；`python -m py_compile` 覆盖保留的相似歌手采集/迁移脚本和测试通过；`python -m unittest tests.test_collect_jay_chou_similar_singers tests.test_migrate_singer_similar_raw_cache` 共 6 个测试通过。
+
+### 统计运行中的相似歌手递归当前快照
+- 用户说明新的相似歌手递归脚本仍在运行中，要求基于当前已落盘结果统计名称文字类型分布，并检查截图中的 40 位艺人是否已找到。
+- 本次只读取 `data/raw/qqmusic/singer_similar/runs/area_0_1_singer_list_seed/manifest.json`、`frontier.json` 和 `data/raw/qqmusic/singer_similar/request_cache/<mid>.json`，不读取 CSV，也不打断正在运行的脚本。
+- 当前快照 `manifest_updated_at=2026-05-19T00:08:01Z`，manifest 中 seen 36304 个、requested 20361 个、frontier 15936 个；按 requested MID 读取 raw 缓存 20361 个，缺失 0 个，坏 JSON 0 个，raw 返回行 98082 行。
+- 唯一艺人名称分布为：纯中文 26963 个、包含中文 3987 个、纯英文 5013 个、其他 341 个。
+- raw 返回行名称分布为：纯中文 72634 行、包含中文 10716 行、纯英文 13866 行、其他 866 行。
+- 40 位艺人严格等值匹配当前找到 7 位：余文乐、刘畊宏、江语晨、秀兰玛雅、谷祖琳、陈大天、魏如昀；其余 33 位当前快照未命中。
+
+### 对 33 位未命中艺人做 quick_search 和反向相似歌手分析
+- 用户要求对上次未命中的 33 位艺人使用 QQ 音乐 quick_search 查 MID，再对查到的 MID 合包请求一次 `get_similar(number=100)`，用于反向分析递归如何找到这些人。
+- 已新增临时探查脚本 `scripts/probe_missing_similar_artists_33.py`，脚本只读取当前 `runs/area_0_1_singer_list_seed` manifest/frontier 和全局 `request_cache/<mid>.json`，写入 quick_search raw、相似歌手 raw 和分析 JSON，不修改正在运行的递归 manifest/frontier。
+- 首次运行因沙箱网络权限失败；经授权后成功完成 33 个 quick_search 请求和 27 个唯一 MID 的相似歌手请求，其中 24 个 `get_similar` 为新请求、3 个为缓存命中。
+- 脚本在最终向 GBK 终端打印完整 JSON 时遇到 `UnicodeEncodeError`，但分析 JSON 已在打印前成功写入 `data/processed/validation/singer_similar_reverse_probe_33/reverse_probe_summary.json`；后续已直接读取该 JSON 提炼结果。
+- quick_search 可选中 MID 的查询 30 个，未选中 MID 的查询 3 个：`CUG嘻游记`、`Jesus Fashion Family`、`邱垲珊`；`黑珍珠` 的 top candidate 为韩文艺人相关的 `Yuri`，需视为低可信误匹配候选。
+- 反向分析确认 7 个查询其实已在当前递归结果中，只是名称不完全等值或在本轮运行后才出现：`4 in Love` -> `4 In Love`、`SBDW`/`咻比嘟哗` -> `S.B.D.W`、`Selina`/`任家萱` -> `任家萱Selina`、`葛兆恩` -> `葛兆恩Kodii`、`郭书瑶` -> `郭书瑶`。
+- 对尚未出现在当前递归结果的对象，反向相似列表中出现 frontier 邻居的包括 `吴宗宪`、`宋健彰`/`弹头`、`康康`、`林志玲`、`王澜霏`、`玺恩`、`许魏洲`、`黄俊郎`，这些只能作为后续继续跑时可能命中的候选入口，不能证明 QQ 音乐相似关系会反向返回目标。
+- 反向相似列表只出现已请求邻居但当前 incoming 为 0 的对象包括 `Super Junior-M`、`伊能静`、`李威`、`杨颖`、`洪敬尧`、`浪花兄弟`、`游艾迪`、`芮恩`、`锦绣二重唱` 等；这些说明目标认为它们接近当前图，但当前已请求节点没有把目标返回出来，按当前算法不一定能自然发现。
+- `Angelababy`、`柯有伦`、`黄怀晨` 的相似歌手结果未给出可用当前图入口；`江蕙` 仅返回未入图邻居 `童欣`；这些若必须覆盖，更适合作为额外种子或通过人工别名/目标名单补种。
+
+### 统计相似歌手递归完成后的最终分布和 40 人命中情况
+- 用户说明相似歌手递归已运行结束且找不到新的人，要求重新统计名称文字类型分布并检查截图中的 40 位艺人是否找到。
+- 本次只读取最终 `runs/area_0_1_singer_list_seed/manifest.json`、`frontier.json` 和全局 `request_cache/<mid>.json`，不读取 CSV。
+- 最终快照 `manifest_updated_at=2026-05-19T06:00:32Z`，seen 199973、requested 199972、frontier 0，raw 缓存读取 199972 个，缺失 0 个，坏 JSON 0 个，raw 返回行 989074 行。
+- 唯一艺人名称分布为：纯中文 147514 个、包含中文 21984 个、纯英文 26175 个、其他 4300 个。
+- raw 返回行名称分布为：纯中文 729993 行、包含中文 110397 行、纯英文 126532 行、其他 22152 行。
+- 40 个查询名按严格名称等值命中 16 个，未命中 24 个；结合 quick_search MID 与已确认别名后，查询名层面实际命中 21 个、未命中 19 个。
+- 若按现实对象口径合并 `Angelababy/杨颖`、`宋健彰/弹头`、`SBDW/咻比嘟哗`、`Selina/任家萱` 等别名，并排除 `黑珍珠 -> Yuri` 低可信候选，则 40 个查询对应的可信对象中命中 19 组、未命中 16 组。
+
+### 分析临时完整运行站点目录未被忽略
+- 用户指出 `site_temp_csv_fullrun/` 与 `site_large_temp_csv_fullrun/` 是未跟踪生成产物，且其中 `graph-data.js` 分别约 110MB 和 99MB，当前 `.gitignore` 没有拦截这两个目录。
+- 已只读检查当前工作区状态，确认两个目录均为未跟踪目录，主要大文件分别为 `site_temp_csv_fullrun/assets/graph-data.js` 109720714 字节和 `site_large_temp_csv_fullrun/assets/graph-data.js` 98790223 字节。
+- 已确认这两个目录不是默认正式输出名；默认站点输出仍是 `site/`、`site_mvp/`、`site_demo/` 和 `site_large/`，其中已有文件处于 Git 跟踪状态。
+- 当前 `.gitignore` 只忽略 `data/`、`archive/`、`reports/`、数据库、日志和除共享头像图集外的 `site_assets/*`，没有覆盖临时站点输出目录；因此自定义 `--output-dir` 生成的 `site_temp_csv_fullrun/` 和 `site_large_temp_csv_fullrun/` 会显示为未跟踪。
+- 风险边界：不宜简单使用宽泛的 `site*/` 或 `site_*` 规则，否则未来可能误隐藏新的站点发布目录或临时调试目录；更稳妥的规则是只补充本次确认的两个临时目录，或约定所有临时站点统一使用固定前缀后再按前缀忽略。
+- 本次只完成分析和日志记录，未修改 `.gitignore`，未删除未跟踪目录，也未清理其中的大文件。
+
+### 屏蔽临时完整运行站点目录
+- 用户确认先只屏蔽 `site_temp_csv_fullrun/` 和 `site_large_temp_csv_fullrun/` 两个目录本身，不使用宽泛的 `*temp*` 忽略规则。
+- 已在 `.gitignore` 的本地数据和生成产物区域精确追加 `site_temp_csv_fullrun/` 与 `site_large_temp_csv_fullrun/`。
+- 影响范围仅限这两个临时完整运行站点目录；默认站点输出 `site/`、`site_mvp/`、`site_demo/`、`site_large/` 以及共享头像图集保留既有跟踪/忽略边界。
+
+### 分析三个 graph-data.js 的无内容修改状态
+- 用户指出 `site/assets/graph-data.js`、`site_demo/assets/graph-data.js`、`site_mvp/assets/graph-data.js` 显示为已修改，但 diff 和 numstat 没有内容变化，疑似换行状态噪音。
+- 已检查 `git diff --numstat`、`git diff --stat`、`git diff --raw`、`git diff --summary` 和 `git diff --quiet`；这些命令均没有报告实际内容差异，`diff --quiet` 返回 clean。
+- 已检查 `git status --porcelain=v2`，三个文件均为 `.M` 工作区状态，但显示的索引 hash 与工作区 hash 相同；`git hash-object` 计算出的三个工作区文件 blob hash 与 `git ls-files -s` 中索引 hash 完全一致。
+- 已检查 `git ls-files --eol`，三个文件当前为 `i/lf w/lf`，仓库没有 `.gitattributes` 对其单独约束；当前 Git 配置启用了 `core.autocrlf=true`，因此 Git 提示这些 LF 文件在下次触碰时会被替换为 CRLF。
+- 结论：这三个文件当前没有内容层面的变更，`status` 中的 `M` 是行尾/索引状态噪音；如需消除工作区噪音，应统一站点生成产物的行尾策略或刷新索引状态，但本次未修改这三个 `graph-data.js` 文件。
+- 曾尝试对目标文件执行 `git update-index --refresh` 以刷新索引 stat 信息，但当前环境写入 `.git/objects` 权限不足而失败；该失败不改变前述内容无差异结论。
+
+### 分析 Python 纯格式噪音来源
+- 用户指出多个 Python 文件出现删除 `from __future__ import annotations` 后空行等纯格式噪音，怀疑不像 `black` 的标准输出，可能来自文本异常修复脚本。
+- 已按规则重新读取 `AGENTS.md`、`develop_log.md` 和 `README.md`，并只读检查当前工作区 diff；当前工作区包含大量未提交源码、文档、站点产物和新增脚本改动，本次未回滚、未清理、未修改任何 Python 源码。
+- 典型 diff 显示 `music_metadata_graph/pipelines/defaults.py` 和 `music_metadata_graph/text_normalization.py` 只有删除 `from __future__` 后空行、导入后空行这类变化；`collect_missing_song_singers_to_db.py` 中存在大量空行删除，覆盖 import、dataclass、函数体内部等位置。
+- 已用指定 Conda Python 运行 `python -m black --diff --check` 检查典型文件，结果为 4 个文件都会被 black 保持不变；该结果只能说明当前文件已被整理到 black 可接受状态，不能证明这些空行删除由 black 首次产生。
+- 已确认当前 `scripts/repair_text_anomalies.py` 仍包含 `compact_python()`，会把 Python 文件中连续空行压缩到最多 2 行，并在 `repair_text()` 中对 `.py` 调用该函数；这与当前 `AGENTS.md` 中“Python 正常格式统一交给 black，不得在文本修复脚本中重新规定 import、装饰器、函数体、括号内部空行等格式风格”的规则存在冲突。
+- 当前判断：这些纯格式噪音更符合文本异常修复脚本对 Python 空行做过全局压缩后，再由 black 接受或进一步格式化的结果；不是单纯 black 的典型最小 diff。
+- 验证结果：`python scripts/repair_text_anomalies.py` 核心文档扫描通过；`git diff --check -- '*.py'` 未报告空白错误；本次分析未执行任何源码修复。
+
+### 统一仓库工作区行尾为 CRLF
+- 用户指出 `git diff --check` 没有空白错误，但仍提示部分文件 `LF will be replaced by CRLF`，说明工作区行尾未完全统一。
+- 已新增 `.gitattributes`，设置 `* text=auto eol=crlf`，并显式把压缩包、图片、Excel、数据库、文档包和可执行/二进制文件标记为 binary，避免 Git 对二进制做行尾转换。
+- 已新增 `.editorconfig`，设置 UTF-8、`end_of_line = crlf` 和保存时保留文件末尾换行，用于约束支持 EditorConfig 的编辑器后续保存行为。
+- 已用字节级 UTF-8 脚本对当前已跟踪和未跟踪的文本文件做机械式换行归一化，把 LF、CR 和混合换行统一为 CRLF；跳过 `.git`、`__pycache__`、`node_modules`、二进制扩展名、含 NUL 的文件和非 UTF-8 文件。
+- 本次脚本实际归一化 25 个文本文件，跳过 43 个二进制文件、2 个已删除文件，未发现非 UTF-8 文本文件。
+- 验证结果：`python scripts/repair_text_anomalies.py --all` 确认扫描到的 Markdown 与 Python 文件无 `CRCRLF`、隐藏控制字符、U+FFFD 替换字符或异常空行膨胀；`git diff --check` 无输出；`git ls-files --eol` 未再出现 `w/lf` 或 `w/mixed`，仅空文件显示 `w/none`。
+
+### 复查 Python 纯格式噪音问题仍存在
+- 用户追问“多个 Python 文件出现纯格式噪音，例如删除 `from __future__` 后空行”的问题当前是否仍存在。
+- 已重新只读检查当前 `scripts/repair_text_anomalies.py`、Python diff 摘要和典型文件状态，未沿用上次结论。
+- 当前 `scripts/repair_text_anomalies.py` 仍包含 `compact_python()`，并且 `repair_text()` 的 `.py` 分支仍会调用该函数压缩 Python 空行；这仍然违反“Python 正常格式交给 black，不由文本修复脚本定义 Python 空行风格”的当前规则。
+- 当前 Python diff 中仍能看到大量删除空行的纯格式 hunk，包括 `build_large_graph_static.py`、`build_static_graph.py`、`collect_missing_song_singers_to_db.py`、`defaults.py`、`text_normalization.py`、`tests/test_run_full_pipeline.py` 等文件；`defaults.py` 与 `text_normalization.py` 仍显示只删除 import 后空行这类噪音。
+- 当前结论：行尾 `CRCRLF` 问题已修复，但 Python 纯格式噪音的根因和既有 diff 噪音仍存在；需要后续单独修改文本修复脚本并整理/拆分这些 Python 格式 diff。
+
+### 修复 Python 格式归属到 black
+- 用户明确要求 Python 格式完全交给 black，并修复当前 Python 文件状态问题。
+- 已修改 `scripts/repair_text_anomalies.py`：删除 `compact_python()`，`.py` 修复路径只做换行归一化和 AST 可解析验证，不再压缩或定义 Python 空行格式。
+- 已进一步移除 `.py` 文件 `max_blank_run > 2` 作为异常和 `--fix` 触发条件的逻辑；脚本仍会输出 `max_blank_run` 统计，但不再把 Python 连续空行当成文本异常。
+- 已运行 `python -m black --no-cache scripts/repair_text_anomalies.py`、`python -m black --no-cache --check music_metadata_graph scripts tests`，当前有效源码、脚本和测试目录 54 个 Python 文件均为 black 可接受状态。
+- 已用临时 Python 文件验证 `python scripts/repair_text_anomalies.py --fix` 不再压缩 Python 连续空行；临时文件执行后已删除。
+- 验证结果：`python scripts/repair_text_anomalies.py --all` 通过，扫描到的 Markdown 和 Python 文件均无 `CRCRLF`、隐藏控制字符、U+FFFD 替换字符、语法错误或文本异常；`python -m compileall -q music_metadata_graph scripts tests` 通过；`git diff --check -- scripts/repair_text_anomalies.py develop_log.md` 无输出。
+
+### 修正同词曲同名去重步骤编号语义
+- 用户指出 `filter_imported_songs.py` 的默认路径和 CSV 文件名已是第 16 步，但函数名、`filter_step`、运行摘要字段和 CLI 描述仍残留第 15 步语义；同时 `run_full_pipeline.py` 中部分错误文案仍引用旧步骤号。
+- 已将 `filter_imported_songs.py` 中同词曲同名去重函数改为 `step16_dedupe_by_normalized_name()`，被剔除行的内部 `filter_step` 改为 `step16_same_credit_name_dedupe`，运行摘要字段改为 `step16_identity_dedupe`、`step16_removed_by_name_credit_dedupe`、`songs_after_step16` 和 `song_singer_rows_after_step16`。
+- 已将 `filter_imported_songs.py` 的 CLI 描述改为 `Step 16`，并补充 `contextlib.closing()` 显式关闭 SQLite 连接，避免 Windows 测试临时数据库文件被未关闭连接占用。
+- 已将 `run_full_pipeline.py` 的检查失败文案同步到当前编排步骤：专辑类型残留错误指向第 10 步，作词作曲关系缺失错误指向第 14 步。
+- 已新增 `tests/test_filter_imported_songs.py`，构造最小 SQLite 数据验证第 16 步同词曲同名去重会写入 `filter_step=step16_same_credit_name_dedupe`，并检查运行摘要不再暴露旧第 15 步 key。
+- 验证结果：指定 Conda Python 执行 `py_compile` 覆盖 `filter_imported_songs.py`、`run_full_pipeline.py` 和新增测试文件，未报错；执行 `python -m unittest tests.test_filter_imported_songs tests.test_run_full_pipeline`，共 6 个测试通过；执行 `python -m music_metadata_graph.pipelines.filter_imported_songs --help`，CLI 描述显示 `Step 16`。
+
+### 分析头像图集和 large 站点产物的无内容修改状态
+- 用户指出 `site_assets/avatar_atlas_150/*manifest*`、`site_large/assets/graph-data.js` 和 `site_large/assets/vendor/force-graph.min.js` 显示为已修改，但 `git diff` 无内容差异，疑似索引、换行或 mtime 状态噪音。
+- 已限定路径检查 `git diff`、`git diff --raw` 和 `git diff --numstat`，这些命令均无输出，说明 Git 没有发现可展示的内容差异、模式差异或增删行统计。
+- 已检查 `git ls-files --eol`，目标文件均为 `i/lf w/crlf attr/text=auto eol=crlf`，符合当前 `.gitattributes` 要求工作区使用 CRLF 的策略。
+- 已检查 `git status --porcelain=v2` 和 `git ls-files -s`，目标文件的 HEAD blob、索引 blob 和模式值完全一致；`git hash-object --path` 计算出的工作区规范化 blob 也与索引 hash 完全一致。
+- 曾对目标文件执行 `git update-index --refresh`；第一次因沙箱环境写入 `.git/objects` 权限不足失败，经授权后命令仍对其它真实改动文件报告 `needs update`，但目标路径后续限定 `git status` 已不再显示修改。
+- 结论：这批文件没有内容层面的改动，原先 `status` 中的 `M` 属于索引/stat/行尾规范化状态噪音；本次未改写这些站点产物，也未处理工作区中其它真实改动。
+- 验证结果：`git diff --check` 限定检查这批路径无输出；目标文件的 `hash-object --path` 结果分别与 `git ls-files -s` 中记录的 blob hash 一致。

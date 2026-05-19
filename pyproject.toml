@@ -22,7 +22,10 @@ dependencies = [
 
 ]
 
-
+[project.optional-dependencies]
+dev = [
+    "black>=26.5.1",
+]
 
 [project.scripts]
 

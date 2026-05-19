@@ -1,0 +1,15 @@
+* text=auto eol=crlf
+
+*.gz binary
+*.zip binary
+*.7z binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.xlsx binary
+*.sqlite3 binary
+*.db binary
+*.parquet binary

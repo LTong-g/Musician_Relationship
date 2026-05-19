@@ -1,0 +1,9 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+
+[*.{gz,zip,7z,png,jpg,jpeg,gif,webp,ico,xlsx,xls,sqlite3,db,parquet,pdf,pptx,docx,pyc,pyd,dll,exe,bin}]
+insert_final_newline = false

@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 import re
 import unicodedata
-
 
 _ELLIPSIS_RE = re.compile(r"(?:\.\s*){3,}|(?:…\s*)+")
 _WHITESPACE_RE = re.compile(r"\s+")

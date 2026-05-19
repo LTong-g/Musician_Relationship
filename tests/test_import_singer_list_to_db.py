@@ -4,10 +4,13 @@ import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import CollectConfig as SongTabCollectConfig
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    CollectConfig as SongTabCollectConfig,
+)
 from music_metadata_graph.pipelines.collect_singer_song_tab_raw import resolve_targets
 from music_metadata_graph.pipelines.import_singer_list_to_db import ImportConfig
 from music_metadata_graph.pipelines.import_singer_list_to_db import run
+
 
 class ImportSingerListToDbTests(unittest.TestCase):
     def test_imports_fans_num_from_summary(self) -> None:
@@ -82,7 +85,15 @@ class ImportSingerListToDbTests(unittest.TestCase):
                 ).fetchone()
             finally:
                 connection.close()
-            self.assertEqual(row, ("mid_a", 12345, "qqmusic.singer.get_singer_list.concernNum", "data/raw/qqmusic/singer_fans_list/area_china.json"))
+            self.assertEqual(
+                row,
+                (
+                    "mid_a",
+                    12345,
+                    "qqmusic.singer.get_singer_list.concernNum",
+                    "data/raw/qqmusic/singer_fans_list/area_china.json",
+                ),
+            )
             self.assertIsNone(missing_fans_row)
 
     def test_mvp_import_reads_mvp_summary(self) -> None:
@@ -114,13 +125,17 @@ class ImportSingerListToDbTests(unittest.TestCase):
             )
             db_path = root / "test.sqlite3"
 
-            result = run(ImportConfig(raw_dir=raw_dir, fans_raw_dir=fans_dir, db_path=db_path, mvp=True))
+            result = run(
+                ImportConfig(raw_dir=raw_dir, fans_raw_dir=fans_dir, db_path=db_path, mvp=True)
+            )
 
             self.assertEqual(result["fans_rows_available"], 1)
             self.assertEqual(result["filtered_rows"], 1)
             connection = sqlite3.connect(db_path)
             try:
-                rows = connection.execute("SELECT mid, fans_num FROM artists ORDER BY mid").fetchall()
+                rows = connection.execute(
+                    "SELECT mid, fans_num FROM artists ORDER BY mid"
+                ).fetchall()
             finally:
                 connection.close()
             self.assertEqual(rows, [("mid_a", 100)])
@@ -135,7 +150,11 @@ class ImportSingerListToDbTests(unittest.TestCase):
                     {
                         "singerlist": [
                             {"mid": "mid_a", "name": "Artist A", "area_id": 0},
-                            {"mid": "mid_missing_fans", "name": "Artist Missing Fans", "area_id": 1},
+                            {
+                                "mid": "mid_missing_fans",
+                                "name": "Artist Missing Fans",
+                                "area_id": 1,
+                            },
                             {"mid": "mid_b", "name": "Artist B", "area_id": 2},
                         ]
                     },
@@ -173,7 +192,9 @@ class ImportSingerListToDbTests(unittest.TestCase):
                     names=(),
                 )
             )
-            self.assertEqual([(target.mid, target.name) for target in targets], [("mid_a", "Artist A")])
+            self.assertEqual(
+                [(target.mid, target.name) for target in targets], [("mid_a", "Artist A")]
+            )
 
     def test_song_tab_mvp_targets_reuse_mvp_fans_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -220,7 +241,9 @@ class ImportSingerListToDbTests(unittest.TestCase):
                 )
             )
 
-            self.assertEqual([(target.mid, target.name) for target in targets], [("mid_a", "Artist A")])
+            self.assertEqual(
+                [(target.mid, target.name) for target in targets], [("mid_a", "Artist A")]
+            )
 
 
 if __name__ == "__main__":

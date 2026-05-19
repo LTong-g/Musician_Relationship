@@ -1,5 +1,4 @@
 import unittest
-
 from music_metadata_graph.text_normalization import normalize_song_title_identity
 
 
@@ -11,7 +10,10 @@ class TextNormalizationTest(unittest.TestCase):
         )
 
     def test_normalize_song_title_identity_keeps_semantic_version_text(self) -> None:
-        self.assertNotEqual(normalize_song_title_identity("K歌之王 (粤语)"), normalize_song_title_identity("K歌之王"))
+        self.assertNotEqual(
+            normalize_song_title_identity("K歌之王 (粤语)"),
+            normalize_song_title_identity("K歌之王"),
+        )
 
     def test_normalize_song_title_identity_preserves_word_boundaries(self) -> None:
         self.assertEqual(normalize_song_title_identity("After The Rain"), "after the rain")
@@ -23,7 +25,9 @@ class TextNormalizationTest(unittest.TestCase):
             normalize_song_title_identity("Tonight,I feel close to you"),
             normalize_song_title_identity("Tonight, I feel close to you"),
         )
-        self.assertEqual(normalize_song_title_identity("A / B"), normalize_song_title_identity("A/B"))
+        self.assertEqual(
+            normalize_song_title_identity("A / B"), normalize_song_title_identity("A/B")
+        )
 
 
 if __name__ == "__main__":

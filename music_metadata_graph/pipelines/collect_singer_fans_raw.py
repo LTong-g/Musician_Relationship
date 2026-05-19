@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import asyncio
 import json
@@ -8,17 +7,16 @@ from dataclasses import dataclass
 from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from typing import Any
-
 from qqmusic_api import Client
 from qqmusic_api.modules.singer import AreaType, GenreType, SexType
-
 from music_metadata_graph.pipelines.defaults import MVP_SINGER_LIMIT
-from music_metadata_graph.pipelines.import_singer_list_to_db import DEFAULT_RAW_DIR as DEFAULT_SINGER_LIST_RAW_DIR
+from music_metadata_graph.pipelines.import_singer_list_to_db import (
+    DEFAULT_RAW_DIR as DEFAULT_SINGER_LIST_RAW_DIR,
+)
 from music_metadata_graph.pipelines.import_singer_list_to_db import filter_singers_by_area
 from music_metadata_graph.pipelines.import_singer_list_to_db import load_singers
 from music_metadata_graph.pipelines.import_singer_list_to_db import singer_fans_summary_path
 from music_metadata_graph.run_log import run_with_log
-
 
 DEFAULT_RAW_DIR = Path("data/raw/qqmusic")
 DEFAULT_PAGE_SIZE = 80
@@ -122,7 +120,7 @@ def list_item_fans_num(item: dict[str, Any]) -> int | None:
 
 
 def info_fans_num(payload: dict[str, Any]) -> int | None:
-    fans = ((payload.get("Info") or {}).get("FansNum") or {})
+    fans = (payload.get("Info") or {}).get("FansNum") or {}
     try:
         value = int(fans.get("Num"))
     except (TypeError, ValueError):
@@ -131,7 +129,7 @@ def info_fans_num(payload: dict[str, Any]) -> int | None:
 
 
 def info_has_entry(payload: dict[str, Any]) -> int:
-    fans = ((payload.get("Info") or {}).get("FansNum") or {})
+    fans = (payload.get("Info") or {}).get("FansNum") or {}
     try:
         return int(fans.get("HasEntry") or 0)
     except (TypeError, ValueError):
@@ -209,14 +207,18 @@ async def execute_or_load_info_batch(
         try:
             results = await client.gather(requests, batch_size=len(requests))
             for (index, target, path, _), result in zip(batch, results):
-                payload = result.model_dump(mode="json") if hasattr(result, "model_dump") else result
+                payload = (
+                    result.model_dump(mode="json") if hasattr(result, "model_dump") else result
+                )
                 dump_json(path, payload)
                 loaded.append((index, target, payload, "fetched", path))
         except Exception as batch_exc:
             for index, target, path, request in batch:
                 try:
                     result = await client.execute(request)
-                    payload = result.model_dump(mode="json") if hasattr(result, "model_dump") else result
+                    payload = (
+                        result.model_dump(mode="json") if hasattr(result, "model_dump") else result
+                    )
                     dump_json(path, payload)
                     loaded.append((index, target, payload, "fetched", path))
                 except Exception as single_exc:
@@ -243,7 +245,9 @@ def write_summary(config: CollectConfig, rows: list[dict[str, Any]]) -> Path:
 async def collect(config: CollectConfig) -> None:
     targets = target_singers(config)
     if not targets:
-        raise ValueError(f"No area 0/1 singer targets found in raw JSON: {config.singer_list_raw_dir}")
+        raise ValueError(
+            f"No area 0/1 singer targets found in raw JSON: {config.singer_list_raw_dir}"
+        )
 
     client = Client(rate=REQUEST_RATE, capacity=REQUEST_CAPACITY)
     list_payloads: list[tuple[dict[str, Any], Path]] = []
@@ -303,7 +307,9 @@ async def collect(config: CollectConfig) -> None:
         )
 
     for failure in failures:
-        print(f"mid={failure.mid} name={failure.name} status=failed reason={failure.reason} saved={failure.path.as_posix()}")
+        print(
+            f"mid={failure.mid} name={failure.name} status=failed reason={failure.reason} saved={failure.path.as_posix()}"
+        )
 
     summary_rows.sort(key=lambda row: (str(row["mid"])))
     summary_path = write_summary(config, summary_rows)
@@ -328,7 +334,9 @@ async def collect(config: CollectConfig) -> None:
     )
     if failures:
         failed = ", ".join(f"{failure.name}({failure.mid})" for failure in failures)
-        raise RuntimeError(f"Failed to fetch {len(failures)} singer fans request(s). Rerun to continue. Failed singers: {failed}")
+        raise RuntimeError(
+            f"Failed to fetch {len(failures)} singer fans request(s). Rerun to continue. Failed singers: {failed}"
+        )
 
 
 def parse_csv_values(values: list[str] | None) -> tuple[str, ...]:
@@ -355,7 +363,9 @@ def parse_area_list(values: list[str] | None) -> tuple[AreaType, ...]:
                 item = AreaType(int(raw_value))
             except ValueError as exc:
                 choices = ", ".join(member.name for member in AreaType)
-                raise ValueError(f"Invalid AreaType value: {raw_value}. Choices: {choices}") from exc
+                raise ValueError(
+                    f"Invalid AreaType value: {raw_value}. Choices: {choices}"
+                ) from exc
         if item in seen:
             continue
         seen.add(item)
@@ -364,13 +374,30 @@ def parse_area_list(values: list[str] | None) -> tuple[AreaType, ...]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Collect QQ Music approximate singer fan-count raw JSON.")
+    parser = argparse.ArgumentParser(
+        description="Collect QQ Music approximate singer fan-count raw JSON."
+    )
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR)
-    parser.add_argument("--area", action="append", help="AreaType list for quick list fan-count requests. Defaults to TAIWAN,CHINA.")
-    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="Maximum request descriptors per get_info batch.")
-    parser.add_argument("--force", action="store_true", help="Refetch and overwrite cached fan-count raw JSON.")
-    parser.add_argument("--mvp", action="store_true", help="MVP mode: only require fan counts for the first 10 area 0/1 singer targets.")
+    parser.add_argument(
+        "--area",
+        action="append",
+        help="AreaType list for quick list fan-count requests. Defaults to TAIWAN,CHINA.",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=DEFAULT_BATCH_SIZE,
+        help="Maximum request descriptors per get_info batch.",
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Refetch and overwrite cached fan-count raw JSON."
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="MVP mode: only require fan counts for the first 10 area 0/1 singer targets.",
+    )
     args = parser.parse_args()
     try:
         args.areas = parse_area_list(args.area)

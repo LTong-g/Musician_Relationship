@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import atexit
 import faulthandler
 import queue
@@ -12,7 +11,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TextIO, TypeVar
-
 
 DEFAULT_RUN_LOG_DIR = Path("logs/runs")
 _T = TypeVar("_T")
@@ -40,6 +38,14 @@ class TeeTextIO:
     def __init__(self, terminal: TextIO, log_writer: "AsyncLogWriter") -> None:
         self._terminal = terminal
         self._log_writer = log_writer
+
+    @property
+    def terminal(self) -> TextIO:
+        return self._terminal
+
+    @property
+    def log_writer(self) -> "AsyncLogWriter":
+        return self._log_writer
 
     @property
     def encoding(self) -> str | None:
@@ -72,7 +78,9 @@ class AsyncLogWriter:
         self._queue: queue.Queue[str | object] = queue.Queue()
         self._lock = threading.Lock()
         self._closed = False
-        self._thread = threading.Thread(target=self._write_worker, name="run-log-writer", daemon=True)
+        self._thread = threading.Thread(
+            target=self._write_worker, name="run-log-writer", daemon=True
+        )
         self._thread.start()
 
     def write(self, text: str) -> None:
@@ -118,7 +126,9 @@ class AsyncLogWriter:
 
 def safe_log_stem(script_name: str) -> str:
     invalid_chars = '<>:"/\\|?*'
-    cleaned = "".join("_" if char in invalid_chars or ord(char) < 32 else char for char in script_name)
+    cleaned = "".join(
+        "_" if char in invalid_chars or ord(char) < 32 else char for char in script_name
+    )
     cleaned = cleaned.strip().rstrip(". ")
     return cleaned or "script"
 
@@ -144,6 +154,14 @@ def current_run_log_path() -> Path | None:
 
 def current_run_id() -> str | None:
     return _ACTIVE_RUN_CONTEXT.identity.run_id if _ACTIVE_RUN_CONTEXT is not None else None
+
+
+def current_terminal_stdout() -> TextIO:
+    return sys.stdout.terminal if isinstance(sys.stdout, TeeTextIO) else sys.stdout
+
+
+def current_log_writer() -> AsyncLogWriter | None:
+    return _ACTIVE_RUN_CONTEXT.writer if _ACTIVE_RUN_CONTEXT is not None else None
 
 
 def utc_timestamp() -> str:
@@ -180,7 +198,9 @@ def install_windows_console_flush() -> None:
     def handler(control_type: int) -> bool:
         for log_writer in tuple(_ACTIVE_LOG_WRITERS):
             try:
-                log_writer.write_immediate(f"\nrun_console_event={control_type} at={utc_timestamp()}\n")
+                log_writer.write_immediate(
+                    f"\nrun_console_event={control_type} at={utc_timestamp()}\n"
+                )
                 log_writer.flush()
             except Exception:
                 pass
@@ -231,7 +251,9 @@ def capture_run_log(script_name: str, log_dir: Path = DEFAULT_RUN_LOG_DIR):
             log_writer.close()
 
 
-def run_with_log(script_name: str, func: Callable[[], _T], log_dir: Path = DEFAULT_RUN_LOG_DIR) -> _T:
+def run_with_log(
+    script_name: str, func: Callable[[], _T], log_dir: Path = DEFAULT_RUN_LOG_DIR
+) -> _T:
     if _ACTIVE_RUN_CONTEXT is not None:
         print(
             f"run_log_reused={_ACTIVE_RUN_CONTEXT.identity.log_path.as_posix()} "

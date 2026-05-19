@@ -18,6 +18,8 @@ dependencies = [
 
     "pypinyin",
 
+    "tqdm",
+
 ]
 
 
@@ -41,6 +43,7 @@ mr-import-singer-song-tab-db = "music_metadata_graph.pipelines.import_singer_son
 mr-filter-songs-album-type = "music_metadata_graph.pipelines.filter_songs_by_album_type:main"
 
 mr-collect-song-producer-raw = "music_metadata_graph.pipelines.collect_song_producer_raw:main"
+mr-collect-song-lyric-credit-raw = "music_metadata_graph.pipelines.collect_song_lyric_credit_raw:main"
 mr-fill-song-credit-missing-mids = "music_metadata_graph.pipelines.fill_song_credit_missing_mids:main"
 mr-import-song-credits-db = "music_metadata_graph.pipelines.import_song_credits_to_db:main"
 mr-filter-songs-credit-completeness = "music_metadata_graph.pipelines.filter_songs_by_credit_completeness:main"
@@ -53,3 +56,7 @@ mr-prepare-static-graph-assets = "music_metadata_graph.pipelines.prepare_static_
 mr-build-avatar-atlas = "music_metadata_graph.pipelines.build_avatar_atlas:main"
 mr-build-static-graph = "music_metadata_graph.pipelines.build_static_graph:main"
 mr-build-large-graph-static = "music_metadata_graph.pipelines.build_large_graph_static:main"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]

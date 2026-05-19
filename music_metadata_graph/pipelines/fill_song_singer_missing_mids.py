@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import asyncio
 import json
@@ -7,22 +6,33 @@ import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-
 from music_metadata_graph.run_log import run_with_log
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH
 from typing import Any
-
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import CollectConfig as SongTabCollectConfig
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import DEFAULT_PAGE_SIZE as SONG_TAB_PAGE_SIZE
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    CollectConfig as SongTabCollectConfig,
+)
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    DEFAULT_PAGE_SIZE as SONG_TAB_PAGE_SIZE,
+)
 from music_metadata_graph.pipelines.collect_singer_song_tab_raw import DEFAULT_SINGER_LIST_RAW_DIR
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import parse_csv_values, resolve_targets
-from music_metadata_graph.pipelines.import_singer_list_to_db import create_schema as create_artist_schema
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    parse_csv_values,
+    resolve_targets,
+)
+from music_metadata_graph.pipelines.import_singer_list_to_db import (
+    create_schema as create_artist_schema,
+)
 from music_metadata_graph.pipelines.import_singer_song_tab_to_db import parse_page
-from music_metadata_graph.pipelines.quick_search_artist_mid import MissingArtistName, fill_missing_artist_mids
-
+from music_metadata_graph.pipelines.quick_search_artist_mid import (
+    MissingArtistName,
+    fill_missing_artist_mids,
+)
 
 DEFAULT_RAW_DIR = Path("data/raw/qqmusic")
-DEFAULT_CSV = Path("data/processed/validation/song_singer_mid_fill/csv_views/song_singer_mid_fill.csv")
+DEFAULT_CSV = Path(
+    "data/processed/validation/song_singer_mid_fill/csv_views/song_singer_mid_fill.csv"
+)
 
 
 @dataclass(frozen=True)
@@ -130,24 +140,54 @@ async def run(config: FillConfig) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Fill missing song singer mids by QQ Music quick_search exact artist matches.")
+    parser = argparse.ArgumentParser(
+        description="Fill missing song singer mids by QQ Music quick_search exact artist matches."
+    )
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 and step 4 to define --all targets.")
-    parser.add_argument("--force", action="store_true", help="Refetch and overwrite quick_search raw JSON.")
-    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Scan song-tab raw only for singers selected by the current step-3 singer-list import rules.")
-    parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
-    parser.add_argument("--mid", action="append", help="Singer mid whose song-tab raw JSON should be scanned. Can be repeated or comma-separated.")
-    parser.add_argument("--name", action="append", help="Singer exact name whose song-tab raw JSON should be scanned. Can be repeated or comma-separated.")
-    parser.add_argument("--max-names", type=int, default=None, help="Limit unique missing names for smoke tests.")
+    parser.add_argument(
+        "--singer-list-raw-dir",
+        type=Path,
+        default=DEFAULT_SINGER_LIST_RAW_DIR,
+        help="Singer list raw directory used by step 3 and step 4 to define --all targets.",
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Refetch and overwrite quick_search raw JSON."
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="all_available_song_tabs",
+        help="Scan song-tab raw only for singers selected by the current step-3 singer-list import rules.",
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.",
+    )
+    parser.add_argument(
+        "--mid",
+        action="append",
+        help="Singer mid whose song-tab raw JSON should be scanned. Can be repeated or comma-separated.",
+    )
+    parser.add_argument(
+        "--name",
+        action="append",
+        help="Singer exact name whose song-tab raw JSON should be scanned. Can be repeated or comma-separated.",
+    )
+    parser.add_argument(
+        "--max-names", type=int, default=None, help="Limit unique missing names for smoke tests."
+    )
     return parser.parse_args()
 
 
 def _main() -> None:
     ensure_utf8_stdout()
     args = parse_args()
-    db_path = args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    db_path = (
+        args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    )
     result = asyncio.run(
         run(
             FillConfig(
@@ -173,4 +213,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

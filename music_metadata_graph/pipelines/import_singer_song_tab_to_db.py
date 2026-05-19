@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import json
 import sqlite3
@@ -7,23 +6,44 @@ import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-
 from music_metadata_graph.run_log import run_with_log
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH
 from typing import Any
-
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import CollectConfig as SongTabCollectConfig
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import DEFAULT_PAGE_SIZE as SONG_TAB_PAGE_SIZE
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import DEFAULT_RAW_DIR as DEFAULT_QQMUSIC_RAW_DIR
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    CollectConfig as SongTabCollectConfig,
+)
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    DEFAULT_PAGE_SIZE as SONG_TAB_PAGE_SIZE,
+)
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    DEFAULT_RAW_DIR as DEFAULT_QQMUSIC_RAW_DIR,
+)
 from music_metadata_graph.pipelines.collect_singer_song_tab_raw import DEFAULT_SINGER_LIST_RAW_DIR
-from music_metadata_graph.pipelines.collect_singer_song_tab_raw import resolve_targets as resolve_song_tab_targets
-from music_metadata_graph.pipelines.quick_search_artist_mid import split_artist_names
-from music_metadata_graph.pipelines.song_csv import BASE_SONG_CSV_FIELDS, sort_song_csv_rows, write_song_csv
-
+from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
+    resolve_targets as resolve_song_tab_targets,
+)
+from music_metadata_graph.pipelines.quick_search_artist_mid import (
+    has_artist_name_separator,
+    split_artist_names,
+)
+from music_metadata_graph.progress import iter_progress
+from music_metadata_graph.pipelines.song_csv import (
+    BASE_SONG_CSV_FIELDS,
+    sort_song_csv_rows,
+    write_song_csv,
+)
 
 DEFAULT_RAW_DIR = Path("data/raw/qqmusic/singer_homepage_song_tab")
-DEFAULT_REJECTION_CSV = Path("data/processed/validation/song_import_rejections/csv_views/song_import_rejections.csv")
+DEFAULT_REJECTION_CSV = Path(
+    "data/processed/validation/song_import_rejections/csv_views/song_import_rejections.csv"
+)
+DEFAULT_LANGUAGE_REJECTION_CSV = Path(
+    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_language_9.csv"
+)
 SONG_CSV_FIELDS = BASE_SONG_CSV_FIELDS
+REMOVED_LANGUAGE = 9
+FILE_PROGRESS_EVERY = 1000
+ROW_PROGRESS_EVERY = 50000
 
 
 @dataclass(frozen=True)
@@ -31,6 +51,8 @@ class ImportConfig:
     raw_dir: Path
     db_path: Path
     rejection_csv: Path
+    language_rejection_csv: Path | None
+    removed_language: int
     singer_list_raw_dir: Path
     qqmusic_raw_dir: Path
     all_available_song_tabs: bool
@@ -113,14 +135,16 @@ def load_song_rows(raw_dir: Path, target_mids: tuple[str, ...]) -> list[dict[str
             files.extend(singer_files)
         if missing_dirs:
             raise FileNotFoundError(
-                "Singer homepage song-tab raw JSON is missing for targets: " + ", ".join(missing_dirs)
+                "Singer homepage song-tab raw JSON is missing for targets: "
+                + ", ".join(missing_dirs)
             )
     else:
         files = sorted(raw_dir.glob("*/*.json"))
     if not files:
         raise FileNotFoundError(f"No singer homepage song-tab JSON files found: {raw_dir}")
     rows: list[dict[str, Any]] = []
-    for path in files:
+    total = len(files)
+    for path in iter_progress("加载歌曲 Tab raw 文件", files, total=total):
         payload = load_json(path)
         page = parse_page(path)
         for index, song in enumerate(((payload.get("SongTab") or {}).get("List") or []), 1):
@@ -145,8 +169,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
 
 
 def create_schema(connection: sqlite3.Connection) -> None:
-    connection.execute(
-        """
+    connection.execute("""
         CREATE TABLE IF NOT EXISTS songs (
             mid TEXT NOT NULL PRIMARY KEY,
             id INTEGER NOT NULL UNIQUE,
@@ -159,8 +182,7 @@ def create_schema(connection: sqlite3.Connection) -> None:
             raw_row_index INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY(album_mid) REFERENCES albums(mid)
         )
-        """
-    )
+        """)
     rebuild_legacy_song_singers = False
     existing_song_singers = connection.execute(
         "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'song_singers'"
@@ -170,8 +192,7 @@ def create_schema(connection: sqlite3.Connection) -> None:
         rebuild_legacy_song_singers = any(str(row["table"]) == "singers" for row in foreign_keys)
     if rebuild_legacy_song_singers:
         connection.execute("DROP TABLE song_singers")
-    connection.execute(
-        """
+    connection.execute("""
         CREATE TABLE IF NOT EXISTS song_singers (
             song_mid TEXT NOT NULL,
             singer_order INTEGER NOT NULL,
@@ -183,8 +204,7 @@ def create_schema(connection: sqlite3.Connection) -> None:
             FOREIGN KEY(song_mid) REFERENCES songs(mid) ON DELETE CASCADE,
             FOREIGN KEY(singer_mid) REFERENCES artists(mid)
         )
-        """
-    )
+        """)
     legacy_singers = connection.execute(
         "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'singers'"
     ).fetchone()
@@ -196,8 +216,12 @@ def create_schema(connection: sqlite3.Connection) -> None:
 
 
 def load_reference_sets(connection: sqlite3.Connection) -> tuple[set[str], set[str]]:
-    singer_mids = {str(row["mid"]) for row in connection.execute("SELECT mid FROM artists").fetchall()}
-    album_mids = {str(row["mid"]) for row in connection.execute("SELECT mid FROM albums").fetchall()}
+    singer_mids = {
+        str(row["mid"]) for row in connection.execute("SELECT mid FROM artists").fetchall()
+    }
+    album_mids = {
+        str(row["mid"]) for row in connection.execute("SELECT mid FROM albums").fetchall()
+    }
     if not singer_mids:
         raise ValueError("No artists found in database.")
     if not album_mids:
@@ -206,7 +230,9 @@ def load_reference_sets(connection: sqlite3.Connection) -> tuple[set[str], set[s
 
 
 def load_unique_artist_name_mid_map(connection: sqlite3.Connection) -> tuple[dict[str, str], int]:
-    rows = connection.execute("SELECT name, mid FROM artists WHERE name <> '' ORDER BY rowid").fetchall()
+    rows = connection.execute(
+        "SELECT name, mid FROM artists WHERE name <> '' ORDER BY rowid"
+    ).fetchall()
     mids_by_name: dict[str, set[str]] = defaultdict(set)
     for row in rows:
         name = str(row["name"] or "").strip()
@@ -222,7 +248,11 @@ def resolve_missing_artist_name_mids(name: str, artist_name_mid_map: dict[str, s
     source_name = name.strip()
     if not source_name:
         return []
-    search_names = split_artist_names(source_name) if "/" in source_name else (source_name,)
+    search_names = (
+        split_artist_names(source_name)
+        if has_artist_name_separator(source_name)
+        else (source_name,)
+    )
     resolved: list[str] = []
     seen: set[str] = set()
     for search_name in search_names:
@@ -255,7 +285,9 @@ def unique_targets(rows: list[sqlite3.Row]) -> tuple[SingerTarget, ...]:
     return tuple(targets)
 
 
-def load_existing_song_tab_mids(connection: sqlite3.Connection, config: ImportConfig) -> tuple[str, ...]:
+def load_existing_song_tab_mids(
+    connection: sqlite3.Connection, config: ImportConfig
+) -> tuple[str, ...]:
     song_tab_config = SongTabCollectConfig(
         raw_dir=config.qqmusic_raw_dir,
         db_path=config.db_path,
@@ -270,9 +302,7 @@ def load_existing_song_tab_mids(connection: sqlite3.Connection, config: ImportCo
     )
     target_mids = tuple(target.mid for target in resolve_song_tab_targets(song_tab_config))
     existing_target_mids = tuple(
-        mid
-        for mid in target_mids
-        if any((config.raw_dir / mid).glob("page_*_size_*.json"))
+        mid for mid in target_mids if any((config.raw_dir / mid).glob("page_*_size_*.json"))
     )
     if not existing_target_mids:
         raise FileNotFoundError("No step-4 target singer homepage song-tab raw JSON exists yet.")
@@ -297,7 +327,9 @@ def resolve_target_mids(connection: sqlite3.Connection, config: ImportConfig) ->
         else:
             rows.append(row)
     for name in config.names:
-        matched = connection.execute("SELECT mid, name FROM artists WHERE name = ? ORDER BY rowid", (name,)).fetchall()
+        matched = connection.execute(
+            "SELECT mid, name FROM artists WHERE name = ? ORDER BY rowid", (name,)
+        ).fetchall()
         if not matched:
             missing.append(f"name:{name}")
         elif len(matched) > 1:
@@ -310,16 +342,18 @@ def resolve_target_mids(connection: sqlite3.Connection, config: ImportConfig) ->
     return tuple(target.mid for target in unique_targets(rows))
 
 
-def group_unique_songs(raw_rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, bool], int]:
+def group_unique_songs(
+    raw_rows: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, bool], int]:
     by_mid: dict[str, list[dict[str, Any]]] = defaultdict(list)
     missing_mid_rows = 0
-    for row in raw_rows:
+    total = len(raw_rows)
+    for row in iter_progress("按 song_mid 分组歌曲 raw 行", raw_rows, total=total):
         song_mid = str(row["song"].get("mid") or "").strip()
         if not song_mid:
             missing_mid_rows += 1
-            continue
-        by_mid[song_mid].append(row)
-
+        else:
+            by_mid[song_mid].append(row)
     conflict_by_mid: dict[str, bool] = {}
     unique_rows: list[dict[str, Any]] = []
     for song_mid, rows in sorted(by_mid.items()):
@@ -344,7 +378,8 @@ def evaluate_rows(
     accepted_singers: list[dict[str, Any]] = []
     rejections: list[dict[str, Any]] = []
 
-    for row in unique_rows:
+    total = len(unique_rows)
+    for row in iter_progress("评估歌曲入库约束", unique_rows, total=total):
         song = row["song"]
         song_mid = str(song.get("mid") or "").strip()
         song_id = song.get("id")
@@ -386,7 +421,9 @@ def evaluate_rows(
                 problem_singers.append(f"{order}::{singer_id}:{singer_name}")
             elif any(singer_mid not in singer_mids for singer_mid in resolved_mids):
                 reasons.append("singer_mid_not_in_singers")
-                problem_singers.append(f"{order}:{'/'.join(resolved_mids)}:{singer_id}:{singer_name}")
+                problem_singers.append(
+                    f"{order}:{'/'.join(resolved_mids)}:{singer_id}:{singer_name}"
+                )
 
         reasons = sorted(set(reasons))
         if reasons:
@@ -432,10 +469,13 @@ def find_duplicate_song_ids(unique_rows: list[dict[str, Any]]) -> set[Any]:
     return {song_id for song_id, count in counts.items() if count > 1}
 
 
-def build_rejection_row(row: dict[str, Any], reasons: list[str], problem_singers: list[str]) -> dict[str, Any]:
+def build_rejection_row(
+    row: dict[str, Any], reasons: list[str], problem_singers: list[str]
+) -> dict[str, Any]:
     song = row["song"]
     album = song.get("album") if isinstance(song.get("album"), dict) else {}
     singers = song.get("singer") if isinstance(song.get("singer"), list) else []
+    reason_code = ";".join(reasons)
     return {
         "song_mid": song.get("mid") or "",
         "song_id": song.get("id") if song.get("id") is not None else "",
@@ -451,7 +491,8 @@ def build_rejection_row(row: dict[str, Any], reasons: list[str], problem_singers
         "singers": compact_singers(singers),
         "singers_json": singers_json(singers),
         "problem_singers": "; ".join(problem_singers),
-        "reason_flags": ";".join(reasons),
+        "reason_flags": reason_code,
+        "reason_code": reason_code,
         "raw_json_path": row["raw_json_path"],
         "raw_page": row["raw_page"],
         "raw_row_index": row["raw_row_index"],
@@ -459,7 +500,76 @@ def build_rejection_row(row: dict[str, Any], reasons: list[str], problem_singers
 
 
 def write_rejection_csv(path: Path, rows: list[dict[str, Any]]) -> None:
-    write_song_csv(path, sort_song_csv_rows(rows), include_credits=False)
+    write_song_csv(path, sort_song_csv_rows(rows), include_credits=False, include_reason=True)
+
+
+def load_album_csv_rows(connection: sqlite3.Connection) -> dict[str, dict[str, Any]]:
+    rows = connection.execute("SELECT mid, name, albumType, publishDate FROM albums").fetchall()
+    return {
+        str(row["mid"]): {
+            "album_name": str(row["name"]),
+            "album_type": str(row["albumType"]),
+            "album_publish_date": str(row["publishDate"]),
+        }
+        for row in rows
+    }
+
+
+def load_artist_names(connection: sqlite3.Connection) -> dict[str, str]:
+    rows = connection.execute("SELECT mid, name FROM artists").fetchall()
+    return {str(row["mid"]): str(row["name"]) for row in rows}
+
+
+def accepted_song_csv_rows(
+    connection: sqlite3.Connection,
+    songs: list[dict[str, Any]],
+    song_singers: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    albums = load_album_csv_rows(connection)
+    artist_names = load_artist_names(connection)
+    singers_by_song: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in sorted(
+        song_singers, key=lambda item: (str(item["song_mid"]), int(item["singer_order"]))
+    ):
+        singer_mid = str(row["singer_mid"])
+        singers_by_song[str(row["song_mid"])].append(
+            {"mid": singer_mid, "name": artist_names.get(singer_mid, "")}
+        )
+
+    rows: list[dict[str, Any]] = []
+    for song in songs:
+        song_mid = str(song["mid"])
+        album = albums.get(str(song["album_mid"]), {})
+        singers = singers_by_song.get(song_mid, [])
+        rows.append(
+            {
+                "song_mid": song_mid,
+                "song_id": song["id"],
+                "song_name": song["name"],
+                "song_title": song["title"],
+                "song_language": song["language"],
+                "album_name": album.get("album_name", ""),
+                "album_type": album.get("album_type", ""),
+                "album_publish_date": album.get("album_publish_date", ""),
+                "singer_count": len(singers),
+                "singers_json": json.dumps(singers, ensure_ascii=False, separators=(",", ":")),
+                "reason_code": f"language_{song['language']}",
+            }
+        )
+    return sort_song_csv_rows(rows)
+
+
+def split_language_removed_rows(
+    songs: list[dict[str, Any]],
+    song_singers: list[dict[str, Any]],
+    removed_language: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    removed_mids = {str(row["mid"]) for row in songs if int(row["language"]) == removed_language}
+    kept_songs = [row for row in songs if str(row["mid"]) not in removed_mids]
+    removed_songs = [row for row in songs if str(row["mid"]) in removed_mids]
+    kept_singers = [row for row in song_singers if str(row["song_mid"]) not in removed_mids]
+    removed_singers = [row for row in song_singers if str(row["song_mid"]) in removed_mids]
+    return kept_songs, kept_singers, removed_songs, removed_singers
 
 
 def replace_songs(
@@ -523,12 +633,67 @@ def run(config: ImportConfig) -> dict[str, Any]:
         create_schema(connection)
         singer_mids, album_mids = load_reference_sets(connection)
         artist_name_mid_map, ambiguous_artist_names = load_unique_artist_name_mid_map(connection)
-        songs, song_singers, rejections = evaluate_rows(unique_rows, conflict_by_mid, singer_mids, album_mids, artist_name_mid_map)
+        songs, song_singers, rejections = evaluate_rows(
+            unique_rows, conflict_by_mid, singer_mids, album_mids, artist_name_mid_map
+        )
+        songs, song_singers, language_removed_songs, language_removed_singers = (
+            split_language_removed_rows(
+                songs,
+                song_singers,
+                config.removed_language,
+            )
+        )
+        language_removed_rows = accepted_song_csv_rows(
+            connection, language_removed_songs, language_removed_singers
+        )
+        print(
+            json.dumps(
+                {
+                    "stage": "replace_songs",
+                    "songs": len(songs),
+                    "song_singers": len(song_singers),
+                    "rejected_songs": len(rejections),
+                    "language_removed_songs": len(language_removed_songs),
+                    "removed_language": config.removed_language,
+                },
+                ensure_ascii=False,
+            ),
+            flush=True,
+        )
         replace_songs(connection, songs, song_singers)
         db_song_rows = connection.execute("SELECT COUNT(*) FROM songs").fetchone()[0]
         db_song_singer_rows = connection.execute("SELECT COUNT(*) FROM song_singers").fetchone()[0]
 
+    print(
+        json.dumps(
+            {
+                "stage": "write_song_rejection_csv",
+                "rows": len(rejections),
+                "csv": config.rejection_csv.as_posix(),
+            },
+            ensure_ascii=False,
+        ),
+        flush=True,
+    )
     write_rejection_csv(config.rejection_csv, rejections)
+    if config.language_rejection_csv is not None:
+        print(
+            json.dumps(
+                {
+                    "stage": "write_language_rejection_csv",
+                    "rows": len(language_removed_rows),
+                    "csv": config.language_rejection_csv.as_posix(),
+                },
+                ensure_ascii=False,
+            ),
+            flush=True,
+        )
+        write_song_csv(
+            config.language_rejection_csv,
+            language_removed_rows,
+            include_credits=False,
+            include_reason=True,
+        )
     reason_counts: Counter[str] = Counter()
     for row in rejections:
         for reason in str(row["reason_flags"]).split(";"):
@@ -542,9 +707,16 @@ def run(config: ImportConfig) -> dict[str, Any]:
         "imported_songs": len(songs),
         "imported_song_singers": len(song_singers),
         "rejected_songs": len(rejections),
+        "language_removed_songs": len(language_removed_songs),
+        "removed_language": config.removed_language,
         "db_song_rows": db_song_rows,
         "db_song_singer_rows": db_song_singer_rows,
         "rejection_csv": config.rejection_csv.as_posix(),
+        "language_rejection_csv": (
+            config.language_rejection_csv.as_posix()
+            if config.language_rejection_csv is not None
+            else ""
+        ),
         "rejection_reason_counts": dict(sorted(reason_counts.items())),
         "artist_name_mid_matches": len(artist_name_mid_map),
         "ambiguous_artist_names": ambiguous_artist_names,
@@ -552,28 +724,72 @@ def run(config: ImportConfig) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Import complete QQ Music song rows into SQLite and write rejected rows to CSV.")
+    parser = argparse.ArgumentParser(
+        description="Import complete QQ Music song rows into SQLite and write rejected rows to CSV."
+    )
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--rejection-csv", type=Path, default=DEFAULT_REJECTION_CSV)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 and step 4 to define --all targets.")
-    parser.add_argument("--qqmusic-raw-dir", type=Path, default=DEFAULT_QQMUSIC_RAW_DIR, help="QQ Music raw root used for step-4 target resolution.")
-    parser.add_argument("--all", action="store_true", dest="all_available_song_tabs", help="Import only song-tab raw for singers selected by the current step-3 singer-list import rules.")
-    parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
-    parser.add_argument("--mid", action="append", help="Singer mid whose song-tab raw JSON should be imported. Can be repeated or comma-separated.")
-    parser.add_argument("--name", action="append", help="Singer exact name whose song-tab raw JSON should be imported. Can be repeated or comma-separated.")
+    parser.add_argument(
+        "--language-rejection-csv", type=Path, default=DEFAULT_LANGUAGE_REJECTION_CSV
+    )
+    parser.add_argument(
+        "--no-language-rejection-csv",
+        action="store_true",
+        help="Do not write the language=9 removed-song CSV view.",
+    )
+    parser.add_argument("--removed-language", type=int, default=REMOVED_LANGUAGE)
+    parser.add_argument(
+        "--singer-list-raw-dir",
+        type=Path,
+        default=DEFAULT_SINGER_LIST_RAW_DIR,
+        help="Singer list raw directory used by step 3 and step 4 to define --all targets.",
+    )
+    parser.add_argument(
+        "--qqmusic-raw-dir",
+        type=Path,
+        default=DEFAULT_QQMUSIC_RAW_DIR,
+        help="QQ Music raw root used for step-4 target resolution.",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="all_available_song_tabs",
+        help="Import only song-tab raw for singers selected by the current step-3 singer-list import rules.",
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.",
+    )
+    parser.add_argument(
+        "--mid",
+        action="append",
+        help="Singer mid whose song-tab raw JSON should be imported. Can be repeated or comma-separated.",
+    )
+    parser.add_argument(
+        "--name",
+        action="append",
+        help="Singer exact name whose song-tab raw JSON should be imported. Can be repeated or comma-separated.",
+    )
     return parser.parse_args()
 
 
 def _main() -> None:
     ensure_utf8_stdout()
     args = parse_args()
-    db_path = args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    db_path = (
+        args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    )
     result = run(
         ImportConfig(
             raw_dir=args.raw_dir,
             db_path=db_path,
             rejection_csv=args.rejection_csv,
+            language_rejection_csv=(
+                None if args.no_language_rejection_csv else args.language_rejection_csv
+            ),
+            removed_language=args.removed_language,
             singer_list_raw_dir=args.singer_list_raw_dir,
             qqmusic_raw_dir=args.qqmusic_raw_dir,
             all_available_song_tabs=args.all_available_song_tabs,
@@ -591,4 +807,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

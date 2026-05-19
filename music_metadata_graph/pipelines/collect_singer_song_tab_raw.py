@@ -8,25 +8,35 @@ from dataclasses import dataclass
 from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from music_metadata_graph.run_log import run_with_log
-from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH, MVP_SINGER_LIMIT
+from music_metadata_graph.pipelines.defaults import (
+    DEFAULT_DB_PATH,
+    DEFAULT_MVP_DB_PATH,
+    MVP_SINGER_LIMIT,
+)
 from typing import Any
 from qqmusic_api import Client
 from qqmusic_api.modules.singer import TabType
-from music_metadata_graph.pipelines.import_singer_list_to_db import DEFAULT_RAW_DIR as DEFAULT_SINGER_LIST_RAW_DIR
+from music_metadata_graph.pipelines.import_singer_list_to_db import (
+    DEFAULT_RAW_DIR as DEFAULT_SINGER_LIST_RAW_DIR,
+)
 from music_metadata_graph.pipelines.import_singer_list_to_db import attach_fans
 from music_metadata_graph.pipelines.import_singer_list_to_db import filter_singers_by_area
 from music_metadata_graph.pipelines.import_singer_list_to_db import filter_singers_by_fans
 from music_metadata_graph.pipelines.import_singer_list_to_db import load_fans_map
 from music_metadata_graph.pipelines.import_singer_list_to_db import load_singers
+
 DEFAULT_RAW_DIR = Path("data/raw/qqmusic")
 DEFAULT_PAGE_SIZE = 30
 REQUEST_RATE = 0.5
 REQUEST_CAPACITY = 1
+TARGET_CONCURRENCY = 10
+
 
 @dataclass(frozen=True)
 class SingerTarget:
     mid: str
     name: str
+
 
 @dataclass(frozen=True)
 class CollectConfig:
@@ -41,23 +51,28 @@ class CollectConfig:
     mids: tuple[str, ...]
     names: tuple[str, ...]
 
+
 def ensure_utf8_stdout() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+
 
 def dump_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, ensure_ascii=False, indent=2)
     path.write_text(text, encoding="utf-8")
 
+
 def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
 
 def try_load_cached_json(path: Path) -> Any | None:
     try:
         return load_json(path)
     except (OSError, json.JSONDecodeError):
         return None
+
 
 def connect(db_path: Path) -> sqlite3.Connection:
     if not db_path.exists():
@@ -66,6 +81,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
     connection.row_factory = sqlite3.Row
     return connection
 
+
 def parse_csv_values(values: list[str] | None) -> tuple[str, ...]:
     if not values:
         return ()
@@ -73,6 +89,7 @@ def parse_csv_values(values: list[str] | None) -> tuple[str, ...]:
     for value in values:
         parsed.extend(part.strip() for part in value.split(",") if part.strip())
     return tuple(parsed)
+
 
 def unique_targets(rows: list[sqlite3.Row]) -> tuple[SingerTarget, ...]:
     targets: list[SingerTarget] = []
@@ -85,14 +102,19 @@ def unique_targets(rows: list[sqlite3.Row]) -> tuple[SingerTarget, ...]:
         targets.append(SingerTarget(mid=mid, name=str(row["name"])))
     return tuple(targets)
 
-def load_all_targets(connection: sqlite3.Connection, config: CollectConfig) -> tuple[SingerTarget, ...]:
+
+def load_all_targets(
+    connection: sqlite3.Connection, config: CollectConfig
+) -> tuple[SingerTarget, ...]:
     third_step_rows = filter_singers_by_area(load_singers(config.singer_list_raw_dir))
     third_step_rows = attach_fans(third_step_rows, load_fans_map(config.raw_dir, mvp=config.mvp))
     third_step_rows = filter_singers_by_fans(third_step_rows)
     if config.mvp:
         third_step_rows = third_step_rows[:MVP_SINGER_LIMIT]
     if not third_step_rows:
-        raise ValueError(f"No third-step singer rows found in raw JSON: {config.singer_list_raw_dir}")
+        raise ValueError(
+            f"No third-step singer rows found in raw JSON: {config.singer_list_raw_dir}"
+        )
     db_rows = {
         str(row["mid"]): row
         for row in connection.execute("SELECT mid, name FROM artists ORDER BY rowid").fetchall()
@@ -120,7 +142,10 @@ def load_all_targets(connection: sqlite3.Connection, config: CollectConfig) -> t
         raise ValueError("No third-step singer targets found in artists.")
     return tuple(targets)
 
-def load_partial_targets(connection: sqlite3.Connection, config: CollectConfig) -> tuple[SingerTarget, ...]:
+
+def load_partial_targets(
+    connection: sqlite3.Connection, config: CollectConfig
+) -> tuple[SingerTarget, ...]:
     requested_count = len(config.mids) + len(config.names)
     if requested_count == 0:
         raise ValueError("Provide --all, or at least one --mid or --name.")
@@ -133,7 +158,9 @@ def load_partial_targets(connection: sqlite3.Connection, config: CollectConfig) 
         else:
             rows.append(row)
     for name in config.names:
-        matched = connection.execute("SELECT mid, name FROM artists WHERE name = ? ORDER BY rowid", (name,)).fetchall()
+        matched = connection.execute(
+            "SELECT mid, name FROM artists WHERE name = ? ORDER BY rowid", (name,)
+        ).fetchall()
         if not matched:
             missing.append(f"name:{name}")
         elif len(matched) > 1:
@@ -148,6 +175,7 @@ def load_partial_targets(connection: sqlite3.Connection, config: CollectConfig) 
         raise ValueError("No singer targets resolved.")
     return targets
 
+
 def resolve_targets(config: CollectConfig) -> tuple[SingerTarget, ...]:
     connection = connect(config.db_path)
     try:
@@ -159,8 +187,14 @@ def resolve_targets(config: CollectConfig) -> tuple[SingerTarget, ...]:
     finally:
         connection.close()
 
+
 def cache_path(config: CollectConfig, target: SingerTarget, page: int) -> Path:
-    return config.raw_dir / "singer_homepage_song_tab" / target.mid / f"page_{page:04d}_size_{config.page_size}.json"
+    return (
+        config.raw_dir
+        / "singer_homepage_song_tab"
+        / target.mid
+        / f"page_{page:04d}_size_{config.page_size}.json"
+    )
 
 
 async def execute_or_load(
@@ -184,7 +218,9 @@ async def execute_or_load(
     return payload, "fetched", path
 
 
-async def collect_target(client: Client, config: CollectConfig, target: SingerTarget) -> dict[str, Any]:
+async def collect_target(
+    client: Client, config: CollectConfig, target: SingerTarget
+) -> dict[str, Any]:
     page = 1
     pages = 0
     rows = 0
@@ -200,7 +236,9 @@ async def collect_target(client: Client, config: CollectConfig, target: SingerTa
         rows += len(songs)
         fetched += int(status == "fetched")
         cache_hits += int(status == "cache_hit")
-        print(f"{target.name} mid={target.mid} page={page} status={status} songs={len(songs)} has_more={has_more} saved={path.as_posix()}")
+        print(
+            f"{target.name} mid={target.mid} page={page} status={status} songs={len(songs)} has_more={has_more} saved={path.as_posix()}"
+        )
         if not songs:
             break
         if not has_more:
@@ -218,15 +256,25 @@ async def collect_target(client: Client, config: CollectConfig, target: SingerTa
 
 async def collect(config: CollectConfig) -> None:
     targets = resolve_targets(config)
-    print(json.dumps({"targets": len(targets), "all_singers": config.all_singers}, ensure_ascii=False))
+    print(
+        json.dumps({"targets": len(targets), "all_singers": config.all_singers}, ensure_ascii=False)
+    )
     client = Client(rate=REQUEST_RATE, capacity=REQUEST_CAPACITY)
-    summaries: list[dict[str, Any]] = []
-    try:
-        for index, target in enumerate(targets, 1):
+    summaries_by_index: dict[int, dict[str, Any]] = {}
+    semaphore = asyncio.Semaphore(TARGET_CONCURRENCY)
+
+    async def collect_indexed_target(index: int, target: SingerTarget) -> None:
+        async with semaphore:
             print(f"[{index}/{len(targets)}] collect song tab: {target.name} ({target.mid})")
-            summaries.append(await collect_target(client, config, target))
+            summaries_by_index[index] = await collect_target(client, config, target)
+
+    try:
+        await asyncio.gather(
+            *(collect_indexed_target(index, target) for index, target in enumerate(targets, 1))
+        )
     finally:
         await client.close()
+    summaries = [summaries_by_index[index] for index in sorted(summaries_by_index)]
     print(
         json.dumps(
             {
@@ -242,24 +290,57 @@ async def collect(config: CollectConfig) -> None:
         )
     )
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Collect raw QQ Music singer homepage song-tab JSON pages.")
+    parser = argparse.ArgumentParser(
+        description="Collect raw QQ Music singer homepage song-tab JSON pages."
+    )
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW_DIR)
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--page-size", type=int, default=DEFAULT_PAGE_SIZE)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR, help="Singer list raw directory used by step 3 to define --all targets.")
-    parser.add_argument("--max-pages-per-singer", type=int, default=None, help="Limit pages per singer for smoke tests.")
-    parser.add_argument("--force", action="store_true", help="Refetch and overwrite cached raw JSON pages.")
-    parser.add_argument("--all", action="store_true", dest="all_singers", help="Collect song-tab pages for singers selected by the current step-3 singer-list import rules.")
-    parser.add_argument("--mvp", action="store_true", help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.")
-    parser.add_argument("--mid", action="append", help="Singer mid to collect. Can be repeated or comma-separated.")
-    parser.add_argument("--name", action="append", help="Singer exact name to collect. Can be repeated or comma-separated.")
+    parser.add_argument(
+        "--singer-list-raw-dir",
+        type=Path,
+        default=DEFAULT_SINGER_LIST_RAW_DIR,
+        help="Singer list raw directory used by step 3 to define --all targets.",
+    )
+    parser.add_argument(
+        "--max-pages-per-singer",
+        type=int,
+        default=None,
+        help="Limit pages per singer for smoke tests.",
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Refetch and overwrite cached raw JSON pages."
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="all_singers",
+        help="Collect song-tab pages for singers selected by the current step-3 singer-list import rules.",
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="MVP mode: --all uses the first 10 area 0/1 singers and the MVP database by default.",
+    )
+    parser.add_argument(
+        "--mid", action="append", help="Singer mid to collect. Can be repeated or comma-separated."
+    )
+    parser.add_argument(
+        "--name",
+        action="append",
+        help="Singer exact name to collect. Can be repeated or comma-separated.",
+    )
     return parser.parse_args()
+
 
 def _main() -> None:
     ensure_utf8_stdout()
     args = parse_args()
-    db_path = args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    db_path = (
+        args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    )
     config = CollectConfig(
         raw_dir=args.raw_dir,
         db_path=db_path,
@@ -274,8 +355,10 @@ def _main() -> None:
     )
     asyncio.run(collect(config))
 
+
 def main() -> None:
     run_with_log(Path(__file__).stem, _main)
+
 
 if __name__ == "__main__":
     main()

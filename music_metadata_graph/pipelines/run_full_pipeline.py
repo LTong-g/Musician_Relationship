@@ -10,6 +10,15 @@ from typing import Any, Callable
 from music_metadata_graph.run_log import run_with_log
 from music_metadata_graph.pipelines.defaults import DEFAULT_DB_PATH, DEFAULT_MVP_DB_PATH
 from music_metadata_graph.pipelines.prepare_static_graph_assets import DEFAULT_AVATAR_CACHE_DIR
+from music_metadata_graph.pipelines.build_avatar_atlas import (
+    DEFAULT_ATLAS_SIZE,
+    DEFAULT_CELL_SIZE,
+    DEFAULT_GRAPH_DATA_BY_PROFILE,
+    DEFAULT_OUTPUT_DIR as DEFAULT_AVATAR_ATLAS_DIR,
+    DEFAULT_WEBP_QUALITY,
+    AtlasConfig,
+    check_existing_atlas,
+)
 from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
     CollectConfig as SongTabCollectConfig,
 )
@@ -26,12 +35,16 @@ from music_metadata_graph.pipelines.collect_singer_song_tab_raw import (
     resolve_targets as resolve_song_tab_targets,
 )
 from music_metadata_graph.pipelines.import_singer_list_to_db import singer_fans_summary_path
+
 DEFAULT_QQMUSIC_ROOT = Path("data/raw/qqmusic")
-DEFAULT_SINGER_LIST_RAW_DIR_PATH = Path("data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all")
+DEFAULT_SINGER_LIST_RAW_DIR_PATH = Path(
+    "data/raw/qqmusic/singer_list_index/area_all_sex_all_genre_all_index_all"
+)
 DEFAULT_FANS_RAW_DIR = Path("data/raw/qqmusic")
 DEFAULT_SONG_TAB_RAW_DIR = Path("data/raw/qqmusic/singer_homepage_song_tab")
 DEFAULT_ALBUM_DETAIL_RAW_DIR = Path("data/raw/qqmusic/song_album_detail")
 DEFAULT_PRODUCER_RAW_DIR = Path("data/raw/qqmusic/song_producer")
+DEFAULT_LYRIC_CREDIT_RAW_DIR = Path("data/raw/qqmusic/song_lyric_credit")
 DEFAULT_SONG_SINGER_MID_FILL_CSV = Path(
     "data/processed/validation/song_singer_mid_fill/csv_views/song_singer_mid_fill.csv"
 )
@@ -41,35 +54,44 @@ DEFAULT_SONG_CREDIT_MID_FILL_CSV = Path(
 DEFAULT_SONG_IMPORT_REJECTION_CSV = Path(
     "data/processed/validation/song_import_rejections/csv_views/song_import_rejections.csv"
 )
+DEFAULT_STEP9_LANGUAGE_REJECTION_CSV = Path(
+    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step9_language_9.csv"
+)
 DEFAULT_ALBUM_IMPORT_REJECTION_CSV = Path(
     "data/processed/validation/album_import_rejections/csv_views/album_import_rejections.csv"
 )
 DEFAULT_ALBUM_DETAIL_FETCH_FAILURE_JSON = Path(
     "data/processed/validation/album_detail_fetch_failures/album_detail_fetch_failures.json"
 )
-DEFAULT_STEP8_REJECTION_CSV = Path(
-    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step8_album_type.csv"
+DEFAULT_STEP10_REJECTION_CSV = Path(
+    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step10_album_type.csv"
 )
-DEFAULT_STEP11_REJECTION_CSV = Path(
-    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step11_incomplete_credits.csv"
+DEFAULT_STEP15_REJECTION_CSV = Path(
+    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step15_incomplete_credits.csv"
 )
-DEFAULT_STEP12_REJECTION_CSV = Path(
-    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step12_same_credit_name_dedupe.csv"
+DEFAULT_STEP16_REJECTION_CSV = Path(
+    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step16_same_credit_name_dedupe.csv"
 )
-DEFAULT_STEP13_REJECTION_CSV = Path(
-    "data/processed/validation/song_filtering/csv_views/songs_removed_by_step13_language_9.csv"
+DEFAULT_SONG_LYRIC_CREDIT_CSV = Path(
+    "data/processed/validation/song_lyric_credit/csv_views/song_lyric_credit.csv"
 )
-DEFAULT_STEP10_TEMP_SONGS_CSV = Path(
-    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step10_credit_import.csv"
+DEFAULT_STEP14_TEMP_SONGS_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step14_credit_import.csv"
 )
-DEFAULT_STEP11_TEMP_KEPT_CSV = Path(
-    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step11_complete_credits.csv"
+DEFAULT_STEP14_FOUR_SINGER_TEMP_SONGS_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step14_credit_import_四位歌手.csv"
 )
-DEFAULT_STEP12_TEMP_KEPT_CSV = Path(
-    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step12_same_credit_name_dedupe.csv"
+DEFAULT_STEP15_TEMP_KEPT_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step15_complete_credits.csv"
 )
-DEFAULT_STEP13_TEMP_KEPT_CSV = Path(
-    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step13_language_filter.csv"
+DEFAULT_STEP15_FOUR_SINGER_TEMP_KEPT_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step15_complete_credits_四位歌手.csv"
+)
+DEFAULT_STEP16_TEMP_KEPT_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step16_same_credit_name_dedupe.csv"
+)
+DEFAULT_STEP16_FOUR_SINGER_TEMP_KEPT_CSV = Path(
+    "data/processed/validation/temp_song_filtering/csv_views/songs_after_step16_same_credit_name_dedupe_四位歌手.csv"
 )
 DEFAULT_SITE_DIR = Path("site")
 DEFAULT_MVP_SITE_DIR = Path("site_mvp")
@@ -78,8 +100,10 @@ ALLOWED_ALBUM_TYPES = {"Single", "EP", "录音室专辑"}
 REQUIRED_CREDIT_ROLES = {"作词", "作曲"}
 REMOVED_LANGUAGE = 9
 
+
 class PipelineCheckError(RuntimeError):
     pass
+
 
 @dataclass(frozen=True)
 class PipelineContext:
@@ -90,6 +114,7 @@ class PipelineContext:
     song_tab_raw_dir: Path
     album_detail_raw_dir: Path
     producer_raw_dir: Path
+    lyric_credit_raw_dir: Path
     continue_from: int
     stop_after: int
     dry_run: bool
@@ -97,8 +122,10 @@ class PipelineContext:
     site_dir: Path
     large_site_dir: Path
     avatar_cache_dir: Path
+    avatar_atlas_dir: Path
     skip_avatar_download: bool
     max_avatar_downloads: int | None
+
 
 @dataclass(frozen=True)
 class PipelineStep:
@@ -109,31 +136,39 @@ class PipelineStep:
     precheck: Callable[[PipelineContext], None]
     postcheck: Callable[[PipelineContext], dict[str, Any]]
 
+
 def ensure_utf8_stdout() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
+
 def fail(message: str) -> None:
     raise PipelineCheckError(message)
+
 
 def ensure_file(path: Path) -> None:
     if not path.exists() or not path.is_file():
         fail(f"Required file does not exist: {path}")
 
+
 def ensure_dir(path: Path) -> None:
     if not path.exists() or not path.is_dir():
         fail(f"Required directory does not exist: {path}")
+
 
 def ensure_db(path: Path) -> None:
     if not path.exists() or not path.is_file():
         fail(f"Database does not exist: {path}")
 
+
 def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
 
 def json_files(path: Path, pattern: str = "*.json") -> list[Path]:
     ensure_dir(path)
     return sorted(path.glob(pattern))
+
 
 def connect(db_path: Path) -> sqlite3.Connection:
     ensure_db(db_path)
@@ -142,9 +177,11 @@ def connect(db_path: Path) -> sqlite3.Connection:
     connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
+
 def db_scalar(db_path: Path, sql: str, params: tuple[Any, ...] = ()) -> Any:
     with connect(db_path) as connection:
         return connection.execute(sql, params).fetchone()[0]
+
 
 def table_exists(db_path: Path, table: str) -> bool:
     with connect(db_path) as connection:
@@ -156,19 +193,23 @@ def table_exists(db_path: Path, table: str) -> bool:
             is not None
         )
 
+
 def table_count(db_path: Path, table: str) -> int:
     if not table_exists(db_path, table):
         fail(f"Required table does not exist: {table}")
     return int(db_scalar(db_path, f"SELECT COUNT(*) FROM {table}"))
 
+
 def foreign_key_violations(db_path: Path) -> list[dict[str, Any]]:
     with connect(db_path) as connection:
         return [dict(row) for row in connection.execute("PRAGMA foreign_key_check").fetchall()]
+
 
 def ensure_no_foreign_key_violations(db_path: Path) -> None:
     violations = foreign_key_violations(db_path)
     if violations:
         fail(f"SQLite foreign key violations detected: {violations[:10]}")
+
 
 def count_singer_list_rows(raw_dir: Path) -> tuple[int, int]:
     files = json_files(raw_dir, "page_*.json")
@@ -182,6 +223,7 @@ def count_singer_list_rows(raw_dir: Path) -> tuple[int, int]:
         if isinstance(hotlist, list):
             rows += len(hotlist)
     return len(files), rows
+
 
 def song_tab_targets(ctx: PipelineContext):
     config = SongTabCollectConfig(
@@ -198,18 +240,27 @@ def song_tab_targets(ctx: PipelineContext):
     )
     return resolve_song_tab_targets(config)
 
+
 def song_tab_files_for_target(ctx: PipelineContext, mid: str) -> list[Path]:
     return sorted((ctx.song_tab_raw_dir / mid).glob("page_*_size_*.json"))
+
 
 def ensure_song_tab_complete(ctx: PipelineContext) -> dict[str, Any]:
     targets = song_tab_targets(ctx)
     if not targets:
         fail("Step 4 target resolution returned no singers.")
-    missing = [f"{target.name}({target.mid})" for target in targets if not song_tab_files_for_target(ctx, target.mid)]
+    missing = [
+        f"{target.name}({target.mid})"
+        for target in targets
+        if not song_tab_files_for_target(ctx, target.mid)
+    ]
     if missing:
-        fail(f"Song-tab raw JSON is missing for {len(missing)} step-4 target singer(s): {missing[:20]}")
+        fail(
+            f"Song-tab raw JSON is missing for {len(missing)} step-4 target singer(s): {missing[:20]}"
+        )
     file_count = sum(len(song_tab_files_for_target(ctx, target.mid)) for target in targets)
     return {"target_singers": len(targets), "song_tab_files": file_count}
+
 
 def ensure_song_tab_available(ctx: PipelineContext) -> dict[str, Any]:
     targets = song_tab_targets(ctx)
@@ -225,13 +276,18 @@ def ensure_song_tab_available(ctx: PipelineContext) -> dict[str, Any]:
         "song_tab_files": file_count,
     }
 
+
 def song_tab_singer_mid_set(ctx: PipelineContext) -> set[str]:
     mids: set[str] = set()
     for target in song_tab_targets(ctx):
         for path in song_tab_files_for_target(ctx, target.mid):
             payload = load_json(path)
-            for song in ((payload.get("SongTab") or {}).get("List") or []):
-                singers = song.get("singer") if isinstance(song, dict) and isinstance(song.get("singer"), list) else []
+            for song in (payload.get("SongTab") or {}).get("List") or []:
+                singers = (
+                    song.get("singer")
+                    if isinstance(song, dict) and isinstance(song.get("singer"), list)
+                    else []
+                )
                 for singer in singers:
                     if not isinstance(singer, dict):
                         continue
@@ -240,21 +296,27 @@ def song_tab_singer_mid_set(ctx: PipelineContext) -> set[str]:
                         mids.add(mid)
     return mids
 
+
 def artist_mid_set(db_path: Path) -> set[str]:
     with connect(db_path) as connection:
         return {str(row["mid"]) for row in connection.execute("SELECT mid FROM artists").fetchall()}
+
 
 def ensure_song_tab_singer_mids_in_artists(ctx: PipelineContext) -> dict[str, Any]:
     source_mids = song_tab_singer_mid_set(ctx)
     db_mids = artist_mid_set(ctx.db_path)
     missing = sorted(source_mids - db_mids)
     if missing:
-        fail(f"{len(missing)} song-tab singer MID(s) are not in artists after step 4: {missing[:20]}")
+        fail(
+            f"{len(missing)} song-tab singer MID(s) are not in artists after step 4: {missing[:20]}"
+        )
     return {"song_tab_singer_mids": len(source_mids), "missing_artist_mids": 0}
+
 
 def song_mids(db_path: Path) -> set[str]:
     with connect(db_path) as connection:
         return {str(row["mid"]) for row in connection.execute("SELECT mid FROM songs").fetchall()}
+
 
 def ensure_producer_raw_complete(ctx: PipelineContext) -> dict[str, Any]:
     mids = song_mids(ctx.db_path)
@@ -265,21 +327,75 @@ def ensure_producer_raw_complete(ctx: PipelineContext) -> dict[str, Any]:
         fail(f"Producer raw JSON is missing for {len(missing)} song(s): {missing[:20]}")
     return {"songs": len(mids), "producer_raw_files_for_songs": len(mids)}
 
+
+def incomplete_producer_credit_mids(ctx: PipelineContext) -> set[str]:
+    from music_metadata_graph.pipelines.collect_song_lyric_credit_raw import try_load_cached_json
+    from music_metadata_graph.pipelines.collect_song_lyric_credit_raw import (
+        missing_credit_roles_from_producer,
+    )
+
+    mids: set[str] = set()
+    for song_mid in song_mids(ctx.db_path):
+        payload = try_load_cached_json(ctx.producer_raw_dir / f"{song_mid}.json")
+        if payload is not None and missing_credit_roles_from_producer(payload):
+            mids.add(song_mid)
+    return mids
+
+
+def ensure_lyric_credit_raw_complete(ctx: PipelineContext) -> dict[str, Any]:
+    target_mids = incomplete_producer_credit_mids(ctx)
+    missing = sorted(
+        mid for mid in target_mids if not (ctx.lyric_credit_raw_dir / f"{mid}.json").exists()
+    )
+    if missing:
+        fail(
+            f"Lyric credit raw JSON is missing for {len(missing)} song(s) with incomplete structured credits: {missing[:20]}"
+        )
+    return {
+        "songs_with_incomplete_producer_credits": len(target_mids),
+        "lyric_credit_raw_files_for_targets": len(target_mids),
+    }
+
+
 def ensure_no_disallowed_album_types(ctx: PipelineContext) -> dict[str, Any]:
+    allowed_album_types = tuple(ALLOWED_ALBUM_TYPES)
     with connect(ctx.db_path) as connection:
-        rows = connection.execute(
-            """
+        rows = connection.execute("""
             SELECT albums.albumType AS album_type, COUNT(*) AS count
             FROM songs
             JOIN albums ON albums.mid = songs.album_mid
             GROUP BY albums.albumType
+            """).fetchall()
+        removable_rows = connection.execute(
             """
+            SELECT albums.albumType AS album_type, COUNT(*) AS count
+            FROM songs
+            JOIN albums ON albums.mid = songs.album_mid
+            JOIN (
+                SELECT name
+                FROM songs
+                GROUP BY name
+                HAVING COUNT(*) > 1
+            ) AS duplicate_song_names ON duplicate_song_names.name = songs.name
+            WHERE albums.albumType NOT IN ({})
+            GROUP BY albums.albumType
+            """.format(", ".join("?" for _ in allowed_album_types)),
+            allowed_album_types,
         ).fetchall()
     distribution = {str(row["album_type"]): int(row["count"]) for row in rows}
-    disallowed = {album_type: count for album_type, count in distribution.items() if album_type not in ALLOWED_ALBUM_TYPES}
-    if disallowed:
-        fail(f"Disallowed album types remain after step 8: {disallowed}")
-    return {"album_type_distribution": distribution}
+    removable = {str(row["album_type"]): int(row["count"]) for row in removable_rows}
+    if removable:
+        fail(f"Removable disallowed album types remain after step 10: {removable}")
+    retained_disallowed = {
+        album_type: count
+        for album_type, count in distribution.items()
+        if album_type not in ALLOWED_ALBUM_TYPES
+    }
+    return {
+        "album_type_distribution": distribution,
+        "retained_disallowed_album_types_with_unique_song_name": retained_disallowed,
+    }
+
 
 def ensure_credit_roles_exist(ctx: PipelineContext) -> dict[str, Any]:
     with connect(ctx.db_path) as connection:
@@ -289,14 +405,18 @@ def ensure_credit_roles_exist(ctx: PipelineContext) -> dict[str, Any]:
     distribution = {str(row["role"]): int(row["count"]) for row in rows}
     missing = sorted(REQUIRED_CREDIT_ROLES - set(distribution))
     if missing:
-        fail(f"Missing required credit role(s) after step 10: {missing}")
+        fail(f"Missing required credit role(s) after step 14: {missing}")
     return {"credit_role_distribution": distribution}
 
+
 def ensure_no_removed_language_songs(ctx: PipelineContext) -> dict[str, Any]:
-    count = int(db_scalar(ctx.db_path, "SELECT COUNT(*) FROM songs WHERE language = ?", (REMOVED_LANGUAGE,)))
+    count = int(
+        db_scalar(ctx.db_path, "SELECT COUNT(*) FROM songs WHERE language = ?", (REMOVED_LANGUAGE,))
+    )
     if count:
         fail(f"{count} song(s) still have language={REMOVED_LANGUAGE}.")
     return {"language_9_songs": 0}
+
 
 def check_site_index(path: Path) -> dict[str, Any]:
     index_path = path / "index.html"
@@ -311,7 +431,10 @@ def check_site_index(path: Path) -> dict[str, Any]:
         fail(f"Site index does not reference ForceGraph runtime: {index_path}")
     return {"site_index": index_path.as_posix(), "bytes": size}
 
-def check_site_assets(path: Path, avatar_cache_dir: Path = DEFAULT_AVATAR_CACHE_DIR) -> dict[str, Any]:
+
+def check_site_assets(
+    path: Path, avatar_cache_dir: Path = DEFAULT_AVATAR_CACHE_DIR
+) -> dict[str, Any]:
     graph_data = path / "assets" / "graph-data.js"
     vendor = path / "assets" / "vendor" / "force-graph.min.js"
     manifest = avatar_cache_dir / "avatar-manifest.json"
@@ -322,7 +445,12 @@ def check_site_assets(path: Path, avatar_cache_dir: Path = DEFAULT_AVATAR_CACHE_
     text = graph_data.read_text(encoding="utf-8")
     if "\ufffd" in text:
         fail(f"Graph data asset contains U+FFFD replacement characters: {graph_data}")
-    if "http://y.qq.com" in text or "https://y.qq.com" in text or "http://y.gtimg.cn" in text or "https://y.gtimg.cn" in text:
+    if (
+        "http://y.qq.com" in text
+        or "https://y.qq.com" in text
+        or "http://y.gtimg.cn" in text
+        or "https://y.gtimg.cn" in text
+    ):
         fail(f"Graph data asset still contains remote avatar URLs: {graph_data}")
     return {
         "graph_data": graph_data.as_posix(),
@@ -331,10 +459,55 @@ def check_site_assets(path: Path, avatar_cache_dir: Path = DEFAULT_AVATAR_CACHE_
         "graph_data_bytes": graph_data.stat().st_size,
     }
 
+
+def check_avatar_atlas(
+    path: Path, avatar_cache_dir: Path = DEFAULT_AVATAR_CACHE_DIR
+) -> dict[str, Any]:
+    manifest = path / "avatar-atlas-manifest.json"
+    manifest_script = path / "avatar-atlas-manifest.js"
+    ensure_file(manifest)
+    ensure_file(manifest_script)
+    payload = load_json(manifest)
+    items = payload.get("items") or {}
+    profiles = payload.get("profiles") or {}
+    atlas_files = sorted({str(item.get("atlas")) for item in items.values() if item.get("atlas")})
+    if items and not atlas_files:
+        fail(f"Avatar atlas manifest has items but no atlas files: {manifest}")
+    missing = [filename for filename in atlas_files if not (path / filename).is_file()]
+    if missing:
+        fail(f"Avatar atlas file(s) missing: {missing[:10]}")
+    empty = [filename for filename in atlas_files if (path / filename).stat().st_size <= 0]
+    if empty:
+        fail(f"Avatar atlas file(s) empty: {empty[:10]}")
+    fingerprint_check = check_existing_atlas(
+        AtlasConfig(
+            avatar_cache_dir=avatar_cache_dir,
+            output_dir=path,
+            graph_data_by_profile=dict(DEFAULT_GRAPH_DATA_BY_PROFILE),
+            cell_size=DEFAULT_CELL_SIZE,
+            atlas_size=DEFAULT_ATLAS_SIZE,
+            webp_quality=DEFAULT_WEBP_QUALITY,
+            include_unused_cache=False,
+            mode="check",
+            legacy_avatar_cache_dir=None,
+        )
+    )
+    if not fingerprint_check.get("ok"):
+        fail(f"Avatar atlas fingerprint check failed: {fingerprint_check}")
+    return {
+        "avatar_atlas_manifest": manifest.as_posix(),
+        "avatar_atlas_manifest_script": manifest_script.as_posix(),
+        "avatar_items": len(items),
+        "avatar_atlas_files": len(atlas_files),
+        "avatar_profiles": sorted(profiles),
+        "avatar_atlas_fingerprint": fingerprint_check.get("fingerprint"),
+        "avatar_atlas_input_hash": fingerprint_check.get("input_hash"),
+    }
+
+
 def ensure_no_incomplete_credit_songs(ctx: PipelineContext) -> dict[str, Any]:
     with connect(ctx.db_path) as connection:
-        rows = connection.execute(
-            """
+        rows = connection.execute("""
             SELECT
                 songs.mid,
                 SUM(CASE WHEN song_credit_artists.role = '作词' THEN 1 ELSE 0 END) AS lyricist_count,
@@ -344,11 +517,13 @@ def ensure_no_incomplete_credit_songs(ctx: PipelineContext) -> dict[str, Any]:
             GROUP BY songs.mid
             HAVING lyricist_count = 0 OR composer_count = 0
             LIMIT 20
-            """
-        ).fetchall()
+            """).fetchall()
     if rows:
-        fail(f"Songs without both lyricist and composer remain after step 11: {[dict(row) for row in rows]}")
+        fail(
+            f"Songs without both lyricist and composer remain after step 11: {[dict(row) for row in rows]}"
+        )
     return {"incomplete_credit_songs": 0}
+
 
 def ensure_song_ids_unique(ctx: PipelineContext) -> dict[str, Any]:
     duplicate_mid_count = int(
@@ -368,13 +543,18 @@ def ensure_song_ids_unique(ctx: PipelineContext) -> dict[str, Any]:
             "Duplicate song identifiers remain after step 12: "
             f"mid_groups={duplicate_mid_count}, id_groups={duplicate_id_count}"
         )
-    return {"duplicate_song_mid_groups": duplicate_mid_count, "duplicate_song_id_groups": duplicate_id_count}
+    return {
+        "duplicate_song_mid_groups": duplicate_mid_count,
+        "duplicate_song_id_groups": duplicate_id_count,
+    }
+
 
 def check_singer_list_raw(ctx: PipelineContext) -> dict[str, Any]:
     page_count, row_count = count_singer_list_rows(ctx.singer_list_raw_dir)
     if page_count == 0 or row_count == 0:
         fail(f"Singer list raw JSON is empty: pages={page_count}, rows={row_count}")
     return {"singer_list_pages": page_count, "singer_list_rows": row_count}
+
 
 def check_singer_fans_raw(ctx: PipelineContext) -> dict[str, Any]:
     summary_path = singer_fans_summary_path(ctx.fans_raw_dir, mvp=ctx.mvp)
@@ -383,10 +563,17 @@ def check_singer_fans_raw(ctx: PipelineContext) -> dict[str, Any]:
     rows = payload.get("rows") if isinstance(payload, dict) else None
     if not isinstance(rows, list) or not rows:
         fail(f"Singer fans summary is empty: {summary_path}")
-    covered = sum(1 for row in rows if isinstance(row, dict) and row.get("fans_num") not in (None, "", 0))
+    covered = sum(
+        1 for row in rows if isinstance(row, dict) and row.get("fans_num") not in (None, "", 0)
+    )
     if covered <= 0:
         fail(f"Singer fans summary has no usable fans_num values: {summary_path}")
-    return {"singer_fans_rows": len(rows), "singer_fans_covered": covered, "summary_json": summary_path.as_posix()}
+    return {
+        "singer_fans_rows": len(rows),
+        "singer_fans_covered": covered,
+        "summary_json": summary_path.as_posix(),
+    }
+
 
 def check_artists(ctx: PipelineContext) -> dict[str, Any]:
     count = table_count(ctx.db_path, "artists")
@@ -394,6 +581,7 @@ def check_artists(ctx: PipelineContext) -> dict[str, Any]:
         fail("artists table is empty.")
     ensure_no_foreign_key_violations(ctx.db_path)
     return {"artists": count}
+
 
 def check_artists_with_fans(ctx: PipelineContext) -> dict[str, Any]:
     result = check_artists(ctx)
@@ -403,11 +591,14 @@ def check_artists_with_fans(ctx: PipelineContext) -> dict[str, Any]:
         if "fans_num" not in columns:
             fail("artists.fans_num column is missing.")
         artists_with_fans = int(
-            connection.execute("SELECT COUNT(*) FROM artists WHERE fans_num IS NOT NULL AND fans_num > 0").fetchone()[0]
+            connection.execute(
+                "SELECT COUNT(*) FROM artists WHERE fans_num IS NOT NULL AND fans_num > 0"
+            ).fetchone()[0]
         )
     if artists_with_fans <= 0:
         fail("No artists have fans_num after singer import.")
     return {**result, "artists_with_fans": artists_with_fans}
+
 
 def check_album_raw(ctx: PipelineContext) -> dict[str, Any]:
     files = json_files(ctx.album_detail_raw_dir, "*.json")
@@ -415,12 +606,14 @@ def check_album_raw(ctx: PipelineContext) -> dict[str, Any]:
         fail("Album detail raw JSON directory is empty.")
     return {"album_detail_raw_files": len(files)}
 
+
 def check_albums(ctx: PipelineContext) -> dict[str, Any]:
     count = table_count(ctx.db_path, "albums")
     if count <= 0:
         fail("albums table is empty.")
     ensure_no_foreign_key_violations(ctx.db_path)
     return {"albums": count}
+
 
 def check_songs(ctx: PipelineContext) -> dict[str, Any]:
     songs = table_count(ctx.db_path, "songs")
@@ -432,6 +625,7 @@ def check_songs(ctx: PipelineContext) -> dict[str, Any]:
     ensure_no_foreign_key_violations(ctx.db_path)
     return {"songs": songs, "song_singers": song_singers}
 
+
 def check_song_credit_rows(ctx: PipelineContext) -> dict[str, Any]:
     credits = table_count(ctx.db_path, "song_credit_artists")
     if credits <= 0:
@@ -439,24 +633,30 @@ def check_song_credit_rows(ctx: PipelineContext) -> dict[str, Any]:
     ensure_no_foreign_key_violations(ctx.db_path)
     return {"song_credit_artists": credits}
 
+
 def check_csv(path: Path) -> dict[str, Any]:
     ensure_file(path)
     if path.stat().st_size <= 0:
         fail(f"CSV is empty: {path}")
     return {"csv": path.as_posix(), "bytes": path.stat().st_size}
 
+
 def check_db_exists(ctx: PipelineContext) -> dict[str, Any]:
     ensure_db(ctx.db_path)
     return {"db_path": ctx.db_path.as_posix()}
 
+
 def check_noop(_: PipelineContext) -> dict[str, Any]:
     return {}
+
 
 def command_args(*values: str | Path) -> tuple[str, ...]:
     return tuple(str(value) for value in values)
 
+
 def mode_args(ctx: PipelineContext) -> tuple[str, ...]:
     return ("--mvp",) if ctx.mvp else ()
+
 
 def output_path(ctx: PipelineContext, path: Path) -> Path:
     if not ctx.mvp:
@@ -468,6 +668,7 @@ def output_path(ctx: PipelineContext, path: Path) -> Path:
         return path
     return Path(*parts[:index], "validation_mvp", *parts[index + 1 :])
 
+
 def avatar_asset_args(ctx: PipelineContext) -> tuple[str, ...]:
     args: list[str] = ["--avatar-cache-dir", str(ctx.avatar_cache_dir)]
     if ctx.skip_avatar_download:
@@ -475,6 +676,7 @@ def avatar_asset_args(ctx: PipelineContext) -> tuple[str, ...]:
     if ctx.max_avatar_downloads is not None:
         args.extend(["--max-avatar-downloads", str(ctx.max_avatar_downloads)])
     return tuple(args)
+
 
 def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
     return [
@@ -504,7 +706,14 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
             3,
             "歌手列表入库",
             "music_metadata_graph.pipelines.import_singer_list_to_db",
-            command_args("--raw-dir", ctx.singer_list_raw_dir, "--fans-raw-dir", ctx.fans_raw_dir, "--db", ctx.db_path)
+            command_args(
+                "--raw-dir",
+                ctx.singer_list_raw_dir,
+                "--fans-raw-dir",
+                ctx.fans_raw_dir,
+                "--db",
+                ctx.db_path,
+            )
             + mode_args(ctx),
             lambda c: {**check_singer_list_raw(c), **check_singer_fans_raw(c)},
             check_artists_with_fans,
@@ -609,6 +818,8 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
                 ctx.db_path,
                 "--rejection-csv",
                 output_path(ctx, DEFAULT_SONG_IMPORT_REJECTION_CSV),
+                "--language-rejection-csv",
+                output_path(ctx, DEFAULT_STEP9_LANGUAGE_REJECTION_CSV),
                 "--singer-list-raw-dir",
                 ctx.singer_list_raw_dir,
                 "--qqmusic-raw-dir",
@@ -617,13 +828,24 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
             )
             + mode_args(ctx),
             lambda c: {**check_artists(c), **check_albums(c), **ensure_song_tab_available(c)},
-            check_songs,
+            lambda c: {
+                **check_songs(c),
+                **ensure_no_removed_language_songs(c),
+                "language_rejection_csv": check_csv(
+                    output_path(c, DEFAULT_STEP9_LANGUAGE_REJECTION_CSV)
+                ),
+            },
         ),
         PipelineStep(
             10,
             "按专辑类型过滤已入库歌曲",
             "music_metadata_graph.pipelines.filter_songs_by_album_type",
-            command_args("--db", ctx.db_path, "--rejection-csv", output_path(ctx, DEFAULT_STEP8_REJECTION_CSV)),
+            command_args(
+                "--db",
+                ctx.db_path,
+                "--rejection-csv",
+                output_path(ctx, DEFAULT_STEP10_REJECTION_CSV),
+            ),
             check_songs,
             lambda c: {**check_songs(c), **ensure_no_disallowed_album_types(c)},
         ),
@@ -637,6 +859,26 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
         ),
         PipelineStep(
             12,
+            "歌词补充作词作曲 raw JSON",
+            "music_metadata_graph.pipelines.collect_song_lyric_credit_raw",
+            command_args(
+                "--raw-dir",
+                ctx.lyric_credit_raw_dir,
+                "--producer-raw-dir",
+                ctx.producer_raw_dir,
+                "--db",
+                ctx.db_path,
+                "--csv",
+                output_path(ctx, DEFAULT_SONG_LYRIC_CREDIT_CSV),
+            ),
+            ensure_producer_raw_complete,
+            lambda c: {
+                **ensure_lyric_credit_raw_complete(c),
+                "lyric_credit_csv": check_csv(output_path(c, DEFAULT_SONG_LYRIC_CREDIT_CSV)),
+            },
+        ),
+        PipelineStep(
+            13,
             "前置 quick_search 补作词作曲缺 MID",
             "music_metadata_graph.pipelines.fill_song_credit_missing_mids",
             command_args(
@@ -647,87 +889,118 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
                 "--csv",
                 output_path(ctx, DEFAULT_SONG_CREDIT_MID_FILL_CSV),
             ),
-            ensure_producer_raw_complete,
+            lambda c: {**ensure_producer_raw_complete(c), **ensure_lyric_credit_raw_complete(c)},
             lambda c: check_csv(output_path(c, DEFAULT_SONG_CREDIT_MID_FILL_CSV)),
         ),
         PipelineStep(
-            13,
+            14,
             "导入作词作曲关系",
             "music_metadata_graph.pipelines.import_song_credits_to_db",
             command_args(
                 "--raw-dir",
                 ctx.producer_raw_dir,
+                "--lyric-raw-dir",
+                ctx.lyric_credit_raw_dir,
                 "--db",
                 ctx.db_path,
                 "--temp-songs-csv",
-                output_path(ctx, DEFAULT_STEP10_TEMP_SONGS_CSV),
+                output_path(ctx, DEFAULT_STEP14_TEMP_SONGS_CSV),
+                "--four-singer-temp-songs-csv",
+                output_path(ctx, DEFAULT_STEP14_FOUR_SINGER_TEMP_SONGS_CSV),
             ),
-            ensure_producer_raw_complete,
-            lambda c: {**check_song_credit_rows(c), **ensure_credit_roles_exist(c)},
+            lambda c: {**ensure_producer_raw_complete(c), **ensure_lyric_credit_raw_complete(c)},
+            lambda c: {
+                **check_song_credit_rows(c),
+                **ensure_credit_roles_exist(c),
+                "temp_songs_csv": check_csv(output_path(c, DEFAULT_STEP14_TEMP_SONGS_CSV)),
+                "four_singer_temp_songs_csv": check_csv(
+                    output_path(c, DEFAULT_STEP14_FOUR_SINGER_TEMP_SONGS_CSV)
+                ),
+            },
         ),
         PipelineStep(
-            14,
+            15,
             "删除作词作曲不完整歌曲",
             "music_metadata_graph.pipelines.filter_songs_by_credit_completeness",
             command_args(
                 "--db",
                 ctx.db_path,
                 "--rejection-csv",
-                output_path(ctx, DEFAULT_STEP11_REJECTION_CSV),
+                output_path(ctx, DEFAULT_STEP15_REJECTION_CSV),
                 "--temp-kept-csv",
-                output_path(ctx, DEFAULT_STEP11_TEMP_KEPT_CSV),
+                output_path(ctx, DEFAULT_STEP15_TEMP_KEPT_CSV),
+                "--four-singer-temp-kept-csv",
+                output_path(ctx, DEFAULT_STEP15_FOUR_SINGER_TEMP_KEPT_CSV),
             ),
             lambda c: {**check_songs(c), **check_song_credit_rows(c)},
-            lambda c: {**check_songs(c), **ensure_no_incomplete_credit_songs(c)},
+            lambda c: {
+                **check_songs(c),
+                **ensure_no_incomplete_credit_songs(c),
+                "temp_kept_csv": check_csv(output_path(c, DEFAULT_STEP15_TEMP_KEPT_CSV)),
+                "four_singer_temp_kept_csv": check_csv(
+                    output_path(c, DEFAULT_STEP15_FOUR_SINGER_TEMP_KEPT_CSV)
+                ),
+            },
         ),
         PipelineStep(
-            15,
+            16,
             "按规范化歌名和同作词作曲去重",
             "music_metadata_graph.pipelines.filter_imported_songs",
             command_args(
                 "--db",
                 ctx.db_path,
                 "--name-dedupe-rejection-csv",
-                output_path(ctx, DEFAULT_STEP12_REJECTION_CSV),
+                output_path(ctx, DEFAULT_STEP16_REJECTION_CSV),
                 "--temp-kept-csv",
-                output_path(ctx, DEFAULT_STEP12_TEMP_KEPT_CSV),
+                output_path(ctx, DEFAULT_STEP16_TEMP_KEPT_CSV),
+                "--four-singer-temp-kept-csv",
+                output_path(ctx, DEFAULT_STEP16_FOUR_SINGER_TEMP_KEPT_CSV),
             ),
             lambda c: {**check_songs(c), **ensure_no_incomplete_credit_songs(c)},
-            lambda c: {**check_songs(c), **ensure_song_ids_unique(c)},
-        ),
-        PipelineStep(
-            16,
-            "按 language=9 过滤歌曲",
-            "music_metadata_graph.pipelines.filter_songs_by_language",
-            command_args(
-                "--db",
-                ctx.db_path,
-                "--rejection-csv",
-                output_path(ctx, DEFAULT_STEP13_REJECTION_CSV),
-                "--temp-kept-csv",
-                output_path(ctx, DEFAULT_STEP13_TEMP_KEPT_CSV),
-            ),
-            lambda c: {**check_songs(c), **ensure_no_incomplete_credit_songs(c), **ensure_song_ids_unique(c)},
-            lambda c: {**check_songs(c), **ensure_no_removed_language_songs(c)},
+            lambda c: {
+                **check_songs(c),
+                **ensure_song_ids_unique(c),
+                "temp_kept_csv": check_csv(output_path(c, DEFAULT_STEP16_TEMP_KEPT_CSV)),
+                "four_singer_temp_kept_csv": check_csv(
+                    output_path(c, DEFAULT_STEP16_FOUR_SINGER_TEMP_KEPT_CSV)
+                ),
+            },
         ),
         PipelineStep(
             17,
             "准备静态网站资源",
             "music_metadata_graph.pipelines.prepare_static_graph_assets",
-            command_args("--db", ctx.db_path, "--output-dir", ctx.site_dir) + avatar_asset_args(ctx),
+            command_args("--db", ctx.db_path, "--output-dir", ctx.site_dir)
+            + avatar_asset_args(ctx),
             lambda c: {**check_songs(c), **ensure_no_removed_language_songs(c)},
             lambda c: check_site_assets(c.site_dir, c.avatar_cache_dir),
         ),
         PipelineStep(
             18,
-            "生成静态网站",
-            "music_metadata_graph.pipelines.build_static_graph",
-            command_args("--db", ctx.db_path, "--output-dir", ctx.site_dir),
+            "生成共享头像图集",
+            "music_metadata_graph.pipelines.build_avatar_atlas",
+            command_args(
+                "--avatar-cache-dir",
+                ctx.avatar_cache_dir,
+                "--output-dir",
+                ctx.avatar_atlas_dir,
+            ),
             lambda c: check_site_assets(c.site_dir, c.avatar_cache_dir),
-            lambda c: check_site_index(c.site_dir),
+            lambda c: check_avatar_atlas(c.avatar_atlas_dir, c.avatar_cache_dir),
         ),
         PipelineStep(
             19,
+            "生成静态网站",
+            "music_metadata_graph.pipelines.build_static_graph",
+            command_args("--db", ctx.db_path, "--output-dir", ctx.site_dir),
+            lambda c: {
+                **check_site_assets(c.site_dir, c.avatar_cache_dir),
+                **check_avatar_atlas(c.avatar_atlas_dir, c.avatar_cache_dir),
+            },
+            lambda c: check_site_index(c.site_dir),
+        ),
+        PipelineStep(
+            20,
             "生成 large-graph 静态网站",
             "music_metadata_graph.pipelines.build_large_graph_static",
             command_args("--db", DEFAULT_DB_PATH, "--output-dir", ctx.large_site_dir),
@@ -736,14 +1009,20 @@ def build_steps(ctx: PipelineContext) -> list[PipelineStep]:
         ),
     ]
 
+
 def run_subprocess(step: PipelineStep, ctx: PipelineContext) -> None:
     command = [sys.executable, "-m", step.module, *step.args]
-    print(json.dumps({"step": step.number, "label": step.label, "command": command}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"step": step.number, "label": step.label, "command": command}, ensure_ascii=False
+        )
+    )
     if ctx.dry_run:
         return
     result = subprocess.run(command, cwd=Path.cwd())
     if result.returncode != 0:
         fail(f"Step {step.number} failed with exit code {result.returncode}: {step.label}")
+
 
 def run_pipeline(ctx: PipelineContext) -> dict[str, Any]:
     if ctx.continue_from > ctx.stop_after:
@@ -755,11 +1034,19 @@ def run_pipeline(ctx: PipelineContext) -> dict[str, Any]:
         print(f"precheck step {step.number}: {step.label}")
         precheck_result = step.precheck(ctx)
         if precheck_result:
-            print(json.dumps({"step": step.number, "precheck": precheck_result}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {"step": step.number, "precheck": precheck_result}, ensure_ascii=False, indent=2
+                )
+            )
         run_subprocess(step, ctx)
         print(f"postcheck step {step.number}: {step.label}")
         postcheck_result = step.postcheck(ctx)
-        print(json.dumps({"step": step.number, "postcheck": postcheck_result}, ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {"step": step.number, "postcheck": postcheck_result}, ensure_ascii=False, indent=2
+            )
+        )
         summaries.append({"step": step.number, "label": step.label, "postcheck": postcheck_result})
     return {
         "status": "completed",
@@ -767,28 +1054,81 @@ def run_pipeline(ctx: PipelineContext) -> dict[str, Any]:
         "summaries": summaries,
     }
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the full metadata graph pipeline with safety checks between steps.")
+    parser = argparse.ArgumentParser(
+        description="Run the full metadata graph pipeline with safety checks between steps."
+    )
     parser.add_argument("--db", type=Path, default=None)
     parser.add_argument("--qqmusic-root", type=Path, default=DEFAULT_QQMUSIC_ROOT)
-    parser.add_argument("--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR_PATH)
-    parser.add_argument("--continue-from", type=int, default=1, help="First orchestrator step number to run.")
-    parser.add_argument("--stop-after", type=int, default=19, help="Last orchestrator step number to run.")
-    parser.add_argument("--site-dir", type=Path, default=None, help="Directory for the standard static site.")
-    parser.add_argument("--large-site-dir", type=Path, default=None, help="Directory for the large-graph static site.")
-    parser.add_argument("--avatar-cache-dir", type=Path, default=DEFAULT_AVATAR_CACHE_DIR, help="Shared avatar cache directory.")
-    parser.add_argument("--skip-avatar-download", action="store_true", help="Prepare graph assets without downloading avatars.")
-    parser.add_argument("--max-avatar-downloads", type=int, default=None, help="Maximum number of new avatars to download during the asset step.")
-    parser.add_argument("--dry-run", action="store_true", help="Print commands and run checks without executing step commands.")
-    parser.add_argument("--mvp", action="store_true", help="Run the MVP flow with shared raw data, MVP database, and MVP validation outputs.")
+    parser.add_argument(
+        "--singer-list-raw-dir", type=Path, default=DEFAULT_SINGER_LIST_RAW_DIR_PATH
+    )
+    parser.add_argument(
+        "--continue-from", type=int, default=1, help="First orchestrator step number to run."
+    )
+    parser.add_argument(
+        "--stop-after", type=int, default=20, help="Last orchestrator step number to run."
+    )
+    parser.add_argument(
+        "--site-dir", type=Path, default=None, help="Directory for the standard static site."
+    )
+    parser.add_argument(
+        "--large-site-dir",
+        type=Path,
+        default=None,
+        help="Directory for the large-graph static site.",
+    )
+    parser.add_argument(
+        "--avatar-cache-dir",
+        type=Path,
+        default=DEFAULT_AVATAR_CACHE_DIR,
+        help="Raw avatar cache directory.",
+    )
+    parser.add_argument(
+        "--avatar-atlas-dir",
+        type=Path,
+        default=DEFAULT_AVATAR_ATLAS_DIR,
+        help="Shared avatar atlas directory.",
+    )
+    parser.add_argument(
+        "--skip-avatar-download",
+        action="store_true",
+        help="Prepare graph assets without downloading avatars.",
+    )
+    parser.add_argument(
+        "--max-avatar-downloads",
+        type=int,
+        default=None,
+        help="Maximum number of new avatars to download during the asset step.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print commands and run checks without executing step commands.",
+    )
+    parser.add_argument(
+        "--mvp",
+        action="store_true",
+        help="Run the MVP flow with shared raw data, MVP database, and MVP validation outputs.",
+    )
     return parser.parse_args()
+
 
 def _main() -> None:
     ensure_utf8_stdout()
     args = parse_args()
-    db_path = args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
-    site_dir = args.site_dir if args.site_dir is not None else (DEFAULT_MVP_SITE_DIR if args.mvp else DEFAULT_SITE_DIR)
-    large_site_dir = args.large_site_dir if args.large_site_dir is not None else DEFAULT_LARGE_SITE_DIR
+    db_path = (
+        args.db if args.db is not None else (DEFAULT_MVP_DB_PATH if args.mvp else DEFAULT_DB_PATH)
+    )
+    site_dir = (
+        args.site_dir
+        if args.site_dir is not None
+        else (DEFAULT_MVP_SITE_DIR if args.mvp else DEFAULT_SITE_DIR)
+    )
+    large_site_dir = (
+        args.large_site_dir if args.large_site_dir is not None else DEFAULT_LARGE_SITE_DIR
+    )
     ctx = PipelineContext(
         db_path=db_path,
         qqmusic_root=args.qqmusic_root,
@@ -797,6 +1137,7 @@ def _main() -> None:
         song_tab_raw_dir=args.qqmusic_root / "singer_homepage_song_tab",
         album_detail_raw_dir=args.qqmusic_root / "song_album_detail",
         producer_raw_dir=args.qqmusic_root / "song_producer",
+        lyric_credit_raw_dir=args.qqmusic_root / "song_lyric_credit",
         continue_from=args.continue_from,
         stop_after=args.stop_after,
         dry_run=args.dry_run,
@@ -804,13 +1145,16 @@ def _main() -> None:
         site_dir=site_dir,
         large_site_dir=large_site_dir,
         avatar_cache_dir=args.avatar_cache_dir,
+        avatar_atlas_dir=args.avatar_atlas_dir,
         skip_avatar_download=args.skip_avatar_download,
         max_avatar_downloads=args.max_avatar_downloads,
     )
     print(json.dumps(run_pipeline(ctx), ensure_ascii=False, indent=2))
 
+
 def main() -> None:
     run_with_log(Path(__file__).stem, _main)
+
 
 if __name__ == "__main__":
     main()

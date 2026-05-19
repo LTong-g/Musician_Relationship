@@ -1,12 +1,12 @@
 from __future__ import annotations
-
 import json
 import tempfile
 import unittest
 from pathlib import Path
-
 from music_metadata_graph.pipelines.collect_song_album_detail_raw import FetchFailure
-from music_metadata_graph.pipelines.collect_song_album_detail_raw import validate_fetch_failure_limit
+from music_metadata_graph.pipelines.collect_song_album_detail_raw import (
+    validate_fetch_failure_limit,
+)
 from music_metadata_graph.pipelines.collect_song_album_detail_raw import write_failure_report
 
 
